@@ -18,6 +18,8 @@ import { Route as AuthenticatedUnitsIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedProjectsIndexRouteImport } from './routes/_authenticated/projects/index'
 import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers/index'
 import { Route as AuthenticatedContractsIndexRouteImport } from './routes/_authenticated/contracts/index'
+import { Route as AuthenticatedUtilitiesReportRouteImport } from './routes/_authenticated/utilities/report'
+import { Route as AuthenticatedUtilitiesMeterReadingRouteImport } from './routes/_authenticated/utilities/meter-reading'
 import { Route as AuthenticatedUnitsByProjectRouteImport } from './routes/_authenticated/units/by-project'
 import { Route as AuthenticatedUnitsAvailabilityRouteImport } from './routes/_authenticated/units/availability'
 import { Route as AuthenticatedProjectsDashboardRouteImport } from './routes/_authenticated/projects/dashboard'
@@ -84,6 +86,18 @@ const AuthenticatedContractsIndexRoute =
   AuthenticatedContractsIndexRouteImport.update({
     id: '/contracts/',
     path: '/contracts/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedUtilitiesReportRoute =
+  AuthenticatedUtilitiesReportRouteImport.update({
+    id: '/utilities/report',
+    path: '/utilities/report',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedUtilitiesMeterReadingRoute =
+  AuthenticatedUtilitiesMeterReadingRouteImport.update({
+    id: '/utilities/meter-reading',
+    path: '/utilities/meter-reading',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedUnitsByProjectRoute =
@@ -219,6 +233,8 @@ export interface FileRoutesByFullPath {
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/units/by-project': typeof AuthenticatedUnitsByProjectRoute
+  '/utilities/meter-reading': typeof AuthenticatedUtilitiesMeterReadingRoute
+  '/utilities/report': typeof AuthenticatedUtilitiesReportRoute
   '/contracts/': typeof AuthenticatedContractsIndexRoute
   '/customers/': typeof AuthenticatedCustomersIndexRoute
   '/projects/': typeof AuthenticatedProjectsIndexRoute
@@ -249,6 +265,8 @@ export interface FileRoutesByTo {
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/units/by-project': typeof AuthenticatedUnitsByProjectRoute
+  '/utilities/meter-reading': typeof AuthenticatedUtilitiesMeterReadingRoute
+  '/utilities/report': typeof AuthenticatedUtilitiesReportRoute
   '/contracts': typeof AuthenticatedContractsIndexRoute
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/projects': typeof AuthenticatedProjectsIndexRoute
@@ -281,6 +299,8 @@ export interface FileRoutesById {
   '/_authenticated/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/_authenticated/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/_authenticated/units/by-project': typeof AuthenticatedUnitsByProjectRoute
+  '/_authenticated/utilities/meter-reading': typeof AuthenticatedUtilitiesMeterReadingRoute
+  '/_authenticated/utilities/report': typeof AuthenticatedUtilitiesReportRoute
   '/_authenticated/contracts/': typeof AuthenticatedContractsIndexRoute
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
@@ -313,6 +333,8 @@ export interface FileRouteTypes {
     | '/projects/dashboard'
     | '/units/availability'
     | '/units/by-project'
+    | '/utilities/meter-reading'
+    | '/utilities/report'
     | '/contracts/'
     | '/customers/'
     | '/projects/'
@@ -343,6 +365,8 @@ export interface FileRouteTypes {
     | '/projects/dashboard'
     | '/units/availability'
     | '/units/by-project'
+    | '/utilities/meter-reading'
+    | '/utilities/report'
     | '/contracts'
     | '/customers'
     | '/projects'
@@ -374,6 +398,8 @@ export interface FileRouteTypes {
     | '/_authenticated/projects/dashboard'
     | '/_authenticated/units/availability'
     | '/_authenticated/units/by-project'
+    | '/_authenticated/utilities/meter-reading'
+    | '/_authenticated/utilities/report'
     | '/_authenticated/contracts/'
     | '/_authenticated/customers/'
     | '/_authenticated/projects/'
@@ -461,6 +487,20 @@ declare module '@tanstack/react-router' {
       path: '/contracts'
       fullPath: '/contracts/'
       preLoaderRoute: typeof AuthenticatedContractsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/utilities/report': {
+      id: '/_authenticated/utilities/report'
+      path: '/utilities/report'
+      fullPath: '/utilities/report'
+      preLoaderRoute: typeof AuthenticatedUtilitiesReportRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/utilities/meter-reading': {
+      id: '/_authenticated/utilities/meter-reading'
+      path: '/utilities/meter-reading'
+      fullPath: '/utilities/meter-reading'
+      preLoaderRoute: typeof AuthenticatedUtilitiesMeterReadingRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/units/by-project': {
@@ -617,6 +657,8 @@ interface AuthenticatedRouteChildren {
   AuthenticatedProjectsDashboardRoute: typeof AuthenticatedProjectsDashboardRoute
   AuthenticatedUnitsAvailabilityRoute: typeof AuthenticatedUnitsAvailabilityRoute
   AuthenticatedUnitsByProjectRoute: typeof AuthenticatedUnitsByProjectRoute
+  AuthenticatedUtilitiesMeterReadingRoute: typeof AuthenticatedUtilitiesMeterReadingRoute
+  AuthenticatedUtilitiesReportRoute: typeof AuthenticatedUtilitiesReportRoute
   AuthenticatedContractsIndexRoute: typeof AuthenticatedContractsIndexRoute
   AuthenticatedCustomersIndexRoute: typeof AuthenticatedCustomersIndexRoute
   AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
@@ -647,6 +689,9 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedProjectsDashboardRoute: AuthenticatedProjectsDashboardRoute,
   AuthenticatedUnitsAvailabilityRoute: AuthenticatedUnitsAvailabilityRoute,
   AuthenticatedUnitsByProjectRoute: AuthenticatedUnitsByProjectRoute,
+  AuthenticatedUtilitiesMeterReadingRoute:
+    AuthenticatedUtilitiesMeterReadingRoute,
+  AuthenticatedUtilitiesReportRoute: AuthenticatedUtilitiesReportRoute,
   AuthenticatedContractsIndexRoute: AuthenticatedContractsIndexRoute,
   AuthenticatedCustomersIndexRoute: AuthenticatedCustomersIndexRoute,
   AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
