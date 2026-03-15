@@ -21,6 +21,10 @@ import { Route as AuthenticatedUnitsByProjectRouteImport } from './routes/_authe
 import { Route as AuthenticatedUnitsAvailabilityRouteImport } from './routes/_authenticated/units/availability'
 import { Route as AuthenticatedProjectsDashboardRouteImport } from './routes/_authenticated/projects/dashboard'
 import { Route as AuthenticatedProjectsProjectIdRouteImport } from './routes/_authenticated/projects/$projectId'
+import { Route as AuthenticatedFinanceMonthlyBillingRouteImport } from './routes/_authenticated/finance/monthly-billing'
+import { Route as AuthenticatedFinanceDepositsRouteImport } from './routes/_authenticated/finance/deposits'
+import { Route as AuthenticatedFinanceCompaniesRouteImport } from './routes/_authenticated/finance/companies'
+import { Route as AuthenticatedFinanceArAgingRouteImport } from './routes/_authenticated/finance/ar-aging'
 import { Route as AuthenticatedCustomersCreateRouteImport } from './routes/_authenticated/customers/create'
 
 const LoginRoute = LoginRouteImport.update({
@@ -88,6 +92,30 @@ const AuthenticatedProjectsProjectIdRoute =
     path: '/projects/$projectId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFinanceMonthlyBillingRoute =
+  AuthenticatedFinanceMonthlyBillingRouteImport.update({
+    id: '/finance/monthly-billing',
+    path: '/finance/monthly-billing',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceDepositsRoute =
+  AuthenticatedFinanceDepositsRouteImport.update({
+    id: '/finance/deposits',
+    path: '/finance/deposits',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceCompaniesRoute =
+  AuthenticatedFinanceCompaniesRouteImport.update({
+    id: '/finance/companies',
+    path: '/finance/companies',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceArAgingRoute =
+  AuthenticatedFinanceArAgingRouteImport.update({
+    id: '/finance/ar-aging',
+    path: '/finance/ar-aging',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedCustomersCreateRoute =
   AuthenticatedCustomersCreateRouteImport.update({
     id: '/customers/create',
@@ -101,6 +129,10 @@ export interface FileRoutesByFullPath {
   '/companies': typeof AuthenticatedCompaniesRoute
   '/contacts': typeof AuthenticatedContactsRoute
   '/customers/create': typeof AuthenticatedCustomersCreateRoute
+  '/finance/ar-aging': typeof AuthenticatedFinanceArAgingRoute
+  '/finance/companies': typeof AuthenticatedFinanceCompaniesRoute
+  '/finance/deposits': typeof AuthenticatedFinanceDepositsRoute
+  '/finance/monthly-billing': typeof AuthenticatedFinanceMonthlyBillingRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
@@ -115,6 +147,10 @@ export interface FileRoutesByTo {
   '/contacts': typeof AuthenticatedContactsRoute
   '/': typeof AuthenticatedIndexRoute
   '/customers/create': typeof AuthenticatedCustomersCreateRoute
+  '/finance/ar-aging': typeof AuthenticatedFinanceArAgingRoute
+  '/finance/companies': typeof AuthenticatedFinanceCompaniesRoute
+  '/finance/deposits': typeof AuthenticatedFinanceDepositsRoute
+  '/finance/monthly-billing': typeof AuthenticatedFinanceMonthlyBillingRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
@@ -131,6 +167,10 @@ export interface FileRoutesById {
   '/_authenticated/contacts': typeof AuthenticatedContactsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/customers/create': typeof AuthenticatedCustomersCreateRoute
+  '/_authenticated/finance/ar-aging': typeof AuthenticatedFinanceArAgingRoute
+  '/_authenticated/finance/companies': typeof AuthenticatedFinanceCompaniesRoute
+  '/_authenticated/finance/deposits': typeof AuthenticatedFinanceDepositsRoute
+  '/_authenticated/finance/monthly-billing': typeof AuthenticatedFinanceMonthlyBillingRoute
   '/_authenticated/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/_authenticated/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/_authenticated/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
@@ -147,6 +187,10 @@ export interface FileRouteTypes {
     | '/companies'
     | '/contacts'
     | '/customers/create'
+    | '/finance/ar-aging'
+    | '/finance/companies'
+    | '/finance/deposits'
+    | '/finance/monthly-billing'
     | '/projects/$projectId'
     | '/projects/dashboard'
     | '/units/availability'
@@ -161,6 +205,10 @@ export interface FileRouteTypes {
     | '/contacts'
     | '/'
     | '/customers/create'
+    | '/finance/ar-aging'
+    | '/finance/companies'
+    | '/finance/deposits'
+    | '/finance/monthly-billing'
     | '/projects/$projectId'
     | '/projects/dashboard'
     | '/units/availability'
@@ -176,6 +224,10 @@ export interface FileRouteTypes {
     | '/_authenticated/contacts'
     | '/_authenticated/'
     | '/_authenticated/customers/create'
+    | '/_authenticated/finance/ar-aging'
+    | '/_authenticated/finance/companies'
+    | '/_authenticated/finance/deposits'
+    | '/_authenticated/finance/monthly-billing'
     | '/_authenticated/projects/$projectId'
     | '/_authenticated/projects/dashboard'
     | '/_authenticated/units/availability'
@@ -276,6 +328,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjectsProjectIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/finance/monthly-billing': {
+      id: '/_authenticated/finance/monthly-billing'
+      path: '/finance/monthly-billing'
+      fullPath: '/finance/monthly-billing'
+      preLoaderRoute: typeof AuthenticatedFinanceMonthlyBillingRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/deposits': {
+      id: '/_authenticated/finance/deposits'
+      path: '/finance/deposits'
+      fullPath: '/finance/deposits'
+      preLoaderRoute: typeof AuthenticatedFinanceDepositsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/companies': {
+      id: '/_authenticated/finance/companies'
+      path: '/finance/companies'
+      fullPath: '/finance/companies'
+      preLoaderRoute: typeof AuthenticatedFinanceCompaniesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/ar-aging': {
+      id: '/_authenticated/finance/ar-aging'
+      path: '/finance/ar-aging'
+      fullPath: '/finance/ar-aging'
+      preLoaderRoute: typeof AuthenticatedFinanceArAgingRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/customers/create': {
       id: '/_authenticated/customers/create'
       path: '/customers/create'
@@ -291,6 +371,10 @@ interface AuthenticatedRouteChildren {
   AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedCustomersCreateRoute: typeof AuthenticatedCustomersCreateRoute
+  AuthenticatedFinanceArAgingRoute: typeof AuthenticatedFinanceArAgingRoute
+  AuthenticatedFinanceCompaniesRoute: typeof AuthenticatedFinanceCompaniesRoute
+  AuthenticatedFinanceDepositsRoute: typeof AuthenticatedFinanceDepositsRoute
+  AuthenticatedFinanceMonthlyBillingRoute: typeof AuthenticatedFinanceMonthlyBillingRoute
   AuthenticatedProjectsProjectIdRoute: typeof AuthenticatedProjectsProjectIdRoute
   AuthenticatedProjectsDashboardRoute: typeof AuthenticatedProjectsDashboardRoute
   AuthenticatedUnitsAvailabilityRoute: typeof AuthenticatedUnitsAvailabilityRoute
@@ -305,6 +389,11 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedContactsRoute: AuthenticatedContactsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedCustomersCreateRoute: AuthenticatedCustomersCreateRoute,
+  AuthenticatedFinanceArAgingRoute: AuthenticatedFinanceArAgingRoute,
+  AuthenticatedFinanceCompaniesRoute: AuthenticatedFinanceCompaniesRoute,
+  AuthenticatedFinanceDepositsRoute: AuthenticatedFinanceDepositsRoute,
+  AuthenticatedFinanceMonthlyBillingRoute:
+    AuthenticatedFinanceMonthlyBillingRoute,
   AuthenticatedProjectsProjectIdRoute: AuthenticatedProjectsProjectIdRoute,
   AuthenticatedProjectsDashboardRoute: AuthenticatedProjectsDashboardRoute,
   AuthenticatedUnitsAvailabilityRoute: AuthenticatedUnitsAvailabilityRoute,
