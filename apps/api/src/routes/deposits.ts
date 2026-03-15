@@ -5,6 +5,13 @@ import { authPlugin } from '../middleware/auth'
 const DEPOSIT_STATUSES = ['HELD', 'APPLIED', 'REFUNDED', 'FORFEITED'] as const
 type DepositStatusValue = (typeof DEPOSIT_STATUSES)[number]
 
+const DEPOSIT_STATUS_TRANSITIONS: Record<DepositStatusValue, DepositStatusValue[]> = {
+  HELD: ['APPLIED', 'REFUNDED', 'FORFEITED'],
+  APPLIED: [],
+  REFUNDED: [],
+  FORFEITED: [],
+}
+
 const depositStatusUnion = t.Union([
   t.Literal('HELD'),
   t.Literal('APPLIED'),
@@ -15,7 +22,7 @@ const depositStatusUnion = t.Union([
 const createDepositSchema = t.Object({
   contractId: t.String({ minLength: 1 }),
   customerId: t.String({ minLength: 1 }),
-  amount: t.Number({ minimum: 0 }),
+  amount: t.Number({ minimum: 0.01 }),
   depositDate: t.String({ minLength: 1 }),
   status: t.Optional(depositStatusUnion),
   refundDate: t.Optional(t.String()),
@@ -26,7 +33,7 @@ const createDepositSchema = t.Object({
 const updateDepositSchema = t.Object({
   contractId: t.Optional(t.String()),
   customerId: t.Optional(t.String()),
-  amount: t.Optional(t.Number()),
+  amount: t.Optional(t.Number({ minimum: 0.01 })),
   depositDate: t.Optional(t.String()),
   status: t.Optional(depositStatusUnion),
   refundDate: t.Optional(t.String()),
@@ -35,7 +42,12 @@ const updateDepositSchema = t.Object({
 })
 
 function buildPagination(page: number, limit: number, total: number) {
-  return { page, limit, total, totalPages: Math.ceil(total / limit) }
+  return {
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit),
+  }
 }
 
 const depositIncludes = {
@@ -64,11 +76,18 @@ export const depositsRoutes = new Elysia({ prefix: '/api/deposits' })
             const skip = (page - 1) * limit
 
             const where: Record<string, unknown> = {}
+
             if (query.status && DEPOSIT_STATUSES.includes(query.status as DepositStatusValue)) {
               where.status = query.status
             }
-            if (query.contractId) where.contract_id = query.contractId
-            if (query.customerId) where.customer_id = query.customerId
+
+            if (query.contractId) {
+              where.contract_id = query.contractId
+            }
+
+            if (query.customerId) {
+              where.customer_id = query.customerId
+            }
 
             const [total, deposits] = await Promise.all([
               prisma.deposit.count({ where }),
@@ -77,11 +96,13 @@ export const depositsRoutes = new Elysia({ prefix: '/api/deposits' })
                 skip,
                 take: limit,
                 orderBy: { created_at: 'desc' },
-                include: depositIncludes,
               }),
             ])
 
-            return { data: deposits, pagination: buildPagination(page, limit, total) }
+            return {
+              data: deposits,
+              pagination: buildPagination(page, limit, total),
+            }
           },
           {
             query: t.Object({
@@ -107,26 +128,20 @@ export const depositsRoutes = new Elysia({ prefix: '/api/deposits' })
         .post(
           '/',
           async ({ body, set }) => {
-            try {
-              const deposit = await prisma.deposit.create({
-                data: {
-                  contract_id: body.contractId,
-                  customer_id: body.customerId,
-                  amount: body.amount,
-                  deposit_date: new Date(body.depositDate),
-                  status: body.status ?? 'HELD',
-                  refund_date: body.refundDate ? new Date(body.refundDate) : null,
-                  refund_amount: body.refundAmount ?? null,
-                  notes: body.notes ?? null,
-                },
-                include: depositIncludes,
-              })
-              set.status = 201
-              return { deposit }
-            } catch (err: unknown) {
-              set.status = 400
-              return { error: err instanceof Error ? err.message : 'Failed to create deposit' }
-            }
+            const deposit = await prisma.deposit.create({
+              data: {
+                contract_id: body.contractId,
+                customer_id: body.customerId,
+                amount: body.amount,
+                deposit_date: new Date(body.depositDate),
+                status: body.status ?? 'HELD',
+                refund_date: body.refundDate ? new Date(body.refundDate) : null,
+                refund_amount: body.refundAmount ?? null,
+                notes: body.notes ?? null,
+              },
+            })
+            set.status = 201
+            return { deposit }
           },
           { body: createDepositSchema }
         )
@@ -138,28 +153,37 @@ export const depositsRoutes = new Elysia({ prefix: '/api/deposits' })
               set.status = 404
               return { error: 'Deposit not found' }
             }
-            try {
-              const deposit = await prisma.deposit.update({
-                where: { id: params.id },
-                data: {
-                  ...(body.contractId !== undefined && { contract_id: body.contractId }),
-                  ...(body.customerId !== undefined && { customer_id: body.customerId }),
-                  ...(body.amount !== undefined && { amount: body.amount }),
-                  ...(body.depositDate !== undefined && { deposit_date: new Date(body.depositDate) }),
-                  ...(body.status !== undefined && { status: body.status }),
-                  ...(body.refundDate !== undefined && {
-                    refund_date: body.refundDate ? new Date(body.refundDate) : null,
-                  }),
-                  ...(body.refundAmount !== undefined && { refund_amount: body.refundAmount }),
-                  ...(body.notes !== undefined && { notes: body.notes }),
-                },
-                include: depositIncludes,
-              })
-              return { deposit }
-            } catch (err: unknown) {
-              set.status = 400
-              return { error: err instanceof Error ? err.message : 'Failed to update deposit' }
+
+            if (body.status && body.status !== existing.status) {
+              const currentStatus = existing.status as DepositStatusValue
+              const allowedTransitions = DEPOSIT_STATUS_TRANSITIONS[currentStatus]
+              if (!allowedTransitions.includes(body.status as DepositStatusValue)) {
+                set.status = 422
+                return {
+                  error: `Invalid status transition: ${existing.status} -> ${body.status}`,
+                }
+              }
             }
+
+            const deposit = await prisma.deposit.update({
+              where: { id: params.id },
+              data: {
+                contract_id: body.contractId,
+                customer_id: body.customerId,
+                amount: body.amount,
+                deposit_date: body.depositDate ? new Date(body.depositDate) : undefined,
+                status: body.status,
+                refund_date:
+                  body.refundDate !== undefined
+                    ? body.refundDate
+                      ? new Date(body.refundDate)
+                      : null
+                    : undefined,
+                refund_amount: body.refundAmount,
+                notes: body.notes,
+              },
+            })
+            return { deposit }
           },
           { body: updateDepositSchema }
         )

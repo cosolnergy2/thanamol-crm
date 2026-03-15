@@ -1,9 +1,8 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
-import { authPlugin } from '../middleware/auth'
+import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
 
 const PAYMENT_METHODS = ['CASH', 'BANK_TRANSFER', 'CHEQUE', 'CREDIT_CARD', 'ONLINE'] as const
-type PaymentMethodValue = (typeof PAYMENT_METHODS)[number]
 
 const paymentMethodUnion = t.Union([
   t.Literal('CASH'),
@@ -24,7 +23,7 @@ const createPaymentSchema = t.Object({
 
 const updatePaymentSchema = t.Object({
   invoiceId: t.Optional(t.String()),
-  amount: t.Optional(t.Number()),
+  amount: t.Optional(t.Number({ minimum: 0.01 })),
   paymentDate: t.Optional(t.String()),
   paymentMethod: t.Optional(paymentMethodUnion),
   referenceNumber: t.Optional(t.String()),
@@ -32,12 +31,49 @@ const updatePaymentSchema = t.Object({
 })
 
 function buildPagination(page: number, limit: number, total: number) {
-  return { page, limit, total, totalPages: Math.ceil(total / limit) }
+  return {
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit),
+  }
+}
+
+async function recalculateInvoiceStatus(invoiceId: string): Promise<void> {
+  const invoice = await prisma.invoice.findUnique({
+    where: { id: invoiceId },
+    include: { payments: true },
+  })
+  if (!invoice) return
+
+  const totalPaid = invoice.payments.reduce((sum, p) => sum + p.amount, 0)
+
+  let newStatus: 'PAID' | 'PARTIAL' | 'SENT'
+  if (totalPaid >= invoice.total) {
+    newStatus = 'PAID'
+  } else if (totalPaid > 0) {
+    newStatus = 'PARTIAL'
+  } else {
+    newStatus = 'SENT'
+  }
+
+  if (invoice.status !== 'PAID' && invoice.status !== 'CANCELLED' && invoice.status !== newStatus) {
+    await prisma.invoice.update({
+      where: { id: invoiceId },
+      data: { status: newStatus },
+    })
+  }
 }
 
 const paymentIncludes = {
   invoice: {
-    select: { id: true, invoice_number: true, total: true, status: true, customer_id: true },
+    select: {
+      id: true,
+      invoice_number: true,
+      total: true,
+      status: true,
+      customer_id: true,
+    },
   },
   receiver: { select: { id: true, first_name: true, last_name: true } },
 }
@@ -63,8 +99,15 @@ export const paymentsRoutes = new Elysia({ prefix: '/api/payments' })
             const skip = (page - 1) * limit
 
             const where: Record<string, unknown> = {}
-            if (query.invoiceId) where.invoice_id = query.invoiceId
-            if (query.paymentMethod && PAYMENT_METHODS.includes(query.paymentMethod as PaymentMethodValue)) {
+
+            if (query.invoiceId) {
+              where.invoice_id = query.invoiceId
+            }
+
+            if (
+              query.paymentMethod &&
+              PAYMENT_METHODS.includes(query.paymentMethod as (typeof PAYMENT_METHODS)[number])
+            ) {
               where.payment_method = query.paymentMethod
             }
 
@@ -75,11 +118,13 @@ export const paymentsRoutes = new Elysia({ prefix: '/api/payments' })
                 skip,
                 take: limit,
                 orderBy: { created_at: 'desc' },
-                include: paymentIncludes,
               }),
             ])
 
-            return { data: payments, pagination: buildPagination(page, limit, total) }
+            return {
+              data: payments,
+              pagination: buildPagination(page, limit, total),
+            }
           },
           {
             query: t.Object({
@@ -104,48 +149,30 @@ export const paymentsRoutes = new Elysia({ prefix: '/api/payments' })
         .post(
           '/',
           async ({ body, authUser, set }) => {
+            const user = authUser as AuthenticatedUser
+
             const invoice = await prisma.invoice.findUnique({ where: { id: body.invoiceId } })
             if (!invoice) {
               set.status = 404
               return { error: 'Invoice not found' }
             }
 
-            try {
-              const payment = await prisma.payment.create({
-                data: {
-                  invoice_id: body.invoiceId,
-                  amount: body.amount,
-                  payment_date: new Date(body.paymentDate),
-                  payment_method: body.paymentMethod,
-                  reference_number: body.referenceNumber ?? null,
-                  notes: body.notes ?? null,
-                  received_by: authUser!.id,
-                },
-                include: paymentIncludes,
-              })
+            const payment = await prisma.payment.create({
+              data: {
+                invoice_id: body.invoiceId,
+                amount: body.amount,
+                payment_date: new Date(body.paymentDate),
+                payment_method: body.paymentMethod,
+                reference_number: body.referenceNumber ?? null,
+                notes: body.notes ?? null,
+                received_by: user.id,
+              },
+            })
 
-              const payments = await prisma.payment.findMany({ where: { invoice_id: body.invoiceId } })
-              const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0)
-              const newStatus =
-                totalPaid >= invoice.total
-                  ? 'PAID'
-                  : totalPaid > 0
-                    ? 'PARTIAL'
-                    : invoice.status
+            await recalculateInvoiceStatus(body.invoiceId)
 
-              if (newStatus !== invoice.status) {
-                await prisma.invoice.update({
-                  where: { id: body.invoiceId },
-                  data: { status: newStatus },
-                })
-              }
-
-              set.status = 201
-              return { payment }
-            } catch (err: unknown) {
-              set.status = 400
-              return { error: err instanceof Error ? err.message : 'Failed to create payment' }
-            }
+            set.status = 201
+            return { payment }
           },
           { body: createPaymentSchema }
         )
@@ -157,24 +184,23 @@ export const paymentsRoutes = new Elysia({ prefix: '/api/payments' })
               set.status = 404
               return { error: 'Payment not found' }
             }
-            try {
-              const payment = await prisma.payment.update({
-                where: { id: params.id },
-                data: {
-                  ...(body.invoiceId !== undefined && { invoice_id: body.invoiceId }),
-                  ...(body.amount !== undefined && { amount: body.amount }),
-                  ...(body.paymentDate !== undefined && { payment_date: new Date(body.paymentDate) }),
-                  ...(body.paymentMethod !== undefined && { payment_method: body.paymentMethod }),
-                  ...(body.referenceNumber !== undefined && { reference_number: body.referenceNumber }),
-                  ...(body.notes !== undefined && { notes: body.notes }),
-                },
-                include: paymentIncludes,
-              })
-              return { payment }
-            } catch (err: unknown) {
-              set.status = 400
-              return { error: err instanceof Error ? err.message : 'Failed to update payment' }
-            }
+
+            const payment = await prisma.payment.update({
+              where: { id: params.id },
+              data: {
+                invoice_id: body.invoiceId,
+                amount: body.amount,
+                payment_date: body.paymentDate ? new Date(body.paymentDate) : undefined,
+                payment_method: body.paymentMethod,
+                reference_number: body.referenceNumber,
+                notes: body.notes,
+              },
+            })
+
+            const targetInvoiceId = body.invoiceId ?? existing.invoice_id
+            await recalculateInvoiceStatus(targetInvoiceId)
+
+            return { payment }
           },
           { body: updatePaymentSchema }
         )
@@ -184,7 +210,10 @@ export const paymentsRoutes = new Elysia({ prefix: '/api/payments' })
             set.status = 404
             return { error: 'Payment not found' }
           }
+
           await prisma.payment.delete({ where: { id: params.id } })
+          await recalculateInvoiceStatus(existing.invoice_id)
+
           return { success: true }
         })
   )

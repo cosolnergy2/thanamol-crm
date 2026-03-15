@@ -1,6 +1,6 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
-import { authPlugin } from '../middleware/auth'
+import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
 
 const INVOICE_STATUSES = ['DRAFT', 'SENT', 'PAID', 'OVERDUE', 'CANCELLED', 'PARTIAL'] as const
 type InvoiceStatusValue = (typeof INVOICE_STATUSES)[number]
@@ -14,19 +14,11 @@ const invoiceStatusUnion = t.Union([
   t.Literal('PARTIAL'),
 ])
 
-const invoiceItemSchema = t.Object({
-  description: t.String(),
-  quantity: t.Number(),
-  unit_price: t.Number(),
-  amount: t.Number(),
-  item_type: t.Optional(t.String()),
-})
-
 const createInvoiceSchema = t.Object({
   invoiceNumber: t.Optional(t.String()),
   contractId: t.Optional(t.String()),
   customerId: t.String({ minLength: 1 }),
-  items: t.Optional(t.Array(invoiceItemSchema)),
+  items: t.Optional(t.Array(t.Any())),
   subtotal: t.Optional(t.Number()),
   tax: t.Optional(t.Number()),
   total: t.Optional(t.Number()),
@@ -39,7 +31,7 @@ const updateInvoiceSchema = t.Object({
   invoiceNumber: t.Optional(t.String()),
   contractId: t.Optional(t.String()),
   customerId: t.Optional(t.String()),
-  items: t.Optional(t.Array(invoiceItemSchema)),
+  items: t.Optional(t.Array(t.Any())),
   subtotal: t.Optional(t.Number()),
   tax: t.Optional(t.Number()),
   total: t.Optional(t.Number()),
@@ -49,15 +41,25 @@ const updateInvoiceSchema = t.Object({
 })
 
 function buildPagination(page: number, limit: number, total: number) {
-  return { page, limit, total, totalPages: Math.ceil(total / limit) }
+  return {
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit),
+  }
 }
 
 async function generateInvoiceNumber(): Promise<string> {
   const now = new Date()
   const yearMonth = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`
   const prefix = `INV-${yearMonth}-`
-  const count = await prisma.invoice.count({ where: { invoice_number: { startsWith: prefix } } })
-  return `${prefix}${String(count + 1).padStart(4, '0')}`
+
+  const count = await prisma.invoice.count({
+    where: { invoice_number: { startsWith: prefix } },
+  })
+
+  const sequence = String(count + 1).padStart(4, '0')
+  return `${prefix}${sequence}`
 }
 
 const invoiceIncludes = {
@@ -87,11 +89,18 @@ export const invoicesRoutes = new Elysia({ prefix: '/api/invoices' })
             const skip = (page - 1) * limit
 
             const where: Record<string, unknown> = {}
+
             if (query.status && INVOICE_STATUSES.includes(query.status as InvoiceStatusValue)) {
               where.status = query.status
             }
-            if (query.customerId) where.customer_id = query.customerId
-            if (query.contractId) where.contract_id = query.contractId
+
+            if (query.customerId) {
+              where.customer_id = query.customerId
+            }
+
+            if (query.contractId) {
+              where.contract_id = query.contractId
+            }
 
             const [total, invoices] = await Promise.all([
               prisma.invoice.count({ where }),
@@ -100,11 +109,13 @@ export const invoicesRoutes = new Elysia({ prefix: '/api/invoices' })
                 skip,
                 take: limit,
                 orderBy: { created_at: 'desc' },
-                include: invoiceIncludes,
               }),
             ])
 
-            return { data: invoices, pagination: buildPagination(page, limit, total) }
+            return {
+              data: invoices,
+              pagination: buildPagination(page, limit, total),
+            }
           },
           {
             query: t.Object({
@@ -130,30 +141,26 @@ export const invoicesRoutes = new Elysia({ prefix: '/api/invoices' })
         .post(
           '/',
           async ({ body, authUser, set }) => {
-            const invoiceNumber = body.invoiceNumber ?? (await generateInvoiceNumber())
-            try {
-              const invoice = await prisma.invoice.create({
-                data: {
-                  invoice_number: invoiceNumber,
-                  contract_id: body.contractId ?? null,
-                  customer_id: body.customerId,
-                  items: (body.items ?? []) as object[],
-                  subtotal: body.subtotal ?? 0,
-                  tax: body.tax ?? 0,
-                  total: body.total ?? 0,
-                  due_date: body.dueDate ? new Date(body.dueDate) : null,
-                  status: body.status ?? 'DRAFT',
-                  notes: body.notes ?? null,
-                  created_by: authUser!.id,
-                },
-                include: invoiceIncludes,
-              })
-              set.status = 201
-              return { invoice }
-            } catch (err: unknown) {
-              set.status = 400
-              return { error: err instanceof Error ? err.message : 'Failed to create invoice' }
-            }
+            const user = authUser as AuthenticatedUser
+            const invoiceNumber = body.invoiceNumber || (await generateInvoiceNumber())
+
+            const invoice = await prisma.invoice.create({
+              data: {
+                invoice_number: invoiceNumber,
+                contract_id: body.contractId ?? null,
+                customer_id: body.customerId,
+                items: body.items ?? [],
+                subtotal: body.subtotal ?? 0,
+                tax: body.tax ?? 0,
+                total: body.total ?? 0,
+                due_date: body.dueDate ? new Date(body.dueDate) : null,
+                status: body.status ?? 'DRAFT',
+                notes: body.notes ?? null,
+                created_by: user.id,
+              },
+            })
+            set.status = 201
+            return { invoice }
           },
           { body: createInvoiceSchema }
         )
@@ -165,30 +172,28 @@ export const invoicesRoutes = new Elysia({ prefix: '/api/invoices' })
               set.status = 404
               return { error: 'Invoice not found' }
             }
-            try {
-              const invoice = await prisma.invoice.update({
-                where: { id: params.id },
-                data: {
-                  ...(body.invoiceNumber !== undefined && { invoice_number: body.invoiceNumber }),
-                  ...(body.contractId !== undefined && { contract_id: body.contractId }),
-                  ...(body.customerId !== undefined && { customer_id: body.customerId }),
-                  ...(body.items !== undefined && { items: body.items as object[] }),
-                  ...(body.subtotal !== undefined && { subtotal: body.subtotal }),
-                  ...(body.tax !== undefined && { tax: body.tax }),
-                  ...(body.total !== undefined && { total: body.total }),
-                  ...(body.dueDate !== undefined && {
-                    due_date: body.dueDate ? new Date(body.dueDate) : null,
-                  }),
-                  ...(body.status !== undefined && { status: body.status }),
-                  ...(body.notes !== undefined && { notes: body.notes }),
-                },
-                include: invoiceIncludes,
-              })
-              return { invoice }
-            } catch (err: unknown) {
-              set.status = 400
-              return { error: err instanceof Error ? err.message : 'Failed to update invoice' }
-            }
+
+            const invoice = await prisma.invoice.update({
+              where: { id: params.id },
+              data: {
+                invoice_number: body.invoiceNumber,
+                contract_id: body.contractId,
+                customer_id: body.customerId,
+                items: body.items,
+                subtotal: body.subtotal,
+                tax: body.tax,
+                total: body.total,
+                due_date:
+                  body.dueDate !== undefined
+                    ? body.dueDate
+                      ? new Date(body.dueDate)
+                      : null
+                    : undefined,
+                status: body.status,
+                notes: body.notes,
+              },
+            })
+            return { invoice }
           },
           { body: updateInvoiceSchema }
         )
@@ -197,6 +202,10 @@ export const invoicesRoutes = new Elysia({ prefix: '/api/invoices' })
           if (!existing) {
             set.status = 404
             return { error: 'Invoice not found' }
+          }
+          if (existing.status !== 'DRAFT') {
+            set.status = 409
+            return { error: 'Only DRAFT invoices can be deleted' }
           }
           await prisma.invoice.delete({ where: { id: params.id } })
           return { success: true }
