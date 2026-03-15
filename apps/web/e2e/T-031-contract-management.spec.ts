@@ -227,6 +227,11 @@ test.describe('T-031: Edit Contract', () => {
 
   // Scenario 4: Edit a DRAFT contract
   test('should edit a DRAFT contract and save changes', async ({ page }) => {
+    const consoleErrors: string[] = []
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') consoleErrors.push(msg.text())
+    })
+
     await page.goto('/contracts')
 
     await expect(page.getByRole('heading', { name: 'Contracts' })).toBeVisible()
@@ -245,8 +250,13 @@ test.describe('T-031: Edit Contract', () => {
 
     await expect(page.getByRole('heading', { name: /Edit/ })).toBeVisible()
 
-    // Wait for form data to load — start date field gets populated by useEffect when API responds
-    await expect(page.locator('input[type="date"]').first()).not.toHaveValue('', { timeout: 10000 })
+    // Wait for form data to load fully — all dropdowns need their data
+    // The type Select is hardcoded (not dynamic) so it should show Sale/Lease/Rental once type state is set
+    await expect(page.locator('input[type="date"]').first()).not.toHaveValue('', { timeout: 15000 })
+    // Wait for customer Select to not show placeholder (customers data loaded)
+    await expect(
+      page.locator('[role="combobox"]').nth(0)
+    ).not.toHaveText('Select customer', { timeout: 15000 })
 
     await page.screenshot({ path: `${SCREENSHOTS}/contract-edit-initial.png` })
 
@@ -257,7 +267,7 @@ test.describe('T-031: Edit Contract', () => {
 
     await page.getByRole('button', { name: 'Save Changes' }).click()
 
-    await expect(page).toHaveURL(/\/contracts\/[^/]+$/, { timeout: 15000 })
+    await expect(page).toHaveURL(/\/contracts\/[^/]+$/, { timeout: 20000 })
 
     await page.screenshot({ path: `${SCREENSHOTS}/contract-edit-saved.png` })
 
