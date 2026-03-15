@@ -482,3 +482,254 @@ export type CreateCommercialQuotationRequest = {
 }
 
 export type UpdateCommercialQuotationRequest = Partial<CreateCommercialQuotationRequest>
+
+// ─── Invoice ──────────────────────────────────────────────────────────────────
+
+export type InvoiceStatus = 'DRAFT' | 'SENT' | 'PAID' | 'OVERDUE' | 'CANCELLED' | 'PARTIAL'
+
+export type InvoiceItem = {
+  description: string
+  quantity: number
+  unit_price: number
+  amount: number
+  item_type?: string
+}
+
+export type Invoice = {
+  id: string
+  invoice_number: string
+  contract_id: string | null
+  customer_id: string
+  items: InvoiceItem[]
+  subtotal: number
+  tax: number
+  total: number
+  due_date: string | null
+  status: InvoiceStatus
+  notes: string | null
+  created_by: string
+  created_at: string
+  updated_at: string
+}
+
+export type InvoiceWithRelations = Invoice & {
+  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'>
+  contract: { id: string; contract_number: string; type: string; status: string } | null
+  creator: { id: string; first_name: string; last_name: string }
+}
+
+export type CreateInvoiceRequest = {
+  invoiceNumber?: string
+  contractId?: string
+  customerId: string
+  items?: InvoiceItem[]
+  subtotal?: number
+  tax?: number
+  total?: number
+  dueDate?: string
+  status?: InvoiceStatus
+  notes?: string
+}
+
+export type UpdateInvoiceRequest = Partial<CreateInvoiceRequest>
+
+export type InvoiceListResponse = PaginatedResponse<Invoice>
+
+export type InvoiceQueryParams = {
+  page?: number
+  limit?: number
+  status?: InvoiceStatus | 'all'
+  customerId?: string
+  contractId?: string
+}
+
+// ─── Payment ──────────────────────────────────────────────────────────────────
+
+export type PaymentMethod = 'CASH' | 'BANK_TRANSFER' | 'CHEQUE' | 'CREDIT_CARD' | 'ONLINE'
+
+export type Payment = {
+  id: string
+  invoice_id: string
+  amount: number
+  payment_date: string
+  payment_method: PaymentMethod
+  reference_number: string | null
+  notes: string | null
+  received_by: string | null
+  created_at: string
+}
+
+export type PaymentWithRelations = Payment & {
+  invoice: {
+    id: string
+    invoice_number: string
+    total: number
+    status: InvoiceStatus
+    customer_id: string
+  }
+  receiver: { id: string; first_name: string; last_name: string } | null
+}
+
+export type CreatePaymentRequest = {
+  invoiceId: string
+  amount: number
+  paymentDate: string
+  paymentMethod: PaymentMethod
+  referenceNumber?: string
+  notes?: string
+}
+
+export type UpdatePaymentRequest = Partial<CreatePaymentRequest>
+
+export type PaymentListResponse = PaginatedResponse<Payment>
+
+export type PaymentQueryParams = {
+  page?: number
+  limit?: number
+  invoiceId?: string
+  paymentMethod?: PaymentMethod
+}
+
+// ─── Deposit ──────────────────────────────────────────────────────────────────
+
+export type DepositStatus = 'HELD' | 'APPLIED' | 'REFUNDED' | 'FORFEITED'
+
+export type Deposit = {
+  id: string
+  contract_id: string
+  customer_id: string
+  amount: number
+  deposit_date: string
+  status: DepositStatus
+  refund_date: string | null
+  refund_amount: number | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type DepositWithRelations = Deposit & {
+  contract: { id: string; contract_number: string; type: string; status: string }
+  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'>
+}
+
+export type CreateDepositRequest = {
+  contractId: string
+  customerId: string
+  amount: number
+  depositDate: string
+  status?: DepositStatus
+  refundDate?: string
+  refundAmount?: number
+  notes?: string
+}
+
+export type UpdateDepositRequest = Partial<CreateDepositRequest>
+
+export type DepositListResponse = PaginatedResponse<Deposit>
+
+export type DepositQueryParams = {
+  page?: number
+  limit?: number
+  status?: DepositStatus | 'all'
+  contractId?: string
+  customerId?: string
+}
+
+// ─── TaskStatus ───────────────────────────────────────────────────────────────
+
+export type TaskStatus = {
+  id: string
+  name: string
+  color: string
+  order: number
+  is_default: boolean
+  is_closed: boolean
+  created_at: string
+}
+
+export type CreateTaskStatusRequest = {
+  name: string
+  color: string
+  order: number
+  isDefault?: boolean
+  isClosed?: boolean
+}
+
+export type UpdateTaskStatusRequest = Partial<CreateTaskStatusRequest>
+
+export type TaskStatusListResponse = { data: TaskStatus[] }
+
+// ─── AutomationRule ───────────────────────────────────────────────────────────
+
+export type AutomationRule = {
+  id: string
+  name: string
+  trigger_event: string
+  conditions: Record<string, unknown>
+  actions: unknown[]
+  is_active: boolean
+  created_at: string
+}
+
+export type CreateAutomationRuleRequest = {
+  name: string
+  triggerEvent: string
+  conditions?: Record<string, unknown>
+  actions?: unknown[]
+  isActive?: boolean
+}
+
+export type UpdateAutomationRuleRequest = Partial<CreateAutomationRuleRequest>
+
+export type AutomationRuleListResponse = { data: AutomationRule[] }
+
+// ─── Ticket ───────────────────────────────────────────────────────────────────
+
+export type TicketStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED'
+export type TicketPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
+
+export type Ticket = {
+  id: string
+  title: string
+  description: string | null
+  customer_id: string | null
+  unit_id: string | null
+  category: string | null
+  priority: TicketPriority
+  status: TicketStatus
+  assigned_to: string | null
+  resolved_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type TicketWithRelations = Ticket & {
+  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'> | null
+  unit: Pick<Unit, 'id' | 'unit_number' | 'floor' | 'building'> | null
+  assignee: { id: string; first_name: string; last_name: string } | null
+}
+
+export type CreateTicketRequest = {
+  title: string
+  description?: string
+  customerId?: string
+  unitId?: string
+  category?: string
+  priority?: TicketPriority
+  status?: TicketStatus
+  assignedTo?: string
+}
+
+export type UpdateTicketRequest = Partial<CreateTicketRequest>
+
+export type TicketListResponse = PaginatedResponse<Ticket>
+
+export type TicketQueryParams = {
+  page?: number
+  limit?: number
+  status?: TicketStatus | 'all'
+  priority?: TicketPriority | 'all'
+  customerId?: string
+  assignedTo?: string
+}
