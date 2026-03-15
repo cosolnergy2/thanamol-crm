@@ -21,9 +21,7 @@ import { Route as AuthenticatedProjectsIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedLeadsIndexRouteImport } from './routes/_authenticated/leads/index'
 import { Route as AuthenticatedDealsIndexRouteImport } from './routes/_authenticated/deals/index'
 import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers/index'
-import { Route as AuthenticatedContractsIndexRouteImport } from './routes/_authenticated/contracts/index'
-import { Route as AuthenticatedUtilitiesReportRouteImport } from './routes/_authenticated/utilities/report'
-import { Route as AuthenticatedUtilitiesMeterReadingRouteImport } from './routes/_authenticated/utilities/meter-reading'
+import { Route as AuthenticatedClientsIndexRouteImport } from './routes/_authenticated/clients/index'
 import { Route as AuthenticatedUnitsByProjectRouteImport } from './routes/_authenticated/units/by-project'
 import { Route as AuthenticatedUnitsAvailabilityRouteImport } from './routes/_authenticated/units/availability'
 import { Route as AuthenticatedTasksNotificationsRouteImport } from './routes/_authenticated/tasks/notifications'
@@ -34,15 +32,7 @@ import { Route as AuthenticatedProjectsProjectIdRouteImport } from './routes/_au
 import { Route as AuthenticatedFormsHandoverPhotosRouteImport } from './routes/_authenticated/forms/handover-photos'
 import { Route as AuthenticatedFormsHandoverRouteImport } from './routes/_authenticated/forms/handover'
 import { Route as AuthenticatedCustomersCreateRouteImport } from './routes/_authenticated/customers/create'
-import { Route as AuthenticatedCalendarEventsRouteImport } from './routes/_authenticated/calendar/events'
-import { Route as AuthenticatedFormsSaleJob04F01IndexRouteImport } from './routes/_authenticated/forms/sale-job04-f01/index'
-import { Route as AuthenticatedFormsSaleF01IndexRouteImport } from './routes/_authenticated/forms/sale-f01/index'
-import { Route as AuthenticatedFormsSaleJob04F01NewRouteImport } from './routes/_authenticated/forms/sale-job04-f01/new'
-import { Route as AuthenticatedFormsSaleF01NewRouteImport } from './routes/_authenticated/forms/sale-f01/new'
-import { Route as AuthenticatedFormsSaleJob04F01IdIndexRouteImport } from './routes/_authenticated/forms/sale-job04-f01/$id/index'
-import { Route as AuthenticatedFormsSaleF01IdIndexRouteImport } from './routes/_authenticated/forms/sale-f01/$id/index'
-import { Route as AuthenticatedFormsSaleJob04F01IdEditRouteImport } from './routes/_authenticated/forms/sale-job04-f01/$id/edit'
-import { Route as AuthenticatedFormsSaleF01IdEditRouteImport } from './routes/_authenticated/forms/sale-f01/$id/edit'
+import { Route as AuthenticatedClientsPortalRouteImport } from './routes/_authenticated/clients/portal'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -107,22 +97,10 @@ const AuthenticatedCustomersIndexRoute =
     path: '/customers/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedContractsIndexRoute =
-  AuthenticatedContractsIndexRouteImport.update({
-    id: '/contracts/',
-    path: '/contracts/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedUtilitiesReportRoute =
-  AuthenticatedUtilitiesReportRouteImport.update({
-    id: '/utilities/report',
-    path: '/utilities/report',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedUtilitiesMeterReadingRoute =
-  AuthenticatedUtilitiesMeterReadingRouteImport.update({
-    id: '/utilities/meter-reading',
-    path: '/utilities/meter-reading',
+const AuthenticatedClientsIndexRoute =
+  AuthenticatedClientsIndexRouteImport.update({
+    id: '/clients/',
+    path: '/clients/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedUnitsByProjectRoute =
@@ -185,58 +163,10 @@ const AuthenticatedCustomersCreateRoute =
     path: '/customers/create',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedCalendarEventsRoute =
-  AuthenticatedCalendarEventsRouteImport.update({
-    id: '/calendar/events',
-    path: '/calendar/events',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedFormsSaleJob04F01IndexRoute =
-  AuthenticatedFormsSaleJob04F01IndexRouteImport.update({
-    id: '/forms/sale-job04-f01/',
-    path: '/forms/sale-job04-f01/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedFormsSaleF01IndexRoute =
-  AuthenticatedFormsSaleF01IndexRouteImport.update({
-    id: '/forms/sale-f01/',
-    path: '/forms/sale-f01/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedFormsSaleJob04F01NewRoute =
-  AuthenticatedFormsSaleJob04F01NewRouteImport.update({
-    id: '/forms/sale-job04-f01/new',
-    path: '/forms/sale-job04-f01/new',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedFormsSaleF01NewRoute =
-  AuthenticatedFormsSaleF01NewRouteImport.update({
-    id: '/forms/sale-f01/new',
-    path: '/forms/sale-f01/new',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedFormsSaleJob04F01IdIndexRoute =
-  AuthenticatedFormsSaleJob04F01IdIndexRouteImport.update({
-    id: '/forms/sale-job04-f01/$id/',
-    path: '/forms/sale-job04-f01/$id/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedFormsSaleF01IdIndexRoute =
-  AuthenticatedFormsSaleF01IdIndexRouteImport.update({
-    id: '/forms/sale-f01/$id/',
-    path: '/forms/sale-f01/$id/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedFormsSaleJob04F01IdEditRoute =
-  AuthenticatedFormsSaleJob04F01IdEditRouteImport.update({
-    id: '/forms/sale-job04-f01/$id/edit',
-    path: '/forms/sale-job04-f01/$id/edit',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedFormsSaleF01IdEditRoute =
-  AuthenticatedFormsSaleF01IdEditRouteImport.update({
-    id: '/forms/sale-f01/$id/edit',
-    path: '/forms/sale-f01/$id/edit',
+const AuthenticatedClientsPortalRoute =
+  AuthenticatedClientsPortalRouteImport.update({
+    id: '/clients/portal',
+    path: '/clients/portal',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 
@@ -245,8 +175,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/companies': typeof AuthenticatedCompaniesRoute
   '/contacts': typeof AuthenticatedContactsRoute
-  '/my-dashboard': typeof AuthenticatedMyDashboardRoute
-  '/calendar/events': typeof AuthenticatedCalendarEventsRoute
+  '/clients/portal': typeof AuthenticatedClientsPortalRoute
   '/customers/create': typeof AuthenticatedCustomersCreateRoute
   '/forms/handover': typeof AuthenticatedFormsHandoverRoute
   '/forms/handover-photos': typeof AuthenticatedFormsHandoverPhotosRoute
@@ -257,9 +186,7 @@ export interface FileRoutesByFullPath {
   '/tasks/notifications': typeof AuthenticatedTasksNotificationsRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/units/by-project': typeof AuthenticatedUnitsByProjectRoute
-  '/utilities/meter-reading': typeof AuthenticatedUtilitiesMeterReadingRoute
-  '/utilities/report': typeof AuthenticatedUtilitiesReportRoute
-  '/contracts/': typeof AuthenticatedContractsIndexRoute
+  '/clients/': typeof AuthenticatedClientsIndexRoute
   '/customers/': typeof AuthenticatedCustomersIndexRoute
   '/deals/': typeof AuthenticatedDealsIndexRoute
   '/leads/': typeof AuthenticatedLeadsIndexRoute
@@ -281,7 +208,7 @@ export interface FileRoutesByTo {
   '/contacts': typeof AuthenticatedContactsRoute
   '/my-dashboard': typeof AuthenticatedMyDashboardRoute
   '/': typeof AuthenticatedIndexRoute
-  '/calendar/events': typeof AuthenticatedCalendarEventsRoute
+  '/clients/portal': typeof AuthenticatedClientsPortalRoute
   '/customers/create': typeof AuthenticatedCustomersCreateRoute
   '/forms/handover': typeof AuthenticatedFormsHandoverRoute
   '/forms/handover-photos': typeof AuthenticatedFormsHandoverPhotosRoute
@@ -292,9 +219,7 @@ export interface FileRoutesByTo {
   '/tasks/notifications': typeof AuthenticatedTasksNotificationsRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/units/by-project': typeof AuthenticatedUnitsByProjectRoute
-  '/utilities/meter-reading': typeof AuthenticatedUtilitiesMeterReadingRoute
-  '/utilities/report': typeof AuthenticatedUtilitiesReportRoute
-  '/contracts': typeof AuthenticatedContractsIndexRoute
+  '/clients': typeof AuthenticatedClientsIndexRoute
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/deals': typeof AuthenticatedDealsIndexRoute
   '/leads': typeof AuthenticatedLeadsIndexRoute
@@ -318,7 +243,7 @@ export interface FileRoutesById {
   '/_authenticated/contacts': typeof AuthenticatedContactsRoute
   '/_authenticated/my-dashboard': typeof AuthenticatedMyDashboardRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
-  '/_authenticated/calendar/events': typeof AuthenticatedCalendarEventsRoute
+  '/_authenticated/clients/portal': typeof AuthenticatedClientsPortalRoute
   '/_authenticated/customers/create': typeof AuthenticatedCustomersCreateRoute
   '/_authenticated/forms/handover': typeof AuthenticatedFormsHandoverRoute
   '/_authenticated/forms/handover-photos': typeof AuthenticatedFormsHandoverPhotosRoute
@@ -329,9 +254,7 @@ export interface FileRoutesById {
   '/_authenticated/tasks/notifications': typeof AuthenticatedTasksNotificationsRoute
   '/_authenticated/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/_authenticated/units/by-project': typeof AuthenticatedUnitsByProjectRoute
-  '/_authenticated/utilities/meter-reading': typeof AuthenticatedUtilitiesMeterReadingRoute
-  '/_authenticated/utilities/report': typeof AuthenticatedUtilitiesReportRoute
-  '/_authenticated/contracts/': typeof AuthenticatedContractsIndexRoute
+  '/_authenticated/clients/': typeof AuthenticatedClientsIndexRoute
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
   '/_authenticated/deals/': typeof AuthenticatedDealsIndexRoute
   '/_authenticated/leads/': typeof AuthenticatedLeadsIndexRoute
@@ -354,8 +277,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/companies'
     | '/contacts'
-    | '/my-dashboard'
-    | '/calendar/events'
+    | '/clients/portal'
     | '/customers/create'
     | '/forms/handover'
     | '/forms/handover-photos'
@@ -366,9 +288,7 @@ export interface FileRouteTypes {
     | '/tasks/notifications'
     | '/units/availability'
     | '/units/by-project'
-    | '/utilities/meter-reading'
-    | '/utilities/report'
-    | '/contracts/'
+    | '/clients/'
     | '/customers/'
     | '/deals/'
     | '/leads/'
@@ -390,7 +310,7 @@ export interface FileRouteTypes {
     | '/contacts'
     | '/my-dashboard'
     | '/'
-    | '/calendar/events'
+    | '/clients/portal'
     | '/customers/create'
     | '/forms/handover'
     | '/forms/handover-photos'
@@ -401,9 +321,7 @@ export interface FileRouteTypes {
     | '/tasks/notifications'
     | '/units/availability'
     | '/units/by-project'
-    | '/utilities/meter-reading'
-    | '/utilities/report'
-    | '/contracts'
+    | '/clients'
     | '/customers'
     | '/deals'
     | '/leads'
@@ -426,7 +344,7 @@ export interface FileRouteTypes {
     | '/_authenticated/contacts'
     | '/_authenticated/my-dashboard'
     | '/_authenticated/'
-    | '/_authenticated/calendar/events'
+    | '/_authenticated/clients/portal'
     | '/_authenticated/customers/create'
     | '/_authenticated/forms/handover'
     | '/_authenticated/forms/handover-photos'
@@ -437,9 +355,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tasks/notifications'
     | '/_authenticated/units/availability'
     | '/_authenticated/units/by-project'
-    | '/_authenticated/utilities/meter-reading'
-    | '/_authenticated/utilities/report'
-    | '/_authenticated/contracts/'
+    | '/_authenticated/clients/'
     | '/_authenticated/customers/'
     | '/_authenticated/deals/'
     | '/_authenticated/leads/'
@@ -547,25 +463,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCustomersIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/contracts/': {
-      id: '/_authenticated/contracts/'
-      path: '/contracts'
-      fullPath: '/contracts/'
-      preLoaderRoute: typeof AuthenticatedContractsIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/utilities/report': {
-      id: '/_authenticated/utilities/report'
-      path: '/utilities/report'
-      fullPath: '/utilities/report'
-      preLoaderRoute: typeof AuthenticatedUtilitiesReportRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/utilities/meter-reading': {
-      id: '/_authenticated/utilities/meter-reading'
-      path: '/utilities/meter-reading'
-      fullPath: '/utilities/meter-reading'
-      preLoaderRoute: typeof AuthenticatedUtilitiesMeterReadingRouteImport
+    '/_authenticated/clients/': {
+      id: '/_authenticated/clients/'
+      path: '/clients'
+      fullPath: '/clients/'
+      preLoaderRoute: typeof AuthenticatedClientsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/units/by-project': {
@@ -638,67 +540,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCustomersCreateRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/calendar/events': {
-      id: '/_authenticated/calendar/events'
-      path: '/calendar/events'
-      fullPath: '/calendar/events'
-      preLoaderRoute: typeof AuthenticatedCalendarEventsRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/forms/sale-job04-f01/': {
-      id: '/_authenticated/forms/sale-job04-f01/'
-      path: '/forms/sale-job04-f01'
-      fullPath: '/forms/sale-job04-f01/'
-      preLoaderRoute: typeof AuthenticatedFormsSaleJob04F01IndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/forms/sale-f01/': {
-      id: '/_authenticated/forms/sale-f01/'
-      path: '/forms/sale-f01'
-      fullPath: '/forms/sale-f01/'
-      preLoaderRoute: typeof AuthenticatedFormsSaleF01IndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/forms/sale-job04-f01/new': {
-      id: '/_authenticated/forms/sale-job04-f01/new'
-      path: '/forms/sale-job04-f01/new'
-      fullPath: '/forms/sale-job04-f01/new'
-      preLoaderRoute: typeof AuthenticatedFormsSaleJob04F01NewRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/forms/sale-f01/new': {
-      id: '/_authenticated/forms/sale-f01/new'
-      path: '/forms/sale-f01/new'
-      fullPath: '/forms/sale-f01/new'
-      preLoaderRoute: typeof AuthenticatedFormsSaleF01NewRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/forms/sale-job04-f01/$id/': {
-      id: '/_authenticated/forms/sale-job04-f01/$id/'
-      path: '/forms/sale-job04-f01/$id'
-      fullPath: '/forms/sale-job04-f01/$id/'
-      preLoaderRoute: typeof AuthenticatedFormsSaleJob04F01IdIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/forms/sale-f01/$id/': {
-      id: '/_authenticated/forms/sale-f01/$id/'
-      path: '/forms/sale-f01/$id'
-      fullPath: '/forms/sale-f01/$id/'
-      preLoaderRoute: typeof AuthenticatedFormsSaleF01IdIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/forms/sale-job04-f01/$id/edit': {
-      id: '/_authenticated/forms/sale-job04-f01/$id/edit'
-      path: '/forms/sale-job04-f01/$id/edit'
-      fullPath: '/forms/sale-job04-f01/$id/edit'
-      preLoaderRoute: typeof AuthenticatedFormsSaleJob04F01IdEditRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/forms/sale-f01/$id/edit': {
-      id: '/_authenticated/forms/sale-f01/$id/edit'
-      path: '/forms/sale-f01/$id/edit'
-      fullPath: '/forms/sale-f01/$id/edit'
-      preLoaderRoute: typeof AuthenticatedFormsSaleF01IdEditRouteImport
+    '/_authenticated/clients/portal': {
+      id: '/_authenticated/clients/portal'
+      path: '/clients/portal'
+      fullPath: '/clients/portal'
+      preLoaderRoute: typeof AuthenticatedClientsPortalRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
   }
@@ -709,7 +555,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
   AuthenticatedMyDashboardRoute: typeof AuthenticatedMyDashboardRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
-  AuthenticatedCalendarEventsRoute: typeof AuthenticatedCalendarEventsRoute
+  AuthenticatedClientsPortalRoute: typeof AuthenticatedClientsPortalRoute
   AuthenticatedCustomersCreateRoute: typeof AuthenticatedCustomersCreateRoute
   AuthenticatedFormsHandoverRoute: typeof AuthenticatedFormsHandoverRoute
   AuthenticatedFormsHandoverPhotosRoute: typeof AuthenticatedFormsHandoverPhotosRoute
@@ -720,9 +566,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedTasksNotificationsRoute: typeof AuthenticatedTasksNotificationsRoute
   AuthenticatedUnitsAvailabilityRoute: typeof AuthenticatedUnitsAvailabilityRoute
   AuthenticatedUnitsByProjectRoute: typeof AuthenticatedUnitsByProjectRoute
-  AuthenticatedUtilitiesMeterReadingRoute: typeof AuthenticatedUtilitiesMeterReadingRoute
-  AuthenticatedUtilitiesReportRoute: typeof AuthenticatedUtilitiesReportRoute
-  AuthenticatedContractsIndexRoute: typeof AuthenticatedContractsIndexRoute
+  AuthenticatedClientsIndexRoute: typeof AuthenticatedClientsIndexRoute
   AuthenticatedCustomersIndexRoute: typeof AuthenticatedCustomersIndexRoute
   AuthenticatedDealsIndexRoute: typeof AuthenticatedDealsIndexRoute
   AuthenticatedLeadsIndexRoute: typeof AuthenticatedLeadsIndexRoute
@@ -744,7 +588,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedContactsRoute: AuthenticatedContactsRoute,
   AuthenticatedMyDashboardRoute: AuthenticatedMyDashboardRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
-  AuthenticatedCalendarEventsRoute: AuthenticatedCalendarEventsRoute,
+  AuthenticatedClientsPortalRoute: AuthenticatedClientsPortalRoute,
   AuthenticatedCustomersCreateRoute: AuthenticatedCustomersCreateRoute,
   AuthenticatedFormsHandoverRoute: AuthenticatedFormsHandoverRoute,
   AuthenticatedFormsHandoverPhotosRoute: AuthenticatedFormsHandoverPhotosRoute,
@@ -755,10 +599,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedTasksNotificationsRoute: AuthenticatedTasksNotificationsRoute,
   AuthenticatedUnitsAvailabilityRoute: AuthenticatedUnitsAvailabilityRoute,
   AuthenticatedUnitsByProjectRoute: AuthenticatedUnitsByProjectRoute,
-  AuthenticatedUtilitiesMeterReadingRoute:
-    AuthenticatedUtilitiesMeterReadingRoute,
-  AuthenticatedUtilitiesReportRoute: AuthenticatedUtilitiesReportRoute,
-  AuthenticatedContractsIndexRoute: AuthenticatedContractsIndexRoute,
+  AuthenticatedClientsIndexRoute: AuthenticatedClientsIndexRoute,
   AuthenticatedCustomersIndexRoute: AuthenticatedCustomersIndexRoute,
   AuthenticatedDealsIndexRoute: AuthenticatedDealsIndexRoute,
   AuthenticatedLeadsIndexRoute: AuthenticatedLeadsIndexRoute,

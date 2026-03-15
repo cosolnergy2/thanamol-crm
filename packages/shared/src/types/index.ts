@@ -483,393 +483,81 @@ export type CreateCommercialQuotationRequest = {
 
 export type UpdateCommercialQuotationRequest = Partial<CreateCommercialQuotationRequest>
 
-// ─── Document ─────────────────────────────────────────────────────────────────
+// ─── ClientUser ───────────────────────────────────────────────────────────────
 
-export type Document = {
+export type ClientUser = {
   id: string
-  title: string
-  file_url: string
-  file_type: string | null
-  file_size: number | null
-  category: string | null
-  entity_type: string | null
-  entity_id: string | null
-  tags: string[]
-  uploaded_by: string
+  customer_id: string
+  email: string
+  first_name: string
+  last_name: string
+  is_active: boolean
   created_at: string
-  updated_at: string
+  customer?: Pick<Customer, 'id' | 'name' | 'email' | 'phone'>
 }
 
-export type CreateDocumentRequest = {
-  title: string
-  fileUrl: string
-  fileType?: string
-  fileSize?: number
-  category?: string
-  entityType?: string
-  entityId?: string
-  tags?: string[]
+export type CreateClientUserRequest = {
+  customerId: string
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+  isActive?: boolean
 }
 
-export type UpdateDocumentRequest = Partial<CreateDocumentRequest>
-
-export type DocumentListResponse = PaginatedResponse<Document>
-
-export type DocumentQueryParams = {
-  page?: number
-  limit?: number
-  category?: string
-  entityType?: string
-  entityId?: string
-}
-
-// ─── ISODocument ──────────────────────────────────────────────────────────────
-
-export type ISODocumentStatus = 'DRAFT' | 'ACTIVE' | 'ARCHIVED' | 'SUPERSEDED'
-
-export type ISODocument = {
-  id: string
-  document_number: string
-  title: string
-  category: string
-  revision: string
-  status: ISODocumentStatus
-  content: string | null
-  effective_date: string | null
-  review_date: string | null
-  approved_by: string | null
-  created_at: string
-  updated_at: string
-}
-
-export type CreateISODocumentRequest = {
-  documentNumber?: string
-  title: string
-  category: string
-  revision: string
-  status?: ISODocumentStatus
-  content?: string
-  effectiveDate?: string
-  reviewDate?: string
-  approvedBy?: string
-}
-
-export type UpdateISODocumentRequest = Partial<CreateISODocumentRequest>
-
-export type ISODocumentListResponse = PaginatedResponse<ISODocument>
-
-export type ISODocumentQueryParams = {
-  page?: number
-  limit?: number
-  category?: string
-  status?: ISODocumentStatus | 'all'
-}
-
-// ─── PDFTemplate ──────────────────────────────────────────────────────────────
-
-export type PDFTemplate = {
-  id: string
-  name: string
-  template_type: string
-  header: Record<string, unknown>
-  footer: Record<string, unknown>
-  styles: Record<string, unknown>
-  is_default: boolean
-  created_at: string
-  updated_at: string
-}
-
-export type CreatePDFTemplateRequest = {
-  name: string
-  templateType: string
-  header?: Record<string, unknown>
-  footer?: Record<string, unknown>
-  styles?: Record<string, unknown>
-  isDefault?: boolean
-}
-
-export type UpdatePDFTemplateRequest = Partial<CreatePDFTemplateRequest>
-
-export type PDFTemplateListResponse = { data: PDFTemplate[] }
-
-// ─── Meeting ──────────────────────────────────────────────────────────────────
-
-export type MeetingStatus = 'DRAFT' | 'FINALIZED' | 'DISTRIBUTED'
-
-export type MeetingAttendee = {
-  name: string
+export type UpdateClientUserRequest = {
   email?: string
-  role?: string
+  password?: string
+  firstName?: string
+  lastName?: string
+  isActive?: boolean
 }
 
-export type MeetingAgendaItem = {
-  order: number
-  topic: string
-  duration?: number
-  presenter?: string
-}
+export type ClientUserListResponse = PaginatedResponse<ClientUser>
 
-export type MeetingActionItem = {
-  description: string
-  assignee?: string
-  dueDate?: string
-  status?: string
-}
-
-export type Meeting = {
-  id: string
-  title: string
-  meeting_date: string
-  location: string | null
-  attendees: MeetingAttendee[]
-  agenda: MeetingAgendaItem[]
-  minutes: Record<string, unknown>
-  action_items: MeetingActionItem[]
-  pdf_url: string | null
-  status: MeetingStatus
-  created_by: string
-  created_at: string
-  updated_at: string
-}
-
-export type CreateMeetingRequest = {
-  title: string
-  meetingDate: string
-  location?: string
-  attendees?: MeetingAttendee[]
-  agenda?: MeetingAgendaItem[]
-  minutes?: Record<string, unknown>
-  actionItems?: MeetingActionItem[]
-  pdfUrl?: string
-  status?: MeetingStatus
-}
-
-export type UpdateMeetingRequest = Partial<CreateMeetingRequest>
-
-export type MeetingListResponse = PaginatedResponse<Meeting>
-
-export type MeetingQueryParams = {
+export type ClientUserQueryParams = {
   page?: number
   limit?: number
-  status?: MeetingStatus | 'all'
+  search?: string
+  customerId?: string
+  isActive?: boolean
 }
 
-// ─── MeetingTemplate ──────────────────────────────────────────────────────────
+// ─── ClientUpdateRequest ──────────────────────────────────────────────────────
 
-export type MeetingTemplateSection = {
-  title: string
-  content?: string
-  order: number
-}
+export type UpdateRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
 
-export type MeetingTemplate = {
-  id: string
-  name: string
-  description: string | null
-  sections: MeetingTemplateSection[]
-  created_at: string
-  updated_at: string
-}
-
-export type CreateMeetingTemplateRequest = {
-  name: string
-  description?: string
-  sections?: MeetingTemplateSection[]
-}
-
-export type UpdateMeetingTemplateRequest = Partial<CreateMeetingTemplateRequest>
-
-export type MeetingTemplateListResponse = { data: MeetingTemplate[] }
-
-// ─── Notification ─────────────────────────────────────────────────────────────
-
-export type Notification = {
-  id: string
-  user_id: string
-  title: string
-  message: string
-  type: string
-  entity_type: string | null
-  entity_id: string | null
-  is_read: boolean
-  created_at: string
-}
-
-export type NotificationListResponse = PaginatedResponse<Notification>
-
-export type NotificationQueryParams = {
-  page?: number
-  limit?: number
-  isRead?: boolean
-}
-
-export type NotificationPreference = {
-  id: string
-  user_id: string
-  notification_type: string
-  email_enabled: boolean
-  in_app_enabled: boolean
-  created_at: string
-}
-
-export type UpdateNotificationPreferenceRequest = {
-  notificationType: string
-  emailEnabled?: boolean
-  inAppEnabled?: boolean
-}
-
-// ─── ActivityLog ──────────────────────────────────────────────────────────────
-
-export type ActivityLog = {
-  id: string
-  user_id: string | null
-  action: string
-  entity_type: string | null
-  entity_id: string | null
-  details: Record<string, unknown> | null
-  ip_address: string | null
-  created_at: string
-  user?: { id: string; first_name: string; last_name: string; email: string } | null
-}
-
-export type ActivityLogListResponse = PaginatedResponse<ActivityLog>
-
-export type ActivityLogQueryParams = {
-  page?: number
-  limit?: number
-  userId?: string
-  entityType?: string
-  action?: string
-}
-
-export type UserAuditLog = {
-  id: string
-  user_id: string
-  action: string
-  details: Record<string, unknown> | null
-  ip_address: string | null
-  created_at: string
-  user?: { id: string; first_name: string; last_name: string; email: string }
-}
-
-export type UserAuditLogListResponse = PaginatedResponse<UserAuditLog>
-
-export type AuditLogQueryParams = {
-  page?: number
-  limit?: number
-  userId?: string
-  action?: string
-}
-
-// ─── Comment ──────────────────────────────────────────────────────────────────
-
-export type Comment = {
+export type ClientUpdateRequest = {
   id: string
   entity_type: string
   entity_id: string
-  user_id: string
-  content: string
+  client_user_id: string
+  requested_changes: Record<string, unknown>
+  status: UpdateRequestStatus
+  reviewed_by: string | null
   created_at: string
   updated_at: string
-  user?: { id: string; first_name: string; last_name: string; email: string }
+  client_user?: Pick<ClientUser, 'id' | 'first_name' | 'last_name' | 'email'>
+  reviewer?: { id: string; first_name: string; last_name: string } | null
 }
 
-export type CreateCommentRequest = {
+export type CreateClientUpdateRequestRequest = {
   entityType: string
   entityId: string
-  content: string
+  clientUserId: string
+  requestedChanges: Record<string, unknown>
 }
 
-export type UpdateCommentRequest = {
-  content: string
+export type UpdateClientUpdateRequestRequest = {
+  status: UpdateRequestStatus
+  reviewedBy?: string
 }
 
-export type CommentListResponse = { data: Comment[] }
+export type ClientUpdateRequestListResponse = PaginatedResponse<ClientUpdateRequest>
 
-// ─── WarehouseRequirement ─────────────────────────────────────────────────────
-
-export type WarehouseRequirementStatus =
-  | 'DRAFT'
-  | 'SUBMITTED'
-  | 'REVIEWED'
-  | 'APPROVED'
-  | 'REJECTED'
-
-export type WarehouseRequirement = {
-  id: string
-  customer_id: string
-  project_id: string | null
-  requirements: Record<string, unknown>
-  specifications: Record<string, unknown>
-  status: WarehouseRequirementStatus
-  created_by: string
-  created_at: string
-  updated_at: string
-  customer?: { id: string; name: string; email: string | null; phone: string | null }
-  project?: { id: string; name: string; code: string } | null
-  creator?: { id: string; first_name: string; last_name: string }
-}
-
-export type CreateWarehouseRequirementRequest = {
-  customerId: string
-  projectId?: string
-  requirements?: Record<string, unknown>
-  specifications?: Record<string, unknown>
-  status?: WarehouseRequirementStatus
-}
-
-export type UpdateWarehouseRequirementRequest = Partial<CreateWarehouseRequirementRequest>
-
-export type WarehouseRequirementListResponse = PaginatedResponse<WarehouseRequirement>
-
-export type WarehouseRequirementQueryParams = {
+export type ClientUpdateRequestQueryParams = {
   page?: number
   limit?: number
-  status?: WarehouseRequirementStatus | 'all'
-  customerId?: string
-  projectId?: string
-}
-
-// ─── SaleJob04F01 ─────────────────────────────────────────────────────────────
-
-export type SaleJobStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED'
-
-export type SaleJob04F01 = {
-  id: string
-  form_number: string
-  project_id: string
-  customer_id: string
-  unit_id: string | null
-  form_data: Record<string, unknown>
-  status: SaleJobStatus
-  created_by: string
-  approved_by: string | null
-  created_at: string
-  updated_at: string
-  project?: { id: string; name: string; code: string }
-  customer?: { id: string; name: string; email: string | null; phone: string | null }
-  unit?: { id: string; unit_number: string; floor: number | null; building: string | null } | null
-  creator?: { id: string; first_name: string; last_name: string }
-  approver?: { id: string; first_name: string; last_name: string } | null
-}
-
-export type CreateSaleJob04F01Request = {
-  formNumber?: string
-  projectId: string
-  customerId: string
-  unitId?: string
-  formData?: Record<string, unknown>
-  status?: SaleJobStatus
-}
-
-export type UpdateSaleJob04F01Request = Partial<Omit<CreateSaleJob04F01Request, 'formNumber'>>
-
-export type SaleJob04F01ListResponse = PaginatedResponse<SaleJob04F01>
-
-export type SaleJobQueryParams = {
-  page?: number
-  limit?: number
-  status?: SaleJobStatus | 'all'
-  projectId?: string
-  customerId?: string
+  status?: UpdateRequestStatus | 'all'
+  clientUserId?: string
 }
