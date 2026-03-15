@@ -483,109 +483,155 @@ export type CreateCommercialQuotationRequest = {
 
 export type UpdateCommercialQuotationRequest = Partial<CreateCommercialQuotationRequest>
 
-export type RejectCommercialQuotationRequest = {
-  reason: string
-}
+// ─── Invoice ──────────────────────────────────────────────────────────────────
 
-export type CommercialQuotationListResponse = PaginatedResponse<CommercialQuotation>
+export type InvoiceStatus = 'DRAFT' | 'SENT' | 'PAID' | 'OVERDUE' | 'CANCELLED' | 'PARTIAL'
 
-export type CommercialQuotationQueryParams = {
-  page?: number
-  limit?: number
-  search?: string
-  status?: QuotationStatus | 'all'
-  customerId?: string
-  projectId?: string
-}
-
-export type PendingQuotation = Quotation & {
-  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'>
-  project: Pick<Project, 'id' | 'name' | 'code'>
-}
-
-export type PendingCommercialQuotation = CommercialQuotation & {
-  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'>
-  project: Pick<Project, 'id' | 'name' | 'code'>
-}
-
-export type PendingQuotationsResponse = {
-  data: PendingQuotation[]
-}
-
-export type PendingCommercialQuotationsResponse = {
-  data: PendingCommercialQuotation[]
-}
-
-// ─── Sale Form Types ──────────────────────────────────────────────────────────
-
-export type SaleQuotationItem = {
+export type InvoiceItem = {
   description: string
   quantity: number
   unit_price: number
   amount: number
+  item_type?: string
 }
 
-export type SaleQuotationFormData = {
-  quotation_number: string
-  customer_name: string
-  quotation_date: string
-  valid_until: string
-  contact_person: string
-  phone: string
-  email: string
-  items: SaleQuotationItem[]
+export type Invoice = {
+  id: string
+  invoice_number: string
+  contract_id: string | null
+  customer_id: string
+  items: InvoiceItem[]
   subtotal: number
-  vat: number
+  tax: number
   total: number
-  terms: string
-  notes: string
+  due_date: string | null
+  status: InvoiceStatus
+  notes: string | null
+  created_by: string
+  created_at: string
+  updated_at: string
 }
 
-export type LesseeResponsibility = {
-  checked: boolean
-  note: string
+export type InvoiceWithRelations = Invoice & {
+  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'>
+  contract: { id: string; contract_number: string; type: string; status: string } | null
+  creator: { id: string; first_name: string; last_name: string }
 }
 
-export type CommercialProposalRentalDetail = {
-  building: string
-  area: number
-  rental_rate: number
-  monthly_rental: number
+export type CreateInvoiceRequest = {
+  invoiceNumber?: string
+  contractId?: string
+  customerId: string
+  items?: InvoiceItem[]
+  subtotal?: number
+  tax?: number
+  total?: number
+  dueDate?: string
+  status?: InvoiceStatus
+  notes?: string
 }
 
-export type CommercialProposalFormData = {
-  quotation_number: string
-  proposal_date: Date | null
-  customer_info: {
-    company_address: string
-    contact_name: string
-    telephone: string
-    mobile: string
-    email: string
+export type UpdateInvoiceRequest = Partial<CreateInvoiceRequest>
+
+export type InvoiceListResponse = PaginatedResponse<Invoice>
+
+export type InvoiceQueryParams = {
+  page?: number
+  limit?: number
+  status?: InvoiceStatus | 'all'
+  customerId?: string
+  contractId?: string
+}
+
+// ─── Payment ──────────────────────────────────────────────────────────────────
+
+export type PaymentMethod = 'CASH' | 'BANK_TRANSFER' | 'CHEQUE' | 'CREDIT_CARD' | 'ONLINE'
+
+export type Payment = {
+  id: string
+  invoice_id: string
+  amount: number
+  payment_date: string
+  payment_method: PaymentMethod
+  reference_number: string | null
+  notes: string | null
+  received_by: string | null
+  created_at: string
+}
+
+export type PaymentWithRelations = Payment & {
+  invoice: {
+    id: string
+    invoice_number: string
+    total: number
+    status: InvoiceStatus
+    customer_id: string
   }
-  warehouse_location: {
-    house_no: string
-    moo: string
-    sub_district: string
-    district: string
-    province: string
-  }
-  rental_details: CommercialProposalRentalDetail[]
-  terms_conditions: {
-    deposit_months: number
-    advance_rental_months: number
-    water_charge: number
-    electricity_charge: string
-    contract_duration: number
-    lessee_responsibilities: Record<string, LesseeResponsibility>
-  }
-  valid_until: Date | null
-  footer_info: {
-    company_name: string
-    company_address: string
-    contact_person_name: string
-    contact_mobile: string
-    contact_email: string
-  }
-  status: string
+  receiver: { id: string; first_name: string; last_name: string } | null
+}
+
+export type CreatePaymentRequest = {
+  invoiceId: string
+  amount: number
+  paymentDate: string
+  paymentMethod: PaymentMethod
+  referenceNumber?: string
+  notes?: string
+}
+
+export type UpdatePaymentRequest = Partial<CreatePaymentRequest>
+
+export type PaymentListResponse = PaginatedResponse<Payment>
+
+export type PaymentQueryParams = {
+  page?: number
+  limit?: number
+  invoiceId?: string
+  paymentMethod?: PaymentMethod
+}
+
+// ─── Deposit ──────────────────────────────────────────────────────────────────
+
+export type DepositStatus = 'HELD' | 'APPLIED' | 'REFUNDED' | 'FORFEITED'
+
+export type Deposit = {
+  id: string
+  contract_id: string
+  customer_id: string
+  amount: number
+  deposit_date: string
+  status: DepositStatus
+  refund_date: string | null
+  refund_amount: number | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type DepositWithRelations = Deposit & {
+  contract: { id: string; contract_number: string; type: string; status: string }
+  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'>
+}
+
+export type CreateDepositRequest = {
+  contractId: string
+  customerId: string
+  amount: number
+  depositDate: string
+  status?: DepositStatus
+  refundDate?: string
+  refundAmount?: number
+  notes?: string
+}
+
+export type UpdateDepositRequest = Partial<CreateDepositRequest>
+
+export type DepositListResponse = PaginatedResponse<Deposit>
+
+export type DepositQueryParams = {
+  page?: number
+  limit?: number
+  status?: DepositStatus | 'all'
+  contractId?: string
+  customerId?: string
 }

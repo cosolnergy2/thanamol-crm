@@ -14,7 +14,6 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticated/contacts'
 import { Route as AuthenticatedCompaniesRouteImport } from './routes/_authenticated/companies'
-import { Route as AuthenticatedApprovalsRouteImport } from './routes/_authenticated/approvals'
 import { Route as AuthenticatedUnitsIndexRouteImport } from './routes/_authenticated/units/index'
 import { Route as AuthenticatedProjectsIndexRouteImport } from './routes/_authenticated/projects/index'
 import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers/index'
@@ -22,14 +21,11 @@ import { Route as AuthenticatedUnitsByProjectRouteImport } from './routes/_authe
 import { Route as AuthenticatedUnitsAvailabilityRouteImport } from './routes/_authenticated/units/availability'
 import { Route as AuthenticatedProjectsDashboardRouteImport } from './routes/_authenticated/projects/dashboard'
 import { Route as AuthenticatedProjectsProjectIdRouteImport } from './routes/_authenticated/projects/$projectId'
-import { Route as AuthenticatedFormsSaleQuotationRouteImport } from './routes/_authenticated/forms/sale-quotation'
-import { Route as AuthenticatedFormsSaleCommercialProposalRouteImport } from './routes/_authenticated/forms/sale-commercial-proposal'
+import { Route as AuthenticatedFinanceMonthlyBillingRouteImport } from './routes/_authenticated/finance/monthly-billing'
+import { Route as AuthenticatedFinanceDepositsRouteImport } from './routes/_authenticated/finance/deposits'
+import { Route as AuthenticatedFinanceCompaniesRouteImport } from './routes/_authenticated/finance/companies'
+import { Route as AuthenticatedFinanceArAgingRouteImport } from './routes/_authenticated/finance/ar-aging'
 import { Route as AuthenticatedCustomersCreateRouteImport } from './routes/_authenticated/customers/create'
-import { Route as AuthenticatedQuotationsCommercialIndexRouteImport } from './routes/_authenticated/quotations/commercial/index'
-import { Route as AuthenticatedQuotationsCommercialNewRouteImport } from './routes/_authenticated/quotations/commercial/new'
-import { Route as AuthenticatedQuotationsCommercialIdIndexRouteImport } from './routes/_authenticated/quotations/commercial/$id/index'
-import { Route as AuthenticatedQuotationsCommercialIdPrintRouteImport } from './routes/_authenticated/quotations/commercial/$id/print'
-import { Route as AuthenticatedQuotationsCommercialIdEditRouteImport } from './routes/_authenticated/quotations/commercial/$id/edit'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -53,11 +49,6 @@ const AuthenticatedContactsRoute = AuthenticatedContactsRouteImport.update({
 const AuthenticatedCompaniesRoute = AuthenticatedCompaniesRouteImport.update({
   id: '/companies',
   path: '/companies',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedApprovalsRoute = AuthenticatedApprovalsRouteImport.update({
-  id: '/approvals',
-  path: '/approvals',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedUnitsIndexRoute = AuthenticatedUnitsIndexRouteImport.update({
@@ -101,16 +92,28 @@ const AuthenticatedProjectsProjectIdRoute =
     path: '/projects/$projectId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedFormsSaleQuotationRoute =
-  AuthenticatedFormsSaleQuotationRouteImport.update({
-    id: '/forms/sale-quotation',
-    path: '/forms/sale-quotation',
+const AuthenticatedFinanceMonthlyBillingRoute =
+  AuthenticatedFinanceMonthlyBillingRouteImport.update({
+    id: '/finance/monthly-billing',
+    path: '/finance/monthly-billing',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedFormsSaleCommercialProposalRoute =
-  AuthenticatedFormsSaleCommercialProposalRouteImport.update({
-    id: '/forms/sale-commercial-proposal',
-    path: '/forms/sale-commercial-proposal',
+const AuthenticatedFinanceDepositsRoute =
+  AuthenticatedFinanceDepositsRouteImport.update({
+    id: '/finance/deposits',
+    path: '/finance/deposits',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceCompaniesRoute =
+  AuthenticatedFinanceCompaniesRouteImport.update({
+    id: '/finance/companies',
+    path: '/finance/companies',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceArAgingRoute =
+  AuthenticatedFinanceArAgingRouteImport.update({
+    id: '/finance/ar-aging',
+    path: '/finance/ar-aging',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedCustomersCreateRoute =
@@ -119,46 +122,17 @@ const AuthenticatedCustomersCreateRoute =
     path: '/customers/create',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedQuotationsCommercialIndexRoute =
-  AuthenticatedQuotationsCommercialIndexRouteImport.update({
-    id: '/quotations/commercial/',
-    path: '/quotations/commercial/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedQuotationsCommercialNewRoute =
-  AuthenticatedQuotationsCommercialNewRouteImport.update({
-    id: '/quotations/commercial/new',
-    path: '/quotations/commercial/new',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedQuotationsCommercialIdIndexRoute =
-  AuthenticatedQuotationsCommercialIdIndexRouteImport.update({
-    id: '/quotations/commercial/$id/',
-    path: '/quotations/commercial/$id/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedQuotationsCommercialIdPrintRoute =
-  AuthenticatedQuotationsCommercialIdPrintRouteImport.update({
-    id: '/quotations/commercial/$id/print',
-    path: '/quotations/commercial/$id/print',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedQuotationsCommercialIdEditRoute =
-  AuthenticatedQuotationsCommercialIdEditRouteImport.update({
-    id: '/quotations/commercial/$id/edit',
-    path: '/quotations/commercial/$id/edit',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof LoginRoute
-  '/approvals': typeof AuthenticatedApprovalsRoute
   '/companies': typeof AuthenticatedCompaniesRoute
   '/contacts': typeof AuthenticatedContactsRoute
   '/customers/create': typeof AuthenticatedCustomersCreateRoute
-  '/forms/sale-commercial-proposal': typeof AuthenticatedFormsSaleCommercialProposalRoute
-  '/forms/sale-quotation': typeof AuthenticatedFormsSaleQuotationRoute
+  '/finance/ar-aging': typeof AuthenticatedFinanceArAgingRoute
+  '/finance/companies': typeof AuthenticatedFinanceCompaniesRoute
+  '/finance/deposits': typeof AuthenticatedFinanceDepositsRoute
+  '/finance/monthly-billing': typeof AuthenticatedFinanceMonthlyBillingRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
@@ -166,21 +140,17 @@ export interface FileRoutesByFullPath {
   '/customers/': typeof AuthenticatedCustomersIndexRoute
   '/projects/': typeof AuthenticatedProjectsIndexRoute
   '/units/': typeof AuthenticatedUnitsIndexRoute
-  '/quotations/commercial/new': typeof AuthenticatedQuotationsCommercialNewRoute
-  '/quotations/commercial/': typeof AuthenticatedQuotationsCommercialIndexRoute
-  '/quotations/commercial/$id/edit': typeof AuthenticatedQuotationsCommercialIdEditRoute
-  '/quotations/commercial/$id/print': typeof AuthenticatedQuotationsCommercialIdPrintRoute
-  '/quotations/commercial/$id/': typeof AuthenticatedQuotationsCommercialIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
-  '/approvals': typeof AuthenticatedApprovalsRoute
   '/companies': typeof AuthenticatedCompaniesRoute
   '/contacts': typeof AuthenticatedContactsRoute
   '/': typeof AuthenticatedIndexRoute
   '/customers/create': typeof AuthenticatedCustomersCreateRoute
-  '/forms/sale-commercial-proposal': typeof AuthenticatedFormsSaleCommercialProposalRoute
-  '/forms/sale-quotation': typeof AuthenticatedFormsSaleQuotationRoute
+  '/finance/ar-aging': typeof AuthenticatedFinanceArAgingRoute
+  '/finance/companies': typeof AuthenticatedFinanceCompaniesRoute
+  '/finance/deposits': typeof AuthenticatedFinanceDepositsRoute
+  '/finance/monthly-billing': typeof AuthenticatedFinanceMonthlyBillingRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
@@ -188,23 +158,19 @@ export interface FileRoutesByTo {
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/projects': typeof AuthenticatedProjectsIndexRoute
   '/units': typeof AuthenticatedUnitsIndexRoute
-  '/quotations/commercial/new': typeof AuthenticatedQuotationsCommercialNewRoute
-  '/quotations/commercial': typeof AuthenticatedQuotationsCommercialIndexRoute
-  '/quotations/commercial/$id/edit': typeof AuthenticatedQuotationsCommercialIdEditRoute
-  '/quotations/commercial/$id/print': typeof AuthenticatedQuotationsCommercialIdPrintRoute
-  '/quotations/commercial/$id': typeof AuthenticatedQuotationsCommercialIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
-  '/_authenticated/approvals': typeof AuthenticatedApprovalsRoute
   '/_authenticated/companies': typeof AuthenticatedCompaniesRoute
   '/_authenticated/contacts': typeof AuthenticatedContactsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/customers/create': typeof AuthenticatedCustomersCreateRoute
-  '/_authenticated/forms/sale-commercial-proposal': typeof AuthenticatedFormsSaleCommercialProposalRoute
-  '/_authenticated/forms/sale-quotation': typeof AuthenticatedFormsSaleQuotationRoute
+  '/_authenticated/finance/ar-aging': typeof AuthenticatedFinanceArAgingRoute
+  '/_authenticated/finance/companies': typeof AuthenticatedFinanceCompaniesRoute
+  '/_authenticated/finance/deposits': typeof AuthenticatedFinanceDepositsRoute
+  '/_authenticated/finance/monthly-billing': typeof AuthenticatedFinanceMonthlyBillingRoute
   '/_authenticated/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/_authenticated/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/_authenticated/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
@@ -212,23 +178,19 @@ export interface FileRoutesById {
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
   '/_authenticated/units/': typeof AuthenticatedUnitsIndexRoute
-  '/_authenticated/quotations/commercial/new': typeof AuthenticatedQuotationsCommercialNewRoute
-  '/_authenticated/quotations/commercial/': typeof AuthenticatedQuotationsCommercialIndexRoute
-  '/_authenticated/quotations/commercial/$id/edit': typeof AuthenticatedQuotationsCommercialIdEditRoute
-  '/_authenticated/quotations/commercial/$id/print': typeof AuthenticatedQuotationsCommercialIdPrintRoute
-  '/_authenticated/quotations/commercial/$id/': typeof AuthenticatedQuotationsCommercialIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/login'
-    | '/approvals'
     | '/companies'
     | '/contacts'
     | '/customers/create'
-    | '/forms/sale-commercial-proposal'
-    | '/forms/sale-quotation'
+    | '/finance/ar-aging'
+    | '/finance/companies'
+    | '/finance/deposits'
+    | '/finance/monthly-billing'
     | '/projects/$projectId'
     | '/projects/dashboard'
     | '/units/availability'
@@ -236,21 +198,17 @@ export interface FileRouteTypes {
     | '/customers/'
     | '/projects/'
     | '/units/'
-    | '/quotations/commercial/new'
-    | '/quotations/commercial/'
-    | '/quotations/commercial/$id/edit'
-    | '/quotations/commercial/$id/print'
-    | '/quotations/commercial/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
-    | '/approvals'
     | '/companies'
     | '/contacts'
     | '/'
     | '/customers/create'
-    | '/forms/sale-commercial-proposal'
-    | '/forms/sale-quotation'
+    | '/finance/ar-aging'
+    | '/finance/companies'
+    | '/finance/deposits'
+    | '/finance/monthly-billing'
     | '/projects/$projectId'
     | '/projects/dashboard'
     | '/units/availability'
@@ -258,22 +216,18 @@ export interface FileRouteTypes {
     | '/customers'
     | '/projects'
     | '/units'
-    | '/quotations/commercial/new'
-    | '/quotations/commercial'
-    | '/quotations/commercial/$id/edit'
-    | '/quotations/commercial/$id/print'
-    | '/quotations/commercial/$id'
   id:
     | '__root__'
     | '/_authenticated'
     | '/login'
-    | '/_authenticated/approvals'
     | '/_authenticated/companies'
     | '/_authenticated/contacts'
     | '/_authenticated/'
     | '/_authenticated/customers/create'
-    | '/_authenticated/forms/sale-commercial-proposal'
-    | '/_authenticated/forms/sale-quotation'
+    | '/_authenticated/finance/ar-aging'
+    | '/_authenticated/finance/companies'
+    | '/_authenticated/finance/deposits'
+    | '/_authenticated/finance/monthly-billing'
     | '/_authenticated/projects/$projectId'
     | '/_authenticated/projects/dashboard'
     | '/_authenticated/units/availability'
@@ -281,11 +235,6 @@ export interface FileRouteTypes {
     | '/_authenticated/customers/'
     | '/_authenticated/projects/'
     | '/_authenticated/units/'
-    | '/_authenticated/quotations/commercial/new'
-    | '/_authenticated/quotations/commercial/'
-    | '/_authenticated/quotations/commercial/$id/edit'
-    | '/_authenticated/quotations/commercial/$id/print'
-    | '/_authenticated/quotations/commercial/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -328,13 +277,6 @@ declare module '@tanstack/react-router' {
       path: '/companies'
       fullPath: '/companies'
       preLoaderRoute: typeof AuthenticatedCompaniesRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/approvals': {
-      id: '/_authenticated/approvals'
-      path: '/approvals'
-      fullPath: '/approvals'
-      preLoaderRoute: typeof AuthenticatedApprovalsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/units/': {
@@ -386,18 +328,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjectsProjectIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/forms/sale-quotation': {
-      id: '/_authenticated/forms/sale-quotation'
-      path: '/forms/sale-quotation'
-      fullPath: '/forms/sale-quotation'
-      preLoaderRoute: typeof AuthenticatedFormsSaleQuotationRouteImport
+    '/_authenticated/finance/monthly-billing': {
+      id: '/_authenticated/finance/monthly-billing'
+      path: '/finance/monthly-billing'
+      fullPath: '/finance/monthly-billing'
+      preLoaderRoute: typeof AuthenticatedFinanceMonthlyBillingRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/forms/sale-commercial-proposal': {
-      id: '/_authenticated/forms/sale-commercial-proposal'
-      path: '/forms/sale-commercial-proposal'
-      fullPath: '/forms/sale-commercial-proposal'
-      preLoaderRoute: typeof AuthenticatedFormsSaleCommercialProposalRouteImport
+    '/_authenticated/finance/deposits': {
+      id: '/_authenticated/finance/deposits'
+      path: '/finance/deposits'
+      fullPath: '/finance/deposits'
+      preLoaderRoute: typeof AuthenticatedFinanceDepositsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/companies': {
+      id: '/_authenticated/finance/companies'
+      path: '/finance/companies'
+      fullPath: '/finance/companies'
+      preLoaderRoute: typeof AuthenticatedFinanceCompaniesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/ar-aging': {
+      id: '/_authenticated/finance/ar-aging'
+      path: '/finance/ar-aging'
+      fullPath: '/finance/ar-aging'
+      preLoaderRoute: typeof AuthenticatedFinanceArAgingRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/customers/create': {
@@ -407,52 +363,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCustomersCreateRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/quotations/commercial/': {
-      id: '/_authenticated/quotations/commercial/'
-      path: '/quotations/commercial'
-      fullPath: '/quotations/commercial/'
-      preLoaderRoute: typeof AuthenticatedQuotationsCommercialIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/quotations/commercial/new': {
-      id: '/_authenticated/quotations/commercial/new'
-      path: '/quotations/commercial/new'
-      fullPath: '/quotations/commercial/new'
-      preLoaderRoute: typeof AuthenticatedQuotationsCommercialNewRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/quotations/commercial/$id/': {
-      id: '/_authenticated/quotations/commercial/$id/'
-      path: '/quotations/commercial/$id'
-      fullPath: '/quotations/commercial/$id/'
-      preLoaderRoute: typeof AuthenticatedQuotationsCommercialIdIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/quotations/commercial/$id/print': {
-      id: '/_authenticated/quotations/commercial/$id/print'
-      path: '/quotations/commercial/$id/print'
-      fullPath: '/quotations/commercial/$id/print'
-      preLoaderRoute: typeof AuthenticatedQuotationsCommercialIdPrintRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/quotations/commercial/$id/edit': {
-      id: '/_authenticated/quotations/commercial/$id/edit'
-      path: '/quotations/commercial/$id/edit'
-      fullPath: '/quotations/commercial/$id/edit'
-      preLoaderRoute: typeof AuthenticatedQuotationsCommercialIdEditRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
   }
 }
 
 interface AuthenticatedRouteChildren {
-  AuthenticatedApprovalsRoute: typeof AuthenticatedApprovalsRoute
   AuthenticatedCompaniesRoute: typeof AuthenticatedCompaniesRoute
   AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedCustomersCreateRoute: typeof AuthenticatedCustomersCreateRoute
-  AuthenticatedFormsSaleCommercialProposalRoute: typeof AuthenticatedFormsSaleCommercialProposalRoute
-  AuthenticatedFormsSaleQuotationRoute: typeof AuthenticatedFormsSaleQuotationRoute
+  AuthenticatedFinanceArAgingRoute: typeof AuthenticatedFinanceArAgingRoute
+  AuthenticatedFinanceCompaniesRoute: typeof AuthenticatedFinanceCompaniesRoute
+  AuthenticatedFinanceDepositsRoute: typeof AuthenticatedFinanceDepositsRoute
+  AuthenticatedFinanceMonthlyBillingRoute: typeof AuthenticatedFinanceMonthlyBillingRoute
   AuthenticatedProjectsProjectIdRoute: typeof AuthenticatedProjectsProjectIdRoute
   AuthenticatedProjectsDashboardRoute: typeof AuthenticatedProjectsDashboardRoute
   AuthenticatedUnitsAvailabilityRoute: typeof AuthenticatedUnitsAvailabilityRoute
@@ -460,22 +382,18 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCustomersIndexRoute: typeof AuthenticatedCustomersIndexRoute
   AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
   AuthenticatedUnitsIndexRoute: typeof AuthenticatedUnitsIndexRoute
-  AuthenticatedQuotationsCommercialNewRoute: typeof AuthenticatedQuotationsCommercialNewRoute
-  AuthenticatedQuotationsCommercialIndexRoute: typeof AuthenticatedQuotationsCommercialIndexRoute
-  AuthenticatedQuotationsCommercialIdEditRoute: typeof AuthenticatedQuotationsCommercialIdEditRoute
-  AuthenticatedQuotationsCommercialIdPrintRoute: typeof AuthenticatedQuotationsCommercialIdPrintRoute
-  AuthenticatedQuotationsCommercialIdIndexRoute: typeof AuthenticatedQuotationsCommercialIdIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedApprovalsRoute: AuthenticatedApprovalsRoute,
   AuthenticatedCompaniesRoute: AuthenticatedCompaniesRoute,
   AuthenticatedContactsRoute: AuthenticatedContactsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedCustomersCreateRoute: AuthenticatedCustomersCreateRoute,
-  AuthenticatedFormsSaleCommercialProposalRoute:
-    AuthenticatedFormsSaleCommercialProposalRoute,
-  AuthenticatedFormsSaleQuotationRoute: AuthenticatedFormsSaleQuotationRoute,
+  AuthenticatedFinanceArAgingRoute: AuthenticatedFinanceArAgingRoute,
+  AuthenticatedFinanceCompaniesRoute: AuthenticatedFinanceCompaniesRoute,
+  AuthenticatedFinanceDepositsRoute: AuthenticatedFinanceDepositsRoute,
+  AuthenticatedFinanceMonthlyBillingRoute:
+    AuthenticatedFinanceMonthlyBillingRoute,
   AuthenticatedProjectsProjectIdRoute: AuthenticatedProjectsProjectIdRoute,
   AuthenticatedProjectsDashboardRoute: AuthenticatedProjectsDashboardRoute,
   AuthenticatedUnitsAvailabilityRoute: AuthenticatedUnitsAvailabilityRoute,
@@ -483,16 +401,6 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCustomersIndexRoute: AuthenticatedCustomersIndexRoute,
   AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
   AuthenticatedUnitsIndexRoute: AuthenticatedUnitsIndexRoute,
-  AuthenticatedQuotationsCommercialNewRoute:
-    AuthenticatedQuotationsCommercialNewRoute,
-  AuthenticatedQuotationsCommercialIndexRoute:
-    AuthenticatedQuotationsCommercialIndexRoute,
-  AuthenticatedQuotationsCommercialIdEditRoute:
-    AuthenticatedQuotationsCommercialIdEditRoute,
-  AuthenticatedQuotationsCommercialIdPrintRoute:
-    AuthenticatedQuotationsCommercialIdPrintRoute,
-  AuthenticatedQuotationsCommercialIdIndexRoute:
-    AuthenticatedQuotationsCommercialIdIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
