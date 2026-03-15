@@ -12,6 +12,16 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticated/contacts'
+import { Route as AuthenticatedCompaniesRouteImport } from './routes/_authenticated/companies'
+import { Route as AuthenticatedUnitsIndexRouteImport } from './routes/_authenticated/units/index'
+import { Route as AuthenticatedProjectsIndexRouteImport } from './routes/_authenticated/projects/index'
+import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers/index'
+import { Route as AuthenticatedUnitsByProjectRouteImport } from './routes/_authenticated/units/by-project'
+import { Route as AuthenticatedUnitsAvailabilityRouteImport } from './routes/_authenticated/units/availability'
+import { Route as AuthenticatedProjectsDashboardRouteImport } from './routes/_authenticated/projects/dashboard'
+import { Route as AuthenticatedProjectsProjectIdRouteImport } from './routes/_authenticated/projects/$projectId'
+import { Route as AuthenticatedCustomersCreateRouteImport } from './routes/_authenticated/customers/create'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -27,27 +37,152 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedContactsRoute = AuthenticatedContactsRouteImport.update({
+  id: '/contacts',
+  path: '/contacts',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedCompaniesRoute = AuthenticatedCompaniesRouteImport.update({
+  id: '/companies',
+  path: '/companies',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedUnitsIndexRoute = AuthenticatedUnitsIndexRouteImport.update({
+  id: '/units/',
+  path: '/units/',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedProjectsIndexRoute =
+  AuthenticatedProjectsIndexRouteImport.update({
+    id: '/projects/',
+    path: '/projects/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedCustomersIndexRoute =
+  AuthenticatedCustomersIndexRouteImport.update({
+    id: '/customers/',
+    path: '/customers/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedUnitsByProjectRoute =
+  AuthenticatedUnitsByProjectRouteImport.update({
+    id: '/units/by-project',
+    path: '/units/by-project',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedUnitsAvailabilityRoute =
+  AuthenticatedUnitsAvailabilityRouteImport.update({
+    id: '/units/availability',
+    path: '/units/availability',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedProjectsDashboardRoute =
+  AuthenticatedProjectsDashboardRouteImport.update({
+    id: '/projects/dashboard',
+    path: '/projects/dashboard',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedProjectsProjectIdRoute =
+  AuthenticatedProjectsProjectIdRouteImport.update({
+    id: '/projects/$projectId',
+    path: '/projects/$projectId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedCustomersCreateRoute =
+  AuthenticatedCustomersCreateRouteImport.update({
+    id: '/customers/create',
+    path: '/customers/create',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof LoginRoute
+  '/companies': typeof AuthenticatedCompaniesRoute
+  '/contacts': typeof AuthenticatedContactsRoute
+  '/customers/create': typeof AuthenticatedCustomersCreateRoute
+  '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
+  '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
+  '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
+  '/units/by-project': typeof AuthenticatedUnitsByProjectRoute
+  '/customers/': typeof AuthenticatedCustomersIndexRoute
+  '/projects/': typeof AuthenticatedProjectsIndexRoute
+  '/units/': typeof AuthenticatedUnitsIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
+  '/companies': typeof AuthenticatedCompaniesRoute
+  '/contacts': typeof AuthenticatedContactsRoute
   '/': typeof AuthenticatedIndexRoute
+  '/customers/create': typeof AuthenticatedCustomersCreateRoute
+  '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
+  '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
+  '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
+  '/units/by-project': typeof AuthenticatedUnitsByProjectRoute
+  '/customers': typeof AuthenticatedCustomersIndexRoute
+  '/projects': typeof AuthenticatedProjectsIndexRoute
+  '/units': typeof AuthenticatedUnitsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
+  '/_authenticated/companies': typeof AuthenticatedCompaniesRoute
+  '/_authenticated/contacts': typeof AuthenticatedContactsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/customers/create': typeof AuthenticatedCustomersCreateRoute
+  '/_authenticated/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
+  '/_authenticated/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
+  '/_authenticated/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
+  '/_authenticated/units/by-project': typeof AuthenticatedUnitsByProjectRoute
+  '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
+  '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
+  '/_authenticated/units/': typeof AuthenticatedUnitsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/companies'
+    | '/contacts'
+    | '/customers/create'
+    | '/projects/$projectId'
+    | '/projects/dashboard'
+    | '/units/availability'
+    | '/units/by-project'
+    | '/customers/'
+    | '/projects/'
+    | '/units/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/'
-  id: '__root__' | '/_authenticated' | '/login' | '/_authenticated/'
+  to:
+    | '/login'
+    | '/companies'
+    | '/contacts'
+    | '/'
+    | '/customers/create'
+    | '/projects/$projectId'
+    | '/projects/dashboard'
+    | '/units/availability'
+    | '/units/by-project'
+    | '/customers'
+    | '/projects'
+    | '/units'
+  id:
+    | '__root__'
+    | '/_authenticated'
+    | '/login'
+    | '/_authenticated/companies'
+    | '/_authenticated/contacts'
+    | '/_authenticated/'
+    | '/_authenticated/customers/create'
+    | '/_authenticated/projects/$projectId'
+    | '/_authenticated/projects/dashboard'
+    | '/_authenticated/units/availability'
+    | '/_authenticated/units/by-project'
+    | '/_authenticated/customers/'
+    | '/_authenticated/projects/'
+    | '/_authenticated/units/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -78,15 +213,105 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/contacts': {
+      id: '/_authenticated/contacts'
+      path: '/contacts'
+      fullPath: '/contacts'
+      preLoaderRoute: typeof AuthenticatedContactsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/companies': {
+      id: '/_authenticated/companies'
+      path: '/companies'
+      fullPath: '/companies'
+      preLoaderRoute: typeof AuthenticatedCompaniesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/units/': {
+      id: '/_authenticated/units/'
+      path: '/units'
+      fullPath: '/units/'
+      preLoaderRoute: typeof AuthenticatedUnitsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/projects/': {
+      id: '/_authenticated/projects/'
+      path: '/projects'
+      fullPath: '/projects/'
+      preLoaderRoute: typeof AuthenticatedProjectsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/customers/': {
+      id: '/_authenticated/customers/'
+      path: '/customers'
+      fullPath: '/customers/'
+      preLoaderRoute: typeof AuthenticatedCustomersIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/units/by-project': {
+      id: '/_authenticated/units/by-project'
+      path: '/units/by-project'
+      fullPath: '/units/by-project'
+      preLoaderRoute: typeof AuthenticatedUnitsByProjectRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/units/availability': {
+      id: '/_authenticated/units/availability'
+      path: '/units/availability'
+      fullPath: '/units/availability'
+      preLoaderRoute: typeof AuthenticatedUnitsAvailabilityRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/projects/dashboard': {
+      id: '/_authenticated/projects/dashboard'
+      path: '/projects/dashboard'
+      fullPath: '/projects/dashboard'
+      preLoaderRoute: typeof AuthenticatedProjectsDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/projects/$projectId': {
+      id: '/_authenticated/projects/$projectId'
+      path: '/projects/$projectId'
+      fullPath: '/projects/$projectId'
+      preLoaderRoute: typeof AuthenticatedProjectsProjectIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/customers/create': {
+      id: '/_authenticated/customers/create'
+      path: '/customers/create'
+      fullPath: '/customers/create'
+      preLoaderRoute: typeof AuthenticatedCustomersCreateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedCompaniesRoute: typeof AuthenticatedCompaniesRoute
+  AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedCustomersCreateRoute: typeof AuthenticatedCustomersCreateRoute
+  AuthenticatedProjectsProjectIdRoute: typeof AuthenticatedProjectsProjectIdRoute
+  AuthenticatedProjectsDashboardRoute: typeof AuthenticatedProjectsDashboardRoute
+  AuthenticatedUnitsAvailabilityRoute: typeof AuthenticatedUnitsAvailabilityRoute
+  AuthenticatedUnitsByProjectRoute: typeof AuthenticatedUnitsByProjectRoute
+  AuthenticatedCustomersIndexRoute: typeof AuthenticatedCustomersIndexRoute
+  AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
+  AuthenticatedUnitsIndexRoute: typeof AuthenticatedUnitsIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedCompaniesRoute: AuthenticatedCompaniesRoute,
+  AuthenticatedContactsRoute: AuthenticatedContactsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedCustomersCreateRoute: AuthenticatedCustomersCreateRoute,
+  AuthenticatedProjectsProjectIdRoute: AuthenticatedProjectsProjectIdRoute,
+  AuthenticatedProjectsDashboardRoute: AuthenticatedProjectsDashboardRoute,
+  AuthenticatedUnitsAvailabilityRoute: AuthenticatedUnitsAvailabilityRoute,
+  AuthenticatedUnitsByProjectRoute: AuthenticatedUnitsByProjectRoute,
+  AuthenticatedCustomersIndexRoute: AuthenticatedCustomersIndexRoute,
+  AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
+  AuthenticatedUnitsIndexRoute: AuthenticatedUnitsIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
