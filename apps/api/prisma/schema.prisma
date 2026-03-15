@@ -1,0 +1,1106 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum CustomerType {
+  INDIVIDUAL
+  COMPANY
+}
+
+enum CustomerStatus {
+  ACTIVE
+  INACTIVE
+  PROSPECT
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  UNQUALIFIED
+  CONVERTED
+}
+
+enum DealStage {
+  PROSPECTING
+  QUALIFICATION
+  PROPOSAL
+  NEGOTIATION
+  CLOSED_WON
+  CLOSED_LOST
+}
+
+enum UnitStatus {
+  AVAILABLE
+  RESERVED
+  SOLD
+  RENTED
+  UNDER_MAINTENANCE
+}
+
+enum ProjectStatus {
+  PLANNING
+  ACTIVE
+  COMPLETED
+  SUSPENDED
+}
+
+enum ContractType {
+  SALE
+  LEASE
+  RENTAL
+}
+
+enum ContractStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  ACTIVE
+  EXPIRED
+  TERMINATED
+  CANCELLED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+  PARTIAL
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  CHEQUE
+  CREDIT_CARD
+  ONLINE
+}
+
+enum DepositStatus {
+  HELD
+  APPLIED
+  REFUNDED
+  FORFEITED
+}
+
+enum MeterType {
+  ELECTRICITY
+  WATER
+  GAS
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TaskStatusEnum {
+  TODO
+  IN_PROGRESS
+  REVIEW
+  DONE
+  CANCELLED
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum HandoverType {
+  INITIAL
+  FINAL
+  PARTIAL
+}
+
+enum HandoverStatus {
+  PENDING
+  COMPLETED
+  REJECTED
+}
+
+enum InspectionStatus {
+  PASS
+  FAIL
+  CONDITIONAL
+}
+
+enum DocumentStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+  SUPERSEDED
+}
+
+enum QuotationStatus {
+  DRAFT
+  SENT
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum ProposalStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+}
+
+enum LeaseStatus {
+  DRAFT
+  ACTIVE
+  EXPIRED
+  TERMINATED
+}
+
+enum MeetingStatus {
+  DRAFT
+  FINALIZED
+  DISTRIBUTED
+}
+
+enum UpdateRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum WarehouseRequirementStatus {
+  DRAFT
+  SUBMITTED
+  REVIEWED
+  APPROVED
+  REJECTED
+}
+
+enum SaleJobStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+// ─── Auth Domain ──────────────────────────────────────────────────────────────
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password_hash String
+  first_name    String
+  last_name     String
+  avatar_url    String?
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  roles                  UserRole[]
+  audit_logs             UserAuditLog[]
+  assigned_leads         Lead[]                  @relation("LeadAssignee")
+  assigned_deals         Deal[]                  @relation("DealAssignee")
+  approved_quotations    Quotation[]             @relation("QuotationApprover")
+  created_quotations     Quotation[]             @relation("QuotationCreator")
+  created_commercial_quotations CommercialQuotation[] @relation("CommercialQuotationCreator")
+  created_commercial_proposals  CommercialProposal[]  @relation("CommercialProposalCreator")
+  approved_contracts     Contract[]              @relation("ContractApprover")
+  created_contracts      Contract[]              @relation("ContractCreator")
+  handed_handovers       Handover[]              @relation("HandoverHandedBy")
+  created_invoices       Invoice[]               @relation("InvoiceCreator")
+  received_payments      Payment[]               @relation("PaymentReceiver")
+  assigned_tasks         Task[]                  @relation("TaskAssignee")
+  created_tasks          Task[]                  @relation("TaskCreator")
+  task_comments          TaskComment[]
+  assigned_tickets       Ticket[]                @relation("TicketAssignee")
+  uploaded_documents     Document[]              @relation("DocumentUploader")
+  approved_iso_documents ISODocument[]           @relation("ISODocumentApprover")
+  created_meeting_minutes MeetingMinute[]        @relation("MeetingMinuteCreator")
+  notifications          Notification[]
+  notification_preferences NotificationPreference[]
+  activity_logs          ActivityLog[]
+  comments               Comment[]
+  reviewed_update_requests ClientUpdateRequest[] @relation("UpdateRequestReviewer")
+  created_warehouse_requirements WarehouseRequirement[] @relation("WarehouseRequirementCreator")
+  created_sale_job04f01  SaleJob04F01[]          @relation("SaleJobCreator")
+  approved_sale_job04f01 SaleJob04F01[]          @relation("SaleJobApprover")
+
+  @@index([email])
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  permissions Json     @default("{}")
+  created_at  DateTime @default(now())
+
+  user_roles UserRole[]
+}
+
+model UserRole {
+  user_id    String
+  role_id    String
+  created_at DateTime @default(now())
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [role_id], references: [id], onDelete: Cascade)
+
+  @@id([user_id, role_id])
+  @@index([user_id])
+  @@index([role_id])
+}
+
+model UserAuditLog {
+  id         String   @id @default(uuid())
+  user_id    String
+  action     String
+  details    Json?
+  ip_address String?
+  created_at DateTime @default(now())
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([created_at])
+}
+
+// ─── CRM Domain ───────────────────────────────────────────────────────────────
+
+model Customer {
+  id         String         @id @default(uuid())
+  name       String
+  email      String?
+  phone      String?
+  address    String?
+  tax_id     String?
+  type       CustomerType   @default(INDIVIDUAL)
+  status     CustomerStatus @default(ACTIVE)
+  notes      String?
+  created_at DateTime       @default(now())
+  updated_at DateTime       @updatedAt
+
+  contacts                   Contact[]
+  leads                      Lead[]
+  deals                      Deal[]
+  quotations                 Quotation[]
+  commercial_quotations      CommercialQuotation[]
+  commercial_proposals       CommercialProposal[]
+  contracts                  Contract[]
+  invoices                   Invoice[]
+  deposits                   Deposit[]
+  tickets                    Ticket[]
+  warehouse_requirements     WarehouseRequirement[]
+  sale_job04f01              SaleJob04F01[]
+  client_users               ClientUser[]
+
+  @@index([email])
+  @@index([status])
+  @@index([type])
+}
+
+model Contact {
+  id          String   @id @default(uuid())
+  customer_id String
+  first_name  String
+  last_name   String
+  email       String?
+  phone       String?
+  position    String?
+  is_primary  Boolean  @default(false)
+  created_at  DateTime @default(now())
+
+  customer Customer @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  leads    Lead[]
+
+  @@index([customer_id])
+  @@index([email])
+}
+
+model Company {
+  id         String   @id @default(uuid())
+  name       String
+  tax_id     String?
+  address    String?
+  phone      String?
+  email      String?
+  website    String?
+  industry   String?
+  status     String   @default("ACTIVE")
+  notes      String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([email])
+  @@index([status])
+}
+
+// ─── Sales Domain ─────────────────────────────────────────────────────────────
+
+model Lead {
+  id                  String     @id @default(uuid())
+  title               String
+  customer_id         String?
+  contact_id          String?
+  source              String?
+  status              LeadStatus @default(NEW)
+  value               Float?
+  probability         Int?
+  expected_close_date DateTime?
+  notes               String?
+  assigned_to         String?
+  created_at          DateTime   @default(now())
+  updated_at          DateTime   @updatedAt
+
+  customer Customer? @relation(fields: [customer_id], references: [id])
+  contact  Contact?  @relation(fields: [contact_id], references: [id])
+  assignee User?     @relation("LeadAssignee", fields: [assigned_to], references: [id])
+  deals    Deal[]
+
+  @@index([customer_id])
+  @@index([contact_id])
+  @@index([assigned_to])
+  @@index([status])
+}
+
+model Deal {
+  id                  String    @id @default(uuid())
+  title               String
+  customer_id         String?
+  lead_id             String?
+  stage               DealStage @default(PROSPECTING)
+  value               Float?
+  probability         Int?
+  expected_close_date DateTime?
+  actual_close_date   DateTime?
+  notes               String?
+  assigned_to         String?
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+
+  customer Customer? @relation(fields: [customer_id], references: [id])
+  lead     Lead?     @relation(fields: [lead_id], references: [id])
+  assignee User?     @relation("DealAssignee", fields: [assigned_to], references: [id])
+
+  @@index([customer_id])
+  @@index([lead_id])
+  @@index([assigned_to])
+  @@index([stage])
+}
+
+// ─── Property Domain ──────────────────────────────────────────────────────────
+
+model Project {
+  id          String        @id @default(uuid())
+  name        String
+  code        String        @unique
+  description String?
+  address     String?
+  type        String
+  status      ProjectStatus @default(ACTIVE)
+  total_units Int           @default(0)
+  settings    Json          @default("{}")
+  created_at  DateTime      @default(now())
+  updated_at  DateTime      @updatedAt
+
+  units                      Unit[]
+  quotations                 Quotation[]
+  commercial_quotations      CommercialQuotation[]
+  commercial_proposals       CommercialProposal[]
+  contracts                  Contract[]
+  tasks                      Task[]
+  warehouse_requirements     WarehouseRequirement[]
+  sale_job04f01              SaleJob04F01[]
+
+  @@index([status])
+  @@index([code])
+}
+
+model ProjectTemplate {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  settings    Json     @default("{}")
+  created_at  DateTime @default(now())
+}
+
+model Unit {
+  id          String     @id @default(uuid())
+  project_id  String
+  unit_number String
+  floor       Int?
+  building    String?
+  type        String
+  area_sqm    Float?
+  price       Float?
+  status      UnitStatus @default(AVAILABLE)
+  features    Json       @default("{}")
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+
+  project      Project       @relation(fields: [project_id], references: [id])
+  quotations   Quotation[]
+  contracts    Contract[]
+  meter_records MeterRecord[]
+  tickets      Ticket[]
+  sale_job04f01 SaleJob04F01[]
+
+  @@index([project_id])
+  @@index([status])
+  @@unique([project_id, unit_number])
+}
+
+// ─── Sales Documents Domain ───────────────────────────────────────────────────
+
+model Quotation {
+  id               String          @id @default(uuid())
+  quotation_number String          @unique
+  customer_id      String
+  project_id       String
+  unit_id          String?
+  items            Json            @default("[]")
+  total_amount     Float           @default(0)
+  discount         Float           @default(0)
+  tax              Float           @default(0)
+  grand_total      Float           @default(0)
+  status           QuotationStatus @default(DRAFT)
+  valid_until      DateTime?
+  notes            String?
+  approved_by      String?
+  created_by       String
+  created_at       DateTime        @default(now())
+  updated_at       DateTime        @updatedAt
+
+  customer Customer @relation(fields: [customer_id], references: [id])
+  project  Project  @relation(fields: [project_id], references: [id])
+  unit     Unit?    @relation(fields: [unit_id], references: [id])
+  approver User?    @relation("QuotationApprover", fields: [approved_by], references: [id])
+  creator  User     @relation("QuotationCreator", fields: [created_by], references: [id])
+
+  contracts Contract[]
+
+  @@index([customer_id])
+  @@index([project_id])
+  @@index([unit_id])
+  @@index([approved_by])
+  @@index([created_by])
+  @@index([status])
+}
+
+model CommercialQuotation {
+  id               String          @id @default(uuid())
+  quotation_number String          @unique
+  customer_id      String
+  project_id       String
+  items            Json            @default("[]")
+  terms            String?
+  conditions       String?
+  total_amount     Float           @default(0)
+  status           QuotationStatus @default(DRAFT)
+  created_by       String
+  created_at       DateTime        @default(now())
+  updated_at       DateTime        @updatedAt
+
+  customer Customer @relation(fields: [customer_id], references: [id])
+  project  Project  @relation(fields: [project_id], references: [id])
+  creator  User     @relation("CommercialQuotationCreator", fields: [created_by], references: [id])
+
+  @@index([customer_id])
+  @@index([project_id])
+  @@index([created_by])
+  @@index([status])
+}
+
+model CommercialProposal {
+  id              String         @id @default(uuid())
+  proposal_number String         @unique
+  customer_id     String
+  project_id      String
+  content         Json           @default("{}")
+  status          ProposalStatus @default(DRAFT)
+  created_by      String
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
+
+  customer Customer @relation(fields: [customer_id], references: [id])
+  project  Project  @relation(fields: [project_id], references: [id])
+  creator  User     @relation("CommercialProposalCreator", fields: [created_by], references: [id])
+
+  @@index([customer_id])
+  @@index([project_id])
+  @@index([created_by])
+  @@index([status])
+}
+
+// ─── Contracts Domain ─────────────────────────────────────────────────────────
+
+model Contract {
+  id              String         @id @default(uuid())
+  contract_number String         @unique
+  customer_id     String
+  project_id      String
+  unit_id         String?
+  quotation_id    String?
+  type            ContractType
+  start_date      DateTime
+  end_date        DateTime?
+  value           Float          @default(0)
+  monthly_rent    Float?
+  deposit_amount  Float?
+  terms           String?
+  status          ContractStatus @default(DRAFT)
+  approved_by     String?
+  created_by      String
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
+
+  customer  Customer   @relation(fields: [customer_id], references: [id])
+  project   Project    @relation(fields: [project_id], references: [id])
+  unit      Unit?      @relation(fields: [unit_id], references: [id])
+  quotation Quotation? @relation(fields: [quotation_id], references: [id])
+  approver  User?      @relation("ContractApprover", fields: [approved_by], references: [id])
+  creator   User       @relation("ContractCreator", fields: [created_by], references: [id])
+
+  lease_agreements       LeaseAgreement[]
+  pre_handover_inspections PreHandoverInspection[]
+  handovers              Handover[]
+  invoices               Invoice[]
+  deposits               Deposit[]
+
+  @@index([customer_id])
+  @@index([project_id])
+  @@index([unit_id])
+  @@index([quotation_id])
+  @@index([approved_by])
+  @@index([created_by])
+  @@index([status])
+}
+
+model LeaseAgreement {
+  id                 String      @id @default(uuid())
+  contract_id        String
+  lease_terms        Json        @default("{}")
+  special_conditions String?
+  status             LeaseStatus @default(DRAFT)
+  created_at         DateTime    @default(now())
+  updated_at         DateTime    @updatedAt
+
+  contract Contract @relation(fields: [contract_id], references: [id], onDelete: Cascade)
+
+  @@index([contract_id])
+}
+
+model PreHandoverInspection {
+  id              String           @id @default(uuid())
+  contract_id     String
+  inspection_date DateTime
+  inspector       String
+  items           Json             @default("[]")
+  overall_status  InspectionStatus @default(CONDITIONAL)
+  notes           String?
+  photos          Json             @default("[]")
+  created_at      DateTime         @default(now())
+  updated_at      DateTime         @updatedAt
+
+  contract Contract @relation(fields: [contract_id], references: [id])
+
+  @@index([contract_id])
+}
+
+// ─── Handover Domain ──────────────────────────────────────────────────────────
+
+model Handover {
+  id            String         @id @default(uuid())
+  contract_id   String
+  handover_date DateTime
+  handover_type HandoverType
+  checklist     Json           @default("[]")
+  notes         String?
+  status        HandoverStatus @default(PENDING)
+  received_by   String?
+  handed_by     String?
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
+
+  contract       Contract        @relation(fields: [contract_id], references: [id])
+  handed_by_user User?           @relation("HandoverHandedBy", fields: [handed_by], references: [id])
+  photos         HandoverPhotos[]
+
+  @@index([contract_id])
+  @@index([handed_by])
+}
+
+model HandoverPhotos {
+  id          String   @id @default(uuid())
+  handover_id String
+  photos      Json     @default("[]")
+  description String?
+  category    String?
+  created_at  DateTime @default(now())
+
+  handover Handover @relation(fields: [handover_id], references: [id], onDelete: Cascade)
+
+  @@index([handover_id])
+}
+
+// ─── Finance Domain ───────────────────────────────────────────────────────────
+
+model Invoice {
+  id             String        @id @default(uuid())
+  invoice_number String        @unique
+  contract_id    String?
+  customer_id    String
+  items          Json          @default("[]")
+  subtotal       Float         @default(0)
+  tax            Float         @default(0)
+  total          Float         @default(0)
+  due_date       DateTime?
+  status         InvoiceStatus @default(DRAFT)
+  notes          String?
+  created_by     String
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
+
+  contract Contract? @relation(fields: [contract_id], references: [id])
+  customer Customer  @relation(fields: [customer_id], references: [id])
+  creator  User      @relation("InvoiceCreator", fields: [created_by], references: [id])
+
+  payments Payment[]
+
+  @@index([contract_id])
+  @@index([customer_id])
+  @@index([created_by])
+  @@index([status])
+}
+
+model Payment {
+  id               String        @id @default(uuid())
+  invoice_id       String
+  amount           Float
+  payment_date     DateTime
+  payment_method   PaymentMethod
+  reference_number String?
+  notes            String?
+  received_by      String?
+  created_at       DateTime      @default(now())
+
+  invoice     Invoice @relation(fields: [invoice_id], references: [id])
+  receiver    User?   @relation("PaymentReceiver", fields: [received_by], references: [id])
+
+  @@index([invoice_id])
+  @@index([received_by])
+}
+
+model Deposit {
+  id            String        @id @default(uuid())
+  contract_id   String
+  customer_id   String
+  amount        Float
+  deposit_date  DateTime
+  status        DepositStatus @default(HELD)
+  refund_date   DateTime?
+  refund_amount Float?
+  notes         String?
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
+
+  contract Contract @relation(fields: [contract_id], references: [id])
+  customer Customer @relation(fields: [customer_id], references: [id])
+
+  @@index([contract_id])
+  @@index([customer_id])
+  @@index([status])
+}
+
+model MeterRecord {
+  id               String    @id @default(uuid())
+  unit_id          String
+  meter_type       MeterType
+  previous_reading Float
+  current_reading  Float
+  reading_date     DateTime
+  usage            Float
+  amount           Float
+  billing_period   String
+  created_at       DateTime  @default(now())
+
+  unit Unit @relation(fields: [unit_id], references: [id])
+
+  @@index([unit_id])
+  @@index([reading_date])
+}
+
+// ─── Tasks Domain ─────────────────────────────────────────────────────────────
+
+model Task {
+  id                 String         @id @default(uuid())
+  title              String
+  description        String?
+  project_id         String?
+  assigned_to        String?
+  created_by         String
+  priority           Priority       @default(MEDIUM)
+  status             TaskStatusEnum @default(TODO)
+  due_date           DateTime?
+  parent_task_id     String?
+  estimated_hours    Float?
+  actual_hours       Float?
+  tags               Json           @default("[]")
+  is_recurring       Boolean        @default(false)
+  recurrence_pattern String?
+  created_at         DateTime       @default(now())
+  updated_at         DateTime       @updatedAt
+
+  project     Project?  @relation(fields: [project_id], references: [id])
+  assignee    User?     @relation("TaskAssignee", fields: [assigned_to], references: [id])
+  creator     User      @relation("TaskCreator", fields: [created_by], references: [id])
+  parent_task Task?     @relation("TaskSubtasks", fields: [parent_task_id], references: [id])
+  subtasks    Task[]    @relation("TaskSubtasks")
+  comments    TaskComment[]
+
+  @@index([project_id])
+  @@index([assigned_to])
+  @@index([created_by])
+  @@index([parent_task_id])
+  @@index([status])
+}
+
+model TaskComment {
+  id         String   @id @default(uuid())
+  task_id    String
+  user_id    String
+  content    String
+  created_at DateTime @default(now())
+
+  task Task @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  user User @relation(fields: [user_id], references: [id])
+
+  @@index([task_id])
+  @@index([user_id])
+}
+
+model TaskStatus {
+  id         String   @id @default(uuid())
+  name       String   @unique
+  color      String
+  order      Int
+  is_default Boolean  @default(false)
+  is_closed  Boolean  @default(false)
+  created_at DateTime @default(now())
+}
+
+model AutomationRule {
+  id            String   @id @default(uuid())
+  name          String
+  trigger_event String
+  conditions    Json     @default("{}")
+  actions       Json     @default("[]")
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+}
+
+model Ticket {
+  id          String       @id @default(uuid())
+  title       String
+  description String?
+  customer_id String?
+  unit_id     String?
+  category    String?
+  priority    Priority     @default(MEDIUM)
+  status      TicketStatus @default(OPEN)
+  assigned_to String?
+  resolved_at DateTime?
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+
+  customer Customer? @relation(fields: [customer_id], references: [id])
+  unit     Unit?     @relation(fields: [unit_id], references: [id])
+  assignee User?     @relation("TicketAssignee", fields: [assigned_to], references: [id])
+
+  @@index([customer_id])
+  @@index([unit_id])
+  @@index([assigned_to])
+  @@index([status])
+}
+
+// ─── Documents Domain ─────────────────────────────────────────────────────────
+
+model Document {
+  id          String   @id @default(uuid())
+  title       String
+  file_url    String
+  file_type   String?
+  file_size   Int?
+  category    String?
+  entity_type String?
+  entity_id   String?
+  uploaded_by String
+  tags        Json     @default("[]")
+  version     Int      @default(1)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  uploader User @relation("DocumentUploader", fields: [uploaded_by], references: [id])
+
+  @@index([uploaded_by])
+  @@index([entity_type, entity_id])
+}
+
+model FormTemplate {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  fields      Json     @default("[]")
+  category    String?
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+}
+
+model PDFTemplateSettings {
+  id            String   @id @default(uuid())
+  name          String
+  template_type String
+  header        Json     @default("{}")
+  footer        Json     @default("{}")
+  styles        Json     @default("{}")
+  is_default    Boolean  @default(false)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+}
+
+model ISODocument {
+  id              String         @id @default(uuid())
+  document_number String         @unique
+  title           String
+  category        String
+  revision        String
+  status          DocumentStatus @default(DRAFT)
+  content         String?
+  effective_date  DateTime?
+  review_date     DateTime?
+  approved_by     String?
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
+
+  approver User? @relation("ISODocumentApprover", fields: [approved_by], references: [id])
+
+  @@index([approved_by])
+  @@index([status])
+}
+
+// ─── Meetings Domain ──────────────────────────────────────────────────────────
+
+model MeetingMinute {
+  id           String        @id @default(uuid())
+  title        String
+  meeting_date DateTime
+  location     String?
+  attendees    Json          @default("[]")
+  agenda       Json          @default("[]")
+  minutes      Json          @default("{}")
+  action_items Json          @default("[]")
+  pdf_url      String?
+  status       MeetingStatus @default(DRAFT)
+  created_by   String
+  created_at   DateTime      @default(now())
+  updated_at   DateTime      @updatedAt
+
+  creator User @relation("MeetingMinuteCreator", fields: [created_by], references: [id])
+
+  @@index([created_by])
+  @@index([status])
+}
+
+model MeetingTemplate {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  sections    Json     @default("[]")
+  created_at  DateTime @default(now())
+}
+
+model MeetingPDFTemplate {
+  id         String   @id @default(uuid())
+  name       String
+  layout     Json     @default("{}")
+  styles     Json     @default("{}")
+  header     Json     @default("{}")
+  footer     Json     @default("{}")
+  is_default Boolean  @default(false)
+  created_at DateTime @default(now())
+}
+
+// ─── System Domain ────────────────────────────────────────────────────────────
+
+model Notification {
+  id          String   @id @default(uuid())
+  user_id     String
+  title       String
+  message     String
+  type        String
+  entity_type String?
+  entity_id   String?
+  is_read     Boolean  @default(false)
+  created_at  DateTime @default(now())
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([is_read])
+}
+
+model NotificationPreference {
+  id                String   @id @default(uuid())
+  user_id           String
+  notification_type String
+  email_enabled     Boolean  @default(true)
+  in_app_enabled    Boolean  @default(true)
+  created_at        DateTime @default(now())
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, notification_type])
+  @@index([user_id])
+}
+
+model ActivityLog {
+  id          String   @id @default(uuid())
+  user_id     String?
+  action      String
+  entity_type String?
+  entity_id   String?
+  details     Json?
+  ip_address  String?
+  created_at  DateTime @default(now())
+
+  user User? @relation(fields: [user_id], references: [id])
+
+  @@index([user_id])
+  @@index([entity_type, entity_id])
+  @@index([created_at])
+}
+
+model Comment {
+  id          String   @id @default(uuid())
+  entity_type String
+  entity_id   String
+  user_id     String
+  content     String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id])
+
+  @@index([user_id])
+  @@index([entity_type, entity_id])
+}
+
+model ClientUser {
+  id            String   @id @default(uuid())
+  customer_id   String
+  email         String   @unique
+  password_hash String
+  first_name    String
+  last_name     String
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+
+  customer         Customer              @relation(fields: [customer_id], references: [id])
+  client_comments  ClientComment[]
+  update_requests  ClientUpdateRequest[]
+
+  @@index([customer_id])
+  @@index([email])
+}
+
+model ClientComment {
+  id             String   @id @default(uuid())
+  entity_type    String
+  entity_id      String
+  client_user_id String
+  content        String
+  created_at     DateTime @default(now())
+
+  client_user ClientUser @relation(fields: [client_user_id], references: [id])
+
+  @@index([client_user_id])
+  @@index([entity_type, entity_id])
+}
+
+model ClientUpdateRequest {
+  id                 String              @id @default(uuid())
+  entity_type        String
+  entity_id          String
+  client_user_id     String
+  requested_changes  Json
+  status             UpdateRequestStatus @default(PENDING)
+  reviewed_by        String?
+  created_at         DateTime            @default(now())
+  updated_at         DateTime            @updatedAt
+
+  client_user ClientUser @relation(fields: [client_user_id], references: [id])
+  reviewer    User?      @relation("UpdateRequestReviewer", fields: [reviewed_by], references: [id])
+
+  @@index([client_user_id])
+  @@index([reviewed_by])
+  @@index([status])
+}
+
+model WarehouseRequirement {
+  id             String                     @id @default(uuid())
+  customer_id    String
+  project_id     String?
+  requirements   Json                       @default("{}")
+  specifications Json                       @default("{}")
+  status         WarehouseRequirementStatus @default(DRAFT)
+  created_by     String
+  created_at     DateTime                   @default(now())
+  updated_at     DateTime                   @updatedAt
+
+  customer Customer @relation(fields: [customer_id], references: [id])
+  project  Project? @relation(fields: [project_id], references: [id])
+  creator  User     @relation("WarehouseRequirementCreator", fields: [created_by], references: [id])
+
+  @@index([customer_id])
+  @@index([project_id])
+  @@index([created_by])
+  @@index([status])
+}
+
+model SaleJob04F01 {
+  id          String        @id @default(uuid())
+  form_number String        @unique
+  project_id  String
+  customer_id String
+  unit_id     String?
+  form_data   Json          @default("{}")
+  status      SaleJobStatus @default(DRAFT)
+  created_by  String
+  approved_by String?
+  created_at  DateTime      @default(now())
+  updated_at  DateTime      @updatedAt
+
+  project  Project   @relation(fields: [project_id], references: [id])
+  customer Customer  @relation(fields: [customer_id], references: [id])
+  unit     Unit?     @relation(fields: [unit_id], references: [id])
+  creator  User      @relation("SaleJobCreator", fields: [created_by], references: [id])
+  approver User?     @relation("SaleJobApprover", fields: [approved_by], references: [id])
+
+  @@index([project_id])
+  @@index([customer_id])
+  @@index([unit_id])
+  @@index([created_by])
+  @@index([approved_by])
+  @@index([status])
+}
