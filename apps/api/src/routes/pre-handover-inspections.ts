@@ -3,7 +3,6 @@ import { prisma } from '../lib/prisma'
 import { authPlugin } from '../middleware/auth'
 
 const INSPECTION_STATUSES = ['PASS', 'FAIL', 'CONDITIONAL'] as const
-type InspectionStatusValue = typeof INSPECTION_STATUSES[number]
 
 const inspectionStatusUnion = t.Union([
   t.Literal('PASS'),
@@ -11,23 +10,33 @@ const inspectionStatusUnion = t.Union([
   t.Literal('CONDITIONAL'),
 ])
 
+const inspectionItemSchema = t.Object({
+  number: t.String(),
+  name: t.String(),
+  category_number: t.String(),
+  category_name: t.String(),
+  status: t.Union([t.Literal('normal'), t.Literal('abnormal')]),
+  responsible_person: t.Optional(t.String()),
+  abnormal_condition: t.Optional(t.String()),
+})
+
 const createPreHandoverInspectionSchema = t.Object({
   contractId: t.String({ minLength: 1 }),
   inspectionDate: t.String({ minLength: 1 }),
   inspector: t.String({ minLength: 1 }),
-  items: t.Optional(t.Array(t.Any())),
+  items: t.Optional(t.Array(inspectionItemSchema)),
   overallStatus: t.Optional(inspectionStatusUnion),
   notes: t.Optional(t.String()),
-  photos: t.Optional(t.Array(t.Any())),
+  photos: t.Optional(t.Array(t.String())),
 })
 
 const updatePreHandoverInspectionSchema = t.Object({
   inspectionDate: t.Optional(t.String()),
   inspector: t.Optional(t.String()),
-  items: t.Optional(t.Array(t.Any())),
+  items: t.Optional(t.Array(inspectionItemSchema)),
   overallStatus: t.Optional(inspectionStatusUnion),
   notes: t.Optional(t.String()),
-  photos: t.Optional(t.Array(t.Any())),
+  photos: t.Optional(t.Array(t.String())),
 })
 
 function buildPagination(page: number, limit: number, total: number) {
@@ -39,7 +48,9 @@ function buildPagination(page: number, limit: number, total: number) {
   }
 }
 
-export const preHandoverInspectionsRoutes = new Elysia({ prefix: '/api/pre-handover-inspections' })
+export const preHandoverInspectionsRoutes = new Elysia({
+  prefix: '/api/pre-handover-inspections',
+})
   .use(authPlugin)
   .guard(
     {
@@ -67,7 +78,7 @@ export const preHandoverInspectionsRoutes = new Elysia({ prefix: '/api/pre-hando
 
             if (
               query.status &&
-              INSPECTION_STATUSES.includes(query.status as InspectionStatusValue)
+              INSPECTION_STATUSES.includes(query.status as (typeof INSPECTION_STATUSES)[number])
             ) {
               where.overall_status = query.status
             }
@@ -79,6 +90,16 @@ export const preHandoverInspectionsRoutes = new Elysia({ prefix: '/api/pre-hando
                 skip,
                 take: limit,
                 orderBy: { created_at: 'desc' },
+                include: {
+                  contract: {
+                    select: {
+                      id: true,
+                      contract_number: true,
+                      type: true,
+                      status: true,
+                    },
+                  },
+                },
               }),
             ])
 
@@ -94,14 +115,19 @@ export const preHandoverInspectionsRoutes = new Elysia({ prefix: '/api/pre-hando
               contractId: t.Optional(t.String()),
               status: t.Optional(t.String()),
             }),
-          }
+          },
         )
         .get('/:id', async ({ params, set }) => {
           const inspection = await prisma.preHandoverInspection.findUnique({
             where: { id: params.id },
             include: {
               contract: {
-                select: { id: true, contract_number: true, type: true, status: true },
+                select: {
+                  id: true,
+                  contract_number: true,
+                  type: true,
+                  status: true,
+                },
               },
             },
           })
@@ -114,21 +140,29 @@ export const preHandoverInspectionsRoutes = new Elysia({ prefix: '/api/pre-hando
         .post(
           '/',
           async ({ body, set }) => {
+            const contractExists = await prisma.contract.findUnique({
+              where: { id: body.contractId },
+            })
+            if (!contractExists) {
+              set.status = 404
+              return { error: 'Contract not found' }
+            }
+
             const inspection = await prisma.preHandoverInspection.create({
               data: {
                 contract_id: body.contractId,
                 inspection_date: new Date(body.inspectionDate),
                 inspector: body.inspector,
-                items: (body.items as object[]) ?? [],
+                items: (body.items ?? []) as object[],
                 overall_status: body.overallStatus ?? 'CONDITIONAL',
                 notes: body.notes ?? null,
-                photos: (body.photos as object[]) ?? [],
+                photos: (body.photos ?? []) as string[],
               },
             })
             set.status = 201
             return { inspection }
           },
-          { body: createPreHandoverInspectionSchema }
+          { body: createPreHandoverInspectionSchema },
         )
         .put(
           '/:id',
@@ -144,19 +178,17 @@ export const preHandoverInspectionsRoutes = new Elysia({ prefix: '/api/pre-hando
             const inspection = await prisma.preHandoverInspection.update({
               where: { id: params.id },
               data: {
-                inspection_date: body.inspectionDate
-                  ? new Date(body.inspectionDate)
-                  : undefined,
+                inspection_date: body.inspectionDate ? new Date(body.inspectionDate) : undefined,
                 inspector: body.inspector,
                 items: body.items !== undefined ? (body.items as object[]) : undefined,
                 overall_status: body.overallStatus,
                 notes: body.notes,
-                photos: body.photos !== undefined ? (body.photos as object[]) : undefined,
+                photos: body.photos !== undefined ? (body.photos as string[]) : undefined,
               },
             })
             return { inspection }
           },
-          { body: updatePreHandoverInspectionSchema }
+          { body: updatePreHandoverInspectionSchema },
         )
         .delete('/:id', async ({ params, set }) => {
           const existing = await prisma.preHandoverInspection.findUnique({
@@ -168,5 +200,5 @@ export const preHandoverInspectionsRoutes = new Elysia({ prefix: '/api/pre-hando
           }
           await prisma.preHandoverInspection.delete({ where: { id: params.id } })
           return { success: true }
-        })
+        }),
   )

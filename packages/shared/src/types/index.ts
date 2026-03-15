@@ -517,27 +517,15 @@ export type Contract = {
 }
 
 export type ContractWithRelations = Contract & {
-  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'> | null
-  project: Pick<Project, 'id' | 'name' | 'code'> | null
-  unit: Pick<Unit, 'id' | 'unit_number' | 'floor' | 'building'> | null
-  creator: { id: string; first_name: string; last_name: string } | null
+  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'>
+  project: Pick<Project, 'id' | 'name' | 'code'>
+  unit: Pick<Unit, 'id' | 'unit_number'> | null
+  creator: { id: string; first_name: string; last_name: string }
   approver: { id: string; first_name: string; last_name: string } | null
 }
 
-export type ExpiringContract = Contract & {
-  daysUntilExpiry: number
-  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'> | null
-}
-
-export type ExpiringContractsResponse = {
-  data: ExpiringContract[]
-}
-
-export type ContractResponse = {
-  contract: ContractWithRelations
-}
-
 export type CreateContractRequest = {
+  contractNumber?: string
   customerId: string
   projectId: string
   unitId?: string
@@ -545,16 +533,14 @@ export type CreateContractRequest = {
   type: ContractType
   startDate: string
   endDate?: string
-  value?: number
+  value: number
   monthlyRent?: number
   depositAmount?: number
   terms?: string
   status?: ContractStatus
 }
 
-export type UpdateContractRequest = Partial<CreateContractRequest>
-
-export type ApproveContractRequest = Record<string, never>
+export type UpdateContractRequest = Partial<Omit<CreateContractRequest, 'customerId' | 'projectId'>>
 
 export type RejectContractRequest = {
   reason: string
@@ -604,89 +590,34 @@ export type UpdateLeaseAgreementRequest = {
 
 export type LeaseAgreementListResponse = PaginatedResponse<LeaseAgreementWithContract>
 
-// ─── Handover ─────────────────────────────────────────────────────────────────
-
-export type HandoverType = 'INITIAL' | 'FINAL' | 'PARTIAL'
-export type HandoverStatus = 'PENDING' | 'COMPLETED' | 'REJECTED'
-
-export type Handover = {
-  id: string
-  contract_id: string
-  handover_date: string
-  handover_type: HandoverType
-  checklist: unknown[]
-  notes: string | null
-  status: HandoverStatus
-  received_by: string | null
-  handed_by: string | null
-  created_at: string
-  updated_at: string
-}
-
-export type HandoverWithRelations = Handover & {
-  contract: Pick<Contract, 'id' | 'contract_number' | 'type' | 'status'>
-  photos: HandoverPhotos[]
-}
-
-export type CreateHandoverRequest = {
-  contractId: string
-  handoverDate: string
-  handoverType: HandoverType
-  checklist?: unknown[]
-  notes?: string
-  status?: HandoverStatus
-  receivedBy?: string
-  handedBy?: string
-}
-
-export type UpdateHandoverRequest = Partial<Omit<CreateHandoverRequest, 'contractId'>>
-
-export type HandoverListResponse = PaginatedResponse<Handover>
-
-// ─── HandoverPhotos ───────────────────────────────────────────────────────────
-
-export type HandoverPhotos = {
-  id: string
-  handover_id: string
-  photos: unknown[]
-  description: string | null
-  category: string | null
-  created_at: string
-}
-
-export type CreateHandoverPhotosRequest = {
-  handoverId: string
-  photos?: unknown[]
-  description?: string
-  category?: string
-}
-
-export type UpdateHandoverPhotosRequest = {
-  photos?: unknown[]
-  description?: string
-  category?: string
-}
-
-export type HandoverPhotosListResponse = PaginatedResponse<HandoverPhotos>
-
 // ─── PreHandoverInspection ────────────────────────────────────────────────────
 
 export type InspectionStatus = 'PASS' | 'FAIL' | 'CONDITIONAL'
+
+export type InspectionItem = {
+  number: string
+  name: string
+  category_number: string
+  category_name: string
+  status: 'normal' | 'abnormal'
+  responsible_person?: string
+  abnormal_condition?: string
+}
 
 export type PreHandoverInspection = {
   id: string
   contract_id: string
   inspection_date: string
   inspector: string
-  items: unknown[]
+  items: InspectionItem[]
   overall_status: InspectionStatus
   notes: string | null
-  photos: unknown[]
+  photos: string[]
   created_at: string
   updated_at: string
 }
 
-export type PreHandoverInspectionWithRelations = PreHandoverInspection & {
+export type PreHandoverInspectionWithContract = PreHandoverInspection & {
   contract: Pick<Contract, 'id' | 'contract_number' | 'type' | 'status'>
 }
 
@@ -694,14 +625,19 @@ export type CreatePreHandoverInspectionRequest = {
   contractId: string
   inspectionDate: string
   inspector: string
-  items?: unknown[]
+  items?: InspectionItem[]
   overallStatus?: InspectionStatus
   notes?: string
-  photos?: unknown[]
+  photos?: string[]
 }
 
-export type UpdatePreHandoverInspectionRequest = Partial<
-  Omit<CreatePreHandoverInspectionRequest, 'contractId'>
->
+export type UpdatePreHandoverInspectionRequest = {
+  inspectionDate?: string
+  inspector?: string
+  items?: InspectionItem[]
+  overallStatus?: InspectionStatus
+  notes?: string
+  photos?: string[]
+}
 
-export type PreHandoverInspectionListResponse = PaginatedResponse<PreHandoverInspection>
+export type PreHandoverInspectionListResponse = PaginatedResponse<PreHandoverInspectionWithContract>

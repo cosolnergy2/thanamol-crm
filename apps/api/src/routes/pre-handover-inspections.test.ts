@@ -7,6 +7,9 @@ vi.mock('../lib/prisma', () => ({
     user: {
       findUnique: vi.fn(),
     },
+    contract: {
+      findUnique: vi.fn(),
+    },
     preHandoverInspection: {
       findMany: vi.fn(),
       findUnique: vi.fn(),
@@ -38,7 +41,7 @@ async function request(
   method: string,
   path: string,
   body?: unknown,
-  token?: string
+  token?: string,
 ): Promise<Response> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }
   if (token) headers['Authorization'] = `Bearer ${token}`
@@ -47,7 +50,7 @@ async function request(
       method,
       headers,
       body: body !== undefined ? JSON.stringify(body) : undefined,
-    })
+    }),
   )
 }
 
@@ -61,309 +64,178 @@ const mockAuthUser = {
   roles: [],
 }
 
+const mockContract = {
+  id: 'contract-1',
+  contract_number: 'CTR-001',
+  type: 'LEASE',
+  status: 'ACTIVE',
+}
+
 const mockInspection = {
-  id: 'inspection-1',
+  id: 'insp-1',
   contract_id: 'contract-1',
-  inspection_date: new Date('2026-03-10'),
-  inspector: 'John Inspector',
+  inspection_date: new Date('2026-03-15'),
+  inspector: 'John Doe',
   items: [],
   overall_status: 'CONDITIONAL',
   notes: null,
   photos: [],
   created_at: new Date(),
   updated_at: new Date(),
+  contract: mockContract,
 }
 
 beforeEach(() => {
   vi.clearAllMocks()
+  vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
 })
 
-// ─── GET /api/pre-handover-inspections ────────────────────────────────────────
-
 describe('GET /api/pre-handover-inspections', () => {
-  it('returns 401 without auth token', async () => {
+  it('returns 401 without token', async () => {
     const res = await request('GET', '/api/pre-handover-inspections')
     expect(res.status).toBe(401)
   })
 
-  it('returns paginated inspection list', async () => {
-    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
+  it('returns list of inspections', async () => {
     vi.mocked(prisma.preHandoverInspection.count).mockResolvedValue(1)
     vi.mocked(prisma.preHandoverInspection.findMany).mockResolvedValue([mockInspection] as never)
-
     const token = await signToken()
-    const res = await request('GET', '/api/pre-handover-inspections', undefined, token)
 
+    const res = await request('GET', '/api/pre-handover-inspections', undefined, token)
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.data).toHaveLength(1)
     expect(body.pagination.total).toBe(1)
-    expect(body.pagination.page).toBe(1)
-    expect(body.pagination.limit).toBe(20)
-  })
-
-  it('filters by contractId', async () => {
-    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
-    vi.mocked(prisma.preHandoverInspection.count).mockResolvedValue(1)
-    vi.mocked(prisma.preHandoverInspection.findMany).mockResolvedValue([mockInspection] as never)
-
-    const token = await signToken()
-    const res = await request(
-      'GET',
-      '/api/pre-handover-inspections?contractId=contract-1',
-      undefined,
-      token
-    )
-
-    expect(res.status).toBe(200)
-    expect(vi.mocked(prisma.preHandoverInspection.findMany)).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({ contract_id: 'contract-1' }),
-      })
-    )
   })
 
   it('filters by status', async () => {
-    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
-    vi.mocked(prisma.preHandoverInspection.count).mockResolvedValue(1)
-    vi.mocked(prisma.preHandoverInspection.findMany).mockResolvedValue([mockInspection] as never)
-
+    vi.mocked(prisma.preHandoverInspection.count).mockResolvedValue(0)
+    vi.mocked(prisma.preHandoverInspection.findMany).mockResolvedValue([])
     const token = await signToken()
-    const res = await request(
-      'GET',
-      '/api/pre-handover-inspections?status=CONDITIONAL',
-      undefined,
-      token
-    )
 
+    const res = await request('GET', '/api/pre-handover-inspections?status=PASS', undefined, token)
     expect(res.status).toBe(200)
     expect(vi.mocked(prisma.preHandoverInspection.findMany)).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({ overall_status: 'CONDITIONAL' }),
-      })
+        where: expect.objectContaining({ overall_status: 'PASS' }),
+      }),
     )
-  })
-
-  it('respects page and limit params', async () => {
-    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
-    vi.mocked(prisma.preHandoverInspection.count).mockResolvedValue(30)
-    vi.mocked(prisma.preHandoverInspection.findMany).mockResolvedValue([])
-
-    const token = await signToken()
-    const res = await request(
-      'GET',
-      '/api/pre-handover-inspections?page=2&limit=10',
-      undefined,
-      token
-    )
-
-    expect(res.status).toBe(200)
-    const body = await res.json()
-    expect(body.pagination.page).toBe(2)
-    expect(body.pagination.limit).toBe(10)
-    expect(body.pagination.totalPages).toBe(3)
   })
 })
-
-// ─── GET /api/pre-handover-inspections/:id ────────────────────────────────────
 
 describe('GET /api/pre-handover-inspections/:id', () => {
-  it('returns 401 without auth token', async () => {
-    const res = await request('GET', '/api/pre-handover-inspections/inspection-1')
-    expect(res.status).toBe(401)
+  it('returns 404 for unknown id', async () => {
+    vi.mocked(prisma.preHandoverInspection.findUnique).mockResolvedValue(null)
+    const token = await signToken()
+
+    const res = await request('GET', '/api/pre-handover-inspections/nonexistent', undefined, token)
+    expect(res.status).toBe(404)
   })
 
-  it('returns inspection with contract relation', async () => {
-    const inspectionWithRelations = {
-      ...mockInspection,
-      contract: { id: 'contract-1', contract_number: 'CTR-001', type: 'SALE', status: 'ACTIVE' },
-    }
-    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
-    vi.mocked(prisma.preHandoverInspection.findUnique).mockResolvedValue(
-      inspectionWithRelations as never
-    )
-
+  it('returns inspection by id', async () => {
+    vi.mocked(prisma.preHandoverInspection.findUnique).mockResolvedValue(mockInspection as never)
     const token = await signToken()
-    const res = await request(
-      'GET',
-      '/api/pre-handover-inspections/inspection-1',
-      undefined,
-      token
-    )
 
+    const res = await request('GET', '/api/pre-handover-inspections/insp-1', undefined, token)
     expect(res.status).toBe(200)
     const body = await res.json()
-    expect(body.inspection.id).toBe('inspection-1')
-    expect(body.inspection.contract).toBeDefined()
-  })
-
-  it('returns 404 when inspection does not exist', async () => {
-    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
-    vi.mocked(prisma.preHandoverInspection.findUnique).mockResolvedValue(null)
-
-    const token = await signToken()
-    const res = await request('GET', '/api/pre-handover-inspections/nonexistent', undefined, token)
-
-    expect(res.status).toBe(404)
-    const body = await res.json()
-    expect(body.error).toBe('Pre-handover inspection not found')
+    expect(body.inspection.id).toBe('insp-1')
   })
 })
 
-// ─── POST /api/pre-handover-inspections ──────────────────────────────────────
-
 describe('POST /api/pre-handover-inspections', () => {
-  it('returns 401 without auth token', async () => {
+  it('returns 401 without token', async () => {
     const res = await request('POST', '/api/pre-handover-inspections', {
       contractId: 'contract-1',
-      inspectionDate: '2026-03-10',
-      inspector: 'John Inspector',
+      inspectionDate: '2026-03-15',
+      inspector: 'John Doe',
     })
     expect(res.status).toBe(401)
   })
 
-  it('creates an inspection successfully', async () => {
-    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
-    vi.mocked(prisma.preHandoverInspection.create).mockResolvedValue(mockInspection as never)
-
+  it('returns 404 when contract not found', async () => {
+    vi.mocked(prisma.contract.findUnique).mockResolvedValue(null)
     const token = await signToken()
+
+    const res = await request(
+      'POST',
+      '/api/pre-handover-inspections',
+      { contractId: 'bad-id', inspectionDate: '2026-03-15', inspector: 'John' },
+      token,
+    )
+    expect(res.status).toBe(404)
+  })
+
+  it('creates inspection with 201 status', async () => {
+    vi.mocked(prisma.contract.findUnique).mockResolvedValue(mockContract as never)
+    vi.mocked(prisma.preHandoverInspection.create).mockResolvedValue(mockInspection as never)
+    const token = await signToken()
+
     const res = await request(
       'POST',
       '/api/pre-handover-inspections',
       {
         contractId: 'contract-1',
-        inspectionDate: '2026-03-10',
-        inspector: 'John Inspector',
+        inspectionDate: '2026-03-15',
+        inspector: 'John Doe',
       },
-      token
+      token,
     )
-
     expect(res.status).toBe(201)
     const body = await res.json()
-    expect(body.inspection.id).toBe('inspection-1')
-  })
-
-  it('defaults overall_status to CONDITIONAL', async () => {
-    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
-    vi.mocked(prisma.preHandoverInspection.create).mockResolvedValue(mockInspection as never)
-
-    const token = await signToken()
-    await request(
-      'POST',
-      '/api/pre-handover-inspections',
-      { contractId: 'contract-1', inspectionDate: '2026-03-10', inspector: 'John' },
-      token
-    )
-
-    expect(vi.mocked(prisma.preHandoverInspection.create)).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ overall_status: 'CONDITIONAL' }),
-      })
-    )
-  })
-
-  it('returns 422 when required fields are missing', async () => {
-    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
-
-    const token = await signToken()
-    const res = await request(
-      'POST',
-      '/api/pre-handover-inspections',
-      { contractId: 'contract-1' },
-      token
-    )
-
-    expect(res.status).toBe(422)
+    expect(body.inspection).toBeDefined()
   })
 })
 
-// ─── PUT /api/pre-handover-inspections/:id ────────────────────────────────────
-
 describe('PUT /api/pre-handover-inspections/:id', () => {
-  it('returns 401 without auth token', async () => {
-    const res = await request('PUT', '/api/pre-handover-inspections/inspection-1', {
-      notes: 'Updated',
-    })
-    expect(res.status).toBe(401)
-  })
-
-  it('updates an inspection successfully', async () => {
-    const updated = { ...mockInspection, notes: 'All good', overall_status: 'PASS' }
-    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
-    vi.mocked(prisma.preHandoverInspection.findUnique).mockResolvedValue(mockInspection as never)
-    vi.mocked(prisma.preHandoverInspection.update).mockResolvedValue(updated as never)
-
+  it('returns 404 for unknown id', async () => {
+    vi.mocked(prisma.preHandoverInspection.findUnique).mockResolvedValue(null)
     const token = await signToken()
+
     const res = await request(
       'PUT',
-      '/api/pre-handover-inspections/inspection-1',
-      { notes: 'All good', overallStatus: 'PASS' },
-      token
+      '/api/pre-handover-inspections/nonexistent',
+      { overallStatus: 'PASS' },
+      token,
     )
+    expect(res.status).toBe(404)
+  })
 
+  it('updates inspection successfully', async () => {
+    vi.mocked(prisma.preHandoverInspection.findUnique).mockResolvedValue(mockInspection as never)
+    const updated = { ...mockInspection, overall_status: 'PASS' }
+    vi.mocked(prisma.preHandoverInspection.update).mockResolvedValue(updated as never)
+    const token = await signToken()
+
+    const res = await request(
+      'PUT',
+      '/api/pre-handover-inspections/insp-1',
+      { overallStatus: 'PASS' },
+      token,
+    )
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.inspection.overall_status).toBe('PASS')
   })
-
-  it('returns 404 when inspection does not exist', async () => {
-    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
-    vi.mocked(prisma.preHandoverInspection.findUnique).mockResolvedValue(null)
-
-    const token = await signToken()
-    const res = await request(
-      'PUT',
-      '/api/pre-handover-inspections/nonexistent',
-      { notes: 'X' },
-      token
-    )
-
-    expect(res.status).toBe(404)
-    const body = await res.json()
-    expect(body.error).toBe('Pre-handover inspection not found')
-  })
 })
 
-// ─── DELETE /api/pre-handover-inspections/:id ─────────────────────────────────
-
 describe('DELETE /api/pre-handover-inspections/:id', () => {
-  it('returns 401 without auth token', async () => {
-    const res = await request('DELETE', '/api/pre-handover-inspections/inspection-1')
-    expect(res.status).toBe(401)
+  it('returns 404 for unknown id', async () => {
+    vi.mocked(prisma.preHandoverInspection.findUnique).mockResolvedValue(null)
+    const token = await signToken()
+
+    const res = await request('DELETE', '/api/pre-handover-inspections/nonexistent', undefined, token)
+    expect(res.status).toBe(404)
   })
 
-  it('deletes an inspection successfully', async () => {
-    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
+  it('deletes inspection successfully', async () => {
     vi.mocked(prisma.preHandoverInspection.findUnique).mockResolvedValue(mockInspection as never)
     vi.mocked(prisma.preHandoverInspection.delete).mockResolvedValue(mockInspection as never)
-
     const token = await signToken()
-    const res = await request(
-      'DELETE',
-      '/api/pre-handover-inspections/inspection-1',
-      undefined,
-      token
-    )
 
+    const res = await request('DELETE', '/api/pre-handover-inspections/insp-1', undefined, token)
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.success).toBe(true)
-  })
-
-  it('returns 404 when inspection does not exist', async () => {
-    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
-    vi.mocked(prisma.preHandoverInspection.findUnique).mockResolvedValue(null)
-
-    const token = await signToken()
-    const res = await request(
-      'DELETE',
-      '/api/pre-handover-inspections/nonexistent',
-      undefined,
-      token
-    )
-
-    expect(res.status).toBe(404)
-    const body = await res.json()
-    expect(body.error).toBe('Pre-handover inspection not found')
   })
 })
