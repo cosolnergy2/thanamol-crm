@@ -559,3 +559,105 @@ export type UpdateLeaseAgreementRequest = {
 }
 
 export type LeaseAgreementListResponse = PaginatedResponse<LeaseAgreementWithContract>
+
+// ─── Handover ─────────────────────────────────────────────────────────────────
+
+export type HandoverType = 'INITIAL' | 'FINAL' | 'PARTIAL'
+export type HandoverStatus = 'PENDING' | 'COMPLETED' | 'REJECTED'
+
+export type Handover = {
+  id: string
+  contract_id: string
+  handover_date: string
+  handover_type: HandoverType
+  checklist: unknown[]
+  notes: string | null
+  status: HandoverStatus
+  received_by: string | null
+  handed_by: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type HandoverWithRelations = Handover & {
+  contract: Pick<Contract, 'id' | 'contract_number' | 'type' | 'status'>
+  photos: HandoverPhotos[]
+}
+
+export type CreateHandoverRequest = {
+  contractId: string
+  handoverDate: string
+  handoverType: HandoverType
+  checklist?: unknown[]
+  notes?: string
+  status?: HandoverStatus
+  receivedBy?: string
+  handedBy?: string
+}
+
+export type UpdateHandoverRequest = Partial<Omit<CreateHandoverRequest, 'contractId'>>
+
+export type HandoverListResponse = PaginatedResponse<Handover>
+
+// ─── HandoverPhotos ───────────────────────────────────────────────────────────
+
+export type HandoverPhotos = {
+  id: string
+  handover_id: string
+  photos: unknown[]
+  description: string | null
+  category: string | null
+  created_at: string
+}
+
+export type CreateHandoverPhotosRequest = {
+  handoverId: string
+  photos?: unknown[]
+  description?: string
+  category?: string
+}
+
+export type UpdateHandoverPhotosRequest = {
+  photos?: unknown[]
+  description?: string
+  category?: string
+}
+
+export type HandoverPhotosListResponse = PaginatedResponse<HandoverPhotos>
+
+// ─── PreHandoverInspection ────────────────────────────────────────────────────
+
+export type InspectionStatus = 'PASS' | 'FAIL' | 'CONDITIONAL'
+
+export type PreHandoverInspection = {
+  id: string
+  contract_id: string
+  inspection_date: string
+  inspector: string
+  items: unknown[]
+  overall_status: InspectionStatus
+  notes: string | null
+  photos: unknown[]
+  created_at: string
+  updated_at: string
+}
+
+export type PreHandoverInspectionWithRelations = PreHandoverInspection & {
+  contract: Pick<Contract, 'id' | 'contract_number' | 'type' | 'status'>
+}
+
+export type CreatePreHandoverInspectionRequest = {
+  contractId: string
+  inspectionDate: string
+  inspector: string
+  items?: unknown[]
+  overallStatus?: InspectionStatus
+  notes?: string
+  photos?: unknown[]
+}
+
+export type UpdatePreHandoverInspectionRequest = Partial<
+  Omit<CreatePreHandoverInspectionRequest, 'contractId'>
+>
+
+export type PreHandoverInspectionListResponse = PaginatedResponse<PreHandoverInspection>
