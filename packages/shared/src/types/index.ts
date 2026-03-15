@@ -482,3 +482,226 @@ export type CreateCommercialQuotationRequest = {
 }
 
 export type UpdateCommercialQuotationRequest = Partial<CreateCommercialQuotationRequest>
+
+// ─── Contract ─────────────────────────────────────────────────────────────────
+
+export type ContractType = 'SALE' | 'LEASE' | 'RENTAL'
+export type ContractStatus =
+  | 'DRAFT'
+  | 'PENDING_APPROVAL'
+  | 'APPROVED'
+  | 'ACTIVE'
+  | 'EXPIRED'
+  | 'TERMINATED'
+  | 'CANCELLED'
+
+export type Contract = {
+  id: string
+  contract_number: string
+  customer_id: string
+  project_id: string
+  unit_id: string | null
+  quotation_id: string | null
+  type: ContractType
+  start_date: string
+  end_date: string | null
+  value: number
+  monthly_rent: number | null
+  deposit_amount: number | null
+  terms: string | null
+  status: ContractStatus
+  approved_by: string | null
+  created_by: string
+  created_at: string
+  updated_at: string
+}
+
+export type ContractWithRelations = Contract & {
+  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'> | null
+  project: Pick<Project, 'id' | 'name' | 'code'> | null
+  unit: Pick<Unit, 'id' | 'unit_number' | 'floor' | 'building'> | null
+  creator: { id: string; first_name: string; last_name: string } | null
+  approver: { id: string; first_name: string; last_name: string } | null
+}
+
+export type ExpiringContract = Contract & {
+  daysUntilExpiry: number
+  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'> | null
+}
+
+export type ExpiringContractsResponse = {
+  data: ExpiringContract[]
+}
+
+export type ContractResponse = {
+  contract: ContractWithRelations
+}
+
+export type CreateContractRequest = {
+  customerId: string
+  projectId: string
+  unitId?: string
+  quotationId?: string
+  type: ContractType
+  startDate: string
+  endDate?: string
+  value?: number
+  monthlyRent?: number
+  depositAmount?: number
+  terms?: string
+  status?: ContractStatus
+}
+
+export type UpdateContractRequest = Partial<CreateContractRequest>
+
+export type ApproveContractRequest = Record<string, never>
+
+export type RejectContractRequest = {
+  reason: string
+}
+
+export type ContractListResponse = PaginatedResponse<Contract>
+
+export type ContractQueryParams = {
+  page?: number
+  limit?: number
+  status?: ContractStatus | 'all'
+  type?: ContractType | 'all'
+  customerId?: string
+  projectId?: string
+}
+
+// ─── LeaseAgreement ───────────────────────────────────────────────────────────
+
+export type LeaseStatus = 'DRAFT' | 'ACTIVE' | 'EXPIRED' | 'TERMINATED'
+
+export type LeaseAgreement = {
+  id: string
+  contract_id: string
+  lease_terms: Record<string, unknown>
+  special_conditions: string | null
+  status: LeaseStatus
+  created_at: string
+  updated_at: string
+}
+
+export type LeaseAgreementWithContract = LeaseAgreement & {
+  contract: Pick<Contract, 'id' | 'contract_number' | 'type' | 'status'>
+}
+
+export type CreateLeaseAgreementRequest = {
+  contractId: string
+  leaseTerms?: Record<string, unknown>
+  specialConditions?: string
+  status?: LeaseStatus
+}
+
+export type UpdateLeaseAgreementRequest = {
+  leaseTerms?: Record<string, unknown>
+  specialConditions?: string
+  status?: LeaseStatus
+}
+
+export type LeaseAgreementListResponse = PaginatedResponse<LeaseAgreementWithContract>
+
+// ─── Handover ─────────────────────────────────────────────────────────────────
+
+export type HandoverType = 'INITIAL' | 'FINAL' | 'PARTIAL'
+export type HandoverStatus = 'PENDING' | 'COMPLETED' | 'REJECTED'
+
+export type Handover = {
+  id: string
+  contract_id: string
+  handover_date: string
+  handover_type: HandoverType
+  checklist: unknown[]
+  notes: string | null
+  status: HandoverStatus
+  received_by: string | null
+  handed_by: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type HandoverWithRelations = Handover & {
+  contract: Pick<Contract, 'id' | 'contract_number' | 'type' | 'status'>
+  photos: HandoverPhotos[]
+}
+
+export type CreateHandoverRequest = {
+  contractId: string
+  handoverDate: string
+  handoverType: HandoverType
+  checklist?: unknown[]
+  notes?: string
+  status?: HandoverStatus
+  receivedBy?: string
+  handedBy?: string
+}
+
+export type UpdateHandoverRequest = Partial<Omit<CreateHandoverRequest, 'contractId'>>
+
+export type HandoverListResponse = PaginatedResponse<Handover>
+
+// ─── HandoverPhotos ───────────────────────────────────────────────────────────
+
+export type HandoverPhotos = {
+  id: string
+  handover_id: string
+  photos: unknown[]
+  description: string | null
+  category: string | null
+  created_at: string
+}
+
+export type CreateHandoverPhotosRequest = {
+  handoverId: string
+  photos?: unknown[]
+  description?: string
+  category?: string
+}
+
+export type UpdateHandoverPhotosRequest = {
+  photos?: unknown[]
+  description?: string
+  category?: string
+}
+
+export type HandoverPhotosListResponse = PaginatedResponse<HandoverPhotos>
+
+// ─── PreHandoverInspection ────────────────────────────────────────────────────
+
+export type InspectionStatus = 'PASS' | 'FAIL' | 'CONDITIONAL'
+
+export type PreHandoverInspection = {
+  id: string
+  contract_id: string
+  inspection_date: string
+  inspector: string
+  items: unknown[]
+  overall_status: InspectionStatus
+  notes: string | null
+  photos: unknown[]
+  created_at: string
+  updated_at: string
+}
+
+export type PreHandoverInspectionWithRelations = PreHandoverInspection & {
+  contract: Pick<Contract, 'id' | 'contract_number' | 'type' | 'status'>
+}
+
+export type CreatePreHandoverInspectionRequest = {
+  contractId: string
+  inspectionDate: string
+  inspector: string
+  items?: unknown[]
+  overallStatus?: InspectionStatus
+  notes?: string
+  photos?: unknown[]
+}
+
+export type UpdatePreHandoverInspectionRequest = Partial<
+  Omit<CreatePreHandoverInspectionRequest, 'contractId'>
+>
+
+export type PreHandoverInspectionListResponse = PaginatedResponse<PreHandoverInspection>

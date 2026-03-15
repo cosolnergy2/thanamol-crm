@@ -21,7 +21,14 @@ import { Route as AuthenticatedUnitsByProjectRouteImport } from './routes/_authe
 import { Route as AuthenticatedUnitsAvailabilityRouteImport } from './routes/_authenticated/units/availability'
 import { Route as AuthenticatedProjectsDashboardRouteImport } from './routes/_authenticated/projects/dashboard'
 import { Route as AuthenticatedProjectsProjectIdRouteImport } from './routes/_authenticated/projects/$projectId'
+import { Route as AuthenticatedFormsHandoverPhotosRouteImport } from './routes/_authenticated/forms/handover-photos'
+import { Route as AuthenticatedFormsHandoverRouteImport } from './routes/_authenticated/forms/handover'
 import { Route as AuthenticatedCustomersCreateRouteImport } from './routes/_authenticated/customers/create'
+import { Route as AuthenticatedContractsHandoverIndexRouteImport } from './routes/_authenticated/contracts/handover/index'
+import { Route as AuthenticatedContractsHandoverNewRouteImport } from './routes/_authenticated/contracts/handover/new'
+import { Route as AuthenticatedContractsHandoverIdIndexRouteImport } from './routes/_authenticated/contracts/handover/$id/index'
+import { Route as AuthenticatedContractsHandoverIdPrintRouteImport } from './routes/_authenticated/contracts/handover/$id/print'
+import { Route as AuthenticatedContractsHandoverIdEditRouteImport } from './routes/_authenticated/contracts/handover/$id/edit'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -88,10 +95,52 @@ const AuthenticatedProjectsProjectIdRoute =
     path: '/projects/$projectId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFormsHandoverPhotosRoute =
+  AuthenticatedFormsHandoverPhotosRouteImport.update({
+    id: '/forms/handover-photos',
+    path: '/forms/handover-photos',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFormsHandoverRoute =
+  AuthenticatedFormsHandoverRouteImport.update({
+    id: '/forms/handover',
+    path: '/forms/handover',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedCustomersCreateRoute =
   AuthenticatedCustomersCreateRouteImport.update({
     id: '/customers/create',
     path: '/customers/create',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedContractsHandoverIndexRoute =
+  AuthenticatedContractsHandoverIndexRouteImport.update({
+    id: '/contracts/handover/',
+    path: '/contracts/handover/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedContractsHandoverNewRoute =
+  AuthenticatedContractsHandoverNewRouteImport.update({
+    id: '/contracts/handover/new',
+    path: '/contracts/handover/new',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedContractsHandoverIdIndexRoute =
+  AuthenticatedContractsHandoverIdIndexRouteImport.update({
+    id: '/contracts/handover/$id/',
+    path: '/contracts/handover/$id/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedContractsHandoverIdPrintRoute =
+  AuthenticatedContractsHandoverIdPrintRouteImport.update({
+    id: '/contracts/handover/$id/print',
+    path: '/contracts/handover/$id/print',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedContractsHandoverIdEditRoute =
+  AuthenticatedContractsHandoverIdEditRouteImport.update({
+    id: '/contracts/handover/$id/edit',
+    path: '/contracts/handover/$id/edit',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 
@@ -101,6 +150,8 @@ export interface FileRoutesByFullPath {
   '/companies': typeof AuthenticatedCompaniesRoute
   '/contacts': typeof AuthenticatedContactsRoute
   '/customers/create': typeof AuthenticatedCustomersCreateRoute
+  '/forms/handover': typeof AuthenticatedFormsHandoverRoute
+  '/forms/handover-photos': typeof AuthenticatedFormsHandoverPhotosRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
@@ -108,6 +159,11 @@ export interface FileRoutesByFullPath {
   '/customers/': typeof AuthenticatedCustomersIndexRoute
   '/projects/': typeof AuthenticatedProjectsIndexRoute
   '/units/': typeof AuthenticatedUnitsIndexRoute
+  '/contracts/handover/new': typeof AuthenticatedContractsHandoverNewRoute
+  '/contracts/handover/': typeof AuthenticatedContractsHandoverIndexRoute
+  '/contracts/handover/$id/edit': typeof AuthenticatedContractsHandoverIdEditRoute
+  '/contracts/handover/$id/print': typeof AuthenticatedContractsHandoverIdPrintRoute
+  '/contracts/handover/$id/': typeof AuthenticatedContractsHandoverIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -115,6 +171,8 @@ export interface FileRoutesByTo {
   '/contacts': typeof AuthenticatedContactsRoute
   '/': typeof AuthenticatedIndexRoute
   '/customers/create': typeof AuthenticatedCustomersCreateRoute
+  '/forms/handover': typeof AuthenticatedFormsHandoverRoute
+  '/forms/handover-photos': typeof AuthenticatedFormsHandoverPhotosRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
@@ -122,6 +180,11 @@ export interface FileRoutesByTo {
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/projects': typeof AuthenticatedProjectsIndexRoute
   '/units': typeof AuthenticatedUnitsIndexRoute
+  '/contracts/handover/new': typeof AuthenticatedContractsHandoverNewRoute
+  '/contracts/handover': typeof AuthenticatedContractsHandoverIndexRoute
+  '/contracts/handover/$id/edit': typeof AuthenticatedContractsHandoverIdEditRoute
+  '/contracts/handover/$id/print': typeof AuthenticatedContractsHandoverIdPrintRoute
+  '/contracts/handover/$id': typeof AuthenticatedContractsHandoverIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -131,6 +194,8 @@ export interface FileRoutesById {
   '/_authenticated/contacts': typeof AuthenticatedContactsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/customers/create': typeof AuthenticatedCustomersCreateRoute
+  '/_authenticated/forms/handover': typeof AuthenticatedFormsHandoverRoute
+  '/_authenticated/forms/handover-photos': typeof AuthenticatedFormsHandoverPhotosRoute
   '/_authenticated/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/_authenticated/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/_authenticated/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
@@ -138,6 +203,11 @@ export interface FileRoutesById {
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
   '/_authenticated/units/': typeof AuthenticatedUnitsIndexRoute
+  '/_authenticated/contracts/handover/new': typeof AuthenticatedContractsHandoverNewRoute
+  '/_authenticated/contracts/handover/': typeof AuthenticatedContractsHandoverIndexRoute
+  '/_authenticated/contracts/handover/$id/edit': typeof AuthenticatedContractsHandoverIdEditRoute
+  '/_authenticated/contracts/handover/$id/print': typeof AuthenticatedContractsHandoverIdPrintRoute
+  '/_authenticated/contracts/handover/$id/': typeof AuthenticatedContractsHandoverIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -147,6 +217,8 @@ export interface FileRouteTypes {
     | '/companies'
     | '/contacts'
     | '/customers/create'
+    | '/forms/handover'
+    | '/forms/handover-photos'
     | '/projects/$projectId'
     | '/projects/dashboard'
     | '/units/availability'
@@ -154,6 +226,11 @@ export interface FileRouteTypes {
     | '/customers/'
     | '/projects/'
     | '/units/'
+    | '/contracts/handover/new'
+    | '/contracts/handover/'
+    | '/contracts/handover/$id/edit'
+    | '/contracts/handover/$id/print'
+    | '/contracts/handover/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -161,6 +238,8 @@ export interface FileRouteTypes {
     | '/contacts'
     | '/'
     | '/customers/create'
+    | '/forms/handover'
+    | '/forms/handover-photos'
     | '/projects/$projectId'
     | '/projects/dashboard'
     | '/units/availability'
@@ -168,6 +247,11 @@ export interface FileRouteTypes {
     | '/customers'
     | '/projects'
     | '/units'
+    | '/contracts/handover/new'
+    | '/contracts/handover'
+    | '/contracts/handover/$id/edit'
+    | '/contracts/handover/$id/print'
+    | '/contracts/handover/$id'
   id:
     | '__root__'
     | '/_authenticated'
@@ -176,6 +260,8 @@ export interface FileRouteTypes {
     | '/_authenticated/contacts'
     | '/_authenticated/'
     | '/_authenticated/customers/create'
+    | '/_authenticated/forms/handover'
+    | '/_authenticated/forms/handover-photos'
     | '/_authenticated/projects/$projectId'
     | '/_authenticated/projects/dashboard'
     | '/_authenticated/units/availability'
@@ -183,6 +269,11 @@ export interface FileRouteTypes {
     | '/_authenticated/customers/'
     | '/_authenticated/projects/'
     | '/_authenticated/units/'
+    | '/_authenticated/contracts/handover/new'
+    | '/_authenticated/contracts/handover/'
+    | '/_authenticated/contracts/handover/$id/edit'
+    | '/_authenticated/contracts/handover/$id/print'
+    | '/_authenticated/contracts/handover/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -276,11 +367,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjectsProjectIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/forms/handover-photos': {
+      id: '/_authenticated/forms/handover-photos'
+      path: '/forms/handover-photos'
+      fullPath: '/forms/handover-photos'
+      preLoaderRoute: typeof AuthenticatedFormsHandoverPhotosRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/forms/handover': {
+      id: '/_authenticated/forms/handover'
+      path: '/forms/handover'
+      fullPath: '/forms/handover'
+      preLoaderRoute: typeof AuthenticatedFormsHandoverRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/customers/create': {
       id: '/_authenticated/customers/create'
       path: '/customers/create'
       fullPath: '/customers/create'
       preLoaderRoute: typeof AuthenticatedCustomersCreateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/contracts/handover/': {
+      id: '/_authenticated/contracts/handover/'
+      path: '/contracts/handover'
+      fullPath: '/contracts/handover/'
+      preLoaderRoute: typeof AuthenticatedContractsHandoverIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/contracts/handover/new': {
+      id: '/_authenticated/contracts/handover/new'
+      path: '/contracts/handover/new'
+      fullPath: '/contracts/handover/new'
+      preLoaderRoute: typeof AuthenticatedContractsHandoverNewRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/contracts/handover/$id/': {
+      id: '/_authenticated/contracts/handover/$id/'
+      path: '/contracts/handover/$id'
+      fullPath: '/contracts/handover/$id/'
+      preLoaderRoute: typeof AuthenticatedContractsHandoverIdIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/contracts/handover/$id/print': {
+      id: '/_authenticated/contracts/handover/$id/print'
+      path: '/contracts/handover/$id/print'
+      fullPath: '/contracts/handover/$id/print'
+      preLoaderRoute: typeof AuthenticatedContractsHandoverIdPrintRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/contracts/handover/$id/edit': {
+      id: '/_authenticated/contracts/handover/$id/edit'
+      path: '/contracts/handover/$id/edit'
+      fullPath: '/contracts/handover/$id/edit'
+      preLoaderRoute: typeof AuthenticatedContractsHandoverIdEditRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
   }
@@ -291,6 +431,8 @@ interface AuthenticatedRouteChildren {
   AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedCustomersCreateRoute: typeof AuthenticatedCustomersCreateRoute
+  AuthenticatedFormsHandoverRoute: typeof AuthenticatedFormsHandoverRoute
+  AuthenticatedFormsHandoverPhotosRoute: typeof AuthenticatedFormsHandoverPhotosRoute
   AuthenticatedProjectsProjectIdRoute: typeof AuthenticatedProjectsProjectIdRoute
   AuthenticatedProjectsDashboardRoute: typeof AuthenticatedProjectsDashboardRoute
   AuthenticatedUnitsAvailabilityRoute: typeof AuthenticatedUnitsAvailabilityRoute
@@ -298,6 +440,11 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCustomersIndexRoute: typeof AuthenticatedCustomersIndexRoute
   AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
   AuthenticatedUnitsIndexRoute: typeof AuthenticatedUnitsIndexRoute
+  AuthenticatedContractsHandoverNewRoute: typeof AuthenticatedContractsHandoverNewRoute
+  AuthenticatedContractsHandoverIndexRoute: typeof AuthenticatedContractsHandoverIndexRoute
+  AuthenticatedContractsHandoverIdEditRoute: typeof AuthenticatedContractsHandoverIdEditRoute
+  AuthenticatedContractsHandoverIdPrintRoute: typeof AuthenticatedContractsHandoverIdPrintRoute
+  AuthenticatedContractsHandoverIdIndexRoute: typeof AuthenticatedContractsHandoverIdIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -305,6 +452,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedContactsRoute: AuthenticatedContactsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedCustomersCreateRoute: AuthenticatedCustomersCreateRoute,
+  AuthenticatedFormsHandoverRoute: AuthenticatedFormsHandoverRoute,
+  AuthenticatedFormsHandoverPhotosRoute: AuthenticatedFormsHandoverPhotosRoute,
   AuthenticatedProjectsProjectIdRoute: AuthenticatedProjectsProjectIdRoute,
   AuthenticatedProjectsDashboardRoute: AuthenticatedProjectsDashboardRoute,
   AuthenticatedUnitsAvailabilityRoute: AuthenticatedUnitsAvailabilityRoute,
@@ -312,6 +461,16 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCustomersIndexRoute: AuthenticatedCustomersIndexRoute,
   AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
   AuthenticatedUnitsIndexRoute: AuthenticatedUnitsIndexRoute,
+  AuthenticatedContractsHandoverNewRoute:
+    AuthenticatedContractsHandoverNewRoute,
+  AuthenticatedContractsHandoverIndexRoute:
+    AuthenticatedContractsHandoverIndexRoute,
+  AuthenticatedContractsHandoverIdEditRoute:
+    AuthenticatedContractsHandoverIdEditRoute,
+  AuthenticatedContractsHandoverIdPrintRoute:
+    AuthenticatedContractsHandoverIdPrintRoute,
+  AuthenticatedContractsHandoverIdIndexRoute:
+    AuthenticatedContractsHandoverIdIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
