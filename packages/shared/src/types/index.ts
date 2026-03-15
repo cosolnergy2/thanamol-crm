@@ -482,3 +482,82 @@ export type CreateCommercialQuotationRequest = {
 }
 
 export type UpdateCommercialQuotationRequest = Partial<CreateCommercialQuotationRequest>
+
+// ─── ClientUser ───────────────────────────────────────────────────────────────
+
+export type ClientUser = {
+  id: string
+  customer_id: string
+  email: string
+  first_name: string
+  last_name: string
+  is_active: boolean
+  created_at: string
+  customer?: Pick<Customer, 'id' | 'name' | 'email' | 'phone'>
+}
+
+export type CreateClientUserRequest = {
+  customerId: string
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+  isActive?: boolean
+}
+
+export type UpdateClientUserRequest = {
+  email?: string
+  password?: string
+  firstName?: string
+  lastName?: string
+  isActive?: boolean
+}
+
+export type ClientUserListResponse = PaginatedResponse<ClientUser>
+
+export type ClientUserQueryParams = {
+  page?: number
+  limit?: number
+  search?: string
+  customerId?: string
+  isActive?: boolean
+}
+
+// ─── ClientUpdateRequest ──────────────────────────────────────────────────────
+
+export type UpdateRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
+
+export type ClientUpdateRequest = {
+  id: string
+  entity_type: string
+  entity_id: string
+  client_user_id: string
+  requested_changes: Record<string, unknown>
+  status: UpdateRequestStatus
+  reviewed_by: string | null
+  created_at: string
+  updated_at: string
+  client_user?: Pick<ClientUser, 'id' | 'first_name' | 'last_name' | 'email'>
+  reviewer?: { id: string; first_name: string; last_name: string } | null
+}
+
+export type CreateClientUpdateRequestRequest = {
+  entityType: string
+  entityId: string
+  clientUserId: string
+  requestedChanges: Record<string, unknown>
+}
+
+export type UpdateClientUpdateRequestRequest = {
+  status: UpdateRequestStatus
+  reviewedBy?: string
+}
+
+export type ClientUpdateRequestListResponse = PaginatedResponse<ClientUpdateRequest>
+
+export type ClientUpdateRequestQueryParams = {
+  page?: number
+  limit?: number
+  status?: UpdateRequestStatus | 'all'
+  clientUserId?: string
+}
