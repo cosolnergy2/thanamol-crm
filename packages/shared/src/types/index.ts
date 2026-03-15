@@ -482,3 +482,162 @@ export type CreateCommercialQuotationRequest = {
 }
 
 export type UpdateCommercialQuotationRequest = Partial<CreateCommercialQuotationRequest>
+
+// ─── Contract ─────────────────────────────────────────────────────────────────
+
+export type ContractType = 'SALE' | 'LEASE' | 'RENTAL'
+export type ContractStatus =
+  | 'DRAFT'
+  | 'PENDING_APPROVAL'
+  | 'APPROVED'
+  | 'ACTIVE'
+  | 'EXPIRED'
+  | 'TERMINATED'
+  | 'CANCELLED'
+
+export type Contract = {
+  id: string
+  contract_number: string
+  customer_id: string
+  project_id: string
+  unit_id: string | null
+  quotation_id: string | null
+  type: ContractType
+  start_date: string
+  end_date: string | null
+  value: number
+  monthly_rent: number | null
+  deposit_amount: number | null
+  terms: string | null
+  status: ContractStatus
+  approved_by: string | null
+  created_by: string
+  created_at: string
+  updated_at: string
+}
+
+export type ContractWithRelations = Contract & {
+  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'>
+  project: Pick<Project, 'id' | 'name' | 'code'>
+  unit: Pick<Unit, 'id' | 'unit_number'> | null
+  creator: { id: string; first_name: string; last_name: string }
+  approver: { id: string; first_name: string; last_name: string } | null
+}
+
+export type CreateContractRequest = {
+  contractNumber?: string
+  customerId: string
+  projectId: string
+  unitId?: string
+  quotationId?: string
+  type: ContractType
+  startDate: string
+  endDate?: string
+  value: number
+  monthlyRent?: number
+  depositAmount?: number
+  terms?: string
+  status?: ContractStatus
+}
+
+export type UpdateContractRequest = Partial<Omit<CreateContractRequest, 'customerId' | 'projectId'>>
+
+export type RejectContractRequest = {
+  reason: string
+}
+
+export type ContractListResponse = PaginatedResponse<Contract>
+
+export type ContractQueryParams = {
+  page?: number
+  limit?: number
+  status?: ContractStatus | 'all'
+  type?: ContractType | 'all'
+  customerId?: string
+  projectId?: string
+}
+
+// ─── LeaseAgreement ───────────────────────────────────────────────────────────
+
+export type LeaseStatus = 'DRAFT' | 'ACTIVE' | 'EXPIRED' | 'TERMINATED'
+
+export type LeaseAgreement = {
+  id: string
+  contract_id: string
+  lease_terms: Record<string, unknown>
+  special_conditions: string | null
+  status: LeaseStatus
+  created_at: string
+  updated_at: string
+}
+
+export type LeaseAgreementWithContract = LeaseAgreement & {
+  contract: Pick<Contract, 'id' | 'contract_number' | 'type' | 'status'>
+}
+
+export type CreateLeaseAgreementRequest = {
+  contractId: string
+  leaseTerms?: Record<string, unknown>
+  specialConditions?: string
+  status?: LeaseStatus
+}
+
+export type UpdateLeaseAgreementRequest = {
+  leaseTerms?: Record<string, unknown>
+  specialConditions?: string
+  status?: LeaseStatus
+}
+
+export type LeaseAgreementListResponse = PaginatedResponse<LeaseAgreementWithContract>
+
+// ─── PreHandoverInspection ────────────────────────────────────────────────────
+
+export type InspectionStatus = 'PASS' | 'FAIL' | 'CONDITIONAL'
+
+export type InspectionItem = {
+  number: string
+  name: string
+  category_number: string
+  category_name: string
+  status: 'normal' | 'abnormal'
+  responsible_person?: string
+  abnormal_condition?: string
+}
+
+export type PreHandoverInspection = {
+  id: string
+  contract_id: string
+  inspection_date: string
+  inspector: string
+  items: InspectionItem[]
+  overall_status: InspectionStatus
+  notes: string | null
+  photos: string[]
+  created_at: string
+  updated_at: string
+}
+
+export type PreHandoverInspectionWithContract = PreHandoverInspection & {
+  contract: Pick<Contract, 'id' | 'contract_number' | 'type' | 'status'>
+}
+
+export type CreatePreHandoverInspectionRequest = {
+  contractId: string
+  inspectionDate: string
+  inspector: string
+  items?: InspectionItem[]
+  overallStatus?: InspectionStatus
+  notes?: string
+  photos?: string[]
+}
+
+export type UpdatePreHandoverInspectionRequest = {
+  inspectionDate?: string
+  inspector?: string
+  items?: InspectionItem[]
+  overallStatus?: InspectionStatus
+  notes?: string
+  photos?: string[]
+}
+
+export type PreHandoverInspectionListResponse = PaginatedResponse<PreHandoverInspectionWithContract>
