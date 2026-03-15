@@ -188,13 +188,9 @@ test.describe('T-031: Contract Detail', () => {
 
     await expect(page.getByRole('heading', { name: 'Contracts' })).toBeVisible()
 
-    const detailLinks = page.locator('a[href*="/contracts/"]').filter({
-      hasNot: page.locator('[href*="/edit"]'),
-      hasNot: page.locator('[href*="/print"]'),
-      hasNot: page.locator('[href="/contracts"]'),
-      hasNot: page.locator('[href="/contracts/create"]'),
-      hasNot: page.locator('[href="/contracts/expiring"]'),
-    })
+    const detailLinks = page.locator(
+      'a[href^="/contracts/"]:not([href="/contracts"]):not([href="/contracts/create"]):not([href="/contracts/expiring"]):not([href*="/edit"]):not([href*="/print"])',
+    )
 
     const linkCount = await detailLinks.count()
 
@@ -248,6 +244,9 @@ test.describe('T-031: Edit Contract', () => {
     await page.goto(editHref!)
 
     await expect(page.getByRole('heading', { name: /Edit/ })).toBeVisible()
+
+    // Wait for form data to load — start date field gets populated by useEffect when API responds
+    await expect(page.locator('input[type="date"]').first()).not.toHaveValue('', { timeout: 10000 })
 
     await page.screenshot({ path: `${SCREENSHOTS}/contract-edit-initial.png` })
 
@@ -331,13 +330,9 @@ test.describe('T-031: Contract Approval Workflow', () => {
 
     await page.waitForTimeout(500)
 
-    const detailLinks = page.locator('a[href*="/contracts/"]').filter({
-      hasNot: page.locator('[href*="/edit"]'),
-      hasNot: page.locator('[href*="/print"]'),
-      hasNot: page.locator('[href="/contracts"]'),
-      hasNot: page.locator('[href="/contracts/create"]'),
-      hasNot: page.locator('[href="/contracts/expiring"]'),
-    })
+    const detailLinks = page.locator(
+      'a[href^="/contracts/"]:not([href="/contracts"]):not([href="/contracts/create"]):not([href="/contracts/expiring"]):not([href*="/edit"]):not([href*="/print"])',
+    )
 
     const linkCount = await detailLinks.count()
 
