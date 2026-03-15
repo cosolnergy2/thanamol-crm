@@ -16,23 +16,17 @@ import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedCompaniesRouteImport } from './routes/_authenticated/companies'
 import { Route as AuthenticatedApprovalsRouteImport } from './routes/_authenticated/approvals'
 import { Route as AuthenticatedUnitsIndexRouteImport } from './routes/_authenticated/units/index'
-import { Route as AuthenticatedQuotationsIndexRouteImport } from './routes/_authenticated/quotations/index'
 import { Route as AuthenticatedProjectsIndexRouteImport } from './routes/_authenticated/projects/index'
 import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers/index'
 import { Route as AuthenticatedUnitsByProjectRouteImport } from './routes/_authenticated/units/by-project'
 import { Route as AuthenticatedUnitsAvailabilityRouteImport } from './routes/_authenticated/units/availability'
-import { Route as AuthenticatedQuotationsPendingRouteImport } from './routes/_authenticated/quotations/pending'
-import { Route as AuthenticatedQuotationsCreateRouteImport } from './routes/_authenticated/quotations/create'
 import { Route as AuthenticatedProjectsDashboardRouteImport } from './routes/_authenticated/projects/dashboard'
 import { Route as AuthenticatedProjectsProjectIdRouteImport } from './routes/_authenticated/projects/$projectId'
 import { Route as AuthenticatedFormsSaleQuotationRouteImport } from './routes/_authenticated/forms/sale-quotation'
 import { Route as AuthenticatedFormsSaleCommercialProposalRouteImport } from './routes/_authenticated/forms/sale-commercial-proposal'
 import { Route as AuthenticatedCustomersCreateRouteImport } from './routes/_authenticated/customers/create'
 import { Route as AuthenticatedQuotationsCommercialIndexRouteImport } from './routes/_authenticated/quotations/commercial/index'
-import { Route as AuthenticatedQuotationsQuotationIdIndexRouteImport } from './routes/_authenticated/quotations/$quotationId/index'
 import { Route as AuthenticatedQuotationsCommercialNewRouteImport } from './routes/_authenticated/quotations/commercial/new'
-import { Route as AuthenticatedQuotationsQuotationIdPrintRouteImport } from './routes/_authenticated/quotations/$quotationId/print'
-import { Route as AuthenticatedQuotationsQuotationIdEditRouteImport } from './routes/_authenticated/quotations/$quotationId/edit'
 import { Route as AuthenticatedQuotationsCommercialIdIndexRouteImport } from './routes/_authenticated/quotations/commercial/$id/index'
 import { Route as AuthenticatedQuotationsCommercialIdPrintRouteImport } from './routes/_authenticated/quotations/commercial/$id/print'
 import { Route as AuthenticatedQuotationsCommercialIdEditRouteImport } from './routes/_authenticated/quotations/commercial/$id/edit'
@@ -71,12 +65,6 @@ const AuthenticatedUnitsIndexRoute = AuthenticatedUnitsIndexRouteImport.update({
   path: '/units/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedQuotationsIndexRoute =
-  AuthenticatedQuotationsIndexRouteImport.update({
-    id: '/quotations/',
-    path: '/quotations/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
 const AuthenticatedProjectsIndexRoute =
   AuthenticatedProjectsIndexRouteImport.update({
     id: '/projects/',
@@ -99,18 +87,6 @@ const AuthenticatedUnitsAvailabilityRoute =
   AuthenticatedUnitsAvailabilityRouteImport.update({
     id: '/units/availability',
     path: '/units/availability',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedQuotationsPendingRoute =
-  AuthenticatedQuotationsPendingRouteImport.update({
-    id: '/quotations/pending',
-    path: '/quotations/pending',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedQuotationsCreateRoute =
-  AuthenticatedQuotationsCreateRouteImport.update({
-    id: '/quotations/create',
-    path: '/quotations/create',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedProjectsDashboardRoute =
@@ -149,28 +125,10 @@ const AuthenticatedQuotationsCommercialIndexRoute =
     path: '/quotations/commercial/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedQuotationsQuotationIdIndexRoute =
-  AuthenticatedQuotationsQuotationIdIndexRouteImport.update({
-    id: '/quotations/$quotationId/',
-    path: '/quotations/$quotationId/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
 const AuthenticatedQuotationsCommercialNewRoute =
   AuthenticatedQuotationsCommercialNewRouteImport.update({
     id: '/quotations/commercial/new',
     path: '/quotations/commercial/new',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedQuotationsQuotationIdPrintRoute =
-  AuthenticatedQuotationsQuotationIdPrintRouteImport.update({
-    id: '/quotations/$quotationId/print',
-    path: '/quotations/$quotationId/print',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedQuotationsQuotationIdEditRoute =
-  AuthenticatedQuotationsQuotationIdEditRouteImport.update({
-    id: '/quotations/$quotationId/edit',
-    path: '/quotations/$quotationId/edit',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedQuotationsCommercialIdIndexRoute =
@@ -203,18 +161,12 @@ export interface FileRoutesByFullPath {
   '/forms/sale-quotation': typeof AuthenticatedFormsSaleQuotationRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
-  '/quotations/create': typeof AuthenticatedQuotationsCreateRoute
-  '/quotations/pending': typeof AuthenticatedQuotationsPendingRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/units/by-project': typeof AuthenticatedUnitsByProjectRoute
   '/customers/': typeof AuthenticatedCustomersIndexRoute
   '/projects/': typeof AuthenticatedProjectsIndexRoute
-  '/quotations/': typeof AuthenticatedQuotationsIndexRoute
   '/units/': typeof AuthenticatedUnitsIndexRoute
-  '/quotations/$quotationId/edit': typeof AuthenticatedQuotationsQuotationIdEditRoute
-  '/quotations/$quotationId/print': typeof AuthenticatedQuotationsQuotationIdPrintRoute
   '/quotations/commercial/new': typeof AuthenticatedQuotationsCommercialNewRoute
-  '/quotations/$quotationId/': typeof AuthenticatedQuotationsQuotationIdIndexRoute
   '/quotations/commercial/': typeof AuthenticatedQuotationsCommercialIndexRoute
   '/quotations/commercial/$id/edit': typeof AuthenticatedQuotationsCommercialIdEditRoute
   '/quotations/commercial/$id/print': typeof AuthenticatedQuotationsCommercialIdPrintRoute
@@ -231,18 +183,12 @@ export interface FileRoutesByTo {
   '/forms/sale-quotation': typeof AuthenticatedFormsSaleQuotationRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
-  '/quotations/create': typeof AuthenticatedQuotationsCreateRoute
-  '/quotations/pending': typeof AuthenticatedQuotationsPendingRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/units/by-project': typeof AuthenticatedUnitsByProjectRoute
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/projects': typeof AuthenticatedProjectsIndexRoute
-  '/quotations': typeof AuthenticatedQuotationsIndexRoute
   '/units': typeof AuthenticatedUnitsIndexRoute
-  '/quotations/$quotationId/edit': typeof AuthenticatedQuotationsQuotationIdEditRoute
-  '/quotations/$quotationId/print': typeof AuthenticatedQuotationsQuotationIdPrintRoute
   '/quotations/commercial/new': typeof AuthenticatedQuotationsCommercialNewRoute
-  '/quotations/$quotationId': typeof AuthenticatedQuotationsQuotationIdIndexRoute
   '/quotations/commercial': typeof AuthenticatedQuotationsCommercialIndexRoute
   '/quotations/commercial/$id/edit': typeof AuthenticatedQuotationsCommercialIdEditRoute
   '/quotations/commercial/$id/print': typeof AuthenticatedQuotationsCommercialIdPrintRoute
@@ -261,18 +207,12 @@ export interface FileRoutesById {
   '/_authenticated/forms/sale-quotation': typeof AuthenticatedFormsSaleQuotationRoute
   '/_authenticated/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/_authenticated/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
-  '/_authenticated/quotations/create': typeof AuthenticatedQuotationsCreateRoute
-  '/_authenticated/quotations/pending': typeof AuthenticatedQuotationsPendingRoute
   '/_authenticated/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/_authenticated/units/by-project': typeof AuthenticatedUnitsByProjectRoute
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
-  '/_authenticated/quotations/': typeof AuthenticatedQuotationsIndexRoute
   '/_authenticated/units/': typeof AuthenticatedUnitsIndexRoute
-  '/_authenticated/quotations/$quotationId/edit': typeof AuthenticatedQuotationsQuotationIdEditRoute
-  '/_authenticated/quotations/$quotationId/print': typeof AuthenticatedQuotationsQuotationIdPrintRoute
   '/_authenticated/quotations/commercial/new': typeof AuthenticatedQuotationsCommercialNewRoute
-  '/_authenticated/quotations/$quotationId/': typeof AuthenticatedQuotationsQuotationIdIndexRoute
   '/_authenticated/quotations/commercial/': typeof AuthenticatedQuotationsCommercialIndexRoute
   '/_authenticated/quotations/commercial/$id/edit': typeof AuthenticatedQuotationsCommercialIdEditRoute
   '/_authenticated/quotations/commercial/$id/print': typeof AuthenticatedQuotationsCommercialIdPrintRoute
@@ -291,18 +231,12 @@ export interface FileRouteTypes {
     | '/forms/sale-quotation'
     | '/projects/$projectId'
     | '/projects/dashboard'
-    | '/quotations/create'
-    | '/quotations/pending'
     | '/units/availability'
     | '/units/by-project'
     | '/customers/'
     | '/projects/'
-    | '/quotations/'
     | '/units/'
-    | '/quotations/$quotationId/edit'
-    | '/quotations/$quotationId/print'
     | '/quotations/commercial/new'
-    | '/quotations/$quotationId/'
     | '/quotations/commercial/'
     | '/quotations/commercial/$id/edit'
     | '/quotations/commercial/$id/print'
@@ -319,18 +253,12 @@ export interface FileRouteTypes {
     | '/forms/sale-quotation'
     | '/projects/$projectId'
     | '/projects/dashboard'
-    | '/quotations/create'
-    | '/quotations/pending'
     | '/units/availability'
     | '/units/by-project'
     | '/customers'
     | '/projects'
-    | '/quotations'
     | '/units'
-    | '/quotations/$quotationId/edit'
-    | '/quotations/$quotationId/print'
     | '/quotations/commercial/new'
-    | '/quotations/$quotationId'
     | '/quotations/commercial'
     | '/quotations/commercial/$id/edit'
     | '/quotations/commercial/$id/print'
@@ -348,18 +276,12 @@ export interface FileRouteTypes {
     | '/_authenticated/forms/sale-quotation'
     | '/_authenticated/projects/$projectId'
     | '/_authenticated/projects/dashboard'
-    | '/_authenticated/quotations/create'
-    | '/_authenticated/quotations/pending'
     | '/_authenticated/units/availability'
     | '/_authenticated/units/by-project'
     | '/_authenticated/customers/'
     | '/_authenticated/projects/'
-    | '/_authenticated/quotations/'
     | '/_authenticated/units/'
-    | '/_authenticated/quotations/$quotationId/edit'
-    | '/_authenticated/quotations/$quotationId/print'
     | '/_authenticated/quotations/commercial/new'
-    | '/_authenticated/quotations/$quotationId/'
     | '/_authenticated/quotations/commercial/'
     | '/_authenticated/quotations/commercial/$id/edit'
     | '/_authenticated/quotations/commercial/$id/print'
@@ -422,13 +344,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUnitsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/quotations/': {
-      id: '/_authenticated/quotations/'
-      path: '/quotations'
-      fullPath: '/quotations/'
-      preLoaderRoute: typeof AuthenticatedQuotationsIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/projects/': {
       id: '/_authenticated/projects/'
       path: '/projects'
@@ -455,20 +370,6 @@ declare module '@tanstack/react-router' {
       path: '/units/availability'
       fullPath: '/units/availability'
       preLoaderRoute: typeof AuthenticatedUnitsAvailabilityRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/quotations/pending': {
-      id: '/_authenticated/quotations/pending'
-      path: '/quotations/pending'
-      fullPath: '/quotations/pending'
-      preLoaderRoute: typeof AuthenticatedQuotationsPendingRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/quotations/create': {
-      id: '/_authenticated/quotations/create'
-      path: '/quotations/create'
-      fullPath: '/quotations/create'
-      preLoaderRoute: typeof AuthenticatedQuotationsCreateRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/projects/dashboard': {
@@ -513,32 +414,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedQuotationsCommercialIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/quotations/$quotationId/': {
-      id: '/_authenticated/quotations/$quotationId/'
-      path: '/quotations/$quotationId'
-      fullPath: '/quotations/$quotationId/'
-      preLoaderRoute: typeof AuthenticatedQuotationsQuotationIdIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/quotations/commercial/new': {
       id: '/_authenticated/quotations/commercial/new'
       path: '/quotations/commercial/new'
       fullPath: '/quotations/commercial/new'
       preLoaderRoute: typeof AuthenticatedQuotationsCommercialNewRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/quotations/$quotationId/print': {
-      id: '/_authenticated/quotations/$quotationId/print'
-      path: '/quotations/$quotationId/print'
-      fullPath: '/quotations/$quotationId/print'
-      preLoaderRoute: typeof AuthenticatedQuotationsQuotationIdPrintRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/quotations/$quotationId/edit': {
-      id: '/_authenticated/quotations/$quotationId/edit'
-      path: '/quotations/$quotationId/edit'
-      fullPath: '/quotations/$quotationId/edit'
-      preLoaderRoute: typeof AuthenticatedQuotationsQuotationIdEditRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/quotations/commercial/$id/': {
@@ -575,18 +455,12 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFormsSaleQuotationRoute: typeof AuthenticatedFormsSaleQuotationRoute
   AuthenticatedProjectsProjectIdRoute: typeof AuthenticatedProjectsProjectIdRoute
   AuthenticatedProjectsDashboardRoute: typeof AuthenticatedProjectsDashboardRoute
-  AuthenticatedQuotationsCreateRoute: typeof AuthenticatedQuotationsCreateRoute
-  AuthenticatedQuotationsPendingRoute: typeof AuthenticatedQuotationsPendingRoute
   AuthenticatedUnitsAvailabilityRoute: typeof AuthenticatedUnitsAvailabilityRoute
   AuthenticatedUnitsByProjectRoute: typeof AuthenticatedUnitsByProjectRoute
   AuthenticatedCustomersIndexRoute: typeof AuthenticatedCustomersIndexRoute
   AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
-  AuthenticatedQuotationsIndexRoute: typeof AuthenticatedQuotationsIndexRoute
   AuthenticatedUnitsIndexRoute: typeof AuthenticatedUnitsIndexRoute
-  AuthenticatedQuotationsQuotationIdEditRoute: typeof AuthenticatedQuotationsQuotationIdEditRoute
-  AuthenticatedQuotationsQuotationIdPrintRoute: typeof AuthenticatedQuotationsQuotationIdPrintRoute
   AuthenticatedQuotationsCommercialNewRoute: typeof AuthenticatedQuotationsCommercialNewRoute
-  AuthenticatedQuotationsQuotationIdIndexRoute: typeof AuthenticatedQuotationsQuotationIdIndexRoute
   AuthenticatedQuotationsCommercialIndexRoute: typeof AuthenticatedQuotationsCommercialIndexRoute
   AuthenticatedQuotationsCommercialIdEditRoute: typeof AuthenticatedQuotationsCommercialIdEditRoute
   AuthenticatedQuotationsCommercialIdPrintRoute: typeof AuthenticatedQuotationsCommercialIdPrintRoute
@@ -604,22 +478,13 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedFormsSaleQuotationRoute: AuthenticatedFormsSaleQuotationRoute,
   AuthenticatedProjectsProjectIdRoute: AuthenticatedProjectsProjectIdRoute,
   AuthenticatedProjectsDashboardRoute: AuthenticatedProjectsDashboardRoute,
-  AuthenticatedQuotationsCreateRoute: AuthenticatedQuotationsCreateRoute,
-  AuthenticatedQuotationsPendingRoute: AuthenticatedQuotationsPendingRoute,
   AuthenticatedUnitsAvailabilityRoute: AuthenticatedUnitsAvailabilityRoute,
   AuthenticatedUnitsByProjectRoute: AuthenticatedUnitsByProjectRoute,
   AuthenticatedCustomersIndexRoute: AuthenticatedCustomersIndexRoute,
   AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
-  AuthenticatedQuotationsIndexRoute: AuthenticatedQuotationsIndexRoute,
   AuthenticatedUnitsIndexRoute: AuthenticatedUnitsIndexRoute,
-  AuthenticatedQuotationsQuotationIdEditRoute:
-    AuthenticatedQuotationsQuotationIdEditRoute,
-  AuthenticatedQuotationsQuotationIdPrintRoute:
-    AuthenticatedQuotationsQuotationIdPrintRoute,
   AuthenticatedQuotationsCommercialNewRoute:
     AuthenticatedQuotationsCommercialNewRoute,
-  AuthenticatedQuotationsQuotationIdIndexRoute:
-    AuthenticatedQuotationsQuotationIdIndexRoute,
   AuthenticatedQuotationsCommercialIndexRoute:
     AuthenticatedQuotationsCommercialIndexRoute,
   AuthenticatedQuotationsCommercialIdEditRoute:
