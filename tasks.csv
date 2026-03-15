@@ -8,6 +8,6 @@ T-006,Port 49 Radix UI components,dev,Done,tasks/T-006.md
 T-007,Layout shell (sidebar + topbar + language switcher),dev,Done,tasks/T-007.md
 T-008,E2E tests for auth flow,tester,Done,tasks/T-008.md
 T-009,RBAC API — roles CRUD + user-role assignment + permission middleware,dev,Done,tasks/T-009.md
-T-010,usePermissions hook + PermissionGuard components,dev,Ready to Dev,tasks/T-010.md
+T-010,usePermissions hook + PermissionGuard components,dev,Done,tasks/T-010.md
 T-011,i18n system — LanguageProvider full translation dictionary,dev,Done,tasks/T-011.md
-T-012,E2E tests for RBAC and language switching,tester,Ready to Dev,tasks/T-012.md
+T-012,E2E tests for RBAC and language switching,tester,Done,tasks/T-012.md
