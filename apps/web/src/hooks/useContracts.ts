@@ -2,13 +2,28 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api-client'
 import type {
   Contract,
-  ContractWithRelations,
   ContractListResponse,
   ContractQueryParams,
-  CreateContractRequest,
-  UpdateContractRequest,
-  RejectContractRequest,
+  ContractStatus,
+  ContractType,
 } from '@thanamol/shared'
+
+type CreateContractData = {
+  customerId: string
+  projectId: string
+  unitId?: string
+  quotationId?: string
+  type?: ContractType
+  startDate: string
+  endDate?: string
+  value?: number
+  monthlyRent?: number
+  depositAmount?: number
+  terms?: string
+  status?: ContractStatus
+}
+
+type UpdateContractData = Partial<CreateContractData>
 
 function buildContractQueryString(params: ContractQueryParams): string {
   const query = new URLSearchParams()
@@ -25,9 +40,9 @@ function buildContractQueryString(params: ContractQueryParams): string {
 export const CONTRACT_QUERY_KEYS = {
   all: ['contracts'] as const,
   list: (params: ContractQueryParams) => ['contracts', 'list', params] as const,
-  pending: () => ['contracts', 'pending'] as const,
+  detail: (id: string) => ['contracts', 'detail', id] as const,
+  pending: ['contracts', 'pending'] as const,
   expiring: (days: number) => ['contracts', 'expiring', days] as const,
-  detail: (id: string) => ['contracts', id] as const,
 }
 
 export function useContracts(params: ContractQueryParams = {}) {
@@ -41,32 +56,29 @@ export function useContracts(params: ContractQueryParams = {}) {
 export function useContractById(id: string) {
   return useQuery({
     queryKey: CONTRACT_QUERY_KEYS.detail(id),
-    queryFn: () => apiGet<{ contract: ContractWithRelations }>(`/contracts/${id}`),
-    enabled: Boolean(id),
+    queryFn: () => apiGet<{ contract: Contract }>(`/contracts/${id}`),
+    enabled: !!id,
   })
 }
 
 export function usePendingContracts() {
   return useQuery({
-    queryKey: CONTRACT_QUERY_KEYS.pending(),
-    queryFn: () => apiGet<{ data: ContractWithRelations[] }>('/contracts/pending'),
+    queryKey: CONTRACT_QUERY_KEYS.pending,
+    queryFn: () => apiGet<{ contracts: Contract[] }>('/contracts/pending'),
   })
 }
 
 export function useExpiringContracts(days = 30) {
   return useQuery({
     queryKey: CONTRACT_QUERY_KEYS.expiring(days),
-    queryFn: () =>
-      apiGet<{ data: (ContractWithRelations & { daysUntilExpiry: number })[] }>(
-        `/contracts/expiring?days=${days}`,
-      ),
+    queryFn: () => apiGet<{ data: Contract[]; total: number }>(`/contracts/expiring?days=${days}`),
   })
 }
 
 export function useCreateContract() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (data: CreateContractRequest) =>
+    mutationFn: (data: CreateContractData) =>
       apiPost<{ contract: Contract }>('/contracts', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CONTRACT_QUERY_KEYS.all })
@@ -77,9 +89,9 @@ export function useCreateContract() {
 export function useUpdateContract() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateContractRequest }) =>
+    mutationFn: ({ id, data }: { id: string; data: UpdateContractData }) =>
       apiPut<{ contract: Contract }>(`/contracts/${id}`, data),
-    onSuccess: (_result, { id }) => {
+    onSuccess: (_data, { id }) => {
       queryClient.invalidateQueries({ queryKey: CONTRACT_QUERY_KEYS.all })
       queryClient.invalidateQueries({ queryKey: CONTRACT_QUERY_KEYS.detail(id) })
     },
@@ -89,7 +101,7 @@ export function useUpdateContract() {
 export function useDeleteContract() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (id: string) => apiDelete<{ success: boolean }>(`/contracts/${id}`),
+    mutationFn: (id: string) => apiDelete<{ message: string }>(`/contracts/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CONTRACT_QUERY_KEYS.all })
     },
@@ -99,12 +111,10 @@ export function useDeleteContract() {
 export function useApproveContract() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (id: string) =>
-      apiPost<{ contract: Contract }>(`/contracts/${id}/approve`),
-    onSuccess: (_result, id) => {
+    mutationFn: (id: string) => apiPost<{ contract: Contract }>(`/contracts/${id}/approve`, {}),
+    onSuccess: (_data, id) => {
       queryClient.invalidateQueries({ queryKey: CONTRACT_QUERY_KEYS.all })
       queryClient.invalidateQueries({ queryKey: CONTRACT_QUERY_KEYS.detail(id) })
-      queryClient.invalidateQueries({ queryKey: CONTRACT_QUERY_KEYS.pending() })
     },
   })
 }
@@ -112,12 +122,11 @@ export function useApproveContract() {
 export function useRejectContract() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: RejectContractRequest }) =>
+    mutationFn: ({ id, data }: { id: string; data: { reason: string } }) =>
       apiPost<{ contract: Contract }>(`/contracts/${id}/reject`, data),
-    onSuccess: (_result, { id }) => {
+    onSuccess: (_data, { id }) => {
       queryClient.invalidateQueries({ queryKey: CONTRACT_QUERY_KEYS.all })
       queryClient.invalidateQueries({ queryKey: CONTRACT_QUERY_KEYS.detail(id) })
-      queryClient.invalidateQueries({ queryKey: CONTRACT_QUERY_KEYS.pending() })
     },
   })
 }

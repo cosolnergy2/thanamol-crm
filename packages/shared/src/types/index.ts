@@ -514,6 +514,13 @@ export type Contract = {
   created_by: string
   created_at: string
   updated_at: string
+  customer?: { id: string; name: string; email: string; phone: string | null } | null
+  project?: { id: string; name: string; code: string } | null
+  unit?: { id: string; unit_number: string; floor: number | null; building: string | null } | null
+  quotation?: { id: string; quotation_number: string } | null
+  creator?: { id: string; first_name: string; last_name: string } | null
+  approver?: { id: string; first_name: string; last_name: string } | null
+  daysUntilExpiry?: number
 }
 
 export type ContractListResponse = PaginatedResponse<Contract>
@@ -569,6 +576,7 @@ export type InvoiceItem = {
   quantity: number
   unit_price: number
   amount: number
+  item_type?: string
 }
 
 export type Invoice = {
