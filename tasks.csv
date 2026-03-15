@@ -3,7 +3,7 @@ T-001,Docker Compose + Prisma schema (42 models),dev,Done,tasks/T-001.md
 T-002,Monorepo scaffold (pnpm workspaces + all configs),dev,Done,tasks/T-002.md
 T-003,Seed data script (demo users + roles + sample data),dev,Done,tasks/T-003.md
 T-004,JWT auth API endpoints,dev,Done,tasks/T-004.md
-T-005,Auth frontend (login page + AuthContext + protected routes),dev,Ready to Dev,tasks/T-005.md
+T-005,Auth frontend (login page + AuthContext + protected routes),dev,Done,tasks/T-005.md
 T-006,Port 49 Radix UI components,dev,Done,tasks/T-006.md
 T-007,Layout shell (sidebar + topbar + language switcher),dev,Ready to Dev,tasks/T-007.md
-T-008,E2E tests for auth flow,tester,Ready to Dev,tasks/T-008.md
+T-008,E2E tests for auth flow,tester,Ready to Test,tasks/T-008.md
