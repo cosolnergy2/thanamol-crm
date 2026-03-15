@@ -158,3 +158,131 @@ export type CreateCompanyRequest = {
 export type UpdateCompanyRequest = Partial<CreateCompanyRequest>
 
 export type CompanyListResponse = PaginatedResponse<Company>
+
+// ─── Project ───────────────────────────────────────────────────────────────────
+
+export type ProjectStatus = 'PLANNING' | 'ACTIVE' | 'COMPLETED' | 'SUSPENDED'
+
+export type Project = {
+  id: string
+  name: string
+  code: string
+  description: string | null
+  address: string | null
+  type: string
+  status: ProjectStatus
+  total_units: number
+  settings: Record<string, unknown>
+  created_at: string
+  updated_at: string
+}
+
+export type ProjectWithUnitCounts = Project & {
+  _count: { units: number }
+  unitStatusCounts?: UnitStatusCounts
+}
+
+export type UnitStatusCounts = {
+  available: number
+  reserved: number
+  sold: number
+  rented: number
+  under_maintenance: number
+}
+
+export type ProjectDashboard = {
+  totalUnits: number
+  unitStatusCounts: UnitStatusCounts
+  occupancyRate: number
+  totalRevenuePotential: number
+}
+
+export type CreateProjectRequest = {
+  name: string
+  code: string
+  description?: string
+  address?: string
+  type: string
+  status?: ProjectStatus
+  totalUnits?: number
+  settings?: Record<string, unknown>
+}
+
+export type UpdateProjectRequest = Partial<CreateProjectRequest>
+
+export type ProjectListResponse = PaginatedResponse<ProjectWithUnitCounts>
+
+// ─── ProjectTemplate ──────────────────────────────────────────────────────────
+
+export type ProjectTemplate = {
+  id: string
+  name: string
+  description: string | null
+  settings: Record<string, unknown>
+  created_at: string
+}
+
+export type CreateProjectTemplateRequest = {
+  name: string
+  description?: string
+  settings?: Record<string, unknown>
+}
+
+export type UpdateProjectTemplateRequest = Partial<CreateProjectTemplateRequest>
+
+// ─── Unit ─────────────────────────────────────────────────────────────────────
+
+export type UnitStatus = 'AVAILABLE' | 'RESERVED' | 'SOLD' | 'RENTED' | 'UNDER_MAINTENANCE'
+
+export type Unit = {
+  id: string
+  project_id: string
+  unit_number: string
+  floor: number | null
+  building: string | null
+  type: string
+  area_sqm: number | null
+  price: number | null
+  status: UnitStatus
+  features: Record<string, unknown>
+  created_at: string
+  updated_at: string
+}
+
+export type UnitWithProject = Unit & {
+  project: Pick<Project, 'id' | 'name' | 'code'>
+}
+
+export type UnitAvailabilityEntry = {
+  id: string
+  unitNumber: string
+  floor: number | null
+  building: string | null
+  status: UnitStatus
+  areaSqm: number | null
+  price: number | null
+  type: string
+}
+
+export type UnitAvailabilityByProject = {
+  projectId: string
+  projectName: string
+  projectCode: string
+  units: UnitAvailabilityEntry[]
+}
+
+export type CreateUnitRequest = {
+  projectId: string
+  unitNumber: string
+  floor?: number
+  building?: string
+  type: string
+  areaSqm?: number
+  price?: number
+  status?: UnitStatus
+  features?: Record<string, unknown>
+}
+
+export type UpdateUnitRequest = Partial<Omit<CreateUnitRequest, 'projectId'>>
+
+export type UnitListResponse = PaginatedResponse<UnitWithProject>
