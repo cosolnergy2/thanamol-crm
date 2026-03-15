@@ -33,3 +33,7 @@ export type RefreshResponse = {
 export type MeResponse = {
   user: AuthUser
 }
+
+export type UserPermissionsResponse = {
+  permissions: Record<string, boolean>
+}

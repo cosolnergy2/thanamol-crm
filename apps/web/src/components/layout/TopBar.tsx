@@ -1,15 +1,17 @@
-import { Bell, Menu, Search, X } from 'lucide-react'
+import { Bell, LogOut, Menu, Search, User, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
 import { useLanguage } from '@/providers/LanguageProvider'
+import { useAuth } from '@/providers/AuthProvider'
 
 type Language = 'en' | 'th'
 
@@ -29,6 +31,13 @@ export function TopBar({
   notificationCount = 0,
 }: TopBarProps) {
   const { t, language, setLanguage } = useLanguage()
+  const { currentUser, logout } = useAuth()
+
+  const userInitial =
+    currentUser?.firstName?.charAt(0) ?? currentUser?.email?.charAt(0)?.toUpperCase() ?? '?'
+  const userDisplayName = currentUser
+    ? `${currentUser.firstName} ${currentUser.lastName}`.trim()
+    : ''
 
   function handleLanguageToggle() {
     const next: Language = language === 'en' ? 'th' : 'en'
@@ -77,7 +86,7 @@ export function TopBar({
           </div>
         </div>
 
-        {/* Right side: language switcher + notifications */}
+        {/* Right side: language switcher + notifications + user menu */}
         <div className="flex items-center gap-2">
           {/* Language switcher */}
           <button
@@ -116,6 +125,50 @@ export function TopBar({
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* User avatar dropdown */}
+          {currentUser && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-50 transition-all duration-200"
+                  aria-label="User menu"
+                >
+                  <div className="w-7 h-7 bg-indigo-50 border border-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-indigo-600 text-xs font-light">{userInitial}</span>
+                  </div>
+                  <span className="hidden md:block text-sm font-light text-slate-700 max-w-[120px] truncate">
+                    {userDisplayName || currentUser.email}
+                  </span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="font-normal">
+                  <p className="text-sm font-light text-slate-700 truncate">
+                    {userDisplayName || currentUser.email}
+                  </p>
+                  <p className="text-xs text-slate-400 font-extralight truncate">
+                    {currentUser.email}
+                  </p>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <a href="/settings/profile" className="flex items-center cursor-pointer">
+                    <User className="w-4 h-4 mr-2" />
+                    {t.profile ?? 'Profile'}
+                  </a>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={logout}
+                  className="text-rose-600 focus:text-rose-700 focus:bg-rose-50 cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  {t.logout}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </div>
     </header>

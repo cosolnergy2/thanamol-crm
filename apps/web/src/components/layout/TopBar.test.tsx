@@ -3,6 +3,16 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { TopBar } from './TopBar'
 import { LanguageProvider } from '@/providers/LanguageProvider'
 
+const mockLogout = vi.fn()
+let mockCurrentUser: object | null = null
+
+vi.mock('@/providers/AuthProvider', () => ({
+  useAuth: () => ({
+    currentUser: mockCurrentUser,
+    logout: mockLogout,
+  }),
+}))
+
 function renderTopBar(props: Partial<Parameters<typeof TopBar>[0]> = {}) {
   const defaults = {
     isSidebarOpen: false,
@@ -21,6 +31,8 @@ function renderTopBar(props: Partial<Parameters<typeof TopBar>[0]> = {}) {
 describe('TopBar', () => {
   beforeEach(() => {
     localStorage.clear()
+    mockCurrentUser = null
+    mockLogout.mockReset()
   })
 
   it('renders the search input', () => {
@@ -77,5 +89,39 @@ describe('TopBar', () => {
     const buttons = screen.getAllByRole('button', { name: /open sidebar|close sidebar/i })
     fireEvent.click(buttons[0])
     expect(onToggleMobileSidebar).toHaveBeenCalledOnce()
+  })
+
+  it('does not show user menu button when not logged in', () => {
+    mockCurrentUser = null
+    renderTopBar()
+    expect(screen.queryByRole('button', { name: /user menu/i })).toBeNull()
+  })
+
+  it('shows user avatar button when logged in', () => {
+    mockCurrentUser = {
+      id: 'u1',
+      email: 'alice@example.com',
+      firstName: 'Alice',
+      lastName: 'Smith',
+      avatarUrl: null,
+      isActive: true,
+      roles: [],
+    }
+    renderTopBar()
+    expect(screen.getByRole('button', { name: /user menu/i })).toBeTruthy()
+  })
+
+  it('shows user initial in avatar when logged in', () => {
+    mockCurrentUser = {
+      id: 'u1',
+      email: 'alice@example.com',
+      firstName: 'Alice',
+      lastName: 'Smith',
+      avatarUrl: null,
+      isActive: true,
+      roles: [],
+    }
+    renderTopBar()
+    expect(screen.getByText('A')).toBeTruthy()
   })
 })
