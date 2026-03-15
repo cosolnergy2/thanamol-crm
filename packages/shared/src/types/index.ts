@@ -286,3 +286,199 @@ export type CreateUnitRequest = {
 export type UpdateUnitRequest = Partial<Omit<CreateUnitRequest, 'projectId'>>
 
 export type UnitListResponse = PaginatedResponse<UnitWithProject>
+
+// ─── Lead ─────────────────────────────────────────────────────────────────────
+
+export type LeadStatus = 'NEW' | 'CONTACTED' | 'QUALIFIED' | 'UNQUALIFIED' | 'CONVERTED'
+
+export type Lead = {
+  id: string
+  title: string
+  customer_id: string | null
+  contact_id: string | null
+  source: string | null
+  status: LeadStatus
+  value: number | null
+  probability: number | null
+  expected_close_date: string | null
+  notes: string | null
+  assigned_to: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type LeadWithRelations = Lead & {
+  customer: Pick<Customer, 'id' | 'name' | 'email'> | null
+  contact: Pick<Contact, 'id' | 'first_name' | 'last_name' | 'email'> | null
+  assignee: Pick<AuthUser, 'id' | 'firstName' | 'lastName' | 'email'> | null
+}
+
+export type CreateLeadRequest = {
+  title: string
+  customerId?: string
+  contactId?: string
+  source?: string
+  status?: LeadStatus
+  value?: number
+  probability?: number
+  expectedCloseDate?: string
+  notes?: string
+  assignedTo?: string
+}
+
+export type UpdateLeadRequest = Partial<CreateLeadRequest>
+
+export type LeadListResponse = PaginatedResponse<Lead>
+
+// ─── Deal ─────────────────────────────────────────────────────────────────────
+
+export type DealStage =
+  | 'PROSPECTING'
+  | 'QUALIFICATION'
+  | 'PROPOSAL'
+  | 'NEGOTIATION'
+  | 'CLOSED_WON'
+  | 'CLOSED_LOST'
+
+export type Deal = {
+  id: string
+  title: string
+  customer_id: string | null
+  lead_id: string | null
+  stage: DealStage
+  value: number | null
+  probability: number | null
+  expected_close_date: string | null
+  actual_close_date: string | null
+  notes: string | null
+  assigned_to: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type DealWithRelations = Deal & {
+  customer: Pick<Customer, 'id' | 'name' | 'email'> | null
+  lead: Pick<Lead, 'id' | 'title' | 'status'> | null
+  assignee: Pick<AuthUser, 'id' | 'firstName' | 'lastName' | 'email'> | null
+}
+
+export type PipelineStageGroup = {
+  stage: DealStage
+  deals: Deal[]
+  count: number
+  totalValue: number
+}
+
+export type CreateDealRequest = {
+  title: string
+  customerId?: string
+  leadId?: string
+  stage?: DealStage
+  value?: number
+  probability?: number
+  expectedCloseDate?: string
+  notes?: string
+  assignedTo?: string
+}
+
+export type UpdateDealRequest = Partial<CreateDealRequest>
+
+export type DealListResponse = PaginatedResponse<Deal>
+
+// ─── Quotation ────────────────────────────────────────────────────────────────
+
+export type QuotationStatus = 'DRAFT' | 'SENT' | 'APPROVED' | 'REJECTED' | 'EXPIRED'
+
+export type QuotationItem = {
+  description: string
+  quantity: number
+  unit_price: number
+  amount: number
+}
+
+export type Quotation = {
+  id: string
+  quotation_number: string
+  customer_id: string
+  project_id: string
+  unit_id: string | null
+  items: QuotationItem[]
+  total_amount: number
+  discount: number
+  tax: number
+  grand_total: number
+  status: QuotationStatus
+  valid_until: string | null
+  notes: string | null
+  approved_by: string | null
+  created_by: string
+  created_at: string
+  updated_at: string
+}
+
+export type QuotationWithRelations = Quotation & {
+  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'>
+  project: Pick<Project, 'id' | 'name' | 'code'>
+  unit: Pick<Unit, 'id' | 'unit_number' | 'floor' | 'building'> | null
+  creator: { id: string; first_name: string; last_name: string }
+  approver: { id: string; first_name: string; last_name: string } | null
+}
+
+export type CreateQuotationRequest = {
+  quotationNumber?: string
+  customerId: string
+  projectId: string
+  unitId?: string
+  items?: QuotationItem[]
+  totalAmount?: number
+  discount?: number
+  tax?: number
+  grandTotal?: number
+  status?: QuotationStatus
+  validUntil?: string
+  notes?: string
+}
+
+export type UpdateQuotationRequest = Partial<CreateQuotationRequest>
+
+export type RejectQuotationRequest = {
+  reason: string
+}
+
+export type QuotationListResponse = PaginatedResponse<Quotation>
+
+// ─── CommercialQuotation ──────────────────────────────────────────────────────
+
+export type CommercialQuotation = {
+  id: string
+  quotation_number: string
+  customer_id: string
+  project_id: string
+  items: QuotationItem[]
+  terms: string | null
+  conditions: string | null
+  total_amount: number
+  status: QuotationStatus
+  created_by: string
+  created_at: string
+  updated_at: string
+}
+
+export type CommercialQuotationWithRelations = CommercialQuotation & {
+  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'>
+  project: Pick<Project, 'id' | 'name' | 'code'>
+  creator: { id: string; first_name: string; last_name: string }
+}
+
+export type CreateCommercialQuotationRequest = {
+  quotationNumber?: string
+  customerId: string
+  projectId: string
+  items?: QuotationItem[]
+  terms?: string
+  conditions?: string
+  totalAmount?: number
+  status?: QuotationStatus
+}
+
+export type UpdateCommercialQuotationRequest = Partial<CreateCommercialQuotationRequest>
