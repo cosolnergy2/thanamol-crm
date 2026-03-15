@@ -762,3 +762,126 @@ export type MeterRecordQueryParams = {
   meterType?: MeterType
   billingPeriod?: string
 }
+
+// ─── Task ─────────────────────────────────────────────────────────────────────
+
+export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
+export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE' | 'CANCELLED'
+
+export type Task = {
+  id: string
+  title: string
+  description: string | null
+  project_id: string | null
+  assigned_to: string | null
+  created_by: string
+  priority: TaskPriority
+  status: TaskStatus
+  due_date: string | null
+  parent_task_id: string | null
+  estimated_hours: number | null
+  actual_hours: number | null
+  tags: string[]
+  is_recurring: boolean
+  recurrence_pattern: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type TaskWithRelations = Task & {
+  project: { id: string; name: string; code: string } | null
+  assignee: { id: string; first_name: string; last_name: string } | null
+  creator: { id: string; first_name: string; last_name: string }
+  comments: TaskComment[]
+  parent_task: Pick<Task, 'id' | 'title' | 'status'> | null
+  subtasks: Pick<Task, 'id' | 'title' | 'status' | 'priority'>[]
+}
+
+export type CreateTaskRequest = {
+  title: string
+  description?: string
+  projectId?: string
+  assignedTo?: string
+  priority?: TaskPriority
+  status?: TaskStatus
+  dueDate?: string
+  parentTaskId?: string
+  estimatedHours?: number
+  actualHours?: number
+  tags?: string[]
+  isRecurring?: boolean
+  recurrencePattern?: string
+}
+
+export type UpdateTaskRequest = Partial<CreateTaskRequest>
+
+export type TaskListResponse = PaginatedResponse<Task>
+
+export type TaskQueryParams = {
+  page?: number
+  limit?: number
+  status?: TaskStatus | 'all'
+  priority?: TaskPriority | 'all'
+  assignedTo?: string
+  projectId?: string
+  search?: string
+}
+
+// ─── TaskComment ──────────────────────────────────────────────────────────────
+
+export type TaskComment = {
+  id: string
+  task_id: string
+  user_id: string
+  content: string
+  created_at: string
+  user?: { id: string; first_name: string; last_name: string }
+}
+
+export type CreateTaskCommentRequest = {
+  content: string
+}
+
+// ─── TaskStatusConfig ─────────────────────────────────────────────────────────
+
+export type TaskStatusConfig = {
+  id: string
+  name: string
+  color: string
+  order: number
+  is_default: boolean
+  is_closed: boolean
+  created_at: string
+}
+
+export type CreateTaskStatusRequest = {
+  name: string
+  color: string
+  order: number
+  isDefault?: boolean
+  isClosed?: boolean
+}
+
+export type UpdateTaskStatusRequest = Partial<CreateTaskStatusRequest>
+
+// ─── AutomationRule ───────────────────────────────────────────────────────────
+
+export type AutomationRule = {
+  id: string
+  name: string
+  trigger_event: string
+  conditions: Record<string, unknown>
+  actions: unknown[]
+  is_active: boolean
+  created_at: string
+}
+
+export type CreateAutomationRuleRequest = {
+  name: string
+  triggerEvent: string
+  conditions?: Record<string, unknown>
+  actions?: unknown[]
+  isActive?: boolean
+}
+
+export type UpdateAutomationRuleRequest = Partial<CreateAutomationRuleRequest>
