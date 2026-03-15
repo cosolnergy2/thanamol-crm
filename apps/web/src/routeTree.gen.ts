@@ -17,13 +17,17 @@ import { Route as AuthenticatedCompaniesRouteImport } from './routes/_authentica
 import { Route as AuthenticatedApprovalsRouteImport } from './routes/_authenticated/approvals'
 import { Route as AuthenticatedUnitsIndexRouteImport } from './routes/_authenticated/units/index'
 import { Route as AuthenticatedProjectsIndexRouteImport } from './routes/_authenticated/projects/index'
+import { Route as AuthenticatedLeadsIndexRouteImport } from './routes/_authenticated/leads/index'
+import { Route as AuthenticatedDealsIndexRouteImport } from './routes/_authenticated/deals/index'
 import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers/index'
 import { Route as AuthenticatedUnitsByProjectRouteImport } from './routes/_authenticated/units/by-project'
 import { Route as AuthenticatedUnitsAvailabilityRouteImport } from './routes/_authenticated/units/availability'
 import { Route as AuthenticatedProjectsDashboardRouteImport } from './routes/_authenticated/projects/dashboard'
 import { Route as AuthenticatedProjectsProjectIdRouteImport } from './routes/_authenticated/projects/$projectId'
+import { Route as AuthenticatedLeadsLeadIdRouteImport } from './routes/_authenticated/leads/$leadId'
 import { Route as AuthenticatedFormsSaleQuotationRouteImport } from './routes/_authenticated/forms/sale-quotation'
 import { Route as AuthenticatedFormsSaleCommercialProposalRouteImport } from './routes/_authenticated/forms/sale-commercial-proposal'
+import { Route as AuthenticatedDealsDealIdRouteImport } from './routes/_authenticated/deals/$dealId'
 import { Route as AuthenticatedCustomersCreateRouteImport } from './routes/_authenticated/customers/create'
 import { Route as AuthenticatedQuotationsCommercialIndexRouteImport } from './routes/_authenticated/quotations/commercial/index'
 import { Route as AuthenticatedQuotationsCommercialNewRouteImport } from './routes/_authenticated/quotations/commercial/new'
@@ -71,6 +75,16 @@ const AuthenticatedProjectsIndexRoute =
     path: '/projects/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedLeadsIndexRoute = AuthenticatedLeadsIndexRouteImport.update({
+  id: '/leads/',
+  path: '/leads/',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedDealsIndexRoute = AuthenticatedDealsIndexRouteImport.update({
+  id: '/deals/',
+  path: '/deals/',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedCustomersIndexRoute =
   AuthenticatedCustomersIndexRouteImport.update({
     id: '/customers/',
@@ -101,6 +115,12 @@ const AuthenticatedProjectsProjectIdRoute =
     path: '/projects/$projectId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedLeadsLeadIdRoute =
+  AuthenticatedLeadsLeadIdRouteImport.update({
+    id: '/leads/$leadId',
+    path: '/leads/$leadId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedFormsSaleQuotationRoute =
   AuthenticatedFormsSaleQuotationRouteImport.update({
     id: '/forms/sale-quotation',
@@ -111,6 +131,12 @@ const AuthenticatedFormsSaleCommercialProposalRoute =
   AuthenticatedFormsSaleCommercialProposalRouteImport.update({
     id: '/forms/sale-commercial-proposal',
     path: '/forms/sale-commercial-proposal',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDealsDealIdRoute =
+  AuthenticatedDealsDealIdRouteImport.update({
+    id: '/deals/$dealId',
+    path: '/deals/$dealId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedCustomersCreateRoute =
@@ -157,13 +183,17 @@ export interface FileRoutesByFullPath {
   '/companies': typeof AuthenticatedCompaniesRoute
   '/contacts': typeof AuthenticatedContactsRoute
   '/customers/create': typeof AuthenticatedCustomersCreateRoute
+  '/deals/$dealId': typeof AuthenticatedDealsDealIdRoute
   '/forms/sale-commercial-proposal': typeof AuthenticatedFormsSaleCommercialProposalRoute
   '/forms/sale-quotation': typeof AuthenticatedFormsSaleQuotationRoute
+  '/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/units/by-project': typeof AuthenticatedUnitsByProjectRoute
   '/customers/': typeof AuthenticatedCustomersIndexRoute
+  '/deals/': typeof AuthenticatedDealsIndexRoute
+  '/leads/': typeof AuthenticatedLeadsIndexRoute
   '/projects/': typeof AuthenticatedProjectsIndexRoute
   '/units/': typeof AuthenticatedUnitsIndexRoute
   '/quotations/commercial/new': typeof AuthenticatedQuotationsCommercialNewRoute
@@ -179,13 +209,17 @@ export interface FileRoutesByTo {
   '/contacts': typeof AuthenticatedContactsRoute
   '/': typeof AuthenticatedIndexRoute
   '/customers/create': typeof AuthenticatedCustomersCreateRoute
+  '/deals/$dealId': typeof AuthenticatedDealsDealIdRoute
   '/forms/sale-commercial-proposal': typeof AuthenticatedFormsSaleCommercialProposalRoute
   '/forms/sale-quotation': typeof AuthenticatedFormsSaleQuotationRoute
+  '/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/units/by-project': typeof AuthenticatedUnitsByProjectRoute
   '/customers': typeof AuthenticatedCustomersIndexRoute
+  '/deals': typeof AuthenticatedDealsIndexRoute
+  '/leads': typeof AuthenticatedLeadsIndexRoute
   '/projects': typeof AuthenticatedProjectsIndexRoute
   '/units': typeof AuthenticatedUnitsIndexRoute
   '/quotations/commercial/new': typeof AuthenticatedQuotationsCommercialNewRoute
@@ -203,13 +237,17 @@ export interface FileRoutesById {
   '/_authenticated/contacts': typeof AuthenticatedContactsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/customers/create': typeof AuthenticatedCustomersCreateRoute
+  '/_authenticated/deals/$dealId': typeof AuthenticatedDealsDealIdRoute
   '/_authenticated/forms/sale-commercial-proposal': typeof AuthenticatedFormsSaleCommercialProposalRoute
   '/_authenticated/forms/sale-quotation': typeof AuthenticatedFormsSaleQuotationRoute
+  '/_authenticated/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
   '/_authenticated/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/_authenticated/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/_authenticated/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/_authenticated/units/by-project': typeof AuthenticatedUnitsByProjectRoute
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
+  '/_authenticated/deals/': typeof AuthenticatedDealsIndexRoute
+  '/_authenticated/leads/': typeof AuthenticatedLeadsIndexRoute
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
   '/_authenticated/units/': typeof AuthenticatedUnitsIndexRoute
   '/_authenticated/quotations/commercial/new': typeof AuthenticatedQuotationsCommercialNewRoute
@@ -227,13 +265,17 @@ export interface FileRouteTypes {
     | '/companies'
     | '/contacts'
     | '/customers/create'
+    | '/deals/$dealId'
     | '/forms/sale-commercial-proposal'
     | '/forms/sale-quotation'
+    | '/leads/$leadId'
     | '/projects/$projectId'
     | '/projects/dashboard'
     | '/units/availability'
     | '/units/by-project'
     | '/customers/'
+    | '/deals/'
+    | '/leads/'
     | '/projects/'
     | '/units/'
     | '/quotations/commercial/new'
@@ -249,13 +291,17 @@ export interface FileRouteTypes {
     | '/contacts'
     | '/'
     | '/customers/create'
+    | '/deals/$dealId'
     | '/forms/sale-commercial-proposal'
     | '/forms/sale-quotation'
+    | '/leads/$leadId'
     | '/projects/$projectId'
     | '/projects/dashboard'
     | '/units/availability'
     | '/units/by-project'
     | '/customers'
+    | '/deals'
+    | '/leads'
     | '/projects'
     | '/units'
     | '/quotations/commercial/new'
@@ -272,13 +318,17 @@ export interface FileRouteTypes {
     | '/_authenticated/contacts'
     | '/_authenticated/'
     | '/_authenticated/customers/create'
+    | '/_authenticated/deals/$dealId'
     | '/_authenticated/forms/sale-commercial-proposal'
     | '/_authenticated/forms/sale-quotation'
+    | '/_authenticated/leads/$leadId'
     | '/_authenticated/projects/$projectId'
     | '/_authenticated/projects/dashboard'
     | '/_authenticated/units/availability'
     | '/_authenticated/units/by-project'
     | '/_authenticated/customers/'
+    | '/_authenticated/deals/'
+    | '/_authenticated/leads/'
     | '/_authenticated/projects/'
     | '/_authenticated/units/'
     | '/_authenticated/quotations/commercial/new'
@@ -351,6 +401,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjectsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/leads/': {
+      id: '/_authenticated/leads/'
+      path: '/leads'
+      fullPath: '/leads/'
+      preLoaderRoute: typeof AuthenticatedLeadsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/deals/': {
+      id: '/_authenticated/deals/'
+      path: '/deals'
+      fullPath: '/deals/'
+      preLoaderRoute: typeof AuthenticatedDealsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/customers/': {
       id: '/_authenticated/customers/'
       path: '/customers'
@@ -386,6 +450,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjectsProjectIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/leads/$leadId': {
+      id: '/_authenticated/leads/$leadId'
+      path: '/leads/$leadId'
+      fullPath: '/leads/$leadId'
+      preLoaderRoute: typeof AuthenticatedLeadsLeadIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/forms/sale-quotation': {
       id: '/_authenticated/forms/sale-quotation'
       path: '/forms/sale-quotation'
@@ -398,6 +469,13 @@ declare module '@tanstack/react-router' {
       path: '/forms/sale-commercial-proposal'
       fullPath: '/forms/sale-commercial-proposal'
       preLoaderRoute: typeof AuthenticatedFormsSaleCommercialProposalRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/deals/$dealId': {
+      id: '/_authenticated/deals/$dealId'
+      path: '/deals/$dealId'
+      fullPath: '/deals/$dealId'
+      preLoaderRoute: typeof AuthenticatedDealsDealIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/customers/create': {
@@ -451,13 +529,17 @@ interface AuthenticatedRouteChildren {
   AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedCustomersCreateRoute: typeof AuthenticatedCustomersCreateRoute
+  AuthenticatedDealsDealIdRoute: typeof AuthenticatedDealsDealIdRoute
   AuthenticatedFormsSaleCommercialProposalRoute: typeof AuthenticatedFormsSaleCommercialProposalRoute
   AuthenticatedFormsSaleQuotationRoute: typeof AuthenticatedFormsSaleQuotationRoute
+  AuthenticatedLeadsLeadIdRoute: typeof AuthenticatedLeadsLeadIdRoute
   AuthenticatedProjectsProjectIdRoute: typeof AuthenticatedProjectsProjectIdRoute
   AuthenticatedProjectsDashboardRoute: typeof AuthenticatedProjectsDashboardRoute
   AuthenticatedUnitsAvailabilityRoute: typeof AuthenticatedUnitsAvailabilityRoute
   AuthenticatedUnitsByProjectRoute: typeof AuthenticatedUnitsByProjectRoute
   AuthenticatedCustomersIndexRoute: typeof AuthenticatedCustomersIndexRoute
+  AuthenticatedDealsIndexRoute: typeof AuthenticatedDealsIndexRoute
+  AuthenticatedLeadsIndexRoute: typeof AuthenticatedLeadsIndexRoute
   AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
   AuthenticatedUnitsIndexRoute: typeof AuthenticatedUnitsIndexRoute
   AuthenticatedQuotationsCommercialNewRoute: typeof AuthenticatedQuotationsCommercialNewRoute
@@ -473,14 +555,18 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedContactsRoute: AuthenticatedContactsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedCustomersCreateRoute: AuthenticatedCustomersCreateRoute,
+  AuthenticatedDealsDealIdRoute: AuthenticatedDealsDealIdRoute,
   AuthenticatedFormsSaleCommercialProposalRoute:
     AuthenticatedFormsSaleCommercialProposalRoute,
   AuthenticatedFormsSaleQuotationRoute: AuthenticatedFormsSaleQuotationRoute,
+  AuthenticatedLeadsLeadIdRoute: AuthenticatedLeadsLeadIdRoute,
   AuthenticatedProjectsProjectIdRoute: AuthenticatedProjectsProjectIdRoute,
   AuthenticatedProjectsDashboardRoute: AuthenticatedProjectsDashboardRoute,
   AuthenticatedUnitsAvailabilityRoute: AuthenticatedUnitsAvailabilityRoute,
   AuthenticatedUnitsByProjectRoute: AuthenticatedUnitsByProjectRoute,
   AuthenticatedCustomersIndexRoute: AuthenticatedCustomersIndexRoute,
+  AuthenticatedDealsIndexRoute: AuthenticatedDealsIndexRoute,
+  AuthenticatedLeadsIndexRoute: AuthenticatedLeadsIndexRoute,
   AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
   AuthenticatedUnitsIndexRoute: AuthenticatedUnitsIndexRoute,
   AuthenticatedQuotationsCommercialNewRoute:
