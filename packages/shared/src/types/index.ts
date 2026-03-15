@@ -482,3 +482,46 @@ export type CreateCommercialQuotationRequest = {
 }
 
 export type UpdateCommercialQuotationRequest = Partial<CreateCommercialQuotationRequest>
+// ─── MeterRecord ──────────────────────────────────────────────────────────────
+
+export type MeterType = 'ELECTRICITY' | 'WATER' | 'GAS'
+
+export type MeterRecord = {
+  id: string
+  unit_id: string
+  meter_type: MeterType
+  previous_reading: number
+  current_reading: number
+  reading_date: string
+  usage: number
+  amount: number
+  billing_period: string
+  created_at: string
+}
+
+export type MeterRecordWithUnit = MeterRecord & {
+  unit: Pick<Unit, 'id' | 'unit_number' | 'floor' | 'building' | 'project_id'>
+}
+
+export type CreateMeterRecordRequest = {
+  unitId: string
+  meterType: MeterType
+  previousReading: number
+  currentReading: number
+  readingDate: string
+  amount: number
+  billingPeriod: string
+}
+
+export type UpdateMeterRecordRequest = Partial<CreateMeterRecordRequest>
+
+export type MeterRecordListResponse = PaginatedResponse<MeterRecord>
+
+export type MeterRecordQueryParams = {
+  page?: number
+  limit?: number
+  unitId?: string
+  meterType?: MeterType
+  billingPeriod?: string
+}
+
