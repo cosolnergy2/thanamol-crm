@@ -33,11 +33,11 @@ function ContractExpiringPage() {
 
   const expiringContracts = data?.data ?? []
 
-  const criticalCount = expiringContracts.filter((c) => c.daysUntilExpiry < 7).length
+  const criticalCount = expiringContracts.filter((c) => (c.daysUntilExpiry ?? Infinity) < 7).length
   const warningCount = expiringContracts.filter(
-    (c) => c.daysUntilExpiry >= 7 && c.daysUntilExpiry < 30,
+    (c) => (c.daysUntilExpiry ?? Infinity) >= 7 && (c.daysUntilExpiry ?? Infinity) < 30,
   ).length
-  const normalCount = expiringContracts.filter((c) => c.daysUntilExpiry >= 30).length
+  const normalCount = expiringContracts.filter((c) => (c.daysUntilExpiry ?? Infinity) >= 30).length
 
   const urgencyStats = [
     { label: 'Critical (< 7 days)', value: criticalCount, color: 'text-rose-600' },
@@ -157,9 +157,9 @@ function ContractExpiringPage() {
                     <TableCell className="py-3">
                       <Badge
                         variant="outline"
-                        className={`${getDaysRemainingColor(contract.daysUntilExpiry)} text-[9px] h-4 px-1.5 font-extralight`}
+                        className={`${getDaysRemainingColor(contract.daysUntilExpiry ?? 0)} text-[9px] h-4 px-1.5 font-extralight`}
                       >
-                        {contract.daysUntilExpiry} days
+                        {contract.daysUntilExpiry ?? '?'} days
                       </Badge>
                     </TableCell>
                     <TableCell className="py-3">

@@ -20,6 +20,8 @@ import { Route as AuthenticatedLeadsIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedDealsIndexRouteImport } from './routes/_authenticated/deals/index'
 import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers/index'
 import { Route as AuthenticatedContractsIndexRouteImport } from './routes/_authenticated/contracts/index'
+import { Route as AuthenticatedUtilitiesReportRouteImport } from './routes/_authenticated/utilities/report'
+import { Route as AuthenticatedUtilitiesMeterReadingRouteImport } from './routes/_authenticated/utilities/meter-reading'
 import { Route as AuthenticatedUnitsByProjectRouteImport } from './routes/_authenticated/units/by-project'
 import { Route as AuthenticatedUnitsAvailabilityRouteImport } from './routes/_authenticated/units/availability'
 import { Route as AuthenticatedProjectsDashboardRouteImport } from './routes/_authenticated/projects/dashboard'
@@ -27,10 +29,20 @@ import { Route as AuthenticatedProjectsProjectIdRouteImport } from './routes/_au
 import { Route as AuthenticatedFormsHandoverPhotosRouteImport } from './routes/_authenticated/forms/handover-photos'
 import { Route as AuthenticatedFormsHandoverRouteImport } from './routes/_authenticated/forms/handover'
 import { Route as AuthenticatedCustomersCreateRouteImport } from './routes/_authenticated/customers/create'
+import { Route as AuthenticatedContractsExpiringRouteImport } from './routes/_authenticated/contracts/expiring'
+import { Route as AuthenticatedContractsCreateRouteImport } from './routes/_authenticated/contracts/create'
+import { Route as AuthenticatedFormsSaleJob02F01IndexRouteImport } from './routes/_authenticated/forms/sale-job02-f01/index'
 import { Route as AuthenticatedFinanceInvoicesIndexRouteImport } from './routes/_authenticated/finance/invoices/index'
+import { Route as AuthenticatedContractsContractIdIndexRouteImport } from './routes/_authenticated/contracts/$contractId/index'
+import { Route as AuthenticatedFormsSaleJob02F01NewRouteImport } from './routes/_authenticated/forms/sale-job02-f01/new'
 import { Route as AuthenticatedFinancePaymentsReceiveRouteImport } from './routes/_authenticated/finance/payments/receive'
 import { Route as AuthenticatedFinanceInvoicesCreateRouteImport } from './routes/_authenticated/finance/invoices/create'
+import { Route as AuthenticatedContractsContractIdPrintRouteImport } from './routes/_authenticated/contracts/$contractId/print'
+import { Route as AuthenticatedContractsContractIdEditRouteImport } from './routes/_authenticated/contracts/$contractId/edit'
+import { Route as AuthenticatedFormsSaleJob02F01IdIndexRouteImport } from './routes/_authenticated/forms/sale-job02-f01/$id/index'
 import { Route as AuthenticatedFinanceInvoicesInvoiceIdIndexRouteImport } from './routes/_authenticated/finance/invoices/$invoiceId/index'
+import { Route as AuthenticatedFormsSaleJob02F01IdPrintRouteImport } from './routes/_authenticated/forms/sale-job02-f01/$id/print'
+import { Route as AuthenticatedFormsSaleJob02F01IdEditRouteImport } from './routes/_authenticated/forms/sale-job02-f01/$id/edit'
 import { Route as AuthenticatedFinanceInvoicesInvoiceIdEditRouteImport } from './routes/_authenticated/finance/invoices/$invoiceId/edit'
 
 const LoginRoute = LoginRouteImport.update({
@@ -90,6 +102,18 @@ const AuthenticatedContractsIndexRoute =
     path: '/contracts/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedUtilitiesReportRoute =
+  AuthenticatedUtilitiesReportRouteImport.update({
+    id: '/utilities/report',
+    path: '/utilities/report',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedUtilitiesMeterReadingRoute =
+  AuthenticatedUtilitiesMeterReadingRouteImport.update({
+    id: '/utilities/meter-reading',
+    path: '/utilities/meter-reading',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedUnitsByProjectRoute =
   AuthenticatedUnitsByProjectRouteImport.update({
     id: '/units/by-project',
@@ -132,10 +156,40 @@ const AuthenticatedCustomersCreateRoute =
     path: '/customers/create',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedContractsExpiringRoute =
+  AuthenticatedContractsExpiringRouteImport.update({
+    id: '/contracts/expiring',
+    path: '/contracts/expiring',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinancePaymentsReceiveRoute =
+  AuthenticatedFinancePaymentsReceiveRouteImport.update({
+    id: '/finance/payments/receive',
+    path: '/finance/payments/receive',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFormsSaleJob02F01IndexRoute =
+  AuthenticatedFormsSaleJob02F01IndexRouteImport.update({
+    id: '/forms/sale-job02-f01/',
+    path: '/forms/sale-job02-f01/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedFinanceInvoicesIndexRoute =
   AuthenticatedFinanceInvoicesIndexRouteImport.update({
     id: '/finance/invoices/',
     path: '/finance/invoices/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedContractsContractIdIndexRoute =
+  AuthenticatedContractsContractIdIndexRouteImport.update({
+    id: '/contracts/$contractId/',
+    path: '/contracts/$contractId/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFormsSaleJob02F01NewRoute =
+  AuthenticatedFormsSaleJob02F01NewRouteImport.update({
+    id: '/forms/sale-job02-f01/new',
+    path: '/forms/sale-job02-f01/new',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedFinancePaymentsReceiveRoute =
@@ -150,10 +204,40 @@ const AuthenticatedFinanceInvoicesCreateRoute =
     path: '/finance/invoices/create',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedContractsContractIdPrintRoute =
+  AuthenticatedContractsContractIdPrintRouteImport.update({
+    id: '/contracts/$contractId/print',
+    path: '/contracts/$contractId/print',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedContractsContractIdEditRoute =
+  AuthenticatedContractsContractIdEditRouteImport.update({
+    id: '/contracts/$contractId/edit',
+    path: '/contracts/$contractId/edit',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFormsSaleJob02F01IdIndexRoute =
+  AuthenticatedFormsSaleJob02F01IdIndexRouteImport.update({
+    id: '/forms/sale-job02-f01/$id/',
+    path: '/forms/sale-job02-f01/$id/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedFinanceInvoicesInvoiceIdIndexRoute =
   AuthenticatedFinanceInvoicesInvoiceIdIndexRouteImport.update({
     id: '/finance/invoices/$invoiceId/',
     path: '/finance/invoices/$invoiceId/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFormsSaleJob02F01IdPrintRoute =
+  AuthenticatedFormsSaleJob02F01IdPrintRouteImport.update({
+    id: '/forms/sale-job02-f01/$id/print',
+    path: '/forms/sale-job02-f01/$id/print',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFormsSaleJob02F01IdEditRoute =
+  AuthenticatedFormsSaleJob02F01IdEditRouteImport.update({
+    id: '/forms/sale-job02-f01/$id/edit',
+    path: '/forms/sale-job02-f01/$id/edit',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedFinanceInvoicesInvoiceIdEditRoute =
@@ -177,17 +261,27 @@ export interface FileRoutesByFullPath {
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/units/by-project': typeof AuthenticatedUnitsByProjectRoute
+  '/utilities/meter-reading': typeof AuthenticatedUtilitiesMeterReadingRoute
+  '/utilities/report': typeof AuthenticatedUtilitiesReportRoute
   '/contracts/': typeof AuthenticatedContractsIndexRoute
   '/customers/': typeof AuthenticatedCustomersIndexRoute
   '/deals/': typeof AuthenticatedDealsIndexRoute
   '/leads/': typeof AuthenticatedLeadsIndexRoute
   '/projects/': typeof AuthenticatedProjectsIndexRoute
   '/units/': typeof AuthenticatedUnitsIndexRoute
+  '/contracts/$contractId/edit': typeof AuthenticatedContractsContractIdEditRoute
+  '/contracts/$contractId/print': typeof AuthenticatedContractsContractIdPrintRoute
   '/finance/invoices/create': typeof AuthenticatedFinanceInvoicesCreateRoute
   '/finance/payments/receive': typeof AuthenticatedFinancePaymentsReceiveRoute
+  '/forms/sale-job02-f01/new': typeof AuthenticatedFormsSaleJob02F01NewRoute
+  '/contracts/$contractId/': typeof AuthenticatedContractsContractIdIndexRoute
   '/finance/invoices/': typeof AuthenticatedFinanceInvoicesIndexRoute
+  '/forms/sale-job02-f01/': typeof AuthenticatedFormsSaleJob02F01IndexRoute
   '/finance/invoices/$invoiceId/edit': typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
+  '/forms/sale-job02-f01/$id/edit': typeof AuthenticatedFormsSaleJob02F01IdEditRoute
+  '/forms/sale-job02-f01/$id/print': typeof AuthenticatedFormsSaleJob02F01IdPrintRoute
   '/finance/invoices/$invoiceId/': typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRoute
+  '/forms/sale-job02-f01/$id/': typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -203,17 +297,27 @@ export interface FileRoutesByTo {
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/units/by-project': typeof AuthenticatedUnitsByProjectRoute
+  '/utilities/meter-reading': typeof AuthenticatedUtilitiesMeterReadingRoute
+  '/utilities/report': typeof AuthenticatedUtilitiesReportRoute
   '/contracts': typeof AuthenticatedContractsIndexRoute
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/deals': typeof AuthenticatedDealsIndexRoute
   '/leads': typeof AuthenticatedLeadsIndexRoute
   '/projects': typeof AuthenticatedProjectsIndexRoute
   '/units': typeof AuthenticatedUnitsIndexRoute
+  '/contracts/$contractId/edit': typeof AuthenticatedContractsContractIdEditRoute
+  '/contracts/$contractId/print': typeof AuthenticatedContractsContractIdPrintRoute
   '/finance/invoices/create': typeof AuthenticatedFinanceInvoicesCreateRoute
   '/finance/payments/receive': typeof AuthenticatedFinancePaymentsReceiveRoute
+  '/forms/sale-job02-f01/new': typeof AuthenticatedFormsSaleJob02F01NewRoute
+  '/contracts/$contractId': typeof AuthenticatedContractsContractIdIndexRoute
   '/finance/invoices': typeof AuthenticatedFinanceInvoicesIndexRoute
+  '/forms/sale-job02-f01': typeof AuthenticatedFormsSaleJob02F01IndexRoute
   '/finance/invoices/$invoiceId/edit': typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
+  '/forms/sale-job02-f01/$id/edit': typeof AuthenticatedFormsSaleJob02F01IdEditRoute
+  '/forms/sale-job02-f01/$id/print': typeof AuthenticatedFormsSaleJob02F01IdPrintRoute
   '/finance/invoices/$invoiceId': typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRoute
+  '/forms/sale-job02-f01/$id': typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -231,17 +335,27 @@ export interface FileRoutesById {
   '/_authenticated/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/_authenticated/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/_authenticated/units/by-project': typeof AuthenticatedUnitsByProjectRoute
+  '/_authenticated/utilities/meter-reading': typeof AuthenticatedUtilitiesMeterReadingRoute
+  '/_authenticated/utilities/report': typeof AuthenticatedUtilitiesReportRoute
   '/_authenticated/contracts/': typeof AuthenticatedContractsIndexRoute
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
   '/_authenticated/deals/': typeof AuthenticatedDealsIndexRoute
   '/_authenticated/leads/': typeof AuthenticatedLeadsIndexRoute
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
   '/_authenticated/units/': typeof AuthenticatedUnitsIndexRoute
+  '/_authenticated/contracts/$contractId/edit': typeof AuthenticatedContractsContractIdEditRoute
+  '/_authenticated/contracts/$contractId/print': typeof AuthenticatedContractsContractIdPrintRoute
   '/_authenticated/finance/invoices/create': typeof AuthenticatedFinanceInvoicesCreateRoute
   '/_authenticated/finance/payments/receive': typeof AuthenticatedFinancePaymentsReceiveRoute
+  '/_authenticated/forms/sale-job02-f01/new': typeof AuthenticatedFormsSaleJob02F01NewRoute
+  '/_authenticated/contracts/$contractId/': typeof AuthenticatedContractsContractIdIndexRoute
   '/_authenticated/finance/invoices/': typeof AuthenticatedFinanceInvoicesIndexRoute
+  '/_authenticated/forms/sale-job02-f01/': typeof AuthenticatedFormsSaleJob02F01IndexRoute
   '/_authenticated/finance/invoices/$invoiceId/edit': typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
+  '/_authenticated/forms/sale-job02-f01/$id/edit': typeof AuthenticatedFormsSaleJob02F01IdEditRoute
+  '/_authenticated/forms/sale-job02-f01/$id/print': typeof AuthenticatedFormsSaleJob02F01IdPrintRoute
   '/_authenticated/finance/invoices/$invoiceId/': typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRoute
+  '/_authenticated/forms/sale-job02-f01/$id/': typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -259,17 +373,27 @@ export interface FileRouteTypes {
     | '/projects/dashboard'
     | '/units/availability'
     | '/units/by-project'
+    | '/utilities/meter-reading'
+    | '/utilities/report'
     | '/contracts/'
     | '/customers/'
     | '/deals/'
     | '/leads/'
     | '/projects/'
     | '/units/'
+    | '/contracts/$contractId/edit'
+    | '/contracts/$contractId/print'
     | '/finance/invoices/create'
     | '/finance/payments/receive'
+    | '/forms/sale-job02-f01/new'
+    | '/contracts/$contractId/'
     | '/finance/invoices/'
+    | '/forms/sale-job02-f01/'
     | '/finance/invoices/$invoiceId/edit'
+    | '/forms/sale-job02-f01/$id/edit'
+    | '/forms/sale-job02-f01/$id/print'
     | '/finance/invoices/$invoiceId/'
+    | '/forms/sale-job02-f01/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -285,17 +409,27 @@ export interface FileRouteTypes {
     | '/projects/dashboard'
     | '/units/availability'
     | '/units/by-project'
+    | '/utilities/meter-reading'
+    | '/utilities/report'
     | '/contracts'
     | '/customers'
     | '/deals'
     | '/leads'
     | '/projects'
     | '/units'
+    | '/contracts/$contractId/edit'
+    | '/contracts/$contractId/print'
     | '/finance/invoices/create'
     | '/finance/payments/receive'
+    | '/forms/sale-job02-f01/new'
+    | '/contracts/$contractId'
     | '/finance/invoices'
+    | '/forms/sale-job02-f01'
     | '/finance/invoices/$invoiceId/edit'
+    | '/forms/sale-job02-f01/$id/edit'
+    | '/forms/sale-job02-f01/$id/print'
     | '/finance/invoices/$invoiceId'
+    | '/forms/sale-job02-f01/$id'
   id:
     | '__root__'
     | '/_authenticated'
@@ -312,17 +446,27 @@ export interface FileRouteTypes {
     | '/_authenticated/projects/dashboard'
     | '/_authenticated/units/availability'
     | '/_authenticated/units/by-project'
+    | '/_authenticated/utilities/meter-reading'
+    | '/_authenticated/utilities/report'
     | '/_authenticated/contracts/'
     | '/_authenticated/customers/'
     | '/_authenticated/deals/'
     | '/_authenticated/leads/'
     | '/_authenticated/projects/'
     | '/_authenticated/units/'
+    | '/_authenticated/contracts/$contractId/edit'
+    | '/_authenticated/contracts/$contractId/print'
     | '/_authenticated/finance/invoices/create'
     | '/_authenticated/finance/payments/receive'
+    | '/_authenticated/forms/sale-job02-f01/new'
+    | '/_authenticated/contracts/$contractId/'
     | '/_authenticated/finance/invoices/'
+    | '/_authenticated/forms/sale-job02-f01/'
     | '/_authenticated/finance/invoices/$invoiceId/edit'
+    | '/_authenticated/forms/sale-job02-f01/$id/edit'
+    | '/_authenticated/forms/sale-job02-f01/$id/print'
     | '/_authenticated/finance/invoices/$invoiceId/'
+    | '/_authenticated/forms/sale-job02-f01/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -409,6 +553,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedContractsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/utilities/report': {
+      id: '/_authenticated/utilities/report'
+      path: '/utilities/report'
+      fullPath: '/utilities/report'
+      preLoaderRoute: typeof AuthenticatedUtilitiesReportRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/utilities/meter-reading': {
+      id: '/_authenticated/utilities/meter-reading'
+      path: '/utilities/meter-reading'
+      fullPath: '/utilities/meter-reading'
+      preLoaderRoute: typeof AuthenticatedUtilitiesMeterReadingRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/units/by-project': {
       id: '/_authenticated/units/by-project'
       path: '/units/by-project'
@@ -458,11 +616,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCustomersCreateRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/contracts/expiring': {
+      id: '/_authenticated/contracts/expiring'
+      path: '/contracts/expiring'
+      fullPath: '/contracts/expiring'
+      preLoaderRoute: typeof AuthenticatedContractsExpiringRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/payments/receive': {
+      id: '/_authenticated/finance/payments/receive'
+      path: '/finance/payments/receive'
+      fullPath: '/finance/payments/receive'
+      preLoaderRoute: typeof AuthenticatedFinancePaymentsReceiveRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/forms/sale-job02-f01/': {
+      id: '/_authenticated/forms/sale-job02-f01/'
+      path: '/forms/sale-job02-f01'
+      fullPath: '/forms/sale-job02-f01/'
+      preLoaderRoute: typeof AuthenticatedFormsSaleJob02F01IndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/finance/invoices/': {
       id: '/_authenticated/finance/invoices/'
       path: '/finance/invoices'
       fullPath: '/finance/invoices/'
       preLoaderRoute: typeof AuthenticatedFinanceInvoicesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/contracts/$contractId/': {
+      id: '/_authenticated/contracts/$contractId/'
+      path: '/contracts/$contractId'
+      fullPath: '/contracts/$contractId/'
+      preLoaderRoute: typeof AuthenticatedContractsContractIdIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/forms/sale-job02-f01/new': {
+      id: '/_authenticated/forms/sale-job02-f01/new'
+      path: '/forms/sale-job02-f01/new'
+      fullPath: '/forms/sale-job02-f01/new'
+      preLoaderRoute: typeof AuthenticatedFormsSaleJob02F01NewRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/finance/payments/receive': {
@@ -479,11 +672,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFinanceInvoicesCreateRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/contracts/$contractId/print': {
+      id: '/_authenticated/contracts/$contractId/print'
+      path: '/contracts/$contractId/print'
+      fullPath: '/contracts/$contractId/print'
+      preLoaderRoute: typeof AuthenticatedContractsContractIdPrintRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/contracts/$contractId/edit': {
+      id: '/_authenticated/contracts/$contractId/edit'
+      path: '/contracts/$contractId/edit'
+      fullPath: '/contracts/$contractId/edit'
+      preLoaderRoute: typeof AuthenticatedContractsContractIdEditRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/forms/sale-job02-f01/$id/': {
+      id: '/_authenticated/forms/sale-job02-f01/$id/'
+      path: '/forms/sale-job02-f01/$id'
+      fullPath: '/forms/sale-job02-f01/$id/'
+      preLoaderRoute: typeof AuthenticatedFormsSaleJob02F01IdIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/finance/invoices/$invoiceId/': {
       id: '/_authenticated/finance/invoices/$invoiceId/'
       path: '/finance/invoices/$invoiceId'
       fullPath: '/finance/invoices/$invoiceId/'
       preLoaderRoute: typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/forms/sale-job02-f01/$id/print': {
+      id: '/_authenticated/forms/sale-job02-f01/$id/print'
+      path: '/forms/sale-job02-f01/$id/print'
+      fullPath: '/forms/sale-job02-f01/$id/print'
+      preLoaderRoute: typeof AuthenticatedFormsSaleJob02F01IdPrintRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/forms/sale-job02-f01/$id/edit': {
+      id: '/_authenticated/forms/sale-job02-f01/$id/edit'
+      path: '/forms/sale-job02-f01/$id/edit'
+      fullPath: '/forms/sale-job02-f01/$id/edit'
+      preLoaderRoute: typeof AuthenticatedFormsSaleJob02F01IdEditRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/finance/invoices/$invoiceId/edit': {
@@ -509,17 +737,27 @@ interface AuthenticatedRouteChildren {
   AuthenticatedProjectsDashboardRoute: typeof AuthenticatedProjectsDashboardRoute
   AuthenticatedUnitsAvailabilityRoute: typeof AuthenticatedUnitsAvailabilityRoute
   AuthenticatedUnitsByProjectRoute: typeof AuthenticatedUnitsByProjectRoute
+  AuthenticatedUtilitiesMeterReadingRoute: typeof AuthenticatedUtilitiesMeterReadingRoute
+  AuthenticatedUtilitiesReportRoute: typeof AuthenticatedUtilitiesReportRoute
   AuthenticatedContractsIndexRoute: typeof AuthenticatedContractsIndexRoute
   AuthenticatedCustomersIndexRoute: typeof AuthenticatedCustomersIndexRoute
   AuthenticatedDealsIndexRoute: typeof AuthenticatedDealsIndexRoute
   AuthenticatedLeadsIndexRoute: typeof AuthenticatedLeadsIndexRoute
   AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
   AuthenticatedUnitsIndexRoute: typeof AuthenticatedUnitsIndexRoute
+  AuthenticatedContractsContractIdEditRoute: typeof AuthenticatedContractsContractIdEditRoute
+  AuthenticatedContractsContractIdPrintRoute: typeof AuthenticatedContractsContractIdPrintRoute
   AuthenticatedFinanceInvoicesCreateRoute: typeof AuthenticatedFinanceInvoicesCreateRoute
   AuthenticatedFinancePaymentsReceiveRoute: typeof AuthenticatedFinancePaymentsReceiveRoute
+  AuthenticatedFormsSaleJob02F01NewRoute: typeof AuthenticatedFormsSaleJob02F01NewRoute
+  AuthenticatedContractsContractIdIndexRoute: typeof AuthenticatedContractsContractIdIndexRoute
   AuthenticatedFinanceInvoicesIndexRoute: typeof AuthenticatedFinanceInvoicesIndexRoute
+  AuthenticatedFormsSaleJob02F01IndexRoute: typeof AuthenticatedFormsSaleJob02F01IndexRoute
   AuthenticatedFinanceInvoicesInvoiceIdEditRoute: typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
+  AuthenticatedFormsSaleJob02F01IdEditRoute: typeof AuthenticatedFormsSaleJob02F01IdEditRoute
+  AuthenticatedFormsSaleJob02F01IdPrintRoute: typeof AuthenticatedFormsSaleJob02F01IdPrintRoute
   AuthenticatedFinanceInvoicesInvoiceIdIndexRoute: typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRoute
+  AuthenticatedFormsSaleJob02F01IdIndexRoute: typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -535,22 +773,41 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedProjectsDashboardRoute: AuthenticatedProjectsDashboardRoute,
   AuthenticatedUnitsAvailabilityRoute: AuthenticatedUnitsAvailabilityRoute,
   AuthenticatedUnitsByProjectRoute: AuthenticatedUnitsByProjectRoute,
+  AuthenticatedUtilitiesMeterReadingRoute:
+    AuthenticatedUtilitiesMeterReadingRoute,
+  AuthenticatedUtilitiesReportRoute: AuthenticatedUtilitiesReportRoute,
   AuthenticatedContractsIndexRoute: AuthenticatedContractsIndexRoute,
   AuthenticatedCustomersIndexRoute: AuthenticatedCustomersIndexRoute,
   AuthenticatedDealsIndexRoute: AuthenticatedDealsIndexRoute,
   AuthenticatedLeadsIndexRoute: AuthenticatedLeadsIndexRoute,
   AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
   AuthenticatedUnitsIndexRoute: AuthenticatedUnitsIndexRoute,
+  AuthenticatedContractsContractIdEditRoute:
+    AuthenticatedContractsContractIdEditRoute,
+  AuthenticatedContractsContractIdPrintRoute:
+    AuthenticatedContractsContractIdPrintRoute,
   AuthenticatedFinanceInvoicesCreateRoute:
     AuthenticatedFinanceInvoicesCreateRoute,
   AuthenticatedFinancePaymentsReceiveRoute:
     AuthenticatedFinancePaymentsReceiveRoute,
+  AuthenticatedFormsSaleJob02F01NewRoute:
+    AuthenticatedFormsSaleJob02F01NewRoute,
+  AuthenticatedContractsContractIdIndexRoute:
+    AuthenticatedContractsContractIdIndexRoute,
   AuthenticatedFinanceInvoicesIndexRoute:
     AuthenticatedFinanceInvoicesIndexRoute,
+  AuthenticatedFormsSaleJob02F01IndexRoute:
+    AuthenticatedFormsSaleJob02F01IndexRoute,
   AuthenticatedFinanceInvoicesInvoiceIdEditRoute:
     AuthenticatedFinanceInvoicesInvoiceIdEditRoute,
+  AuthenticatedFormsSaleJob02F01IdEditRoute:
+    AuthenticatedFormsSaleJob02F01IdEditRoute,
+  AuthenticatedFormsSaleJob02F01IdPrintRoute:
+    AuthenticatedFormsSaleJob02F01IdPrintRoute,
   AuthenticatedFinanceInvoicesInvoiceIdIndexRoute:
     AuthenticatedFinanceInvoicesInvoiceIdIndexRoute,
+  AuthenticatedFormsSaleJob02F01IdIndexRoute:
+    AuthenticatedFormsSaleJob02F01IdIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

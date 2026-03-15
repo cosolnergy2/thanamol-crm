@@ -241,7 +241,7 @@ describe('useApproveContract', () => {
     result.current.mutate('abc')
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
-    expect(apiClient.apiPost).toHaveBeenCalledWith('/contracts/abc/approve')
+    expect(apiClient.apiPost).toHaveBeenCalledWith('/contracts/abc/approve', {})
   })
 
   it('surfaces error when approval fails', async () => {
