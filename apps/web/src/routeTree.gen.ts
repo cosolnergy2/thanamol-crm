@@ -22,6 +22,11 @@ import { Route as AuthenticatedUnitsAvailabilityRouteImport } from './routes/_au
 import { Route as AuthenticatedProjectsDashboardRouteImport } from './routes/_authenticated/projects/dashboard'
 import { Route as AuthenticatedProjectsProjectIdRouteImport } from './routes/_authenticated/projects/$projectId'
 import { Route as AuthenticatedCustomersCreateRouteImport } from './routes/_authenticated/customers/create'
+import { Route as AuthenticatedFinanceInvoicesIndexRouteImport } from './routes/_authenticated/finance/invoices/index'
+import { Route as AuthenticatedFinancePaymentsReceiveRouteImport } from './routes/_authenticated/finance/payments/receive'
+import { Route as AuthenticatedFinanceInvoicesCreateRouteImport } from './routes/_authenticated/finance/invoices/create'
+import { Route as AuthenticatedFinanceInvoicesInvoiceIdIndexRouteImport } from './routes/_authenticated/finance/invoices/$invoiceId/index'
+import { Route as AuthenticatedFinanceInvoicesInvoiceIdEditRouteImport } from './routes/_authenticated/finance/invoices/$invoiceId/edit'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -94,6 +99,36 @@ const AuthenticatedCustomersCreateRoute =
     path: '/customers/create',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFinanceInvoicesIndexRoute =
+  AuthenticatedFinanceInvoicesIndexRouteImport.update({
+    id: '/finance/invoices/',
+    path: '/finance/invoices/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinancePaymentsReceiveRoute =
+  AuthenticatedFinancePaymentsReceiveRouteImport.update({
+    id: '/finance/payments/receive',
+    path: '/finance/payments/receive',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceInvoicesCreateRoute =
+  AuthenticatedFinanceInvoicesCreateRouteImport.update({
+    id: '/finance/invoices/create',
+    path: '/finance/invoices/create',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceInvoicesInvoiceIdIndexRoute =
+  AuthenticatedFinanceInvoicesInvoiceIdIndexRouteImport.update({
+    id: '/finance/invoices/$invoiceId/',
+    path: '/finance/invoices/$invoiceId/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceInvoicesInvoiceIdEditRoute =
+  AuthenticatedFinanceInvoicesInvoiceIdEditRouteImport.update({
+    id: '/finance/invoices/$invoiceId/edit',
+    path: '/finance/invoices/$invoiceId/edit',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -108,6 +143,11 @@ export interface FileRoutesByFullPath {
   '/customers/': typeof AuthenticatedCustomersIndexRoute
   '/projects/': typeof AuthenticatedProjectsIndexRoute
   '/units/': typeof AuthenticatedUnitsIndexRoute
+  '/finance/invoices/create': typeof AuthenticatedFinanceInvoicesCreateRoute
+  '/finance/payments/receive': typeof AuthenticatedFinancePaymentsReceiveRoute
+  '/finance/invoices/': typeof AuthenticatedFinanceInvoicesIndexRoute
+  '/finance/invoices/$invoiceId/edit': typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
+  '/finance/invoices/$invoiceId/': typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -122,6 +162,11 @@ export interface FileRoutesByTo {
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/projects': typeof AuthenticatedProjectsIndexRoute
   '/units': typeof AuthenticatedUnitsIndexRoute
+  '/finance/invoices/create': typeof AuthenticatedFinanceInvoicesCreateRoute
+  '/finance/payments/receive': typeof AuthenticatedFinancePaymentsReceiveRoute
+  '/finance/invoices': typeof AuthenticatedFinanceInvoicesIndexRoute
+  '/finance/invoices/$invoiceId/edit': typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
+  '/finance/invoices/$invoiceId': typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -138,6 +183,11 @@ export interface FileRoutesById {
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
   '/_authenticated/units/': typeof AuthenticatedUnitsIndexRoute
+  '/_authenticated/finance/invoices/create': typeof AuthenticatedFinanceInvoicesCreateRoute
+  '/_authenticated/finance/payments/receive': typeof AuthenticatedFinancePaymentsReceiveRoute
+  '/_authenticated/finance/invoices/': typeof AuthenticatedFinanceInvoicesIndexRoute
+  '/_authenticated/finance/invoices/$invoiceId/edit': typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
+  '/_authenticated/finance/invoices/$invoiceId/': typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -154,6 +204,11 @@ export interface FileRouteTypes {
     | '/customers/'
     | '/projects/'
     | '/units/'
+    | '/finance/invoices/create'
+    | '/finance/payments/receive'
+    | '/finance/invoices/'
+    | '/finance/invoices/$invoiceId/edit'
+    | '/finance/invoices/$invoiceId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -168,6 +223,11 @@ export interface FileRouteTypes {
     | '/customers'
     | '/projects'
     | '/units'
+    | '/finance/invoices/create'
+    | '/finance/payments/receive'
+    | '/finance/invoices'
+    | '/finance/invoices/$invoiceId/edit'
+    | '/finance/invoices/$invoiceId'
   id:
     | '__root__'
     | '/_authenticated'
@@ -183,6 +243,11 @@ export interface FileRouteTypes {
     | '/_authenticated/customers/'
     | '/_authenticated/projects/'
     | '/_authenticated/units/'
+    | '/_authenticated/finance/invoices/create'
+    | '/_authenticated/finance/payments/receive'
+    | '/_authenticated/finance/invoices/'
+    | '/_authenticated/finance/invoices/$invoiceId/edit'
+    | '/_authenticated/finance/invoices/$invoiceId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -283,6 +348,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCustomersCreateRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/finance/invoices/': {
+      id: '/_authenticated/finance/invoices/'
+      path: '/finance/invoices'
+      fullPath: '/finance/invoices/'
+      preLoaderRoute: typeof AuthenticatedFinanceInvoicesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/payments/receive': {
+      id: '/_authenticated/finance/payments/receive'
+      path: '/finance/payments/receive'
+      fullPath: '/finance/payments/receive'
+      preLoaderRoute: typeof AuthenticatedFinancePaymentsReceiveRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/invoices/create': {
+      id: '/_authenticated/finance/invoices/create'
+      path: '/finance/invoices/create'
+      fullPath: '/finance/invoices/create'
+      preLoaderRoute: typeof AuthenticatedFinanceInvoicesCreateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/invoices/$invoiceId/': {
+      id: '/_authenticated/finance/invoices/$invoiceId/'
+      path: '/finance/invoices/$invoiceId'
+      fullPath: '/finance/invoices/$invoiceId/'
+      preLoaderRoute: typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/invoices/$invoiceId/edit': {
+      id: '/_authenticated/finance/invoices/$invoiceId/edit'
+      path: '/finance/invoices/$invoiceId/edit'
+      fullPath: '/finance/invoices/$invoiceId/edit'
+      preLoaderRoute: typeof AuthenticatedFinanceInvoicesInvoiceIdEditRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
@@ -298,6 +398,11 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCustomersIndexRoute: typeof AuthenticatedCustomersIndexRoute
   AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
   AuthenticatedUnitsIndexRoute: typeof AuthenticatedUnitsIndexRoute
+  AuthenticatedFinanceInvoicesCreateRoute: typeof AuthenticatedFinanceInvoicesCreateRoute
+  AuthenticatedFinancePaymentsReceiveRoute: typeof AuthenticatedFinancePaymentsReceiveRoute
+  AuthenticatedFinanceInvoicesIndexRoute: typeof AuthenticatedFinanceInvoicesIndexRoute
+  AuthenticatedFinanceInvoicesInvoiceIdEditRoute: typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
+  AuthenticatedFinanceInvoicesInvoiceIdIndexRoute: typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -312,6 +417,16 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCustomersIndexRoute: AuthenticatedCustomersIndexRoute,
   AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
   AuthenticatedUnitsIndexRoute: AuthenticatedUnitsIndexRoute,
+  AuthenticatedFinanceInvoicesCreateRoute:
+    AuthenticatedFinanceInvoicesCreateRoute,
+  AuthenticatedFinancePaymentsReceiveRoute:
+    AuthenticatedFinancePaymentsReceiveRoute,
+  AuthenticatedFinanceInvoicesIndexRoute:
+    AuthenticatedFinanceInvoicesIndexRoute,
+  AuthenticatedFinanceInvoicesInvoiceIdEditRoute:
+    AuthenticatedFinanceInvoicesInvoiceIdEditRoute,
+  AuthenticatedFinanceInvoicesInvoiceIdIndexRoute:
+    AuthenticatedFinanceInvoicesInvoiceIdIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
