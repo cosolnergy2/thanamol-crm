@@ -11,3 +11,10 @@ T-009,RBAC API — roles CRUD + user-role assignment + permission middleware,dev
 T-010,usePermissions hook + PermissionGuard components,dev,Done,tasks/T-010.md
 T-011,i18n system — LanguageProvider full translation dictionary,dev,Done,tasks/T-011.md
 T-012,E2E tests for RBAC and language switching,tester,Done,tasks/T-012.md
+T-013,API — Customer/Contact/Company CRUD with Box validation,dev,Done,tasks/T-013.md
+T-014,Frontend — CustomerList/CustomerCreate/ContactList/CompanyList pages,dev,Ready to Dev,tasks/T-014.md
+T-015,E2E tests — customer/contact/company CRUD,tester,Ready to Dev,tasks/T-015.md
+T-016,API — Project/ProjectTemplate/Unit CRUD,dev,Done,tasks/T-016.md
+T-017,Frontend — ProjectList/ProjectDetail/ProjectDashboard pages,dev,Ready to Dev,tasks/T-017.md
+T-018,Frontend — UnitList/UnitsByProject/UnitAvailability pages,dev,Ready to Dev,tasks/T-018.md
+T-019,E2E tests — project/unit management,tester,Ready to Dev,tasks/T-019.md
