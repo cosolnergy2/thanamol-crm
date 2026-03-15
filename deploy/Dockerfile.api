@@ -1,0 +1,21 @@
+FROM oven/bun:1.3 AS base
+WORKDIR /app
+
+# Install dependencies
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/api/package.json apps/api/
+COPY packages/shared/package.json packages/shared/
+
+RUN bun install --frozen-lockfile || bun install
+
+# Copy source
+COPY packages/shared/ packages/shared/
+COPY apps/api/ apps/api/
+
+# Generate Prisma client
+WORKDIR /app/apps/api
+RUN bunx prisma generate
+
+# Expose and run
+EXPOSE 3000
+CMD ["sh", "-c", "bunx prisma db push --skip-generate && bun run prisma/seed.ts 2>/dev/null; bun run src/index.ts"]

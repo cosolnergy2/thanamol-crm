@@ -1,0 +1,10 @@
+node_modules
+.git
+*.md
+apps/web/dist
+apps/web/e2e
+apps/api/generated
+.claude
+tasks
+deploy/.env
+deploy/.env.prod

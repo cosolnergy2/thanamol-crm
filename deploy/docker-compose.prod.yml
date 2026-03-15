@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: thanamol
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-thanamol_prod_secret}
+      POSTGRES_DB: thanamol_crm
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U thanamol -d thanamol_crm"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://thanamol:${DB_PASSWORD:-thanamol_prod_secret}@postgres:5432/thanamol_crm
+      PORT: 3000
+      JWT_SECRET: ${JWT_SECRET:-change_this_in_production_at_least_32_chars_long}
+    networks:
+      - backend
+    expose:
+      - "3000"
+
+  web:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.web
+      args:
+        VITE_API_URL: ${VITE_API_URL:-/api}
+    restart: unless-stopped
+    depends_on:
+      - api
+    networks:
+      - backend
+    expose:
+      - "80"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+      - api
+    networks:
+      - backend
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:
+
+networks:
+  backend:
