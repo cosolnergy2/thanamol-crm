@@ -109,7 +109,7 @@ function ContractEditPage() {
         data: {
           customerId,
           projectId,
-          unitId: unitId || undefined,
+          unitId: (unitId && unitId !== 'none') ? unitId : undefined,
           type: type as 'SALE' | 'LEASE' | 'RENTAL',
           startDate,
           endDate: endDate || undefined,
@@ -236,7 +236,7 @@ function ContractEditPage() {
                     <SelectValue placeholder="Select unit (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="none">None</SelectItem>
                     {units.map((u) => (
                       <SelectItem key={u.id} value={u.id}>
                         {u.unit_number}

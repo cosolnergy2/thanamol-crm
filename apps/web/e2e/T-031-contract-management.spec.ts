@@ -434,13 +434,9 @@ test.describe('T-031: Contract Approval Workflow', () => {
 
     await page.waitForTimeout(500)
 
-    const detailLinks = page.locator('a[href*="/contracts/"]').filter({
-      hasNot: page.locator('[href*="/edit"]'),
-      hasNot: page.locator('[href*="/print"]'),
-      hasNot: page.locator('[href="/contracts"]'),
-      hasNot: page.locator('[href="/contracts/create"]'),
-      hasNot: page.locator('[href="/contracts/expiring"]'),
-    })
+    const detailLinks = page.locator(
+      'a[href^="/contracts/"]:not([href="/contracts"]):not([href="/contracts/create"]):not([href="/contracts/expiring"]):not([href*="/edit"]):not([href*="/print"])',
+    )
 
     const linkCount = await detailLinks.count()
     if (linkCount === 0) {
@@ -697,12 +693,9 @@ test.describe('T-031: View and Edit Lease Agreement', () => {
 
     await expect(page.getByText('SALE-JOB02-F01: Lease Agreement')).toBeVisible()
 
-    const detailLinks = page.locator('a[href*="/forms/sale-job02-f01/"]').filter({
-      hasNot: page.locator('[href*="/edit"]'),
-      hasNot: page.locator('[href*="/print"]'),
-      hasNot: page.locator('[href="/forms/sale-job02-f01"]'),
-      hasNot: page.locator('[href="/forms/sale-job02-f01/new"]'),
-    })
+    const detailLinks = page.locator(
+      'a[href^="/forms/sale-job02-f01/"]:not([href="/forms/sale-job02-f01"]):not([href="/forms/sale-job02-f01/new"]):not([href*="/edit"]):not([href*="/print"])',
+    )
 
     await page.waitForTimeout(500)
     const linkCount = await detailLinks.count()

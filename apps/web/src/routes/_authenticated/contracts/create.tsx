@@ -69,7 +69,7 @@ function ContractCreatePage() {
       await createContract.mutateAsync({
         customerId,
         projectId,
-        unitId: unitId || undefined,
+        unitId: (unitId && unitId !== 'none') ? unitId : undefined,
         quotationId: quotationId || undefined,
         type,
         startDate,
@@ -162,7 +162,7 @@ function ContractCreatePage() {
                     <SelectValue placeholder="Select unit (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="none">None</SelectItem>
                     {units.map((u) => (
                       <SelectItem key={u.id} value={u.id}>
                         {u.unit_number}
