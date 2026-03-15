@@ -622,7 +622,7 @@ test.describe('T-031: Create Lease Agreement', () => {
 
     await expect(page.getByText('Contract *')).toBeVisible()
     await expect(page.getByText('Status')).toBeVisible()
-    await expect(page.getByText('Lease Terms')).toBeVisible()
+    await expect(page.getByText('Lease Terms', { exact: true }).first()).toBeVisible()
     await expect(page.getByText('Special Conditions')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Save Lease Agreement' })).toBeVisible()
 
