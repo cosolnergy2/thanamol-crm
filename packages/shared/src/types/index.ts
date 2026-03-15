@@ -482,3 +482,86 @@ export type CreateCommercialQuotationRequest = {
 }
 
 export type UpdateCommercialQuotationRequest = Partial<CreateCommercialQuotationRequest>
+
+// ─── Reports ──────────────────────────────────────────────────────────────────
+
+export type SalesReportSummary = {
+  totalDeals: number
+  dealsWon: number
+  dealsLost: number
+  totalWonValue: number
+  avgDealValue: number
+  winRate: number
+}
+
+export type SalesByStage = {
+  stage: string
+  count: number
+  totalValue: number
+}
+
+export type SalesReportResponse = {
+  summary: SalesReportSummary
+  byStage: SalesByStage[]
+}
+
+export type RevenueReportSummary = {
+  totalBilled: number
+  totalCollected: number
+  totalOutstanding: number
+  totalOverdue: number
+  collectionRate: number
+}
+
+export type RevenueByStatus = {
+  status: string
+  count: number
+  total: number
+}
+
+export type RevenueReportResponse = {
+  summary: RevenueReportSummary
+  byStatus: RevenueByStatus[]
+}
+
+export type OccupancySummary = {
+  totalProjects: number
+  totalUnits: number
+  totalOccupied: number
+  totalAvailable: number
+  overallOccupancyRate: number
+}
+
+export type ProjectOccupancy = {
+  projectId: string
+  projectName: string
+  projectCode: string
+  projectStatus: string
+  totalUnits: number
+  available: number
+  reserved: number
+  sold: number
+  rented: number
+  underMaintenance: number
+  occupied: number
+  occupancyRate: number
+}
+
+export type OccupancyReportResponse = {
+  summary: OccupancySummary
+  byProject: ProjectOccupancy[]
+}
+
+export type CollectionReportSummary = {
+  totalInvoices: number
+  paidOnTime: number
+  paidOverdue: number
+  pending: number
+  totalCollected: number
+  totalOverdue: number
+  onTimePaymentRate: number
+}
+
+export type CollectionReportResponse = {
+  summary: CollectionReportSummary
+}
