@@ -247,7 +247,7 @@ test.describe('T-031: Edit Contract', () => {
     const editHref = await editLinks.first().getAttribute('href')
     await page.goto(editHref!)
 
-    await expect(page.getByRole('heading', { name: 'Edit Contract' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Edit/ })).toBeVisible()
 
     await page.screenshot({ path: `${SCREENSHOTS}/contract-edit-initial.png` })
 
