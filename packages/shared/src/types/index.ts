@@ -483,81 +483,85 @@ export type CreateCommercialQuotationRequest = {
 
 export type UpdateCommercialQuotationRequest = Partial<CreateCommercialQuotationRequest>
 
-// ─── ClientUser ───────────────────────────────────────────────────────────────
+// ─── Reports ──────────────────────────────────────────────────────────────────
 
-export type ClientUser = {
-  id: string
-  customer_id: string
-  email: string
-  first_name: string
-  last_name: string
-  is_active: boolean
-  created_at: string
-  customer?: Pick<Customer, 'id' | 'name' | 'email' | 'phone'>
+export type SalesReportSummary = {
+  totalDeals: number
+  dealsWon: number
+  dealsLost: number
+  totalWonValue: number
+  avgDealValue: number
+  winRate: number
 }
 
-export type CreateClientUserRequest = {
-  customerId: string
-  email: string
-  password: string
-  firstName: string
-  lastName: string
-  isActive?: boolean
+export type SalesByStage = {
+  stage: string
+  count: number
+  totalValue: number
 }
 
-export type UpdateClientUserRequest = {
-  email?: string
-  password?: string
-  firstName?: string
-  lastName?: string
-  isActive?: boolean
+export type SalesReportResponse = {
+  summary: SalesReportSummary
+  byStage: SalesByStage[]
 }
 
-export type ClientUserListResponse = PaginatedResponse<ClientUser>
-
-export type ClientUserQueryParams = {
-  page?: number
-  limit?: number
-  search?: string
-  customerId?: string
-  isActive?: boolean
+export type RevenueReportSummary = {
+  totalBilled: number
+  totalCollected: number
+  totalOutstanding: number
+  totalOverdue: number
+  collectionRate: number
 }
 
-// ─── ClientUpdateRequest ──────────────────────────────────────────────────────
-
-export type UpdateRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
-
-export type ClientUpdateRequest = {
-  id: string
-  entity_type: string
-  entity_id: string
-  client_user_id: string
-  requested_changes: Record<string, unknown>
-  status: UpdateRequestStatus
-  reviewed_by: string | null
-  created_at: string
-  updated_at: string
-  client_user?: Pick<ClientUser, 'id' | 'first_name' | 'last_name' | 'email'>
-  reviewer?: { id: string; first_name: string; last_name: string } | null
+export type RevenueByStatus = {
+  status: string
+  count: number
+  total: number
 }
 
-export type CreateClientUpdateRequestRequest = {
-  entityType: string
-  entityId: string
-  clientUserId: string
-  requestedChanges: Record<string, unknown>
+export type RevenueReportResponse = {
+  summary: RevenueReportSummary
+  byStatus: RevenueByStatus[]
 }
 
-export type UpdateClientUpdateRequestRequest = {
-  status: UpdateRequestStatus
-  reviewedBy?: string
+export type OccupancySummary = {
+  totalProjects: number
+  totalUnits: number
+  totalOccupied: number
+  totalAvailable: number
+  overallOccupancyRate: number
 }
 
-export type ClientUpdateRequestListResponse = PaginatedResponse<ClientUpdateRequest>
+export type ProjectOccupancy = {
+  projectId: string
+  projectName: string
+  projectCode: string
+  projectStatus: string
+  totalUnits: number
+  available: number
+  reserved: number
+  sold: number
+  rented: number
+  underMaintenance: number
+  occupied: number
+  occupancyRate: number
+}
 
-export type ClientUpdateRequestQueryParams = {
-  page?: number
-  limit?: number
-  status?: UpdateRequestStatus | 'all'
-  clientUserId?: string
+export type OccupancyReportResponse = {
+  summary: OccupancySummary
+  byProject: ProjectOccupancy[]
+}
+
+export type CollectionReportSummary = {
+  totalInvoices: number
+  paidOnTime: number
+  paidOverdue: number
+  pending: number
+  totalCollected: number
+  totalOverdue: number
+  onTimePaymentRate: number
+}
+
+export type CollectionReportResponse = {
+  summary: CollectionReportSummary
 }

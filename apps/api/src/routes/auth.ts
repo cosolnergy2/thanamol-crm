@@ -218,6 +218,54 @@ export const authRoutes = new Elysia({ prefix: '/api/auth' })
         .get('/me', ({ authUser }) => {
           return { user: authUser as AuthenticatedUser }
         })
+        .get('/users', async () => {
+          const users = await prisma.user.findMany({
+            orderBy: { created_at: 'desc' },
+            include: {
+              roles: { include: { role: { select: { id: true, name: true } } } },
+            },
+          })
+          return {
+            users: users.map((u) => ({
+              id: u.id,
+              email: u.email,
+              first_name: u.first_name,
+              last_name: u.last_name,
+              is_active: u.is_active,
+              roles: u.roles.map((ur) => ({ id: ur.role.id, name: ur.role.name })),
+              created_at: u.created_at.toISOString(),
+            })),
+          }
+        })
+        .put(
+          '/users/:id',
+          async ({ params, body, set }) => {
+            const user = await prisma.user.findUnique({ where: { id: params.id } })
+            if (!user) {
+              set.status = 404
+              return { error: 'User not found' }
+            }
+            const updated = await prisma.user.update({
+              where: { id: params.id },
+              data: {
+                is_active: body.isActive !== undefined ? body.isActive : user.is_active,
+                first_name: body.firstName ?? user.first_name,
+                last_name: body.lastName ?? user.last_name,
+              },
+              include: {
+                roles: { include: { role: { select: { id: true, name: true } } } },
+              },
+            })
+            return { user: buildAuthUser(updated) }
+          },
+          {
+            body: t.Object({
+              isActive: t.Optional(t.Boolean()),
+              firstName: t.Optional(t.String()),
+              lastName: t.Optional(t.String()),
+            }),
+          }
+        )
         .post(
           '/logout',
           async ({ authUser, body }) => {

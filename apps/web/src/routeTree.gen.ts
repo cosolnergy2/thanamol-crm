@@ -16,7 +16,7 @@ import { Route as AuthenticatedMyDashboardRouteImport } from './routes/_authenti
 import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticated/contacts'
 import { Route as AuthenticatedCompaniesRouteImport } from './routes/_authenticated/companies'
 import { Route as AuthenticatedUnitsIndexRouteImport } from './routes/_authenticated/units/index'
-import { Route as AuthenticatedTicketsIndexRouteImport } from './routes/_authenticated/tickets/index'
+import { Route as AuthenticatedReportsIndexRouteImport } from './routes/_authenticated/reports/index'
 import { Route as AuthenticatedProjectsIndexRouteImport } from './routes/_authenticated/projects/index'
 import { Route as AuthenticatedLeadsIndexRouteImport } from './routes/_authenticated/leads/index'
 import { Route as AuthenticatedDealsIndexRouteImport } from './routes/_authenticated/deals/index'
@@ -24,10 +24,18 @@ import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedClientsIndexRouteImport } from './routes/_authenticated/clients/index'
 import { Route as AuthenticatedUnitsByProjectRouteImport } from './routes/_authenticated/units/by-project'
 import { Route as AuthenticatedUnitsAvailabilityRouteImport } from './routes/_authenticated/units/availability'
-import { Route as AuthenticatedTasksNotificationsRouteImport } from './routes/_authenticated/tasks/notifications'
-import { Route as AuthenticatedSettingsAuditRouteImport } from './routes/_authenticated/settings/audit'
-import { Route as AuthenticatedSettingsActivityLogRouteImport } from './routes/_authenticated/settings/activity-log'
+import { Route as AuthenticatedSettingsUsersRouteImport } from './routes/_authenticated/settings/users'
+import { Route as AuthenticatedSettingsSystemRouteImport } from './routes/_authenticated/settings/system'
+import { Route as AuthenticatedSettingsRolesRouteImport } from './routes/_authenticated/settings/roles'
+import { Route as AuthenticatedSettingsProjectsRouteImport } from './routes/_authenticated/settings/projects'
+import { Route as AuthenticatedSettingsExportRouteImport } from './routes/_authenticated/settings/export'
+import { Route as AuthenticatedReportsSalesRouteImport } from './routes/_authenticated/reports/sales'
+import { Route as AuthenticatedReportsRevenueRouteImport } from './routes/_authenticated/reports/revenue'
+import { Route as AuthenticatedReportsOccupancyRouteImport } from './routes/_authenticated/reports/occupancy'
+import { Route as AuthenticatedReportsCustomRouteImport } from './routes/_authenticated/reports/custom'
+import { Route as AuthenticatedReportsCollectionRouteImport } from './routes/_authenticated/reports/collection'
 import { Route as AuthenticatedProjectsDashboardRouteImport } from './routes/_authenticated/projects/dashboard'
+import { Route as AuthenticatedProjectsCustomerOverviewRouteImport } from './routes/_authenticated/projects/customer-overview'
 import { Route as AuthenticatedProjectsProjectIdRouteImport } from './routes/_authenticated/projects/$projectId'
 import { Route as AuthenticatedFormsHandoverPhotosRouteImport } from './routes/_authenticated/forms/handover-photos'
 import { Route as AuthenticatedFormsHandoverRouteImport } from './routes/_authenticated/forms/handover'
@@ -69,10 +77,10 @@ const AuthenticatedUnitsIndexRoute = AuthenticatedUnitsIndexRouteImport.update({
   path: '/units/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedTicketsIndexRoute =
-  AuthenticatedTicketsIndexRouteImport.update({
-    id: '/tickets/',
-    path: '/tickets/',
+const AuthenticatedReportsIndexRoute =
+  AuthenticatedReportsIndexRouteImport.update({
+    id: '/reports/',
+    path: '/reports/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedProjectsIndexRoute =
@@ -115,28 +123,76 @@ const AuthenticatedUnitsAvailabilityRoute =
     path: '/units/availability',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedTasksNotificationsRoute =
-  AuthenticatedTasksNotificationsRouteImport.update({
-    id: '/tasks/notifications',
-    path: '/tasks/notifications',
+const AuthenticatedSettingsUsersRoute =
+  AuthenticatedSettingsUsersRouteImport.update({
+    id: '/settings/users',
+    path: '/settings/users',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedSettingsAuditRoute =
-  AuthenticatedSettingsAuditRouteImport.update({
-    id: '/settings/audit',
-    path: '/settings/audit',
+const AuthenticatedSettingsSystemRoute =
+  AuthenticatedSettingsSystemRouteImport.update({
+    id: '/settings/system',
+    path: '/settings/system',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedSettingsActivityLogRoute =
-  AuthenticatedSettingsActivityLogRouteImport.update({
-    id: '/settings/activity-log',
-    path: '/settings/activity-log',
+const AuthenticatedSettingsRolesRoute =
+  AuthenticatedSettingsRolesRouteImport.update({
+    id: '/settings/roles',
+    path: '/settings/roles',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedSettingsProjectsRoute =
+  AuthenticatedSettingsProjectsRouteImport.update({
+    id: '/settings/projects',
+    path: '/settings/projects',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedSettingsExportRoute =
+  AuthenticatedSettingsExportRouteImport.update({
+    id: '/settings/export',
+    path: '/settings/export',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedReportsSalesRoute =
+  AuthenticatedReportsSalesRouteImport.update({
+    id: '/reports/sales',
+    path: '/reports/sales',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedReportsRevenueRoute =
+  AuthenticatedReportsRevenueRouteImport.update({
+    id: '/reports/revenue',
+    path: '/reports/revenue',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedReportsOccupancyRoute =
+  AuthenticatedReportsOccupancyRouteImport.update({
+    id: '/reports/occupancy',
+    path: '/reports/occupancy',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedReportsCustomRoute =
+  AuthenticatedReportsCustomRouteImport.update({
+    id: '/reports/custom',
+    path: '/reports/custom',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedReportsCollectionRoute =
+  AuthenticatedReportsCollectionRouteImport.update({
+    id: '/reports/collection',
+    path: '/reports/collection',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedProjectsDashboardRoute =
   AuthenticatedProjectsDashboardRouteImport.update({
     id: '/projects/dashboard',
     path: '/projects/dashboard',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedProjectsCustomerOverviewRoute =
+  AuthenticatedProjectsCustomerOverviewRouteImport.update({
+    id: '/projects/customer-overview',
+    path: '/projects/customer-overview',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedProjectsProjectIdRoute =
@@ -180,10 +236,18 @@ export interface FileRoutesByFullPath {
   '/forms/handover': typeof AuthenticatedFormsHandoverRoute
   '/forms/handover-photos': typeof AuthenticatedFormsHandoverPhotosRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
+  '/projects/customer-overview': typeof AuthenticatedProjectsCustomerOverviewRoute
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
-  '/settings/activity-log': typeof AuthenticatedSettingsActivityLogRoute
-  '/settings/audit': typeof AuthenticatedSettingsAuditRoute
-  '/tasks/notifications': typeof AuthenticatedTasksNotificationsRoute
+  '/reports/collection': typeof AuthenticatedReportsCollectionRoute
+  '/reports/custom': typeof AuthenticatedReportsCustomRoute
+  '/reports/occupancy': typeof AuthenticatedReportsOccupancyRoute
+  '/reports/revenue': typeof AuthenticatedReportsRevenueRoute
+  '/reports/sales': typeof AuthenticatedReportsSalesRoute
+  '/settings/export': typeof AuthenticatedSettingsExportRoute
+  '/settings/projects': typeof AuthenticatedSettingsProjectsRoute
+  '/settings/roles': typeof AuthenticatedSettingsRolesRoute
+  '/settings/system': typeof AuthenticatedSettingsSystemRoute
+  '/settings/users': typeof AuthenticatedSettingsUsersRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/units/by-project': typeof AuthenticatedUnitsByProjectRoute
   '/clients/': typeof AuthenticatedClientsIndexRoute
@@ -191,7 +255,7 @@ export interface FileRoutesByFullPath {
   '/deals/': typeof AuthenticatedDealsIndexRoute
   '/leads/': typeof AuthenticatedLeadsIndexRoute
   '/projects/': typeof AuthenticatedProjectsIndexRoute
-  '/tickets/': typeof AuthenticatedTicketsIndexRoute
+  '/reports/': typeof AuthenticatedReportsIndexRoute
   '/units/': typeof AuthenticatedUnitsIndexRoute
   '/forms/sale-f01/new': typeof AuthenticatedFormsSaleF01NewRoute
   '/forms/sale-job04-f01/new': typeof AuthenticatedFormsSaleJob04F01NewRoute
@@ -213,10 +277,18 @@ export interface FileRoutesByTo {
   '/forms/handover': typeof AuthenticatedFormsHandoverRoute
   '/forms/handover-photos': typeof AuthenticatedFormsHandoverPhotosRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
+  '/projects/customer-overview': typeof AuthenticatedProjectsCustomerOverviewRoute
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
-  '/settings/activity-log': typeof AuthenticatedSettingsActivityLogRoute
-  '/settings/audit': typeof AuthenticatedSettingsAuditRoute
-  '/tasks/notifications': typeof AuthenticatedTasksNotificationsRoute
+  '/reports/collection': typeof AuthenticatedReportsCollectionRoute
+  '/reports/custom': typeof AuthenticatedReportsCustomRoute
+  '/reports/occupancy': typeof AuthenticatedReportsOccupancyRoute
+  '/reports/revenue': typeof AuthenticatedReportsRevenueRoute
+  '/reports/sales': typeof AuthenticatedReportsSalesRoute
+  '/settings/export': typeof AuthenticatedSettingsExportRoute
+  '/settings/projects': typeof AuthenticatedSettingsProjectsRoute
+  '/settings/roles': typeof AuthenticatedSettingsRolesRoute
+  '/settings/system': typeof AuthenticatedSettingsSystemRoute
+  '/settings/users': typeof AuthenticatedSettingsUsersRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/units/by-project': typeof AuthenticatedUnitsByProjectRoute
   '/clients': typeof AuthenticatedClientsIndexRoute
@@ -224,7 +296,7 @@ export interface FileRoutesByTo {
   '/deals': typeof AuthenticatedDealsIndexRoute
   '/leads': typeof AuthenticatedLeadsIndexRoute
   '/projects': typeof AuthenticatedProjectsIndexRoute
-  '/tickets': typeof AuthenticatedTicketsIndexRoute
+  '/reports': typeof AuthenticatedReportsIndexRoute
   '/units': typeof AuthenticatedUnitsIndexRoute
   '/forms/sale-f01/new': typeof AuthenticatedFormsSaleF01NewRoute
   '/forms/sale-job04-f01/new': typeof AuthenticatedFormsSaleJob04F01NewRoute
@@ -248,10 +320,18 @@ export interface FileRoutesById {
   '/_authenticated/forms/handover': typeof AuthenticatedFormsHandoverRoute
   '/_authenticated/forms/handover-photos': typeof AuthenticatedFormsHandoverPhotosRoute
   '/_authenticated/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
+  '/_authenticated/projects/customer-overview': typeof AuthenticatedProjectsCustomerOverviewRoute
   '/_authenticated/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
-  '/_authenticated/settings/activity-log': typeof AuthenticatedSettingsActivityLogRoute
-  '/_authenticated/settings/audit': typeof AuthenticatedSettingsAuditRoute
-  '/_authenticated/tasks/notifications': typeof AuthenticatedTasksNotificationsRoute
+  '/_authenticated/reports/collection': typeof AuthenticatedReportsCollectionRoute
+  '/_authenticated/reports/custom': typeof AuthenticatedReportsCustomRoute
+  '/_authenticated/reports/occupancy': typeof AuthenticatedReportsOccupancyRoute
+  '/_authenticated/reports/revenue': typeof AuthenticatedReportsRevenueRoute
+  '/_authenticated/reports/sales': typeof AuthenticatedReportsSalesRoute
+  '/_authenticated/settings/export': typeof AuthenticatedSettingsExportRoute
+  '/_authenticated/settings/projects': typeof AuthenticatedSettingsProjectsRoute
+  '/_authenticated/settings/roles': typeof AuthenticatedSettingsRolesRoute
+  '/_authenticated/settings/system': typeof AuthenticatedSettingsSystemRoute
+  '/_authenticated/settings/users': typeof AuthenticatedSettingsUsersRoute
   '/_authenticated/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/_authenticated/units/by-project': typeof AuthenticatedUnitsByProjectRoute
   '/_authenticated/clients/': typeof AuthenticatedClientsIndexRoute
@@ -259,7 +339,7 @@ export interface FileRoutesById {
   '/_authenticated/deals/': typeof AuthenticatedDealsIndexRoute
   '/_authenticated/leads/': typeof AuthenticatedLeadsIndexRoute
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
-  '/_authenticated/tickets/': typeof AuthenticatedTicketsIndexRoute
+  '/_authenticated/reports/': typeof AuthenticatedReportsIndexRoute
   '/_authenticated/units/': typeof AuthenticatedUnitsIndexRoute
   '/_authenticated/forms/sale-f01/new': typeof AuthenticatedFormsSaleF01NewRoute
   '/_authenticated/forms/sale-job04-f01/new': typeof AuthenticatedFormsSaleJob04F01NewRoute
@@ -282,10 +362,18 @@ export interface FileRouteTypes {
     | '/forms/handover'
     | '/forms/handover-photos'
     | '/projects/$projectId'
+    | '/projects/customer-overview'
     | '/projects/dashboard'
-    | '/settings/activity-log'
-    | '/settings/audit'
-    | '/tasks/notifications'
+    | '/reports/collection'
+    | '/reports/custom'
+    | '/reports/occupancy'
+    | '/reports/revenue'
+    | '/reports/sales'
+    | '/settings/export'
+    | '/settings/projects'
+    | '/settings/roles'
+    | '/settings/system'
+    | '/settings/users'
     | '/units/availability'
     | '/units/by-project'
     | '/clients/'
@@ -293,7 +381,7 @@ export interface FileRouteTypes {
     | '/deals/'
     | '/leads/'
     | '/projects/'
-    | '/tickets/'
+    | '/reports/'
     | '/units/'
     | '/forms/sale-f01/new'
     | '/forms/sale-job04-f01/new'
@@ -315,10 +403,18 @@ export interface FileRouteTypes {
     | '/forms/handover'
     | '/forms/handover-photos'
     | '/projects/$projectId'
+    | '/projects/customer-overview'
     | '/projects/dashboard'
-    | '/settings/activity-log'
-    | '/settings/audit'
-    | '/tasks/notifications'
+    | '/reports/collection'
+    | '/reports/custom'
+    | '/reports/occupancy'
+    | '/reports/revenue'
+    | '/reports/sales'
+    | '/settings/export'
+    | '/settings/projects'
+    | '/settings/roles'
+    | '/settings/system'
+    | '/settings/users'
     | '/units/availability'
     | '/units/by-project'
     | '/clients'
@@ -326,7 +422,7 @@ export interface FileRouteTypes {
     | '/deals'
     | '/leads'
     | '/projects'
-    | '/tickets'
+    | '/reports'
     | '/units'
     | '/forms/sale-f01/new'
     | '/forms/sale-job04-f01/new'
@@ -349,10 +445,18 @@ export interface FileRouteTypes {
     | '/_authenticated/forms/handover'
     | '/_authenticated/forms/handover-photos'
     | '/_authenticated/projects/$projectId'
+    | '/_authenticated/projects/customer-overview'
     | '/_authenticated/projects/dashboard'
-    | '/_authenticated/settings/activity-log'
-    | '/_authenticated/settings/audit'
-    | '/_authenticated/tasks/notifications'
+    | '/_authenticated/reports/collection'
+    | '/_authenticated/reports/custom'
+    | '/_authenticated/reports/occupancy'
+    | '/_authenticated/reports/revenue'
+    | '/_authenticated/reports/sales'
+    | '/_authenticated/settings/export'
+    | '/_authenticated/settings/projects'
+    | '/_authenticated/settings/roles'
+    | '/_authenticated/settings/system'
+    | '/_authenticated/settings/users'
     | '/_authenticated/units/availability'
     | '/_authenticated/units/by-project'
     | '/_authenticated/clients/'
@@ -360,7 +464,7 @@ export interface FileRouteTypes {
     | '/_authenticated/deals/'
     | '/_authenticated/leads/'
     | '/_authenticated/projects/'
-    | '/_authenticated/tickets/'
+    | '/_authenticated/reports/'
     | '/_authenticated/units/'
     | '/_authenticated/forms/sale-f01/new'
     | '/_authenticated/forms/sale-job04-f01/new'
@@ -428,11 +532,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUnitsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/tickets/': {
-      id: '/_authenticated/tickets/'
-      path: '/tickets'
-      fullPath: '/tickets/'
-      preLoaderRoute: typeof AuthenticatedTicketsIndexRouteImport
+    '/_authenticated/reports/': {
+      id: '/_authenticated/reports/'
+      path: '/reports'
+      fullPath: '/reports/'
+      preLoaderRoute: typeof AuthenticatedReportsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/projects/': {
@@ -484,25 +588,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUnitsAvailabilityRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/tasks/notifications': {
-      id: '/_authenticated/tasks/notifications'
-      path: '/tasks/notifications'
-      fullPath: '/tasks/notifications'
-      preLoaderRoute: typeof AuthenticatedTasksNotificationsRouteImport
+    '/_authenticated/settings/users': {
+      id: '/_authenticated/settings/users'
+      path: '/settings/users'
+      fullPath: '/settings/users'
+      preLoaderRoute: typeof AuthenticatedSettingsUsersRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/settings/audit': {
-      id: '/_authenticated/settings/audit'
-      path: '/settings/audit'
-      fullPath: '/settings/audit'
-      preLoaderRoute: typeof AuthenticatedSettingsAuditRouteImport
+    '/_authenticated/settings/system': {
+      id: '/_authenticated/settings/system'
+      path: '/settings/system'
+      fullPath: '/settings/system'
+      preLoaderRoute: typeof AuthenticatedSettingsSystemRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/settings/activity-log': {
-      id: '/_authenticated/settings/activity-log'
-      path: '/settings/activity-log'
-      fullPath: '/settings/activity-log'
-      preLoaderRoute: typeof AuthenticatedSettingsActivityLogRouteImport
+    '/_authenticated/settings/roles': {
+      id: '/_authenticated/settings/roles'
+      path: '/settings/roles'
+      fullPath: '/settings/roles'
+      preLoaderRoute: typeof AuthenticatedSettingsRolesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/settings/projects': {
+      id: '/_authenticated/settings/projects'
+      path: '/settings/projects'
+      fullPath: '/settings/projects'
+      preLoaderRoute: typeof AuthenticatedSettingsProjectsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/settings/export': {
+      id: '/_authenticated/settings/export'
+      path: '/settings/export'
+      fullPath: '/settings/export'
+      preLoaderRoute: typeof AuthenticatedSettingsExportRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/reports/sales': {
+      id: '/_authenticated/reports/sales'
+      path: '/reports/sales'
+      fullPath: '/reports/sales'
+      preLoaderRoute: typeof AuthenticatedReportsSalesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/reports/revenue': {
+      id: '/_authenticated/reports/revenue'
+      path: '/reports/revenue'
+      fullPath: '/reports/revenue'
+      preLoaderRoute: typeof AuthenticatedReportsRevenueRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/reports/occupancy': {
+      id: '/_authenticated/reports/occupancy'
+      path: '/reports/occupancy'
+      fullPath: '/reports/occupancy'
+      preLoaderRoute: typeof AuthenticatedReportsOccupancyRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/reports/custom': {
+      id: '/_authenticated/reports/custom'
+      path: '/reports/custom'
+      fullPath: '/reports/custom'
+      preLoaderRoute: typeof AuthenticatedReportsCustomRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/reports/collection': {
+      id: '/_authenticated/reports/collection'
+      path: '/reports/collection'
+      fullPath: '/reports/collection'
+      preLoaderRoute: typeof AuthenticatedReportsCollectionRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/projects/dashboard': {
@@ -510,6 +663,13 @@ declare module '@tanstack/react-router' {
       path: '/projects/dashboard'
       fullPath: '/projects/dashboard'
       preLoaderRoute: typeof AuthenticatedProjectsDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/projects/customer-overview': {
+      id: '/_authenticated/projects/customer-overview'
+      path: '/projects/customer-overview'
+      fullPath: '/projects/customer-overview'
+      preLoaderRoute: typeof AuthenticatedProjectsCustomerOverviewRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/projects/$projectId': {
@@ -560,10 +720,18 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFormsHandoverRoute: typeof AuthenticatedFormsHandoverRoute
   AuthenticatedFormsHandoverPhotosRoute: typeof AuthenticatedFormsHandoverPhotosRoute
   AuthenticatedProjectsProjectIdRoute: typeof AuthenticatedProjectsProjectIdRoute
+  AuthenticatedProjectsCustomerOverviewRoute: typeof AuthenticatedProjectsCustomerOverviewRoute
   AuthenticatedProjectsDashboardRoute: typeof AuthenticatedProjectsDashboardRoute
-  AuthenticatedSettingsActivityLogRoute: typeof AuthenticatedSettingsActivityLogRoute
-  AuthenticatedSettingsAuditRoute: typeof AuthenticatedSettingsAuditRoute
-  AuthenticatedTasksNotificationsRoute: typeof AuthenticatedTasksNotificationsRoute
+  AuthenticatedReportsCollectionRoute: typeof AuthenticatedReportsCollectionRoute
+  AuthenticatedReportsCustomRoute: typeof AuthenticatedReportsCustomRoute
+  AuthenticatedReportsOccupancyRoute: typeof AuthenticatedReportsOccupancyRoute
+  AuthenticatedReportsRevenueRoute: typeof AuthenticatedReportsRevenueRoute
+  AuthenticatedReportsSalesRoute: typeof AuthenticatedReportsSalesRoute
+  AuthenticatedSettingsExportRoute: typeof AuthenticatedSettingsExportRoute
+  AuthenticatedSettingsProjectsRoute: typeof AuthenticatedSettingsProjectsRoute
+  AuthenticatedSettingsRolesRoute: typeof AuthenticatedSettingsRolesRoute
+  AuthenticatedSettingsSystemRoute: typeof AuthenticatedSettingsSystemRoute
+  AuthenticatedSettingsUsersRoute: typeof AuthenticatedSettingsUsersRoute
   AuthenticatedUnitsAvailabilityRoute: typeof AuthenticatedUnitsAvailabilityRoute
   AuthenticatedUnitsByProjectRoute: typeof AuthenticatedUnitsByProjectRoute
   AuthenticatedClientsIndexRoute: typeof AuthenticatedClientsIndexRoute
@@ -571,7 +739,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDealsIndexRoute: typeof AuthenticatedDealsIndexRoute
   AuthenticatedLeadsIndexRoute: typeof AuthenticatedLeadsIndexRoute
   AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
-  AuthenticatedTicketsIndexRoute: typeof AuthenticatedTicketsIndexRoute
+  AuthenticatedReportsIndexRoute: typeof AuthenticatedReportsIndexRoute
   AuthenticatedUnitsIndexRoute: typeof AuthenticatedUnitsIndexRoute
   AuthenticatedFormsSaleF01NewRoute: typeof AuthenticatedFormsSaleF01NewRoute
   AuthenticatedFormsSaleJob04F01NewRoute: typeof AuthenticatedFormsSaleJob04F01NewRoute
@@ -593,10 +761,19 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedFormsHandoverRoute: AuthenticatedFormsHandoverRoute,
   AuthenticatedFormsHandoverPhotosRoute: AuthenticatedFormsHandoverPhotosRoute,
   AuthenticatedProjectsProjectIdRoute: AuthenticatedProjectsProjectIdRoute,
+  AuthenticatedProjectsCustomerOverviewRoute:
+    AuthenticatedProjectsCustomerOverviewRoute,
   AuthenticatedProjectsDashboardRoute: AuthenticatedProjectsDashboardRoute,
-  AuthenticatedSettingsActivityLogRoute: AuthenticatedSettingsActivityLogRoute,
-  AuthenticatedSettingsAuditRoute: AuthenticatedSettingsAuditRoute,
-  AuthenticatedTasksNotificationsRoute: AuthenticatedTasksNotificationsRoute,
+  AuthenticatedReportsCollectionRoute: AuthenticatedReportsCollectionRoute,
+  AuthenticatedReportsCustomRoute: AuthenticatedReportsCustomRoute,
+  AuthenticatedReportsOccupancyRoute: AuthenticatedReportsOccupancyRoute,
+  AuthenticatedReportsRevenueRoute: AuthenticatedReportsRevenueRoute,
+  AuthenticatedReportsSalesRoute: AuthenticatedReportsSalesRoute,
+  AuthenticatedSettingsExportRoute: AuthenticatedSettingsExportRoute,
+  AuthenticatedSettingsProjectsRoute: AuthenticatedSettingsProjectsRoute,
+  AuthenticatedSettingsRolesRoute: AuthenticatedSettingsRolesRoute,
+  AuthenticatedSettingsSystemRoute: AuthenticatedSettingsSystemRoute,
+  AuthenticatedSettingsUsersRoute: AuthenticatedSettingsUsersRoute,
   AuthenticatedUnitsAvailabilityRoute: AuthenticatedUnitsAvailabilityRoute,
   AuthenticatedUnitsByProjectRoute: AuthenticatedUnitsByProjectRoute,
   AuthenticatedClientsIndexRoute: AuthenticatedClientsIndexRoute,
@@ -604,7 +781,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDealsIndexRoute: AuthenticatedDealsIndexRoute,
   AuthenticatedLeadsIndexRoute: AuthenticatedLeadsIndexRoute,
   AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
-  AuthenticatedTicketsIndexRoute: AuthenticatedTicketsIndexRoute,
+  AuthenticatedReportsIndexRoute: AuthenticatedReportsIndexRoute,
   AuthenticatedUnitsIndexRoute: AuthenticatedUnitsIndexRoute,
   AuthenticatedFormsSaleF01NewRoute: AuthenticatedFormsSaleF01NewRoute,
   AuthenticatedFormsSaleJob04F01NewRoute:
