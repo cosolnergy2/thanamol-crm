@@ -18,3 +18,11 @@ T-016,API — Project/ProjectTemplate/Unit CRUD,dev,Done,tasks/T-016.md
 T-017,Frontend — ProjectList/ProjectDetail/ProjectDashboard pages,dev,Done,tasks/T-017.md
 T-018,Frontend — UnitList/UnitsByProject/UnitAvailability pages,dev,Done,tasks/T-018.md
 T-019,E2E tests — project/unit management,tester,Done,tasks/T-019.md
+T-020,API — Lead/Deal CRUD + pipeline stages,dev,Done,tasks/T-020.md
+T-021,Frontend — LeadList/LeadDetail/DealPipeline/DealDetail pages,dev,Ready to Dev,tasks/T-021.md
+T-022,E2E tests — lead/deal pipeline,tester,Ready to Dev,tasks/T-022.md
+T-023,API — Quotation/CommercialQuotation CRUD + approval workflow,dev,Done,tasks/T-023.md
+T-024,Frontend — QuotationList/Create/Edit/Detail/PendingApproval/PrintQuotation,dev,Ready to Dev,tasks/T-024.md
+T-025,Frontend — Commercial quotation pages,dev,Ready to Dev,tasks/T-025.md
+T-026,Frontend — PendingApprovals hub/FormSaleQuotation/FormSaleCommercialProposal,dev,Ready to Dev,tasks/T-026.md
+T-027,E2E tests — quotation workflow,tester,Ready to Dev,tasks/T-027.md
