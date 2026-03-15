@@ -15,7 +15,7 @@ import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticated/contacts'
 import { Route as AuthenticatedCompaniesRouteImport } from './routes/_authenticated/companies'
 import { Route as AuthenticatedUnitsIndexRouteImport } from './routes/_authenticated/units/index'
-import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
+import { Route as AuthenticatedTicketsIndexRouteImport } from './routes/_authenticated/tickets/index'
 import { Route as AuthenticatedProjectsIndexRouteImport } from './routes/_authenticated/projects/index'
 import { Route as AuthenticatedLeadsIndexRouteImport } from './routes/_authenticated/leads/index'
 import { Route as AuthenticatedDealsIndexRouteImport } from './routes/_authenticated/deals/index'
@@ -25,7 +25,9 @@ import { Route as AuthenticatedUtilitiesReportRouteImport } from './routes/_auth
 import { Route as AuthenticatedUtilitiesMeterReadingRouteImport } from './routes/_authenticated/utilities/meter-reading'
 import { Route as AuthenticatedUnitsByProjectRouteImport } from './routes/_authenticated/units/by-project'
 import { Route as AuthenticatedUnitsAvailabilityRouteImport } from './routes/_authenticated/units/availability'
-import { Route as AuthenticatedTasksCreateRouteImport } from './routes/_authenticated/tasks/create'
+import { Route as AuthenticatedTicketsCreateRouteImport } from './routes/_authenticated/tickets/create'
+import { Route as AuthenticatedTasksStatusSettingsRouteImport } from './routes/_authenticated/tasks/status-settings'
+import { Route as AuthenticatedTasksAutomationRouteImport } from './routes/_authenticated/tasks/automation'
 import { Route as AuthenticatedProjectsDashboardRouteImport } from './routes/_authenticated/projects/dashboard'
 import { Route as AuthenticatedProjectsProjectIdRouteImport } from './routes/_authenticated/projects/$projectId'
 import { Route as AuthenticatedFormsHandoverPhotosRouteImport } from './routes/_authenticated/forms/handover-photos'
@@ -63,11 +65,12 @@ const AuthenticatedUnitsIndexRoute = AuthenticatedUnitsIndexRouteImport.update({
   path: '/units/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedTasksIndexRoute = AuthenticatedTasksIndexRouteImport.update({
-  id: '/tasks/',
-  path: '/tasks/',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
+const AuthenticatedTicketsIndexRoute =
+  AuthenticatedTicketsIndexRouteImport.update({
+    id: '/tickets/',
+    path: '/tickets/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedProjectsIndexRoute =
   AuthenticatedProjectsIndexRouteImport.update({
     id: '/projects/',
@@ -120,10 +123,22 @@ const AuthenticatedUnitsAvailabilityRoute =
     path: '/units/availability',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedTasksCreateRoute =
-  AuthenticatedTasksCreateRouteImport.update({
-    id: '/tasks/create',
-    path: '/tasks/create',
+const AuthenticatedTicketsCreateRoute =
+  AuthenticatedTicketsCreateRouteImport.update({
+    id: '/tickets/create',
+    path: '/tickets/create',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedTasksStatusSettingsRoute =
+  AuthenticatedTasksStatusSettingsRouteImport.update({
+    id: '/tasks/status-settings',
+    path: '/tasks/status-settings',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedTasksAutomationRoute =
+  AuthenticatedTasksAutomationRouteImport.update({
+    id: '/tasks/automation',
+    path: '/tasks/automation',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedProjectsDashboardRoute =
@@ -181,7 +196,9 @@ export interface FileRoutesByFullPath {
   '/forms/handover-photos': typeof AuthenticatedFormsHandoverPhotosRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
-  '/tasks/create': typeof AuthenticatedTasksCreateRoute
+  '/tasks/automation': typeof AuthenticatedTasksAutomationRoute
+  '/tasks/status-settings': typeof AuthenticatedTasksStatusSettingsRoute
+  '/tickets/create': typeof AuthenticatedTicketsCreateRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/units/by-project': typeof AuthenticatedUnitsByProjectRoute
   '/utilities/meter-reading': typeof AuthenticatedUtilitiesMeterReadingRoute
@@ -191,7 +208,7 @@ export interface FileRoutesByFullPath {
   '/deals/': typeof AuthenticatedDealsIndexRoute
   '/leads/': typeof AuthenticatedLeadsIndexRoute
   '/projects/': typeof AuthenticatedProjectsIndexRoute
-  '/tasks/': typeof AuthenticatedTasksIndexRoute
+  '/tickets/': typeof AuthenticatedTicketsIndexRoute
   '/units/': typeof AuthenticatedUnitsIndexRoute
   '/tasks/$taskId/edit': typeof AuthenticatedTasksTaskIdEditRoute
   '/tasks/$taskId/': typeof AuthenticatedTasksTaskIdIndexRoute
@@ -208,7 +225,9 @@ export interface FileRoutesByTo {
   '/forms/handover-photos': typeof AuthenticatedFormsHandoverPhotosRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
-  '/tasks/create': typeof AuthenticatedTasksCreateRoute
+  '/tasks/automation': typeof AuthenticatedTasksAutomationRoute
+  '/tasks/status-settings': typeof AuthenticatedTasksStatusSettingsRoute
+  '/tickets/create': typeof AuthenticatedTicketsCreateRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/units/by-project': typeof AuthenticatedUnitsByProjectRoute
   '/utilities/meter-reading': typeof AuthenticatedUtilitiesMeterReadingRoute
@@ -218,7 +237,7 @@ export interface FileRoutesByTo {
   '/deals': typeof AuthenticatedDealsIndexRoute
   '/leads': typeof AuthenticatedLeadsIndexRoute
   '/projects': typeof AuthenticatedProjectsIndexRoute
-  '/tasks': typeof AuthenticatedTasksIndexRoute
+  '/tickets': typeof AuthenticatedTicketsIndexRoute
   '/units': typeof AuthenticatedUnitsIndexRoute
   '/tasks/$taskId/edit': typeof AuthenticatedTasksTaskIdEditRoute
   '/tasks/$taskId': typeof AuthenticatedTasksTaskIdIndexRoute
@@ -237,7 +256,9 @@ export interface FileRoutesById {
   '/_authenticated/forms/handover-photos': typeof AuthenticatedFormsHandoverPhotosRoute
   '/_authenticated/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/_authenticated/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
-  '/_authenticated/tasks/create': typeof AuthenticatedTasksCreateRoute
+  '/_authenticated/tasks/automation': typeof AuthenticatedTasksAutomationRoute
+  '/_authenticated/tasks/status-settings': typeof AuthenticatedTasksStatusSettingsRoute
+  '/_authenticated/tickets/create': typeof AuthenticatedTicketsCreateRoute
   '/_authenticated/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/_authenticated/units/by-project': typeof AuthenticatedUnitsByProjectRoute
   '/_authenticated/utilities/meter-reading': typeof AuthenticatedUtilitiesMeterReadingRoute
@@ -247,7 +268,7 @@ export interface FileRoutesById {
   '/_authenticated/deals/': typeof AuthenticatedDealsIndexRoute
   '/_authenticated/leads/': typeof AuthenticatedLeadsIndexRoute
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
-  '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
+  '/_authenticated/tickets/': typeof AuthenticatedTicketsIndexRoute
   '/_authenticated/units/': typeof AuthenticatedUnitsIndexRoute
   '/_authenticated/tasks/$taskId/edit': typeof AuthenticatedTasksTaskIdEditRoute
   '/_authenticated/tasks/$taskId/': typeof AuthenticatedTasksTaskIdIndexRoute
@@ -266,7 +287,9 @@ export interface FileRouteTypes {
     | '/forms/handover-photos'
     | '/projects/$projectId'
     | '/projects/dashboard'
-    | '/tasks/create'
+    | '/tasks/automation'
+    | '/tasks/status-settings'
+    | '/tickets/create'
     | '/units/availability'
     | '/units/by-project'
     | '/utilities/meter-reading'
@@ -276,7 +299,7 @@ export interface FileRouteTypes {
     | '/deals/'
     | '/leads/'
     | '/projects/'
-    | '/tasks/'
+    | '/tickets/'
     | '/units/'
     | '/tasks/$taskId/edit'
     | '/tasks/$taskId/'
@@ -293,7 +316,9 @@ export interface FileRouteTypes {
     | '/forms/handover-photos'
     | '/projects/$projectId'
     | '/projects/dashboard'
-    | '/tasks/create'
+    | '/tasks/automation'
+    | '/tasks/status-settings'
+    | '/tickets/create'
     | '/units/availability'
     | '/units/by-project'
     | '/utilities/meter-reading'
@@ -303,7 +328,7 @@ export interface FileRouteTypes {
     | '/deals'
     | '/leads'
     | '/projects'
-    | '/tasks'
+    | '/tickets'
     | '/units'
     | '/tasks/$taskId/edit'
     | '/tasks/$taskId'
@@ -321,7 +346,9 @@ export interface FileRouteTypes {
     | '/_authenticated/forms/handover-photos'
     | '/_authenticated/projects/$projectId'
     | '/_authenticated/projects/dashboard'
-    | '/_authenticated/tasks/create'
+    | '/_authenticated/tasks/automation'
+    | '/_authenticated/tasks/status-settings'
+    | '/_authenticated/tickets/create'
     | '/_authenticated/units/availability'
     | '/_authenticated/units/by-project'
     | '/_authenticated/utilities/meter-reading'
@@ -331,7 +358,7 @@ export interface FileRouteTypes {
     | '/_authenticated/deals/'
     | '/_authenticated/leads/'
     | '/_authenticated/projects/'
-    | '/_authenticated/tasks/'
+    | '/_authenticated/tickets/'
     | '/_authenticated/units/'
     | '/_authenticated/tasks/$taskId/edit'
     | '/_authenticated/tasks/$taskId/'
@@ -386,11 +413,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUnitsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/tasks/': {
-      id: '/_authenticated/tasks/'
-      path: '/tasks'
-      fullPath: '/tasks/'
-      preLoaderRoute: typeof AuthenticatedTasksIndexRouteImport
+    '/_authenticated/tickets/': {
+      id: '/_authenticated/tickets/'
+      path: '/tickets'
+      fullPath: '/tickets/'
+      preLoaderRoute: typeof AuthenticatedTicketsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/projects/': {
@@ -456,11 +483,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUnitsAvailabilityRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/tasks/create': {
-      id: '/_authenticated/tasks/create'
-      path: '/tasks/create'
-      fullPath: '/tasks/create'
-      preLoaderRoute: typeof AuthenticatedTasksCreateRouteImport
+    '/_authenticated/tickets/create': {
+      id: '/_authenticated/tickets/create'
+      path: '/tickets/create'
+      fullPath: '/tickets/create'
+      preLoaderRoute: typeof AuthenticatedTicketsCreateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/tasks/status-settings': {
+      id: '/_authenticated/tasks/status-settings'
+      path: '/tasks/status-settings'
+      fullPath: '/tasks/status-settings'
+      preLoaderRoute: typeof AuthenticatedTasksStatusSettingsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/tasks/automation': {
+      id: '/_authenticated/tasks/automation'
+      path: '/tasks/automation'
+      fullPath: '/tasks/automation'
+      preLoaderRoute: typeof AuthenticatedTasksAutomationRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/projects/dashboard': {
@@ -526,7 +567,9 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFormsHandoverPhotosRoute: typeof AuthenticatedFormsHandoverPhotosRoute
   AuthenticatedProjectsProjectIdRoute: typeof AuthenticatedProjectsProjectIdRoute
   AuthenticatedProjectsDashboardRoute: typeof AuthenticatedProjectsDashboardRoute
-  AuthenticatedTasksCreateRoute: typeof AuthenticatedTasksCreateRoute
+  AuthenticatedTasksAutomationRoute: typeof AuthenticatedTasksAutomationRoute
+  AuthenticatedTasksStatusSettingsRoute: typeof AuthenticatedTasksStatusSettingsRoute
+  AuthenticatedTicketsCreateRoute: typeof AuthenticatedTicketsCreateRoute
   AuthenticatedUnitsAvailabilityRoute: typeof AuthenticatedUnitsAvailabilityRoute
   AuthenticatedUnitsByProjectRoute: typeof AuthenticatedUnitsByProjectRoute
   AuthenticatedUtilitiesMeterReadingRoute: typeof AuthenticatedUtilitiesMeterReadingRoute
@@ -536,7 +579,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDealsIndexRoute: typeof AuthenticatedDealsIndexRoute
   AuthenticatedLeadsIndexRoute: typeof AuthenticatedLeadsIndexRoute
   AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
-  AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
+  AuthenticatedTicketsIndexRoute: typeof AuthenticatedTicketsIndexRoute
   AuthenticatedUnitsIndexRoute: typeof AuthenticatedUnitsIndexRoute
   AuthenticatedTasksTaskIdEditRoute: typeof AuthenticatedTasksTaskIdEditRoute
   AuthenticatedTasksTaskIdIndexRoute: typeof AuthenticatedTasksTaskIdIndexRoute
@@ -553,7 +596,9 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedFormsHandoverPhotosRoute: AuthenticatedFormsHandoverPhotosRoute,
   AuthenticatedProjectsProjectIdRoute: AuthenticatedProjectsProjectIdRoute,
   AuthenticatedProjectsDashboardRoute: AuthenticatedProjectsDashboardRoute,
-  AuthenticatedTasksCreateRoute: AuthenticatedTasksCreateRoute,
+  AuthenticatedTasksAutomationRoute: AuthenticatedTasksAutomationRoute,
+  AuthenticatedTasksStatusSettingsRoute: AuthenticatedTasksStatusSettingsRoute,
+  AuthenticatedTicketsCreateRoute: AuthenticatedTicketsCreateRoute,
   AuthenticatedUnitsAvailabilityRoute: AuthenticatedUnitsAvailabilityRoute,
   AuthenticatedUnitsByProjectRoute: AuthenticatedUnitsByProjectRoute,
   AuthenticatedUtilitiesMeterReadingRoute:
@@ -564,7 +609,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDealsIndexRoute: AuthenticatedDealsIndexRoute,
   AuthenticatedLeadsIndexRoute: AuthenticatedLeadsIndexRoute,
   AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
-  AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
+  AuthenticatedTicketsIndexRoute: AuthenticatedTicketsIndexRoute,
   AuthenticatedUnitsIndexRoute: AuthenticatedUnitsIndexRoute,
   AuthenticatedTasksTaskIdEditRoute: AuthenticatedTasksTaskIdEditRoute,
   AuthenticatedTasksTaskIdIndexRoute: AuthenticatedTasksTaskIdIndexRoute,

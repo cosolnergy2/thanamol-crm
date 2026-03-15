@@ -636,81 +636,100 @@ export type DepositQueryParams = {
   customerId?: string
 }
 
-// ─── Task ─────────────────────────────────────────────────────────────────────
+// ─── TaskStatus ───────────────────────────────────────────────────────────────
 
-export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
-export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE' | 'CANCELLED'
+export type TaskStatus = {
+  id: string
+  name: string
+  color: string
+  order: number
+  is_default: boolean
+  is_closed: boolean
+  created_at: string
+}
 
-export type Task = {
+export type CreateTaskStatusRequest = {
+  name: string
+  color: string
+  order: number
+  isDefault?: boolean
+  isClosed?: boolean
+}
+
+export type UpdateTaskStatusRequest = Partial<CreateTaskStatusRequest>
+
+export type TaskStatusListResponse = { data: TaskStatus[] }
+
+// ─── AutomationRule ───────────────────────────────────────────────────────────
+
+export type AutomationRule = {
+  id: string
+  name: string
+  trigger_event: string
+  conditions: Record<string, unknown>
+  actions: unknown[]
+  is_active: boolean
+  created_at: string
+}
+
+export type CreateAutomationRuleRequest = {
+  name: string
+  triggerEvent: string
+  conditions?: Record<string, unknown>
+  actions?: unknown[]
+  isActive?: boolean
+}
+
+export type UpdateAutomationRuleRequest = Partial<CreateAutomationRuleRequest>
+
+export type AutomationRuleListResponse = { data: AutomationRule[] }
+
+// ─── Ticket ───────────────────────────────────────────────────────────────────
+
+export type TicketStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED'
+export type TicketPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
+
+export type Ticket = {
   id: string
   title: string
   description: string | null
-  project_id: string | null
+  customer_id: string | null
+  unit_id: string | null
+  category: string | null
+  priority: TicketPriority
+  status: TicketStatus
   assigned_to: string | null
-  created_by: string
-  priority: TaskPriority
-  status: TaskStatus
-  due_date: string | null
-  parent_task_id: string | null
-  estimated_hours: number | null
-  actual_hours: number | null
-  tags: string[]
-  is_recurring: boolean
-  recurrence_pattern: string | null
+  resolved_at: string | null
   created_at: string
   updated_at: string
 }
 
-export type TaskWithRelations = Task & {
-  project: { id: string; name: string; code: string } | null
+export type TicketWithRelations = Ticket & {
+  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'> | null
+  unit: Pick<Unit, 'id' | 'unit_number' | 'floor' | 'building'> | null
   assignee: { id: string; first_name: string; last_name: string } | null
-  creator: { id: string; first_name: string; last_name: string }
-  comments: TaskComment[]
-  parent_task: Pick<Task, 'id' | 'title' | 'status'> | null
-  subtasks: Pick<Task, 'id' | 'title' | 'status' | 'priority'>[]
 }
 
-export type CreateTaskRequest = {
+export type CreateTicketRequest = {
   title: string
   description?: string
-  projectId?: string
+  customerId?: string
+  unitId?: string
+  category?: string
+  priority?: TicketPriority
+  status?: TicketStatus
   assignedTo?: string
-  priority?: TaskPriority
-  status?: TaskStatus
-  dueDate?: string
-  parentTaskId?: string
-  estimatedHours?: number
-  actualHours?: number
-  tags?: string[]
-  isRecurring?: boolean
-  recurrencePattern?: string
 }
 
-export type UpdateTaskRequest = Partial<CreateTaskRequest>
+export type UpdateTicketRequest = Partial<CreateTicketRequest>
 
-export type TaskListResponse = PaginatedResponse<Task>
+export type TicketListResponse = PaginatedResponse<Ticket>
 
-export type TaskQueryParams = {
+export type TicketQueryParams = {
   page?: number
   limit?: number
-  status?: TaskStatus | 'all'
-  priority?: TaskPriority | 'all'
+  status?: TicketStatus | 'all'
+  priority?: TicketPriority | 'all'
+  customerId?: string
   assignedTo?: string
-  projectId?: string
-  search?: string
-}
-
-// ─── TaskComment ──────────────────────────────────────────────────────────────
-
-export type TaskComment = {
-  id: string
-  task_id: string
-  user_id: string
-  content: string
-  created_at: string
-  user?: { id: string; first_name: string; last_name: string }
-}
-
-export type CreateTaskCommentRequest = {
-  content: string
 }
