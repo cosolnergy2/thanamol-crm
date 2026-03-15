@@ -17,11 +17,17 @@ import { Route as AuthenticatedCompaniesRouteImport } from './routes/_authentica
 import { Route as AuthenticatedUnitsIndexRouteImport } from './routes/_authenticated/units/index'
 import { Route as AuthenticatedProjectsIndexRouteImport } from './routes/_authenticated/projects/index'
 import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers/index'
+import { Route as AuthenticatedContractsIndexRouteImport } from './routes/_authenticated/contracts/index'
 import { Route as AuthenticatedUnitsByProjectRouteImport } from './routes/_authenticated/units/by-project'
 import { Route as AuthenticatedUnitsAvailabilityRouteImport } from './routes/_authenticated/units/availability'
 import { Route as AuthenticatedProjectsDashboardRouteImport } from './routes/_authenticated/projects/dashboard'
 import { Route as AuthenticatedProjectsProjectIdRouteImport } from './routes/_authenticated/projects/$projectId'
 import { Route as AuthenticatedCustomersCreateRouteImport } from './routes/_authenticated/customers/create'
+import { Route as AuthenticatedContractsExpiringRouteImport } from './routes/_authenticated/contracts/expiring'
+import { Route as AuthenticatedContractsCreateRouteImport } from './routes/_authenticated/contracts/create'
+import { Route as AuthenticatedContractsContractIdIndexRouteImport } from './routes/_authenticated/contracts/$contractId/index'
+import { Route as AuthenticatedContractsContractIdPrintRouteImport } from './routes/_authenticated/contracts/$contractId/print'
+import { Route as AuthenticatedContractsContractIdEditRouteImport } from './routes/_authenticated/contracts/$contractId/edit'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -64,6 +70,12 @@ const AuthenticatedCustomersIndexRoute =
     path: '/customers/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedContractsIndexRoute =
+  AuthenticatedContractsIndexRouteImport.update({
+    id: '/contracts/',
+    path: '/contracts/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedUnitsByProjectRoute =
   AuthenticatedUnitsByProjectRouteImport.update({
     id: '/units/by-project',
@@ -94,34 +106,76 @@ const AuthenticatedCustomersCreateRoute =
     path: '/customers/create',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedContractsExpiringRoute =
+  AuthenticatedContractsExpiringRouteImport.update({
+    id: '/contracts/expiring',
+    path: '/contracts/expiring',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedContractsCreateRoute =
+  AuthenticatedContractsCreateRouteImport.update({
+    id: '/contracts/create',
+    path: '/contracts/create',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedContractsContractIdIndexRoute =
+  AuthenticatedContractsContractIdIndexRouteImport.update({
+    id: '/contracts/$contractId/',
+    path: '/contracts/$contractId/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedContractsContractIdPrintRoute =
+  AuthenticatedContractsContractIdPrintRouteImport.update({
+    id: '/contracts/$contractId/print',
+    path: '/contracts/$contractId/print',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedContractsContractIdEditRoute =
+  AuthenticatedContractsContractIdEditRouteImport.update({
+    id: '/contracts/$contractId/edit',
+    path: '/contracts/$contractId/edit',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof LoginRoute
   '/companies': typeof AuthenticatedCompaniesRoute
   '/contacts': typeof AuthenticatedContactsRoute
+  '/contracts/create': typeof AuthenticatedContractsCreateRoute
+  '/contracts/expiring': typeof AuthenticatedContractsExpiringRoute
   '/customers/create': typeof AuthenticatedCustomersCreateRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/units/by-project': typeof AuthenticatedUnitsByProjectRoute
+  '/contracts/': typeof AuthenticatedContractsIndexRoute
   '/customers/': typeof AuthenticatedCustomersIndexRoute
   '/projects/': typeof AuthenticatedProjectsIndexRoute
   '/units/': typeof AuthenticatedUnitsIndexRoute
+  '/contracts/$contractId/edit': typeof AuthenticatedContractsContractIdEditRoute
+  '/contracts/$contractId/print': typeof AuthenticatedContractsContractIdPrintRoute
+  '/contracts/$contractId/': typeof AuthenticatedContractsContractIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/companies': typeof AuthenticatedCompaniesRoute
   '/contacts': typeof AuthenticatedContactsRoute
   '/': typeof AuthenticatedIndexRoute
+  '/contracts/create': typeof AuthenticatedContractsCreateRoute
+  '/contracts/expiring': typeof AuthenticatedContractsExpiringRoute
   '/customers/create': typeof AuthenticatedCustomersCreateRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/units/by-project': typeof AuthenticatedUnitsByProjectRoute
+  '/contracts': typeof AuthenticatedContractsIndexRoute
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/projects': typeof AuthenticatedProjectsIndexRoute
   '/units': typeof AuthenticatedUnitsIndexRoute
+  '/contracts/$contractId/edit': typeof AuthenticatedContractsContractIdEditRoute
+  '/contracts/$contractId/print': typeof AuthenticatedContractsContractIdPrintRoute
+  '/contracts/$contractId': typeof AuthenticatedContractsContractIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -130,14 +184,20 @@ export interface FileRoutesById {
   '/_authenticated/companies': typeof AuthenticatedCompaniesRoute
   '/_authenticated/contacts': typeof AuthenticatedContactsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/contracts/create': typeof AuthenticatedContractsCreateRoute
+  '/_authenticated/contracts/expiring': typeof AuthenticatedContractsExpiringRoute
   '/_authenticated/customers/create': typeof AuthenticatedCustomersCreateRoute
   '/_authenticated/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/_authenticated/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/_authenticated/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/_authenticated/units/by-project': typeof AuthenticatedUnitsByProjectRoute
+  '/_authenticated/contracts/': typeof AuthenticatedContractsIndexRoute
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
   '/_authenticated/units/': typeof AuthenticatedUnitsIndexRoute
+  '/_authenticated/contracts/$contractId/edit': typeof AuthenticatedContractsContractIdEditRoute
+  '/_authenticated/contracts/$contractId/print': typeof AuthenticatedContractsContractIdPrintRoute
+  '/_authenticated/contracts/$contractId/': typeof AuthenticatedContractsContractIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -146,28 +206,40 @@ export interface FileRouteTypes {
     | '/login'
     | '/companies'
     | '/contacts'
+    | '/contracts/create'
+    | '/contracts/expiring'
     | '/customers/create'
     | '/projects/$projectId'
     | '/projects/dashboard'
     | '/units/availability'
     | '/units/by-project'
+    | '/contracts/'
     | '/customers/'
     | '/projects/'
     | '/units/'
+    | '/contracts/$contractId/edit'
+    | '/contracts/$contractId/print'
+    | '/contracts/$contractId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
     | '/companies'
     | '/contacts'
     | '/'
+    | '/contracts/create'
+    | '/contracts/expiring'
     | '/customers/create'
     | '/projects/$projectId'
     | '/projects/dashboard'
     | '/units/availability'
     | '/units/by-project'
+    | '/contracts'
     | '/customers'
     | '/projects'
     | '/units'
+    | '/contracts/$contractId/edit'
+    | '/contracts/$contractId/print'
+    | '/contracts/$contractId'
   id:
     | '__root__'
     | '/_authenticated'
@@ -175,14 +247,20 @@ export interface FileRouteTypes {
     | '/_authenticated/companies'
     | '/_authenticated/contacts'
     | '/_authenticated/'
+    | '/_authenticated/contracts/create'
+    | '/_authenticated/contracts/expiring'
     | '/_authenticated/customers/create'
     | '/_authenticated/projects/$projectId'
     | '/_authenticated/projects/dashboard'
     | '/_authenticated/units/availability'
     | '/_authenticated/units/by-project'
+    | '/_authenticated/contracts/'
     | '/_authenticated/customers/'
     | '/_authenticated/projects/'
     | '/_authenticated/units/'
+    | '/_authenticated/contracts/$contractId/edit'
+    | '/_authenticated/contracts/$contractId/print'
+    | '/_authenticated/contracts/$contractId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -248,6 +326,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCustomersIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/contracts/': {
+      id: '/_authenticated/contracts/'
+      path: '/contracts'
+      fullPath: '/contracts/'
+      preLoaderRoute: typeof AuthenticatedContractsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/units/by-project': {
       id: '/_authenticated/units/by-project'
       path: '/units/by-project'
@@ -283,6 +368,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCustomersCreateRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/contracts/expiring': {
+      id: '/_authenticated/contracts/expiring'
+      path: '/contracts/expiring'
+      fullPath: '/contracts/expiring'
+      preLoaderRoute: typeof AuthenticatedContractsExpiringRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/contracts/create': {
+      id: '/_authenticated/contracts/create'
+      path: '/contracts/create'
+      fullPath: '/contracts/create'
+      preLoaderRoute: typeof AuthenticatedContractsCreateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/contracts/$contractId/': {
+      id: '/_authenticated/contracts/$contractId/'
+      path: '/contracts/$contractId'
+      fullPath: '/contracts/$contractId/'
+      preLoaderRoute: typeof AuthenticatedContractsContractIdIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/contracts/$contractId/print': {
+      id: '/_authenticated/contracts/$contractId/print'
+      path: '/contracts/$contractId/print'
+      fullPath: '/contracts/$contractId/print'
+      preLoaderRoute: typeof AuthenticatedContractsContractIdPrintRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/contracts/$contractId/edit': {
+      id: '/_authenticated/contracts/$contractId/edit'
+      path: '/contracts/$contractId/edit'
+      fullPath: '/contracts/$contractId/edit'
+      preLoaderRoute: typeof AuthenticatedContractsContractIdEditRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
@@ -290,28 +410,43 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCompaniesRoute: typeof AuthenticatedCompaniesRoute
   AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedContractsCreateRoute: typeof AuthenticatedContractsCreateRoute
+  AuthenticatedContractsExpiringRoute: typeof AuthenticatedContractsExpiringRoute
   AuthenticatedCustomersCreateRoute: typeof AuthenticatedCustomersCreateRoute
   AuthenticatedProjectsProjectIdRoute: typeof AuthenticatedProjectsProjectIdRoute
   AuthenticatedProjectsDashboardRoute: typeof AuthenticatedProjectsDashboardRoute
   AuthenticatedUnitsAvailabilityRoute: typeof AuthenticatedUnitsAvailabilityRoute
   AuthenticatedUnitsByProjectRoute: typeof AuthenticatedUnitsByProjectRoute
+  AuthenticatedContractsIndexRoute: typeof AuthenticatedContractsIndexRoute
   AuthenticatedCustomersIndexRoute: typeof AuthenticatedCustomersIndexRoute
   AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
   AuthenticatedUnitsIndexRoute: typeof AuthenticatedUnitsIndexRoute
+  AuthenticatedContractsContractIdEditRoute: typeof AuthenticatedContractsContractIdEditRoute
+  AuthenticatedContractsContractIdPrintRoute: typeof AuthenticatedContractsContractIdPrintRoute
+  AuthenticatedContractsContractIdIndexRoute: typeof AuthenticatedContractsContractIdIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCompaniesRoute: AuthenticatedCompaniesRoute,
   AuthenticatedContactsRoute: AuthenticatedContactsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedContractsCreateRoute: AuthenticatedContractsCreateRoute,
+  AuthenticatedContractsExpiringRoute: AuthenticatedContractsExpiringRoute,
   AuthenticatedCustomersCreateRoute: AuthenticatedCustomersCreateRoute,
   AuthenticatedProjectsProjectIdRoute: AuthenticatedProjectsProjectIdRoute,
   AuthenticatedProjectsDashboardRoute: AuthenticatedProjectsDashboardRoute,
   AuthenticatedUnitsAvailabilityRoute: AuthenticatedUnitsAvailabilityRoute,
   AuthenticatedUnitsByProjectRoute: AuthenticatedUnitsByProjectRoute,
+  AuthenticatedContractsIndexRoute: AuthenticatedContractsIndexRoute,
   AuthenticatedCustomersIndexRoute: AuthenticatedCustomersIndexRoute,
   AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
   AuthenticatedUnitsIndexRoute: AuthenticatedUnitsIndexRoute,
+  AuthenticatedContractsContractIdEditRoute:
+    AuthenticatedContractsContractIdEditRoute,
+  AuthenticatedContractsContractIdPrintRoute:
+    AuthenticatedContractsContractIdPrintRoute,
+  AuthenticatedContractsContractIdIndexRoute:
+    AuthenticatedContractsContractIdIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
