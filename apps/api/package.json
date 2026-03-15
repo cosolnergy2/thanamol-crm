@@ -12,18 +12,21 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "elysia": "^1.2.0",
     "@elysiajs/cors": "^1.2.0",
     "@elysiajs/jwt": "^1.2.0",
     "@elysiajs/static": "^1.2.0",
+    "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.0.0",
-    "bcryptjs": "^3.0.0"
+    "@thanamol/shared": "workspace:*",
+    "bcryptjs": "^3.0.0",
+    "elysia": "^1.2.0",
+    "pg": "^8.20.0"
   },
   "devDependencies": {
-    "prisma": "^7.0.0",
+    "@types/bcryptjs": "^2.4.0",
     "bun-types": "latest",
+    "prisma": "^7.0.0",
     "typescript": "^5.0.0",
-    "vitest": "^3.0.0",
-    "@types/bcryptjs": "^2.4.0"
+    "vitest": "^3.0.0"
   }
 }
