@@ -483,39 +483,6 @@ export type CreateCommercialQuotationRequest = {
 
 export type UpdateCommercialQuotationRequest = Partial<CreateCommercialQuotationRequest>
 
-export type RejectCommercialQuotationRequest = {
-  reason: string
-}
-
-export type CommercialQuotationListResponse = PaginatedResponse<CommercialQuotation>
-
-export type CommercialQuotationQueryParams = {
-  page?: number
-  limit?: number
-  search?: string
-  status?: QuotationStatus | 'all'
-  customerId?: string
-  projectId?: string
-}
-
-export type PendingQuotation = Quotation & {
-  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'>
-  project: Pick<Project, 'id' | 'name' | 'code'>
-}
-
-export type PendingCommercialQuotation = CommercialQuotation & {
-  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'>
-  project: Pick<Project, 'id' | 'name' | 'code'>
-}
-
-export type PendingQuotationsResponse = {
-  data: PendingQuotation[]
-}
-
-export type PendingCommercialQuotationsResponse = {
-  data: PendingCommercialQuotation[]
-}
-
 // ─── Contract ─────────────────────────────────────────────────────────────────
 
 export type ContractType = 'SALE' | 'LEASE' | 'RENTAL'
@@ -547,51 +514,6 @@ export type Contract = {
   created_by: string
   created_at: string
   updated_at: string
-}
-
-export type ContractWithRelations = Contract & {
-  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'>
-  project: Pick<Project, 'id' | 'name' | 'code'>
-  unit: Pick<Unit, 'id' | 'unit_number' | 'floor' | 'building'> | null
-  quotation: { id: string; quotation_number: string } | null
-  creator: { id: string; first_name: string; last_name: string }
-  approver: { id: string; first_name: string; last_name: string } | null
-}
-
-export type CreateContractRequest = {
-  contractNumber?: string
-  customerId: string
-  projectId: string
-  unitId?: string
-  quotationId?: string
-  type: ContractType
-  startDate: string
-  endDate?: string
-  value?: number
-  monthlyRent?: number
-  depositAmount?: number
-  terms?: string
-  status?: ContractStatus
-}
-
-export type UpdateContractRequest = {
-  contractNumber?: string
-  customerId?: string
-  projectId?: string
-  unitId?: string
-  quotationId?: string
-  type?: ContractType
-  startDate?: string
-  endDate?: string
-  value?: number
-  monthlyRent?: number
-  depositAmount?: number
-  terms?: string
-  status?: ContractStatus
-}
-
-export type RejectContractRequest = {
-  reason: string
 }
 
 export type ContractListResponse = PaginatedResponse<Contract>
@@ -637,77 +559,3 @@ export type UpdateLeaseAgreementRequest = {
 }
 
 export type LeaseAgreementListResponse = PaginatedResponse<LeaseAgreementWithContract>
-
-// ─── Sale Form Types ──────────────────────────────────────────────────────────
-
-export type SaleQuotationItem = {
-  description: string
-  quantity: number
-  unit_price: number
-  amount: number
-}
-
-export type SaleQuotationFormData = {
-  quotation_number: string
-  customer_name: string
-  quotation_date: string
-  valid_until: string
-  contact_person: string
-  phone: string
-  email: string
-  items: SaleQuotationItem[]
-  subtotal: number
-  vat: number
-  total: number
-  terms: string
-  notes: string
-}
-
-export type LesseeResponsibility = {
-  checked: boolean
-  note: string
-}
-
-export type CommercialProposalRentalDetail = {
-  building: string
-  area: number
-  rental_rate: number
-  monthly_rental: number
-}
-
-export type CommercialProposalFormData = {
-  quotation_number: string
-  proposal_date: Date | null
-  customer_info: {
-    company_address: string
-    contact_name: string
-    telephone: string
-    mobile: string
-    email: string
-  }
-  warehouse_location: {
-    house_no: string
-    moo: string
-    sub_district: string
-    district: string
-    province: string
-  }
-  rental_details: CommercialProposalRentalDetail[]
-  terms_conditions: {
-    deposit_months: number
-    advance_rental_months: number
-    water_charge: number
-    electricity_charge: string
-    contract_duration: number
-    lessee_responsibilities: Record<string, LesseeResponsibility>
-  }
-  valid_until: Date | null
-  footer_info: {
-    company_name: string
-    company_address: string
-    contact_person_name: string
-    contact_mobile: string
-    contact_email: string
-  }
-  status: string
-}
