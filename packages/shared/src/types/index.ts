@@ -516,6 +516,50 @@ export type Contract = {
   updated_at: string
 }
 
+export type ContractWithRelations = Contract & {
+  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'> | null
+  project: Pick<Project, 'id' | 'name' | 'code'> | null
+  unit: Pick<Unit, 'id' | 'unit_number' | 'floor' | 'building'> | null
+  creator: { id: string; first_name: string; last_name: string } | null
+  approver: { id: string; first_name: string; last_name: string } | null
+}
+
+export type ExpiringContract = Contract & {
+  daysUntilExpiry: number
+  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'> | null
+}
+
+export type ExpiringContractsResponse = {
+  data: ExpiringContract[]
+}
+
+export type ContractResponse = {
+  contract: ContractWithRelations
+}
+
+export type CreateContractRequest = {
+  customerId: string
+  projectId: string
+  unitId?: string
+  quotationId?: string
+  type: ContractType
+  startDate: string
+  endDate?: string
+  value?: number
+  monthlyRent?: number
+  depositAmount?: number
+  terms?: string
+  status?: ContractStatus
+}
+
+export type UpdateContractRequest = Partial<CreateContractRequest>
+
+export type ApproveContractRequest = Record<string, never>
+
+export type RejectContractRequest = {
+  reason: string
+}
+
 export type ContractListResponse = PaginatedResponse<Contract>
 
 export type ContractQueryParams = {

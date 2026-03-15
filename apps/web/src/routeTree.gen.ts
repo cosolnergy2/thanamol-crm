@@ -24,16 +24,14 @@ import { Route as AuthenticatedUnitsByProjectRouteImport } from './routes/_authe
 import { Route as AuthenticatedUnitsAvailabilityRouteImport } from './routes/_authenticated/units/availability'
 import { Route as AuthenticatedProjectsDashboardRouteImport } from './routes/_authenticated/projects/dashboard'
 import { Route as AuthenticatedProjectsProjectIdRouteImport } from './routes/_authenticated/projects/$projectId'
-import { Route as AuthenticatedLeadsLeadIdRouteImport } from './routes/_authenticated/leads/$leadId'
-import { Route as AuthenticatedFormsSaleQuotationRouteImport } from './routes/_authenticated/forms/sale-quotation'
-import { Route as AuthenticatedFormsSaleCommercialProposalRouteImport } from './routes/_authenticated/forms/sale-commercial-proposal'
-import { Route as AuthenticatedDealsDealIdRouteImport } from './routes/_authenticated/deals/$dealId'
+import { Route as AuthenticatedFormsHandoverPhotosRouteImport } from './routes/_authenticated/forms/handover-photos'
+import { Route as AuthenticatedFormsHandoverRouteImport } from './routes/_authenticated/forms/handover'
 import { Route as AuthenticatedCustomersCreateRouteImport } from './routes/_authenticated/customers/create'
-import { Route as AuthenticatedFormsSaleJob02F01IndexRouteImport } from './routes/_authenticated/forms/sale-job02-f01/index'
-import { Route as AuthenticatedFormsSaleJob02F01NewRouteImport } from './routes/_authenticated/forms/sale-job02-f01/new'
-import { Route as AuthenticatedFormsSaleJob02F01IdIndexRouteImport } from './routes/_authenticated/forms/sale-job02-f01/$id/index'
-import { Route as AuthenticatedFormsSaleJob02F01IdPrintRouteImport } from './routes/_authenticated/forms/sale-job02-f01/$id/print'
-import { Route as AuthenticatedFormsSaleJob02F01IdEditRouteImport } from './routes/_authenticated/forms/sale-job02-f01/$id/edit'
+import { Route as AuthenticatedContractsHandoverIndexRouteImport } from './routes/_authenticated/contracts/handover/index'
+import { Route as AuthenticatedContractsHandoverNewRouteImport } from './routes/_authenticated/contracts/handover/new'
+import { Route as AuthenticatedContractsHandoverIdIndexRouteImport } from './routes/_authenticated/contracts/handover/$id/index'
+import { Route as AuthenticatedContractsHandoverIdPrintRouteImport } from './routes/_authenticated/contracts/handover/$id/print'
+import { Route as AuthenticatedContractsHandoverIdEditRouteImport } from './routes/_authenticated/contracts/handover/$id/edit'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -116,40 +114,16 @@ const AuthenticatedProjectsProjectIdRoute =
     path: '/projects/$projectId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedLeadsLeadIdRoute =
-  AuthenticatedLeadsLeadIdRouteImport.update({
-    id: '/leads/$leadId',
-    path: '/leads/$leadId',
+const AuthenticatedFormsHandoverPhotosRoute =
+  AuthenticatedFormsHandoverPhotosRouteImport.update({
+    id: '/forms/handover-photos',
+    path: '/forms/handover-photos',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedFormsSaleQuotationRoute =
-  AuthenticatedFormsSaleQuotationRouteImport.update({
-    id: '/forms/sale-quotation',
-    path: '/forms/sale-quotation',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedFinanceDepositsRoute =
-  AuthenticatedFinanceDepositsRouteImport.update({
-    id: '/finance/deposits',
-    path: '/finance/deposits',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedFinanceCompaniesRoute =
-  AuthenticatedFinanceCompaniesRouteImport.update({
-    id: '/finance/companies',
-    path: '/finance/companies',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedFinanceArAgingRoute =
-  AuthenticatedFinanceArAgingRouteImport.update({
-    id: '/finance/ar-aging',
-    path: '/finance/ar-aging',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedDealsDealIdRoute =
-  AuthenticatedDealsDealIdRouteImport.update({
-    id: '/deals/$dealId',
-    path: '/deals/$dealId',
+const AuthenticatedFormsHandoverRoute =
+  AuthenticatedFormsHandoverRouteImport.update({
+    id: '/forms/handover',
+    path: '/forms/handover',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedCustomersCreateRoute =
@@ -158,34 +132,34 @@ const AuthenticatedCustomersCreateRoute =
     path: '/customers/create',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedFormsSaleJob02F01IndexRoute =
-  AuthenticatedFormsSaleJob02F01IndexRouteImport.update({
-    id: '/forms/sale-job02-f01/',
-    path: '/forms/sale-job02-f01/',
+const AuthenticatedContractsHandoverIndexRoute =
+  AuthenticatedContractsHandoverIndexRouteImport.update({
+    id: '/contracts/handover/',
+    path: '/contracts/handover/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedFormsSaleJob02F01NewRoute =
-  AuthenticatedFormsSaleJob02F01NewRouteImport.update({
-    id: '/forms/sale-job02-f01/new',
-    path: '/forms/sale-job02-f01/new',
+const AuthenticatedContractsHandoverNewRoute =
+  AuthenticatedContractsHandoverNewRouteImport.update({
+    id: '/contracts/handover/new',
+    path: '/contracts/handover/new',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedFormsSaleJob02F01IdIndexRoute =
-  AuthenticatedFormsSaleJob02F01IdIndexRouteImport.update({
-    id: '/forms/sale-job02-f01/$id/',
-    path: '/forms/sale-job02-f01/$id/',
+const AuthenticatedContractsHandoverIdIndexRoute =
+  AuthenticatedContractsHandoverIdIndexRouteImport.update({
+    id: '/contracts/handover/$id/',
+    path: '/contracts/handover/$id/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedFormsSaleJob02F01IdPrintRoute =
-  AuthenticatedFormsSaleJob02F01IdPrintRouteImport.update({
-    id: '/forms/sale-job02-f01/$id/print',
-    path: '/forms/sale-job02-f01/$id/print',
+const AuthenticatedContractsHandoverIdPrintRoute =
+  AuthenticatedContractsHandoverIdPrintRouteImport.update({
+    id: '/contracts/handover/$id/print',
+    path: '/contracts/handover/$id/print',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedFormsSaleJob02F01IdEditRoute =
-  AuthenticatedFormsSaleJob02F01IdEditRouteImport.update({
-    id: '/forms/sale-job02-f01/$id/edit',
-    path: '/forms/sale-job02-f01/$id/edit',
+const AuthenticatedContractsHandoverIdEditRoute =
+  AuthenticatedContractsHandoverIdEditRouteImport.update({
+    id: '/contracts/handover/$id/edit',
+    path: '/contracts/handover/$id/edit',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 
@@ -197,10 +171,8 @@ export interface FileRoutesByFullPath {
   '/contracts/create': typeof AuthenticatedContractsCreateRoute
   '/contracts/expiring': typeof AuthenticatedContractsExpiringRoute
   '/customers/create': typeof AuthenticatedCustomersCreateRoute
-  '/deals/$dealId': typeof AuthenticatedDealsDealIdRoute
-  '/forms/sale-commercial-proposal': typeof AuthenticatedFormsSaleCommercialProposalRoute
-  '/forms/sale-quotation': typeof AuthenticatedFormsSaleQuotationRoute
-  '/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
+  '/forms/handover': typeof AuthenticatedFormsHandoverRoute
+  '/forms/handover-photos': typeof AuthenticatedFormsHandoverPhotosRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
@@ -211,11 +183,11 @@ export interface FileRoutesByFullPath {
   '/leads/': typeof AuthenticatedLeadsIndexRoute
   '/projects/': typeof AuthenticatedProjectsIndexRoute
   '/units/': typeof AuthenticatedUnitsIndexRoute
-  '/forms/sale-job02-f01/new': typeof AuthenticatedFormsSaleJob02F01NewRoute
-  '/forms/sale-job02-f01/': typeof AuthenticatedFormsSaleJob02F01IndexRoute
-  '/forms/sale-job02-f01/$id/edit': typeof AuthenticatedFormsSaleJob02F01IdEditRoute
-  '/forms/sale-job02-f01/$id/print': typeof AuthenticatedFormsSaleJob02F01IdPrintRoute
-  '/forms/sale-job02-f01/$id/': typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
+  '/contracts/handover/new': typeof AuthenticatedContractsHandoverNewRoute
+  '/contracts/handover/': typeof AuthenticatedContractsHandoverIndexRoute
+  '/contracts/handover/$id/edit': typeof AuthenticatedContractsHandoverIdEditRoute
+  '/contracts/handover/$id/print': typeof AuthenticatedContractsHandoverIdPrintRoute
+  '/contracts/handover/$id/': typeof AuthenticatedContractsHandoverIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -225,10 +197,8 @@ export interface FileRoutesByTo {
   '/contracts/create': typeof AuthenticatedContractsCreateRoute
   '/contracts/expiring': typeof AuthenticatedContractsExpiringRoute
   '/customers/create': typeof AuthenticatedCustomersCreateRoute
-  '/deals/$dealId': typeof AuthenticatedDealsDealIdRoute
-  '/forms/sale-commercial-proposal': typeof AuthenticatedFormsSaleCommercialProposalRoute
-  '/forms/sale-quotation': typeof AuthenticatedFormsSaleQuotationRoute
-  '/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
+  '/forms/handover': typeof AuthenticatedFormsHandoverRoute
+  '/forms/handover-photos': typeof AuthenticatedFormsHandoverPhotosRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
@@ -239,11 +209,11 @@ export interface FileRoutesByTo {
   '/leads': typeof AuthenticatedLeadsIndexRoute
   '/projects': typeof AuthenticatedProjectsIndexRoute
   '/units': typeof AuthenticatedUnitsIndexRoute
-  '/forms/sale-job02-f01/new': typeof AuthenticatedFormsSaleJob02F01NewRoute
-  '/forms/sale-job02-f01': typeof AuthenticatedFormsSaleJob02F01IndexRoute
-  '/forms/sale-job02-f01/$id/edit': typeof AuthenticatedFormsSaleJob02F01IdEditRoute
-  '/forms/sale-job02-f01/$id/print': typeof AuthenticatedFormsSaleJob02F01IdPrintRoute
-  '/forms/sale-job02-f01/$id': typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
+  '/contracts/handover/new': typeof AuthenticatedContractsHandoverNewRoute
+  '/contracts/handover': typeof AuthenticatedContractsHandoverIndexRoute
+  '/contracts/handover/$id/edit': typeof AuthenticatedContractsHandoverIdEditRoute
+  '/contracts/handover/$id/print': typeof AuthenticatedContractsHandoverIdPrintRoute
+  '/contracts/handover/$id': typeof AuthenticatedContractsHandoverIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -255,10 +225,8 @@ export interface FileRoutesById {
   '/_authenticated/contracts/create': typeof AuthenticatedContractsCreateRoute
   '/_authenticated/contracts/expiring': typeof AuthenticatedContractsExpiringRoute
   '/_authenticated/customers/create': typeof AuthenticatedCustomersCreateRoute
-  '/_authenticated/deals/$dealId': typeof AuthenticatedDealsDealIdRoute
-  '/_authenticated/forms/sale-commercial-proposal': typeof AuthenticatedFormsSaleCommercialProposalRoute
-  '/_authenticated/forms/sale-quotation': typeof AuthenticatedFormsSaleQuotationRoute
-  '/_authenticated/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
+  '/_authenticated/forms/handover': typeof AuthenticatedFormsHandoverRoute
+  '/_authenticated/forms/handover-photos': typeof AuthenticatedFormsHandoverPhotosRoute
   '/_authenticated/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/_authenticated/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
   '/_authenticated/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
@@ -269,11 +237,11 @@ export interface FileRoutesById {
   '/_authenticated/leads/': typeof AuthenticatedLeadsIndexRoute
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
   '/_authenticated/units/': typeof AuthenticatedUnitsIndexRoute
-  '/_authenticated/forms/sale-job02-f01/new': typeof AuthenticatedFormsSaleJob02F01NewRoute
-  '/_authenticated/forms/sale-job02-f01/': typeof AuthenticatedFormsSaleJob02F01IndexRoute
-  '/_authenticated/forms/sale-job02-f01/$id/edit': typeof AuthenticatedFormsSaleJob02F01IdEditRoute
-  '/_authenticated/forms/sale-job02-f01/$id/print': typeof AuthenticatedFormsSaleJob02F01IdPrintRoute
-  '/_authenticated/forms/sale-job02-f01/$id/': typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
+  '/_authenticated/contracts/handover/new': typeof AuthenticatedContractsHandoverNewRoute
+  '/_authenticated/contracts/handover/': typeof AuthenticatedContractsHandoverIndexRoute
+  '/_authenticated/contracts/handover/$id/edit': typeof AuthenticatedContractsHandoverIdEditRoute
+  '/_authenticated/contracts/handover/$id/print': typeof AuthenticatedContractsHandoverIdPrintRoute
+  '/_authenticated/contracts/handover/$id/': typeof AuthenticatedContractsHandoverIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -285,10 +253,8 @@ export interface FileRouteTypes {
     | '/contracts/create'
     | '/contracts/expiring'
     | '/customers/create'
-    | '/deals/$dealId'
-    | '/forms/sale-commercial-proposal'
-    | '/forms/sale-quotation'
-    | '/leads/$leadId'
+    | '/forms/handover'
+    | '/forms/handover-photos'
     | '/projects/$projectId'
     | '/projects/dashboard'
     | '/units/availability'
@@ -299,11 +265,11 @@ export interface FileRouteTypes {
     | '/leads/'
     | '/projects/'
     | '/units/'
-    | '/forms/sale-job02-f01/new'
-    | '/forms/sale-job02-f01/'
-    | '/forms/sale-job02-f01/$id/edit'
-    | '/forms/sale-job02-f01/$id/print'
-    | '/forms/sale-job02-f01/$id/'
+    | '/contracts/handover/new'
+    | '/contracts/handover/'
+    | '/contracts/handover/$id/edit'
+    | '/contracts/handover/$id/print'
+    | '/contracts/handover/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -313,10 +279,8 @@ export interface FileRouteTypes {
     | '/contracts/create'
     | '/contracts/expiring'
     | '/customers/create'
-    | '/deals/$dealId'
-    | '/forms/sale-commercial-proposal'
-    | '/forms/sale-quotation'
-    | '/leads/$leadId'
+    | '/forms/handover'
+    | '/forms/handover-photos'
     | '/projects/$projectId'
     | '/projects/dashboard'
     | '/units/availability'
@@ -327,11 +291,11 @@ export interface FileRouteTypes {
     | '/leads'
     | '/projects'
     | '/units'
-    | '/forms/sale-job02-f01/new'
-    | '/forms/sale-job02-f01'
-    | '/forms/sale-job02-f01/$id/edit'
-    | '/forms/sale-job02-f01/$id/print'
-    | '/forms/sale-job02-f01/$id'
+    | '/contracts/handover/new'
+    | '/contracts/handover'
+    | '/contracts/handover/$id/edit'
+    | '/contracts/handover/$id/print'
+    | '/contracts/handover/$id'
   id:
     | '__root__'
     | '/_authenticated'
@@ -342,10 +306,8 @@ export interface FileRouteTypes {
     | '/_authenticated/contracts/create'
     | '/_authenticated/contracts/expiring'
     | '/_authenticated/customers/create'
-    | '/_authenticated/deals/$dealId'
-    | '/_authenticated/forms/sale-commercial-proposal'
-    | '/_authenticated/forms/sale-quotation'
-    | '/_authenticated/leads/$leadId'
+    | '/_authenticated/forms/handover'
+    | '/_authenticated/forms/handover-photos'
     | '/_authenticated/projects/$projectId'
     | '/_authenticated/projects/dashboard'
     | '/_authenticated/units/availability'
@@ -356,11 +318,11 @@ export interface FileRouteTypes {
     | '/_authenticated/leads/'
     | '/_authenticated/projects/'
     | '/_authenticated/units/'
-    | '/_authenticated/forms/sale-job02-f01/new'
-    | '/_authenticated/forms/sale-job02-f01/'
-    | '/_authenticated/forms/sale-job02-f01/$id/edit'
-    | '/_authenticated/forms/sale-job02-f01/$id/print'
-    | '/_authenticated/forms/sale-job02-f01/$id/'
+    | '/_authenticated/contracts/handover/new'
+    | '/_authenticated/contracts/handover/'
+    | '/_authenticated/contracts/handover/$id/edit'
+    | '/_authenticated/contracts/handover/$id/print'
+    | '/_authenticated/contracts/handover/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -475,46 +437,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjectsProjectIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/leads/$leadId': {
-      id: '/_authenticated/leads/$leadId'
-      path: '/leads/$leadId'
-      fullPath: '/leads/$leadId'
-      preLoaderRoute: typeof AuthenticatedLeadsLeadIdRouteImport
+    '/_authenticated/forms/handover-photos': {
+      id: '/_authenticated/forms/handover-photos'
+      path: '/forms/handover-photos'
+      fullPath: '/forms/handover-photos'
+      preLoaderRoute: typeof AuthenticatedFormsHandoverPhotosRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/forms/sale-quotation': {
-      id: '/_authenticated/forms/sale-quotation'
-      path: '/forms/sale-quotation'
-      fullPath: '/forms/sale-quotation'
-      preLoaderRoute: typeof AuthenticatedFormsSaleQuotationRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/finance/deposits': {
-      id: '/_authenticated/finance/deposits'
-      path: '/finance/deposits'
-      fullPath: '/finance/deposits'
-      preLoaderRoute: typeof AuthenticatedFinanceDepositsRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/finance/companies': {
-      id: '/_authenticated/finance/companies'
-      path: '/finance/companies'
-      fullPath: '/finance/companies'
-      preLoaderRoute: typeof AuthenticatedFinanceCompaniesRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/finance/ar-aging': {
-      id: '/_authenticated/finance/ar-aging'
-      path: '/finance/ar-aging'
-      fullPath: '/finance/ar-aging'
-      preLoaderRoute: typeof AuthenticatedFinanceArAgingRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/deals/$dealId': {
-      id: '/_authenticated/deals/$dealId'
-      path: '/deals/$dealId'
-      fullPath: '/deals/$dealId'
-      preLoaderRoute: typeof AuthenticatedDealsDealIdRouteImport
+    '/_authenticated/forms/handover': {
+      id: '/_authenticated/forms/handover'
+      path: '/forms/handover'
+      fullPath: '/forms/handover'
+      preLoaderRoute: typeof AuthenticatedFormsHandoverRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/customers/create': {
@@ -524,39 +458,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCustomersCreateRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/forms/sale-job02-f01/': {
-      id: '/_authenticated/forms/sale-job02-f01/'
-      path: '/forms/sale-job02-f01'
-      fullPath: '/forms/sale-job02-f01/'
-      preLoaderRoute: typeof AuthenticatedFormsSaleJob02F01IndexRouteImport
+    '/_authenticated/contracts/handover/': {
+      id: '/_authenticated/contracts/handover/'
+      path: '/contracts/handover'
+      fullPath: '/contracts/handover/'
+      preLoaderRoute: typeof AuthenticatedContractsHandoverIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/forms/sale-job02-f01/new': {
-      id: '/_authenticated/forms/sale-job02-f01/new'
-      path: '/forms/sale-job02-f01/new'
-      fullPath: '/forms/sale-job02-f01/new'
-      preLoaderRoute: typeof AuthenticatedFormsSaleJob02F01NewRouteImport
+    '/_authenticated/contracts/handover/new': {
+      id: '/_authenticated/contracts/handover/new'
+      path: '/contracts/handover/new'
+      fullPath: '/contracts/handover/new'
+      preLoaderRoute: typeof AuthenticatedContractsHandoverNewRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/forms/sale-job02-f01/$id/': {
-      id: '/_authenticated/forms/sale-job02-f01/$id/'
-      path: '/forms/sale-job02-f01/$id'
-      fullPath: '/forms/sale-job02-f01/$id/'
-      preLoaderRoute: typeof AuthenticatedFormsSaleJob02F01IdIndexRouteImport
+    '/_authenticated/contracts/handover/$id/': {
+      id: '/_authenticated/contracts/handover/$id/'
+      path: '/contracts/handover/$id'
+      fullPath: '/contracts/handover/$id/'
+      preLoaderRoute: typeof AuthenticatedContractsHandoverIdIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/forms/sale-job02-f01/$id/print': {
-      id: '/_authenticated/forms/sale-job02-f01/$id/print'
-      path: '/forms/sale-job02-f01/$id/print'
-      fullPath: '/forms/sale-job02-f01/$id/print'
-      preLoaderRoute: typeof AuthenticatedFormsSaleJob02F01IdPrintRouteImport
+    '/_authenticated/contracts/handover/$id/print': {
+      id: '/_authenticated/contracts/handover/$id/print'
+      path: '/contracts/handover/$id/print'
+      fullPath: '/contracts/handover/$id/print'
+      preLoaderRoute: typeof AuthenticatedContractsHandoverIdPrintRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/forms/sale-job02-f01/$id/edit': {
-      id: '/_authenticated/forms/sale-job02-f01/$id/edit'
-      path: '/forms/sale-job02-f01/$id/edit'
-      fullPath: '/forms/sale-job02-f01/$id/edit'
-      preLoaderRoute: typeof AuthenticatedFormsSaleJob02F01IdEditRouteImport
+    '/_authenticated/contracts/handover/$id/edit': {
+      id: '/_authenticated/contracts/handover/$id/edit'
+      path: '/contracts/handover/$id/edit'
+      fullPath: '/contracts/handover/$id/edit'
+      preLoaderRoute: typeof AuthenticatedContractsHandoverIdEditRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
   }
@@ -569,10 +503,8 @@ interface AuthenticatedRouteChildren {
   AuthenticatedContractsCreateRoute: typeof AuthenticatedContractsCreateRoute
   AuthenticatedContractsExpiringRoute: typeof AuthenticatedContractsExpiringRoute
   AuthenticatedCustomersCreateRoute: typeof AuthenticatedCustomersCreateRoute
-  AuthenticatedDealsDealIdRoute: typeof AuthenticatedDealsDealIdRoute
-  AuthenticatedFormsSaleCommercialProposalRoute: typeof AuthenticatedFormsSaleCommercialProposalRoute
-  AuthenticatedFormsSaleQuotationRoute: typeof AuthenticatedFormsSaleQuotationRoute
-  AuthenticatedLeadsLeadIdRoute: typeof AuthenticatedLeadsLeadIdRoute
+  AuthenticatedFormsHandoverRoute: typeof AuthenticatedFormsHandoverRoute
+  AuthenticatedFormsHandoverPhotosRoute: typeof AuthenticatedFormsHandoverPhotosRoute
   AuthenticatedProjectsProjectIdRoute: typeof AuthenticatedProjectsProjectIdRoute
   AuthenticatedProjectsDashboardRoute: typeof AuthenticatedProjectsDashboardRoute
   AuthenticatedUnitsAvailabilityRoute: typeof AuthenticatedUnitsAvailabilityRoute
@@ -583,11 +515,11 @@ interface AuthenticatedRouteChildren {
   AuthenticatedLeadsIndexRoute: typeof AuthenticatedLeadsIndexRoute
   AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
   AuthenticatedUnitsIndexRoute: typeof AuthenticatedUnitsIndexRoute
-  AuthenticatedFormsSaleJob02F01NewRoute: typeof AuthenticatedFormsSaleJob02F01NewRoute
-  AuthenticatedFormsSaleJob02F01IndexRoute: typeof AuthenticatedFormsSaleJob02F01IndexRoute
-  AuthenticatedFormsSaleJob02F01IdEditRoute: typeof AuthenticatedFormsSaleJob02F01IdEditRoute
-  AuthenticatedFormsSaleJob02F01IdPrintRoute: typeof AuthenticatedFormsSaleJob02F01IdPrintRoute
-  AuthenticatedFormsSaleJob02F01IdIndexRoute: typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
+  AuthenticatedContractsHandoverNewRoute: typeof AuthenticatedContractsHandoverNewRoute
+  AuthenticatedContractsHandoverIndexRoute: typeof AuthenticatedContractsHandoverIndexRoute
+  AuthenticatedContractsHandoverIdEditRoute: typeof AuthenticatedContractsHandoverIdEditRoute
+  AuthenticatedContractsHandoverIdPrintRoute: typeof AuthenticatedContractsHandoverIdPrintRoute
+  AuthenticatedContractsHandoverIdIndexRoute: typeof AuthenticatedContractsHandoverIdIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -597,11 +529,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedContractsCreateRoute: AuthenticatedContractsCreateRoute,
   AuthenticatedContractsExpiringRoute: AuthenticatedContractsExpiringRoute,
   AuthenticatedCustomersCreateRoute: AuthenticatedCustomersCreateRoute,
-  AuthenticatedDealsDealIdRoute: AuthenticatedDealsDealIdRoute,
-  AuthenticatedFormsSaleCommercialProposalRoute:
-    AuthenticatedFormsSaleCommercialProposalRoute,
-  AuthenticatedFormsSaleQuotationRoute: AuthenticatedFormsSaleQuotationRoute,
-  AuthenticatedLeadsLeadIdRoute: AuthenticatedLeadsLeadIdRoute,
+  AuthenticatedFormsHandoverRoute: AuthenticatedFormsHandoverRoute,
+  AuthenticatedFormsHandoverPhotosRoute: AuthenticatedFormsHandoverPhotosRoute,
   AuthenticatedProjectsProjectIdRoute: AuthenticatedProjectsProjectIdRoute,
   AuthenticatedProjectsDashboardRoute: AuthenticatedProjectsDashboardRoute,
   AuthenticatedUnitsAvailabilityRoute: AuthenticatedUnitsAvailabilityRoute,
@@ -612,16 +541,16 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedLeadsIndexRoute: AuthenticatedLeadsIndexRoute,
   AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
   AuthenticatedUnitsIndexRoute: AuthenticatedUnitsIndexRoute,
-  AuthenticatedFormsSaleJob02F01NewRoute:
-    AuthenticatedFormsSaleJob02F01NewRoute,
-  AuthenticatedFormsSaleJob02F01IndexRoute:
-    AuthenticatedFormsSaleJob02F01IndexRoute,
-  AuthenticatedFormsSaleJob02F01IdEditRoute:
-    AuthenticatedFormsSaleJob02F01IdEditRoute,
-  AuthenticatedFormsSaleJob02F01IdPrintRoute:
-    AuthenticatedFormsSaleJob02F01IdPrintRoute,
-  AuthenticatedFormsSaleJob02F01IdIndexRoute:
-    AuthenticatedFormsSaleJob02F01IdIndexRoute,
+  AuthenticatedContractsHandoverNewRoute:
+    AuthenticatedContractsHandoverNewRoute,
+  AuthenticatedContractsHandoverIndexRoute:
+    AuthenticatedContractsHandoverIndexRoute,
+  AuthenticatedContractsHandoverIdEditRoute:
+    AuthenticatedContractsHandoverIdEditRoute,
+  AuthenticatedContractsHandoverIdPrintRoute:
+    AuthenticatedContractsHandoverIdPrintRoute,
+  AuthenticatedContractsHandoverIdIndexRoute:
+    AuthenticatedContractsHandoverIdIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
