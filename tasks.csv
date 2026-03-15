@@ -1,1 +1,4 @@
 ID,Title,Assignee,Status,Detail
+T-001,Docker Compose + Prisma schema (42 models),dev,Done,tasks/T-001.md
+T-002,Monorepo scaffold (pnpm workspaces + all configs),dev,Done,tasks/T-002.md
+T-003,Seed data script (demo users + roles + sample data),dev,Ready to Dev,tasks/T-003.md
