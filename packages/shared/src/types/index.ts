@@ -566,3 +566,156 @@ export type UpdateLeaseAgreementRequest = {
 }
 
 export type LeaseAgreementListResponse = PaginatedResponse<LeaseAgreementWithContract>
+
+// ─── Invoice ──────────────────────────────────────────────────────────────────
+
+export type InvoiceStatus = 'DRAFT' | 'SENT' | 'PAID' | 'OVERDUE' | 'CANCELLED' | 'PARTIAL'
+
+export type InvoiceItem = {
+  description: string
+  quantity: number
+  unit_price: number
+  amount: number
+  item_type?: string
+}
+
+export type Invoice = {
+  id: string
+  invoice_number: string
+  contract_id: string | null
+  customer_id: string
+  items: InvoiceItem[]
+  subtotal: number
+  tax: number
+  total: number
+  due_date: string | null
+  status: InvoiceStatus
+  notes: string | null
+  created_by: string
+  created_at: string
+  updated_at: string
+}
+
+export type InvoiceWithRelations = Invoice & {
+  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'>
+  contract: Pick<Contract, 'id' | 'contract_number' | 'type' | 'status'> | null
+  creator: { id: string; first_name: string; last_name: string }
+}
+
+export type CreateInvoiceRequest = {
+  invoiceNumber?: string
+  contractId?: string
+  customerId: string
+  items?: InvoiceItem[]
+  subtotal?: number
+  tax?: number
+  total?: number
+  dueDate?: string
+  status?: InvoiceStatus
+  notes?: string
+}
+
+export type UpdateInvoiceRequest = Partial<CreateInvoiceRequest>
+
+export type InvoiceListResponse = PaginatedResponse<Invoice>
+
+export type InvoiceQueryParams = {
+  page?: number
+  limit?: number
+  status?: InvoiceStatus | 'all'
+  customerId?: string
+  contractId?: string
+}
+
+// ─── Payment ──────────────────────────────────────────────────────────────────
+
+export type PaymentMethod = 'CASH' | 'BANK_TRANSFER' | 'CHEQUE' | 'CREDIT_CARD' | 'ONLINE'
+
+export type Payment = {
+  id: string
+  invoice_id: string
+  amount: number
+  payment_date: string
+  payment_method: PaymentMethod
+  reference_number: string | null
+  notes: string | null
+  received_by: string | null
+  created_at: string
+}
+
+export type PaymentWithRelations = Payment & {
+  invoice: {
+    id: string
+    invoice_number: string
+    total: number
+    status: InvoiceStatus
+    customer_id: string
+  }
+  receiver: { id: string; first_name: string; last_name: string } | null
+}
+
+export type CreatePaymentRequest = {
+  invoiceId: string
+  amount: number
+  paymentDate: string
+  paymentMethod: PaymentMethod
+  referenceNumber?: string
+  notes?: string
+}
+
+export type UpdatePaymentRequest = Partial<CreatePaymentRequest>
+
+export type PaymentListResponse = PaginatedResponse<Payment>
+
+export type PaymentQueryParams = {
+  page?: number
+  limit?: number
+  invoiceId?: string
+  paymentMethod?: PaymentMethod
+}
+
+// ─── Deposit ──────────────────────────────────────────────────────────────────
+
+export type DepositStatus = 'HELD' | 'APPLIED' | 'REFUNDED' | 'FORFEITED'
+
+export type Deposit = {
+  id: string
+  contract_id: string
+  customer_id: string
+  amount: number
+  deposit_date: string
+  status: DepositStatus
+  refund_date: string | null
+  refund_amount: number | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type DepositWithRelations = Deposit & {
+  contract: Pick<Contract, 'id' | 'contract_number' | 'type' | 'status'>
+  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'>
+}
+
+export type CreateDepositRequest = {
+  contractId: string
+  customerId: string
+  amount: number
+  depositDate: string
+  status?: DepositStatus
+  refundDate?: string
+  refundAmount?: number
+  notes?: string
+}
+
+export type UpdateDepositRequest = Partial<CreateDepositRequest>
+
+export type DepositListResponse = PaginatedResponse<Deposit>
+
+export type DepositQueryParams = {
+  page?: number
+  limit?: number
+  status?: DepositStatus | 'all'
+  contractId?: string
+  customerId?: string
+}
