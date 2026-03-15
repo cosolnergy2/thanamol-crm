@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedMyDashboardRouteImport } from './routes/_authenticated/my-dashboard'
 import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticated/contacts'
 import { Route as AuthenticatedCompaniesRouteImport } from './routes/_authenticated/companies'
 import { Route as AuthenticatedUnitsIndexRouteImport } from './routes/_authenticated/units/index'
@@ -25,16 +26,23 @@ import { Route as AuthenticatedUtilitiesReportRouteImport } from './routes/_auth
 import { Route as AuthenticatedUtilitiesMeterReadingRouteImport } from './routes/_authenticated/utilities/meter-reading'
 import { Route as AuthenticatedUnitsByProjectRouteImport } from './routes/_authenticated/units/by-project'
 import { Route as AuthenticatedUnitsAvailabilityRouteImport } from './routes/_authenticated/units/availability'
-import { Route as AuthenticatedTicketsCreateRouteImport } from './routes/_authenticated/tickets/create'
-import { Route as AuthenticatedTasksStatusSettingsRouteImport } from './routes/_authenticated/tasks/status-settings'
-import { Route as AuthenticatedTasksAutomationRouteImport } from './routes/_authenticated/tasks/automation'
+import { Route as AuthenticatedTasksNotificationsRouteImport } from './routes/_authenticated/tasks/notifications'
+import { Route as AuthenticatedSettingsAuditRouteImport } from './routes/_authenticated/settings/audit'
+import { Route as AuthenticatedSettingsActivityLogRouteImport } from './routes/_authenticated/settings/activity-log'
 import { Route as AuthenticatedProjectsDashboardRouteImport } from './routes/_authenticated/projects/dashboard'
 import { Route as AuthenticatedProjectsProjectIdRouteImport } from './routes/_authenticated/projects/$projectId'
 import { Route as AuthenticatedFormsHandoverPhotosRouteImport } from './routes/_authenticated/forms/handover-photos'
 import { Route as AuthenticatedFormsHandoverRouteImport } from './routes/_authenticated/forms/handover'
 import { Route as AuthenticatedCustomersCreateRouteImport } from './routes/_authenticated/customers/create'
-import { Route as AuthenticatedTasksTaskIdIndexRouteImport } from './routes/_authenticated/tasks/$taskId/index'
-import { Route as AuthenticatedTasksTaskIdEditRouteImport } from './routes/_authenticated/tasks/$taskId/edit'
+import { Route as AuthenticatedCalendarEventsRouteImport } from './routes/_authenticated/calendar/events'
+import { Route as AuthenticatedFormsSaleJob04F01IndexRouteImport } from './routes/_authenticated/forms/sale-job04-f01/index'
+import { Route as AuthenticatedFormsSaleF01IndexRouteImport } from './routes/_authenticated/forms/sale-f01/index'
+import { Route as AuthenticatedFormsSaleJob04F01NewRouteImport } from './routes/_authenticated/forms/sale-job04-f01/new'
+import { Route as AuthenticatedFormsSaleF01NewRouteImport } from './routes/_authenticated/forms/sale-f01/new'
+import { Route as AuthenticatedFormsSaleJob04F01IdIndexRouteImport } from './routes/_authenticated/forms/sale-job04-f01/$id/index'
+import { Route as AuthenticatedFormsSaleF01IdIndexRouteImport } from './routes/_authenticated/forms/sale-f01/$id/index'
+import { Route as AuthenticatedFormsSaleJob04F01IdEditRouteImport } from './routes/_authenticated/forms/sale-job04-f01/$id/edit'
+import { Route as AuthenticatedFormsSaleF01IdEditRouteImport } from './routes/_authenticated/forms/sale-f01/$id/edit'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -50,6 +58,12 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedMyDashboardRoute =
+  AuthenticatedMyDashboardRouteImport.update({
+    id: '/my-dashboard',
+    path: '/my-dashboard',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedContactsRoute = AuthenticatedContactsRouteImport.update({
   id: '/contacts',
   path: '/contacts',
@@ -123,22 +137,22 @@ const AuthenticatedUnitsAvailabilityRoute =
     path: '/units/availability',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedTicketsCreateRoute =
-  AuthenticatedTicketsCreateRouteImport.update({
-    id: '/tickets/create',
-    path: '/tickets/create',
+const AuthenticatedTasksNotificationsRoute =
+  AuthenticatedTasksNotificationsRouteImport.update({
+    id: '/tasks/notifications',
+    path: '/tasks/notifications',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedTasksStatusSettingsRoute =
-  AuthenticatedTasksStatusSettingsRouteImport.update({
-    id: '/tasks/status-settings',
-    path: '/tasks/status-settings',
+const AuthenticatedSettingsAuditRoute =
+  AuthenticatedSettingsAuditRouteImport.update({
+    id: '/settings/audit',
+    path: '/settings/audit',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedTasksAutomationRoute =
-  AuthenticatedTasksAutomationRouteImport.update({
-    id: '/tasks/automation',
-    path: '/tasks/automation',
+const AuthenticatedSettingsActivityLogRoute =
+  AuthenticatedSettingsActivityLogRouteImport.update({
+    id: '/settings/activity-log',
+    path: '/settings/activity-log',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedProjectsDashboardRoute =
@@ -171,16 +185,58 @@ const AuthenticatedCustomersCreateRoute =
     path: '/customers/create',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedTasksTaskIdIndexRoute =
-  AuthenticatedTasksTaskIdIndexRouteImport.update({
-    id: '/tasks/$taskId/',
-    path: '/tasks/$taskId/',
+const AuthenticatedCalendarEventsRoute =
+  AuthenticatedCalendarEventsRouteImport.update({
+    id: '/calendar/events',
+    path: '/calendar/events',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedTasksTaskIdEditRoute =
-  AuthenticatedTasksTaskIdEditRouteImport.update({
-    id: '/tasks/$taskId/edit',
-    path: '/tasks/$taskId/edit',
+const AuthenticatedFormsSaleJob04F01IndexRoute =
+  AuthenticatedFormsSaleJob04F01IndexRouteImport.update({
+    id: '/forms/sale-job04-f01/',
+    path: '/forms/sale-job04-f01/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFormsSaleF01IndexRoute =
+  AuthenticatedFormsSaleF01IndexRouteImport.update({
+    id: '/forms/sale-f01/',
+    path: '/forms/sale-f01/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFormsSaleJob04F01NewRoute =
+  AuthenticatedFormsSaleJob04F01NewRouteImport.update({
+    id: '/forms/sale-job04-f01/new',
+    path: '/forms/sale-job04-f01/new',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFormsSaleF01NewRoute =
+  AuthenticatedFormsSaleF01NewRouteImport.update({
+    id: '/forms/sale-f01/new',
+    path: '/forms/sale-f01/new',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFormsSaleJob04F01IdIndexRoute =
+  AuthenticatedFormsSaleJob04F01IdIndexRouteImport.update({
+    id: '/forms/sale-job04-f01/$id/',
+    path: '/forms/sale-job04-f01/$id/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFormsSaleF01IdIndexRoute =
+  AuthenticatedFormsSaleF01IdIndexRouteImport.update({
+    id: '/forms/sale-f01/$id/',
+    path: '/forms/sale-f01/$id/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFormsSaleJob04F01IdEditRoute =
+  AuthenticatedFormsSaleJob04F01IdEditRouteImport.update({
+    id: '/forms/sale-job04-f01/$id/edit',
+    path: '/forms/sale-job04-f01/$id/edit',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFormsSaleF01IdEditRoute =
+  AuthenticatedFormsSaleF01IdEditRouteImport.update({
+    id: '/forms/sale-f01/$id/edit',
+    path: '/forms/sale-f01/$id/edit',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 
@@ -189,16 +245,16 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/companies': typeof AuthenticatedCompaniesRoute
   '/contacts': typeof AuthenticatedContactsRoute
-  '/contracts/create': typeof AuthenticatedContractsCreateRoute
-  '/contracts/expiring': typeof AuthenticatedContractsExpiringRoute
+  '/my-dashboard': typeof AuthenticatedMyDashboardRoute
+  '/calendar/events': typeof AuthenticatedCalendarEventsRoute
   '/customers/create': typeof AuthenticatedCustomersCreateRoute
   '/forms/handover': typeof AuthenticatedFormsHandoverRoute
   '/forms/handover-photos': typeof AuthenticatedFormsHandoverPhotosRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
-  '/tasks/automation': typeof AuthenticatedTasksAutomationRoute
-  '/tasks/status-settings': typeof AuthenticatedTasksStatusSettingsRoute
-  '/tickets/create': typeof AuthenticatedTicketsCreateRoute
+  '/settings/activity-log': typeof AuthenticatedSettingsActivityLogRoute
+  '/settings/audit': typeof AuthenticatedSettingsAuditRoute
+  '/tasks/notifications': typeof AuthenticatedTasksNotificationsRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/units/by-project': typeof AuthenticatedUnitsByProjectRoute
   '/utilities/meter-reading': typeof AuthenticatedUtilitiesMeterReadingRoute
@@ -210,24 +266,30 @@ export interface FileRoutesByFullPath {
   '/projects/': typeof AuthenticatedProjectsIndexRoute
   '/tickets/': typeof AuthenticatedTicketsIndexRoute
   '/units/': typeof AuthenticatedUnitsIndexRoute
-  '/tasks/$taskId/edit': typeof AuthenticatedTasksTaskIdEditRoute
-  '/tasks/$taskId/': typeof AuthenticatedTasksTaskIdIndexRoute
+  '/forms/sale-f01/new': typeof AuthenticatedFormsSaleF01NewRoute
+  '/forms/sale-job04-f01/new': typeof AuthenticatedFormsSaleJob04F01NewRoute
+  '/forms/sale-f01/': typeof AuthenticatedFormsSaleF01IndexRoute
+  '/forms/sale-job04-f01/': typeof AuthenticatedFormsSaleJob04F01IndexRoute
+  '/forms/sale-f01/$id/edit': typeof AuthenticatedFormsSaleF01IdEditRoute
+  '/forms/sale-job04-f01/$id/edit': typeof AuthenticatedFormsSaleJob04F01IdEditRoute
+  '/forms/sale-f01/$id/': typeof AuthenticatedFormsSaleF01IdIndexRoute
+  '/forms/sale-job04-f01/$id/': typeof AuthenticatedFormsSaleJob04F01IdIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/companies': typeof AuthenticatedCompaniesRoute
   '/contacts': typeof AuthenticatedContactsRoute
+  '/my-dashboard': typeof AuthenticatedMyDashboardRoute
   '/': typeof AuthenticatedIndexRoute
-  '/contracts/create': typeof AuthenticatedContractsCreateRoute
-  '/contracts/expiring': typeof AuthenticatedContractsExpiringRoute
+  '/calendar/events': typeof AuthenticatedCalendarEventsRoute
   '/customers/create': typeof AuthenticatedCustomersCreateRoute
   '/forms/handover': typeof AuthenticatedFormsHandoverRoute
   '/forms/handover-photos': typeof AuthenticatedFormsHandoverPhotosRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
-  '/tasks/automation': typeof AuthenticatedTasksAutomationRoute
-  '/tasks/status-settings': typeof AuthenticatedTasksStatusSettingsRoute
-  '/tickets/create': typeof AuthenticatedTicketsCreateRoute
+  '/settings/activity-log': typeof AuthenticatedSettingsActivityLogRoute
+  '/settings/audit': typeof AuthenticatedSettingsAuditRoute
+  '/tasks/notifications': typeof AuthenticatedTasksNotificationsRoute
   '/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/units/by-project': typeof AuthenticatedUnitsByProjectRoute
   '/utilities/meter-reading': typeof AuthenticatedUtilitiesMeterReadingRoute
@@ -239,8 +301,14 @@ export interface FileRoutesByTo {
   '/projects': typeof AuthenticatedProjectsIndexRoute
   '/tickets': typeof AuthenticatedTicketsIndexRoute
   '/units': typeof AuthenticatedUnitsIndexRoute
-  '/tasks/$taskId/edit': typeof AuthenticatedTasksTaskIdEditRoute
-  '/tasks/$taskId': typeof AuthenticatedTasksTaskIdIndexRoute
+  '/forms/sale-f01/new': typeof AuthenticatedFormsSaleF01NewRoute
+  '/forms/sale-job04-f01/new': typeof AuthenticatedFormsSaleJob04F01NewRoute
+  '/forms/sale-f01': typeof AuthenticatedFormsSaleF01IndexRoute
+  '/forms/sale-job04-f01': typeof AuthenticatedFormsSaleJob04F01IndexRoute
+  '/forms/sale-f01/$id/edit': typeof AuthenticatedFormsSaleF01IdEditRoute
+  '/forms/sale-job04-f01/$id/edit': typeof AuthenticatedFormsSaleJob04F01IdEditRoute
+  '/forms/sale-f01/$id': typeof AuthenticatedFormsSaleF01IdIndexRoute
+  '/forms/sale-job04-f01/$id': typeof AuthenticatedFormsSaleJob04F01IdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -248,17 +316,17 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_authenticated/companies': typeof AuthenticatedCompaniesRoute
   '/_authenticated/contacts': typeof AuthenticatedContactsRoute
+  '/_authenticated/my-dashboard': typeof AuthenticatedMyDashboardRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
-  '/_authenticated/contracts/create': typeof AuthenticatedContractsCreateRoute
-  '/_authenticated/contracts/expiring': typeof AuthenticatedContractsExpiringRoute
+  '/_authenticated/calendar/events': typeof AuthenticatedCalendarEventsRoute
   '/_authenticated/customers/create': typeof AuthenticatedCustomersCreateRoute
   '/_authenticated/forms/handover': typeof AuthenticatedFormsHandoverRoute
   '/_authenticated/forms/handover-photos': typeof AuthenticatedFormsHandoverPhotosRoute
   '/_authenticated/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/_authenticated/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
-  '/_authenticated/tasks/automation': typeof AuthenticatedTasksAutomationRoute
-  '/_authenticated/tasks/status-settings': typeof AuthenticatedTasksStatusSettingsRoute
-  '/_authenticated/tickets/create': typeof AuthenticatedTicketsCreateRoute
+  '/_authenticated/settings/activity-log': typeof AuthenticatedSettingsActivityLogRoute
+  '/_authenticated/settings/audit': typeof AuthenticatedSettingsAuditRoute
+  '/_authenticated/tasks/notifications': typeof AuthenticatedTasksNotificationsRoute
   '/_authenticated/units/availability': typeof AuthenticatedUnitsAvailabilityRoute
   '/_authenticated/units/by-project': typeof AuthenticatedUnitsByProjectRoute
   '/_authenticated/utilities/meter-reading': typeof AuthenticatedUtilitiesMeterReadingRoute
@@ -270,8 +338,14 @@ export interface FileRoutesById {
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
   '/_authenticated/tickets/': typeof AuthenticatedTicketsIndexRoute
   '/_authenticated/units/': typeof AuthenticatedUnitsIndexRoute
-  '/_authenticated/tasks/$taskId/edit': typeof AuthenticatedTasksTaskIdEditRoute
-  '/_authenticated/tasks/$taskId/': typeof AuthenticatedTasksTaskIdIndexRoute
+  '/_authenticated/forms/sale-f01/new': typeof AuthenticatedFormsSaleF01NewRoute
+  '/_authenticated/forms/sale-job04-f01/new': typeof AuthenticatedFormsSaleJob04F01NewRoute
+  '/_authenticated/forms/sale-f01/': typeof AuthenticatedFormsSaleF01IndexRoute
+  '/_authenticated/forms/sale-job04-f01/': typeof AuthenticatedFormsSaleJob04F01IndexRoute
+  '/_authenticated/forms/sale-f01/$id/edit': typeof AuthenticatedFormsSaleF01IdEditRoute
+  '/_authenticated/forms/sale-job04-f01/$id/edit': typeof AuthenticatedFormsSaleJob04F01IdEditRoute
+  '/_authenticated/forms/sale-f01/$id/': typeof AuthenticatedFormsSaleF01IdIndexRoute
+  '/_authenticated/forms/sale-job04-f01/$id/': typeof AuthenticatedFormsSaleJob04F01IdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -280,16 +354,16 @@ export interface FileRouteTypes {
     | '/login'
     | '/companies'
     | '/contacts'
-    | '/contracts/create'
-    | '/contracts/expiring'
+    | '/my-dashboard'
+    | '/calendar/events'
     | '/customers/create'
     | '/forms/handover'
     | '/forms/handover-photos'
     | '/projects/$projectId'
     | '/projects/dashboard'
-    | '/tasks/automation'
-    | '/tasks/status-settings'
-    | '/tickets/create'
+    | '/settings/activity-log'
+    | '/settings/audit'
+    | '/tasks/notifications'
     | '/units/availability'
     | '/units/by-project'
     | '/utilities/meter-reading'
@@ -301,24 +375,30 @@ export interface FileRouteTypes {
     | '/projects/'
     | '/tickets/'
     | '/units/'
-    | '/tasks/$taskId/edit'
-    | '/tasks/$taskId/'
+    | '/forms/sale-f01/new'
+    | '/forms/sale-job04-f01/new'
+    | '/forms/sale-f01/'
+    | '/forms/sale-job04-f01/'
+    | '/forms/sale-f01/$id/edit'
+    | '/forms/sale-job04-f01/$id/edit'
+    | '/forms/sale-f01/$id/'
+    | '/forms/sale-job04-f01/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
     | '/companies'
     | '/contacts'
+    | '/my-dashboard'
     | '/'
-    | '/contracts/create'
-    | '/contracts/expiring'
+    | '/calendar/events'
     | '/customers/create'
     | '/forms/handover'
     | '/forms/handover-photos'
     | '/projects/$projectId'
     | '/projects/dashboard'
-    | '/tasks/automation'
-    | '/tasks/status-settings'
-    | '/tickets/create'
+    | '/settings/activity-log'
+    | '/settings/audit'
+    | '/tasks/notifications'
     | '/units/availability'
     | '/units/by-project'
     | '/utilities/meter-reading'
@@ -330,25 +410,31 @@ export interface FileRouteTypes {
     | '/projects'
     | '/tickets'
     | '/units'
-    | '/tasks/$taskId/edit'
-    | '/tasks/$taskId'
+    | '/forms/sale-f01/new'
+    | '/forms/sale-job04-f01/new'
+    | '/forms/sale-f01'
+    | '/forms/sale-job04-f01'
+    | '/forms/sale-f01/$id/edit'
+    | '/forms/sale-job04-f01/$id/edit'
+    | '/forms/sale-f01/$id'
+    | '/forms/sale-job04-f01/$id'
   id:
     | '__root__'
     | '/_authenticated'
     | '/login'
     | '/_authenticated/companies'
     | '/_authenticated/contacts'
+    | '/_authenticated/my-dashboard'
     | '/_authenticated/'
-    | '/_authenticated/contracts/create'
-    | '/_authenticated/contracts/expiring'
+    | '/_authenticated/calendar/events'
     | '/_authenticated/customers/create'
     | '/_authenticated/forms/handover'
     | '/_authenticated/forms/handover-photos'
     | '/_authenticated/projects/$projectId'
     | '/_authenticated/projects/dashboard'
-    | '/_authenticated/tasks/automation'
-    | '/_authenticated/tasks/status-settings'
-    | '/_authenticated/tickets/create'
+    | '/_authenticated/settings/activity-log'
+    | '/_authenticated/settings/audit'
+    | '/_authenticated/tasks/notifications'
     | '/_authenticated/units/availability'
     | '/_authenticated/units/by-project'
     | '/_authenticated/utilities/meter-reading'
@@ -360,8 +446,14 @@ export interface FileRouteTypes {
     | '/_authenticated/projects/'
     | '/_authenticated/tickets/'
     | '/_authenticated/units/'
-    | '/_authenticated/tasks/$taskId/edit'
-    | '/_authenticated/tasks/$taskId/'
+    | '/_authenticated/forms/sale-f01/new'
+    | '/_authenticated/forms/sale-job04-f01/new'
+    | '/_authenticated/forms/sale-f01/'
+    | '/_authenticated/forms/sale-job04-f01/'
+    | '/_authenticated/forms/sale-f01/$id/edit'
+    | '/_authenticated/forms/sale-job04-f01/$id/edit'
+    | '/_authenticated/forms/sale-f01/$id/'
+    | '/_authenticated/forms/sale-job04-f01/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -390,6 +482,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/my-dashboard': {
+      id: '/_authenticated/my-dashboard'
+      path: '/my-dashboard'
+      fullPath: '/my-dashboard'
+      preLoaderRoute: typeof AuthenticatedMyDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/contacts': {
@@ -483,25 +582,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUnitsAvailabilityRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/tickets/create': {
-      id: '/_authenticated/tickets/create'
-      path: '/tickets/create'
-      fullPath: '/tickets/create'
-      preLoaderRoute: typeof AuthenticatedTicketsCreateRouteImport
+    '/_authenticated/tasks/notifications': {
+      id: '/_authenticated/tasks/notifications'
+      path: '/tasks/notifications'
+      fullPath: '/tasks/notifications'
+      preLoaderRoute: typeof AuthenticatedTasksNotificationsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/tasks/status-settings': {
-      id: '/_authenticated/tasks/status-settings'
-      path: '/tasks/status-settings'
-      fullPath: '/tasks/status-settings'
-      preLoaderRoute: typeof AuthenticatedTasksStatusSettingsRouteImport
+    '/_authenticated/settings/audit': {
+      id: '/_authenticated/settings/audit'
+      path: '/settings/audit'
+      fullPath: '/settings/audit'
+      preLoaderRoute: typeof AuthenticatedSettingsAuditRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/tasks/automation': {
-      id: '/_authenticated/tasks/automation'
-      path: '/tasks/automation'
-      fullPath: '/tasks/automation'
-      preLoaderRoute: typeof AuthenticatedTasksAutomationRouteImport
+    '/_authenticated/settings/activity-log': {
+      id: '/_authenticated/settings/activity-log'
+      path: '/settings/activity-log'
+      fullPath: '/settings/activity-log'
+      preLoaderRoute: typeof AuthenticatedSettingsActivityLogRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/projects/dashboard': {
@@ -539,18 +638,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCustomersCreateRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/tasks/$taskId/': {
-      id: '/_authenticated/tasks/$taskId/'
-      path: '/tasks/$taskId'
-      fullPath: '/tasks/$taskId/'
-      preLoaderRoute: typeof AuthenticatedTasksTaskIdIndexRouteImport
+    '/_authenticated/calendar/events': {
+      id: '/_authenticated/calendar/events'
+      path: '/calendar/events'
+      fullPath: '/calendar/events'
+      preLoaderRoute: typeof AuthenticatedCalendarEventsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/tasks/$taskId/edit': {
-      id: '/_authenticated/tasks/$taskId/edit'
-      path: '/tasks/$taskId/edit'
-      fullPath: '/tasks/$taskId/edit'
-      preLoaderRoute: typeof AuthenticatedTasksTaskIdEditRouteImport
+    '/_authenticated/forms/sale-job04-f01/': {
+      id: '/_authenticated/forms/sale-job04-f01/'
+      path: '/forms/sale-job04-f01'
+      fullPath: '/forms/sale-job04-f01/'
+      preLoaderRoute: typeof AuthenticatedFormsSaleJob04F01IndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/forms/sale-f01/': {
+      id: '/_authenticated/forms/sale-f01/'
+      path: '/forms/sale-f01'
+      fullPath: '/forms/sale-f01/'
+      preLoaderRoute: typeof AuthenticatedFormsSaleF01IndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/forms/sale-job04-f01/new': {
+      id: '/_authenticated/forms/sale-job04-f01/new'
+      path: '/forms/sale-job04-f01/new'
+      fullPath: '/forms/sale-job04-f01/new'
+      preLoaderRoute: typeof AuthenticatedFormsSaleJob04F01NewRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/forms/sale-f01/new': {
+      id: '/_authenticated/forms/sale-f01/new'
+      path: '/forms/sale-f01/new'
+      fullPath: '/forms/sale-f01/new'
+      preLoaderRoute: typeof AuthenticatedFormsSaleF01NewRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/forms/sale-job04-f01/$id/': {
+      id: '/_authenticated/forms/sale-job04-f01/$id/'
+      path: '/forms/sale-job04-f01/$id'
+      fullPath: '/forms/sale-job04-f01/$id/'
+      preLoaderRoute: typeof AuthenticatedFormsSaleJob04F01IdIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/forms/sale-f01/$id/': {
+      id: '/_authenticated/forms/sale-f01/$id/'
+      path: '/forms/sale-f01/$id'
+      fullPath: '/forms/sale-f01/$id/'
+      preLoaderRoute: typeof AuthenticatedFormsSaleF01IdIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/forms/sale-job04-f01/$id/edit': {
+      id: '/_authenticated/forms/sale-job04-f01/$id/edit'
+      path: '/forms/sale-job04-f01/$id/edit'
+      fullPath: '/forms/sale-job04-f01/$id/edit'
+      preLoaderRoute: typeof AuthenticatedFormsSaleJob04F01IdEditRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/forms/sale-f01/$id/edit': {
+      id: '/_authenticated/forms/sale-f01/$id/edit'
+      path: '/forms/sale-f01/$id/edit'
+      fullPath: '/forms/sale-f01/$id/edit'
+      preLoaderRoute: typeof AuthenticatedFormsSaleF01IdEditRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
   }
@@ -559,17 +707,17 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteChildren {
   AuthenticatedCompaniesRoute: typeof AuthenticatedCompaniesRoute
   AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
+  AuthenticatedMyDashboardRoute: typeof AuthenticatedMyDashboardRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
-  AuthenticatedContractsCreateRoute: typeof AuthenticatedContractsCreateRoute
-  AuthenticatedContractsExpiringRoute: typeof AuthenticatedContractsExpiringRoute
+  AuthenticatedCalendarEventsRoute: typeof AuthenticatedCalendarEventsRoute
   AuthenticatedCustomersCreateRoute: typeof AuthenticatedCustomersCreateRoute
   AuthenticatedFormsHandoverRoute: typeof AuthenticatedFormsHandoverRoute
   AuthenticatedFormsHandoverPhotosRoute: typeof AuthenticatedFormsHandoverPhotosRoute
   AuthenticatedProjectsProjectIdRoute: typeof AuthenticatedProjectsProjectIdRoute
   AuthenticatedProjectsDashboardRoute: typeof AuthenticatedProjectsDashboardRoute
-  AuthenticatedTasksAutomationRoute: typeof AuthenticatedTasksAutomationRoute
-  AuthenticatedTasksStatusSettingsRoute: typeof AuthenticatedTasksStatusSettingsRoute
-  AuthenticatedTicketsCreateRoute: typeof AuthenticatedTicketsCreateRoute
+  AuthenticatedSettingsActivityLogRoute: typeof AuthenticatedSettingsActivityLogRoute
+  AuthenticatedSettingsAuditRoute: typeof AuthenticatedSettingsAuditRoute
+  AuthenticatedTasksNotificationsRoute: typeof AuthenticatedTasksNotificationsRoute
   AuthenticatedUnitsAvailabilityRoute: typeof AuthenticatedUnitsAvailabilityRoute
   AuthenticatedUnitsByProjectRoute: typeof AuthenticatedUnitsByProjectRoute
   AuthenticatedUtilitiesMeterReadingRoute: typeof AuthenticatedUtilitiesMeterReadingRoute
@@ -581,24 +729,30 @@ interface AuthenticatedRouteChildren {
   AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
   AuthenticatedTicketsIndexRoute: typeof AuthenticatedTicketsIndexRoute
   AuthenticatedUnitsIndexRoute: typeof AuthenticatedUnitsIndexRoute
-  AuthenticatedTasksTaskIdEditRoute: typeof AuthenticatedTasksTaskIdEditRoute
-  AuthenticatedTasksTaskIdIndexRoute: typeof AuthenticatedTasksTaskIdIndexRoute
+  AuthenticatedFormsSaleF01NewRoute: typeof AuthenticatedFormsSaleF01NewRoute
+  AuthenticatedFormsSaleJob04F01NewRoute: typeof AuthenticatedFormsSaleJob04F01NewRoute
+  AuthenticatedFormsSaleF01IndexRoute: typeof AuthenticatedFormsSaleF01IndexRoute
+  AuthenticatedFormsSaleJob04F01IndexRoute: typeof AuthenticatedFormsSaleJob04F01IndexRoute
+  AuthenticatedFormsSaleF01IdEditRoute: typeof AuthenticatedFormsSaleF01IdEditRoute
+  AuthenticatedFormsSaleJob04F01IdEditRoute: typeof AuthenticatedFormsSaleJob04F01IdEditRoute
+  AuthenticatedFormsSaleF01IdIndexRoute: typeof AuthenticatedFormsSaleF01IdIndexRoute
+  AuthenticatedFormsSaleJob04F01IdIndexRoute: typeof AuthenticatedFormsSaleJob04F01IdIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCompaniesRoute: AuthenticatedCompaniesRoute,
   AuthenticatedContactsRoute: AuthenticatedContactsRoute,
+  AuthenticatedMyDashboardRoute: AuthenticatedMyDashboardRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
-  AuthenticatedContractsCreateRoute: AuthenticatedContractsCreateRoute,
-  AuthenticatedContractsExpiringRoute: AuthenticatedContractsExpiringRoute,
+  AuthenticatedCalendarEventsRoute: AuthenticatedCalendarEventsRoute,
   AuthenticatedCustomersCreateRoute: AuthenticatedCustomersCreateRoute,
   AuthenticatedFormsHandoverRoute: AuthenticatedFormsHandoverRoute,
   AuthenticatedFormsHandoverPhotosRoute: AuthenticatedFormsHandoverPhotosRoute,
   AuthenticatedProjectsProjectIdRoute: AuthenticatedProjectsProjectIdRoute,
   AuthenticatedProjectsDashboardRoute: AuthenticatedProjectsDashboardRoute,
-  AuthenticatedTasksAutomationRoute: AuthenticatedTasksAutomationRoute,
-  AuthenticatedTasksStatusSettingsRoute: AuthenticatedTasksStatusSettingsRoute,
-  AuthenticatedTicketsCreateRoute: AuthenticatedTicketsCreateRoute,
+  AuthenticatedSettingsActivityLogRoute: AuthenticatedSettingsActivityLogRoute,
+  AuthenticatedSettingsAuditRoute: AuthenticatedSettingsAuditRoute,
+  AuthenticatedTasksNotificationsRoute: AuthenticatedTasksNotificationsRoute,
   AuthenticatedUnitsAvailabilityRoute: AuthenticatedUnitsAvailabilityRoute,
   AuthenticatedUnitsByProjectRoute: AuthenticatedUnitsByProjectRoute,
   AuthenticatedUtilitiesMeterReadingRoute:
@@ -611,8 +765,18 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
   AuthenticatedTicketsIndexRoute: AuthenticatedTicketsIndexRoute,
   AuthenticatedUnitsIndexRoute: AuthenticatedUnitsIndexRoute,
-  AuthenticatedTasksTaskIdEditRoute: AuthenticatedTasksTaskIdEditRoute,
-  AuthenticatedTasksTaskIdIndexRoute: AuthenticatedTasksTaskIdIndexRoute,
+  AuthenticatedFormsSaleF01NewRoute: AuthenticatedFormsSaleF01NewRoute,
+  AuthenticatedFormsSaleJob04F01NewRoute:
+    AuthenticatedFormsSaleJob04F01NewRoute,
+  AuthenticatedFormsSaleF01IndexRoute: AuthenticatedFormsSaleF01IndexRoute,
+  AuthenticatedFormsSaleJob04F01IndexRoute:
+    AuthenticatedFormsSaleJob04F01IndexRoute,
+  AuthenticatedFormsSaleF01IdEditRoute: AuthenticatedFormsSaleF01IdEditRoute,
+  AuthenticatedFormsSaleJob04F01IdEditRoute:
+    AuthenticatedFormsSaleJob04F01IdEditRoute,
+  AuthenticatedFormsSaleF01IdIndexRoute: AuthenticatedFormsSaleF01IdIndexRoute,
+  AuthenticatedFormsSaleJob04F01IdIndexRoute:
+    AuthenticatedFormsSaleJob04F01IdIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
