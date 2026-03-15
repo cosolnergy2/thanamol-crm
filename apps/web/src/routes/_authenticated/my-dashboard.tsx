@@ -146,7 +146,7 @@ function MyDashboardPage() {
                 <Clock className="w-4 h-4 mr-2 text-teal-600" />
                 Upcoming Meetings
               </CardTitle>
-              <Link to="/meetings">
+              <Link to="/calendar/events">
                 <Button variant="ghost" size="sm" className="h-7 text-[10px] text-teal-600">
                   View all
                   <ChevronRight className="w-3 h-3 ml-1" />

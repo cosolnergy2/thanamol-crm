@@ -32,10 +32,10 @@ import {
   useUpdateTaskStatus,
   useDeleteTaskStatus,
 } from '@/hooks/useTaskConfig'
-import type { TaskStatus, CreateTaskStatusRequest } from '@thanamol/shared'
+import type { TaskStatusConfig, CreateTaskStatusRequest } from '@thanamol/shared'
 
 export const Route = createFileRoute('/_authenticated/tasks/status-settings')({
-  component: TaskStatusSettingsPage,
+  component: TaskStatusConfigSettingsPage,
 })
 
 type StatusFormValues = {
@@ -54,9 +54,9 @@ const EMPTY_FORM: StatusFormValues = {
   isClosed: false,
 }
 
-function TaskStatusSettingsPage() {
+function TaskStatusConfigSettingsPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [editingStatus, setEditingStatus] = useState<TaskStatus | null>(null)
+  const [editingStatus, setEditingStatus] = useState<TaskStatusConfig | null>(null)
   const [form, setForm] = useState<StatusFormValues>(EMPTY_FORM)
   const [formError, setFormError] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
@@ -75,7 +75,7 @@ function TaskStatusSettingsPage() {
     setDialogOpen(true)
   }
 
-  function openEditDialog(status: TaskStatus) {
+  function openEditDialog(status: TaskStatusConfig) {
     setEditingStatus(status)
     setForm({
       name: status.name,

@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api-client'
 import type {
   Contract,
+  ContractWithRelations,
   ContractListResponse,
   ContractQueryParams,
   ContractStatus,
@@ -56,7 +57,7 @@ export function useContracts(params: ContractQueryParams = {}) {
 export function useContractById(id: string) {
   return useQuery({
     queryKey: CONTRACT_QUERY_KEYS.detail(id),
-    queryFn: () => apiGet<{ contract: Contract }>(`/contracts/${id}`),
+    queryFn: () => apiGet<{ contract: ContractWithRelations }>(`/contracts/${id}`),
     enabled: !!id,
   })
 }
@@ -71,7 +72,8 @@ export function usePendingContracts() {
 export function useExpiringContracts(days = 30) {
   return useQuery({
     queryKey: CONTRACT_QUERY_KEYS.expiring(days),
-    queryFn: () => apiGet<{ data: Contract[]; total: number }>(`/contracts/expiring?days=${days}`),
+    queryFn: () =>
+      apiGet<{ data: ContractWithRelations[]; total: number }>(`/contracts/expiring?days=${days}`),
   })
 }
 

@@ -102,13 +102,13 @@ function UtilityReportPage() {
   const summaries = buildUnitSummaries(records)
 
   const totalUsage = records.reduce((sum, r) => sum + r.usage, 0)
-  const totalAmount = records.reduce((sum, r) => sum + r.amount, 0)
+  const totalAmount = records.reduce((sum: number, r: MeterRecord) => sum + r.amount, 0)
   const usageByType = METER_TYPES.reduce(
     (acc, type) => {
-      const typeRecords = records.filter((r) => r.meter_type === type)
+      const typeRecords = records.filter((r: MeterRecord) => r.meter_type === type)
       acc[type] = {
-        usage: typeRecords.reduce((s, r) => s + r.usage, 0),
-        amount: typeRecords.reduce((s, r) => s + r.amount, 0),
+        usage: typeRecords.reduce((s: number, r: MeterRecord) => s + r.usage, 0),
+        amount: typeRecords.reduce((s: number, r: MeterRecord) => s + r.amount, 0),
         count: typeRecords.length,
       }
       return acc

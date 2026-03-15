@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api-client'
 import type {
   TaskStatusListResponse,
-  TaskStatus,
+  TaskStatusConfig,
   CreateTaskStatusRequest,
   UpdateTaskStatusRequest,
   AutomationRuleListResponse,
@@ -21,7 +21,7 @@ export function useTaskStatuses() {
 export function useCreateTaskStatus() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (data: CreateTaskStatusRequest) => apiPost<TaskStatus>('/task-statuses', data),
+    mutationFn: (data: CreateTaskStatusRequest) => apiPost<TaskStatusConfig>('/task-statuses', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['task-statuses'] })
     },
@@ -32,7 +32,7 @@ export function useUpdateTaskStatus() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateTaskStatusRequest }) =>
-      apiPut<TaskStatus>(`/task-statuses/${id}`, data),
+      apiPut<TaskStatusConfig>(`/task-statuses/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['task-statuses'] })
     },
