@@ -22,6 +22,11 @@ import { Route as AuthenticatedUnitsAvailabilityRouteImport } from './routes/_au
 import { Route as AuthenticatedProjectsDashboardRouteImport } from './routes/_authenticated/projects/dashboard'
 import { Route as AuthenticatedProjectsProjectIdRouteImport } from './routes/_authenticated/projects/$projectId'
 import { Route as AuthenticatedCustomersCreateRouteImport } from './routes/_authenticated/customers/create'
+import { Route as AuthenticatedFormsSaleJob02F01IndexRouteImport } from './routes/_authenticated/forms/sale-job02-f01/index'
+import { Route as AuthenticatedFormsSaleJob02F01NewRouteImport } from './routes/_authenticated/forms/sale-job02-f01/new'
+import { Route as AuthenticatedFormsSaleJob02F01IdIndexRouteImport } from './routes/_authenticated/forms/sale-job02-f01/$id/index'
+import { Route as AuthenticatedFormsSaleJob02F01IdPrintRouteImport } from './routes/_authenticated/forms/sale-job02-f01/$id/print'
+import { Route as AuthenticatedFormsSaleJob02F01IdEditRouteImport } from './routes/_authenticated/forms/sale-job02-f01/$id/edit'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -94,6 +99,36 @@ const AuthenticatedCustomersCreateRoute =
     path: '/customers/create',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFormsSaleJob02F01IndexRoute =
+  AuthenticatedFormsSaleJob02F01IndexRouteImport.update({
+    id: '/forms/sale-job02-f01/',
+    path: '/forms/sale-job02-f01/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFormsSaleJob02F01NewRoute =
+  AuthenticatedFormsSaleJob02F01NewRouteImport.update({
+    id: '/forms/sale-job02-f01/new',
+    path: '/forms/sale-job02-f01/new',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFormsSaleJob02F01IdIndexRoute =
+  AuthenticatedFormsSaleJob02F01IdIndexRouteImport.update({
+    id: '/forms/sale-job02-f01/$id/',
+    path: '/forms/sale-job02-f01/$id/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFormsSaleJob02F01IdPrintRoute =
+  AuthenticatedFormsSaleJob02F01IdPrintRouteImport.update({
+    id: '/forms/sale-job02-f01/$id/print',
+    path: '/forms/sale-job02-f01/$id/print',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFormsSaleJob02F01IdEditRoute =
+  AuthenticatedFormsSaleJob02F01IdEditRouteImport.update({
+    id: '/forms/sale-job02-f01/$id/edit',
+    path: '/forms/sale-job02-f01/$id/edit',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -108,6 +143,11 @@ export interface FileRoutesByFullPath {
   '/customers/': typeof AuthenticatedCustomersIndexRoute
   '/projects/': typeof AuthenticatedProjectsIndexRoute
   '/units/': typeof AuthenticatedUnitsIndexRoute
+  '/forms/sale-job02-f01/new': typeof AuthenticatedFormsSaleJob02F01NewRoute
+  '/forms/sale-job02-f01/': typeof AuthenticatedFormsSaleJob02F01IndexRoute
+  '/forms/sale-job02-f01/$id/edit': typeof AuthenticatedFormsSaleJob02F01IdEditRoute
+  '/forms/sale-job02-f01/$id/print': typeof AuthenticatedFormsSaleJob02F01IdPrintRoute
+  '/forms/sale-job02-f01/$id/': typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -122,6 +162,11 @@ export interface FileRoutesByTo {
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/projects': typeof AuthenticatedProjectsIndexRoute
   '/units': typeof AuthenticatedUnitsIndexRoute
+  '/forms/sale-job02-f01/new': typeof AuthenticatedFormsSaleJob02F01NewRoute
+  '/forms/sale-job02-f01': typeof AuthenticatedFormsSaleJob02F01IndexRoute
+  '/forms/sale-job02-f01/$id/edit': typeof AuthenticatedFormsSaleJob02F01IdEditRoute
+  '/forms/sale-job02-f01/$id/print': typeof AuthenticatedFormsSaleJob02F01IdPrintRoute
+  '/forms/sale-job02-f01/$id': typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -138,6 +183,11 @@ export interface FileRoutesById {
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
   '/_authenticated/units/': typeof AuthenticatedUnitsIndexRoute
+  '/_authenticated/forms/sale-job02-f01/new': typeof AuthenticatedFormsSaleJob02F01NewRoute
+  '/_authenticated/forms/sale-job02-f01/': typeof AuthenticatedFormsSaleJob02F01IndexRoute
+  '/_authenticated/forms/sale-job02-f01/$id/edit': typeof AuthenticatedFormsSaleJob02F01IdEditRoute
+  '/_authenticated/forms/sale-job02-f01/$id/print': typeof AuthenticatedFormsSaleJob02F01IdPrintRoute
+  '/_authenticated/forms/sale-job02-f01/$id/': typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -154,6 +204,11 @@ export interface FileRouteTypes {
     | '/customers/'
     | '/projects/'
     | '/units/'
+    | '/forms/sale-job02-f01/new'
+    | '/forms/sale-job02-f01/'
+    | '/forms/sale-job02-f01/$id/edit'
+    | '/forms/sale-job02-f01/$id/print'
+    | '/forms/sale-job02-f01/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -168,6 +223,11 @@ export interface FileRouteTypes {
     | '/customers'
     | '/projects'
     | '/units'
+    | '/forms/sale-job02-f01/new'
+    | '/forms/sale-job02-f01'
+    | '/forms/sale-job02-f01/$id/edit'
+    | '/forms/sale-job02-f01/$id/print'
+    | '/forms/sale-job02-f01/$id'
   id:
     | '__root__'
     | '/_authenticated'
@@ -183,6 +243,11 @@ export interface FileRouteTypes {
     | '/_authenticated/customers/'
     | '/_authenticated/projects/'
     | '/_authenticated/units/'
+    | '/_authenticated/forms/sale-job02-f01/new'
+    | '/_authenticated/forms/sale-job02-f01/'
+    | '/_authenticated/forms/sale-job02-f01/$id/edit'
+    | '/_authenticated/forms/sale-job02-f01/$id/print'
+    | '/_authenticated/forms/sale-job02-f01/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -283,6 +348,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCustomersCreateRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/forms/sale-job02-f01/': {
+      id: '/_authenticated/forms/sale-job02-f01/'
+      path: '/forms/sale-job02-f01'
+      fullPath: '/forms/sale-job02-f01/'
+      preLoaderRoute: typeof AuthenticatedFormsSaleJob02F01IndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/forms/sale-job02-f01/new': {
+      id: '/_authenticated/forms/sale-job02-f01/new'
+      path: '/forms/sale-job02-f01/new'
+      fullPath: '/forms/sale-job02-f01/new'
+      preLoaderRoute: typeof AuthenticatedFormsSaleJob02F01NewRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/forms/sale-job02-f01/$id/': {
+      id: '/_authenticated/forms/sale-job02-f01/$id/'
+      path: '/forms/sale-job02-f01/$id'
+      fullPath: '/forms/sale-job02-f01/$id/'
+      preLoaderRoute: typeof AuthenticatedFormsSaleJob02F01IdIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/forms/sale-job02-f01/$id/print': {
+      id: '/_authenticated/forms/sale-job02-f01/$id/print'
+      path: '/forms/sale-job02-f01/$id/print'
+      fullPath: '/forms/sale-job02-f01/$id/print'
+      preLoaderRoute: typeof AuthenticatedFormsSaleJob02F01IdPrintRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/forms/sale-job02-f01/$id/edit': {
+      id: '/_authenticated/forms/sale-job02-f01/$id/edit'
+      path: '/forms/sale-job02-f01/$id/edit'
+      fullPath: '/forms/sale-job02-f01/$id/edit'
+      preLoaderRoute: typeof AuthenticatedFormsSaleJob02F01IdEditRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
@@ -298,6 +398,11 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCustomersIndexRoute: typeof AuthenticatedCustomersIndexRoute
   AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
   AuthenticatedUnitsIndexRoute: typeof AuthenticatedUnitsIndexRoute
+  AuthenticatedFormsSaleJob02F01NewRoute: typeof AuthenticatedFormsSaleJob02F01NewRoute
+  AuthenticatedFormsSaleJob02F01IndexRoute: typeof AuthenticatedFormsSaleJob02F01IndexRoute
+  AuthenticatedFormsSaleJob02F01IdEditRoute: typeof AuthenticatedFormsSaleJob02F01IdEditRoute
+  AuthenticatedFormsSaleJob02F01IdPrintRoute: typeof AuthenticatedFormsSaleJob02F01IdPrintRoute
+  AuthenticatedFormsSaleJob02F01IdIndexRoute: typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -312,6 +417,16 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCustomersIndexRoute: AuthenticatedCustomersIndexRoute,
   AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
   AuthenticatedUnitsIndexRoute: AuthenticatedUnitsIndexRoute,
+  AuthenticatedFormsSaleJob02F01NewRoute:
+    AuthenticatedFormsSaleJob02F01NewRoute,
+  AuthenticatedFormsSaleJob02F01IndexRoute:
+    AuthenticatedFormsSaleJob02F01IndexRoute,
+  AuthenticatedFormsSaleJob02F01IdEditRoute:
+    AuthenticatedFormsSaleJob02F01IdEditRoute,
+  AuthenticatedFormsSaleJob02F01IdPrintRoute:
+    AuthenticatedFormsSaleJob02F01IdPrintRoute,
+  AuthenticatedFormsSaleJob02F01IdIndexRoute:
+    AuthenticatedFormsSaleJob02F01IdIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

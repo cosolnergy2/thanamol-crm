@@ -482,3 +482,80 @@ export type CreateCommercialQuotationRequest = {
 }
 
 export type UpdateCommercialQuotationRequest = Partial<CreateCommercialQuotationRequest>
+
+// ─── Contract ─────────────────────────────────────────────────────────────────
+
+export type ContractType = 'SALE' | 'LEASE' | 'RENTAL'
+export type ContractStatus =
+  | 'DRAFT'
+  | 'PENDING_APPROVAL'
+  | 'APPROVED'
+  | 'ACTIVE'
+  | 'EXPIRED'
+  | 'TERMINATED'
+  | 'CANCELLED'
+
+export type Contract = {
+  id: string
+  contract_number: string
+  customer_id: string
+  project_id: string
+  unit_id: string | null
+  quotation_id: string | null
+  type: ContractType
+  start_date: string
+  end_date: string | null
+  value: number
+  monthly_rent: number | null
+  deposit_amount: number | null
+  terms: string | null
+  status: ContractStatus
+  approved_by: string | null
+  created_by: string
+  created_at: string
+  updated_at: string
+}
+
+export type ContractListResponse = PaginatedResponse<Contract>
+
+export type ContractQueryParams = {
+  page?: number
+  limit?: number
+  status?: ContractStatus | 'all'
+  type?: ContractType | 'all'
+  customerId?: string
+  projectId?: string
+}
+
+// ─── LeaseAgreement ───────────────────────────────────────────────────────────
+
+export type LeaseStatus = 'DRAFT' | 'ACTIVE' | 'EXPIRED' | 'TERMINATED'
+
+export type LeaseAgreement = {
+  id: string
+  contract_id: string
+  lease_terms: Record<string, unknown>
+  special_conditions: string | null
+  status: LeaseStatus
+  created_at: string
+  updated_at: string
+}
+
+export type LeaseAgreementWithContract = LeaseAgreement & {
+  contract: Pick<Contract, 'id' | 'contract_number' | 'type' | 'status'>
+}
+
+export type CreateLeaseAgreementRequest = {
+  contractId: string
+  leaseTerms?: Record<string, unknown>
+  specialConditions?: string
+  status?: LeaseStatus
+}
+
+export type UpdateLeaseAgreementRequest = {
+  leaseTerms?: Record<string, unknown>
+  specialConditions?: string
+  status?: LeaseStatus
+}
+
+export type LeaseAgreementListResponse = PaginatedResponse<LeaseAgreementWithContract>
