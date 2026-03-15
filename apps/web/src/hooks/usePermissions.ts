@@ -20,7 +20,7 @@ export function usePermissions(): UsePermissionsResult {
     queryKey: ['permissions', userId],
     queryFn: () => apiGet<UserPermissionsResponse>(`/users/${userId}/permissions`),
     enabled: Boolean(userId),
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 1000,
   })
 
   const permissions = data?.permissions ?? {}

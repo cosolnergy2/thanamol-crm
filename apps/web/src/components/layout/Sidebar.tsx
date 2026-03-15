@@ -238,28 +238,59 @@ function buildNavigation(t: ReturnType<typeof useLanguage>['t']): NavItem[] {
 
 const ADMIN_ROLE = 'admin'
 
-function userHasPermission(user: AuthUser | null, permission: string): boolean {
+// Maps sidebar permission keys to role permission keys
+const PERMISSION_MAP: Record<string, string[]> = {
+  dashboard: [],  // everyone can see dashboard
+  projects: ['manage_projects'],
+  customers: ['manage_projects'],
+  leads_deals: ['manage_projects'],
+  units: ['manage_projects'],
+  quotations: ['manage_contracts'],
+  contracts: ['manage_contracts'],
+  finance: ['manage_finance'],
+  utilities: ['manage_projects'],
+  service: ['manage_projects'],
+  documents: ['manage_documents'],
+  reports: ['view_reports'],
+  settings: ['manage_settings', 'manage_users', 'manage_roles'],
+}
+
+function userHasPermission(
+  user: AuthUser | null,
+  permission: string,
+  userPermissions?: Record<string, boolean>,
+): boolean {
   if (!user) return false
-  if (user.roles.some((r) => r.name === ADMIN_ROLE)) return true
-  return user.roles.some((r) => r.name === permission)
+  if (user.roles.some((r) => r.name.toLowerCase() === ADMIN_ROLE)) return true
+
+  // If no permissions loaded yet, show all items (will re-render when loaded)
+  if (!userPermissions) return true
+
+  const requiredPerms = PERMISSION_MAP[permission]
+  // No specific permission required (e.g. dashboard) — show to all
+  if (!requiredPerms || requiredPerms.length === 0) return true
+
+  // User needs at least one of the mapped permissions
+  return requiredPerms.some((p) => userPermissions[p] === true)
 }
 
 type SidebarProps = {
   user: AuthUser | null
+  userPermissions?: Record<string, boolean>
   isOpen: boolean
   isCollapsed: boolean
   onClose: () => void
   onLogout: () => void
 }
 
-export function Sidebar({ user, isOpen, isCollapsed, onClose, onLogout }: SidebarProps) {
+export function Sidebar({ user, userPermissions, isOpen, isCollapsed, onClose, onLogout }: SidebarProps) {
   const { t } = useLanguage()
   const routerState = useRouterState()
   const currentPath = routerState.location.pathname
   const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({})
 
   const navigation = buildNavigation(t).filter((item) =>
-    userHasPermission(user, item.permission),
+    userHasPermission(user, item.permission, userPermissions),
   )
 
   function isPathActive(path: string): boolean {

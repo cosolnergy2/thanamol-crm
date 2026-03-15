@@ -1,7 +1,9 @@
-import { PrismaClient } from "../generated/prisma";
+import { PrismaClient } from "../generated/prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcryptjs";
 
-const prisma = new PrismaClient();
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL ?? "" });
+const prisma = new PrismaClient({ adapter });
 
 const PASSWORD_SALT_ROUNDS = 10;
 const DEFAULT_PASSWORD = "password123";
@@ -26,8 +28,10 @@ const ROLE_USER = {
   description: "Read/write permissions scoped to assigned resources",
   permissions: {
     view_reports: true,
+    manage_projects: true,
     manage_contracts: false,
     manage_finance: false,
+    manage_documents: true,
   },
 };
 

@@ -4,6 +4,7 @@ import { useAuth } from '@/providers/AuthProvider'
 import { LanguageProvider } from '@/providers/LanguageProvider'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { TopBar } from '@/components/layout/TopBar'
+import { usePermissions } from '@/hooks/usePermissions'
 
 export const Route = createFileRoute('/_authenticated')({
   component: AuthenticatedLayout,
@@ -12,6 +13,7 @@ export const Route = createFileRoute('/_authenticated')({
 function AuthenticatedLayout() {
   const { isAuthenticated, isLoading, currentUser, logout } = useAuth()
   const navigate = useNavigate()
+  const { permissions } = usePermissions()
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
@@ -41,6 +43,7 @@ function AuthenticatedLayout() {
       <div className="min-h-screen bg-slate-50">
         <Sidebar
           user={currentUser}
+          userPermissions={permissions}
           isOpen={isMobileSidebarOpen}
           isCollapsed={isSidebarCollapsed}
           onClose={() => setIsMobileSidebarOpen(false)}

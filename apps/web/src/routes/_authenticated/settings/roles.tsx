@@ -36,35 +36,21 @@ type Role = {
 
 const PERMISSION_GROUPS: Array<{ group: string; items: Array<{ key: string; label: string }> }> = [
   {
-    group: 'CRM',
+    group: 'Navigation',
     items: [
-      { key: 'view_customers', label: 'View Customers' },
-      { key: 'manage_customers', label: 'Manage Customers' },
-      { key: 'view_leads', label: 'View Leads' },
-      { key: 'manage_leads', label: 'Manage Leads' },
+      { key: 'manage_projects', label: 'Projects / Customers / Leads / Units / Utilities' },
+      { key: 'manage_contracts', label: 'Quotations / Contracts' },
+      { key: 'manage_finance', label: 'Finance (Invoices, Payments, Deposits)' },
+      { key: 'manage_documents', label: 'Documents / Meetings' },
+      { key: 'view_reports', label: 'Reports' },
     ],
   },
   {
-    group: 'Sales',
+    group: 'Administration',
     items: [
-      { key: 'view_deals', label: 'View Deals' },
-      { key: 'manage_deals', label: 'Manage Deals' },
-      { key: 'manage_contracts', label: 'Manage Contracts' },
-    ],
-  },
-  {
-    group: 'Finance',
-    items: [
-      { key: 'view_invoices', label: 'View Invoices' },
-      { key: 'manage_invoices', label: 'Manage Invoices' },
-    ],
-  },
-  {
-    group: 'System',
-    items: [
-      { key: 'manage_roles', label: 'Manage Roles' },
       { key: 'manage_users', label: 'Manage Users' },
-      { key: 'view_reports', label: 'View Reports' },
+      { key: 'manage_roles', label: 'Manage Roles' },
+      { key: 'manage_settings', label: 'Settings (System, Export, Automation)' },
     ],
   },
 ]
@@ -108,7 +94,8 @@ function SettingsRolesPage() {
       apiPut<{ role: Role }>(`/roles/${id}`, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['roles'] })
-      toast.success('Role updated')
+      queryClient.invalidateQueries({ queryKey: ['permissions'] })
+      toast.success('Role updated — sidebar will refresh')
       closeDialog()
     },
     onError: (err) => setFormError(err instanceof Error ? err.message : 'Failed to update role'),
