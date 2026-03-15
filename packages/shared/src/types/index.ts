@@ -483,90 +483,6 @@ export type CreateCommercialQuotationRequest = {
 
 export type UpdateCommercialQuotationRequest = Partial<CreateCommercialQuotationRequest>
 
-// ─── Contract ─────────────────────────────────────────────────────────────────
-
-export type ContractType = 'SALE' | 'LEASE' | 'RENTAL'
-export type ContractStatus =
-  | 'DRAFT'
-  | 'PENDING_APPROVAL'
-  | 'APPROVED'
-  | 'ACTIVE'
-  | 'EXPIRED'
-  | 'TERMINATED'
-  | 'CANCELLED'
-
-export type Contract = {
-  id: string
-  contract_number: string
-  customer_id: string
-  project_id: string
-  unit_id: string | null
-  quotation_id: string | null
-  type: ContractType
-  start_date: string
-  end_date: string | null
-  value: number
-  monthly_rent: number | null
-  deposit_amount: number | null
-  terms: string | null
-  status: ContractStatus
-  approved_by: string | null
-  created_by: string
-  created_at: string
-  updated_at: string
-  customer?: { id: string; name: string; email: string; phone: string | null } | null
-  project?: { id: string; name: string; code: string } | null
-  unit?: { id: string; unit_number: string; floor: number | null; building: string | null } | null
-  quotation?: { id: string; quotation_number: string } | null
-  creator?: { id: string; first_name: string; last_name: string } | null
-  approver?: { id: string; first_name: string; last_name: string } | null
-  daysUntilExpiry?: number
-}
-
-export type ContractListResponse = PaginatedResponse<Contract>
-
-export type ContractQueryParams = {
-  page?: number
-  limit?: number
-  status?: ContractStatus | 'all'
-  type?: ContractType | 'all'
-  customerId?: string
-  projectId?: string
-}
-
-// ─── LeaseAgreement ───────────────────────────────────────────────────────────
-
-export type LeaseStatus = 'DRAFT' | 'ACTIVE' | 'EXPIRED' | 'TERMINATED'
-
-export type LeaseAgreement = {
-  id: string
-  contract_id: string
-  lease_terms: Record<string, unknown>
-  special_conditions: string | null
-  status: LeaseStatus
-  created_at: string
-  updated_at: string
-}
-
-export type LeaseAgreementWithContract = LeaseAgreement & {
-  contract: Pick<Contract, 'id' | 'contract_number' | 'type' | 'status'>
-}
-
-export type CreateLeaseAgreementRequest = {
-  contractId: string
-  leaseTerms?: Record<string, unknown>
-  specialConditions?: string
-  status?: LeaseStatus
-}
-
-export type UpdateLeaseAgreementRequest = {
-  leaseTerms?: Record<string, unknown>
-  specialConditions?: string
-  status?: LeaseStatus
-}
-
-export type LeaseAgreementListResponse = PaginatedResponse<LeaseAgreementWithContract>
-
 // ─── Invoice ──────────────────────────────────────────────────────────────────
 
 export type InvoiceStatus = 'DRAFT' | 'SENT' | 'PAID' | 'OVERDUE' | 'CANCELLED' | 'PARTIAL'
@@ -598,7 +514,7 @@ export type Invoice = {
 
 export type InvoiceWithRelations = Invoice & {
   customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'>
-  contract: Pick<Contract, 'id' | 'contract_number' | 'type' | 'status'> | null
+  contract: { id: string; contract_number: string; type: string; status: string } | null
   creator: { id: string; first_name: string; last_name: string }
 }
 
@@ -693,7 +609,7 @@ export type Deposit = {
 }
 
 export type DepositWithRelations = Deposit & {
-  contract: Pick<Contract, 'id' | 'contract_number' | 'type' | 'status'>
+  contract: { id: string; contract_number: string; type: string; status: string }
   customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'>
 }
 
@@ -718,49 +634,6 @@ export type DepositQueryParams = {
   status?: DepositStatus | 'all'
   contractId?: string
   customerId?: string
-}
-
-// ─── MeterRecord ──────────────────────────────────────────────────────────────
-
-export type MeterType = 'ELECTRICITY' | 'WATER' | 'GAS'
-
-export type MeterRecord = {
-  id: string
-  unit_id: string
-  meter_type: MeterType
-  previous_reading: number
-  current_reading: number
-  reading_date: string
-  usage: number
-  amount: number
-  billing_period: string
-  created_at: string
-}
-
-export type MeterRecordWithUnit = MeterRecord & {
-  unit: Pick<Unit, 'id' | 'unit_number' | 'floor' | 'building' | 'project_id'>
-}
-
-export type CreateMeterRecordRequest = {
-  unitId: string
-  meterType: MeterType
-  previousReading: number
-  currentReading: number
-  readingDate: string
-  amount: number
-  billingPeriod: string
-}
-
-export type UpdateMeterRecordRequest = Partial<CreateMeterRecordRequest>
-
-export type MeterRecordListResponse = PaginatedResponse<MeterRecord>
-
-export type MeterRecordQueryParams = {
-  page?: number
-  limit?: number
-  unitId?: string
-  meterType?: MeterType
-  billingPeriod?: string
 }
 
 // ─── Task ─────────────────────────────────────────────────────────────────────
@@ -841,47 +714,3 @@ export type TaskComment = {
 export type CreateTaskCommentRequest = {
   content: string
 }
-
-// ─── TaskStatusConfig ─────────────────────────────────────────────────────────
-
-export type TaskStatusConfig = {
-  id: string
-  name: string
-  color: string
-  order: number
-  is_default: boolean
-  is_closed: boolean
-  created_at: string
-}
-
-export type CreateTaskStatusRequest = {
-  name: string
-  color: string
-  order: number
-  isDefault?: boolean
-  isClosed?: boolean
-}
-
-export type UpdateTaskStatusRequest = Partial<CreateTaskStatusRequest>
-
-// ─── AutomationRule ───────────────────────────────────────────────────────────
-
-export type AutomationRule = {
-  id: string
-  name: string
-  trigger_event: string
-  conditions: Record<string, unknown>
-  actions: unknown[]
-  is_active: boolean
-  created_at: string
-}
-
-export type CreateAutomationRuleRequest = {
-  name: string
-  triggerEvent: string
-  conditions?: Record<string, unknown>
-  actions?: unknown[]
-  isActive?: boolean
-}
-
-export type UpdateAutomationRuleRequest = Partial<CreateAutomationRuleRequest>
