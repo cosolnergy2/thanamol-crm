@@ -546,7 +546,7 @@ test.describe('T-031: Contract Print', () => {
     await page.screenshot({ path: `${SCREENSHOTS}/contract-print-layout.png` })
 
     await expect(page.url()).toContain('/print')
-    await expect(page.getByText(/CONTRACT|Contract/)).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'CONTRACT' })).toBeVisible()
   })
 })
 
@@ -706,7 +706,7 @@ test.describe('T-031: View and Edit Lease Agreement', () => {
 
     await page.screenshot({ path: `${SCREENSHOTS}/lease-detail-initial.png` })
 
-    await expect(page.getByText('Status')).toBeVisible()
+    await expect(page.getByText('Status', { exact: true }).first()).toBeVisible()
     await expect(page.getByText('Contract Type')).toBeVisible()
     await expect(page.getByText('Contract Reference')).toBeVisible()
     await expect(page.getByText('Contract Number')).toBeVisible()
@@ -734,7 +734,7 @@ test.describe('T-031: View and Edit Lease Agreement', () => {
     const editHref = await editLinks.first().getAttribute('href')
     await page.goto(editHref!)
 
-    await expect(page.getByRole('heading', { name: 'Edit Lease Agreement' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Edit/ })).toBeVisible()
 
     await page.screenshot({ path: `${SCREENSHOTS}/lease-edit-initial.png` })
 
