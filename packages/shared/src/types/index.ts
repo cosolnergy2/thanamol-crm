@@ -483,253 +483,393 @@ export type CreateCommercialQuotationRequest = {
 
 export type UpdateCommercialQuotationRequest = Partial<CreateCommercialQuotationRequest>
 
-// ─── Invoice ──────────────────────────────────────────────────────────────────
+// ─── Document ─────────────────────────────────────────────────────────────────
 
-export type InvoiceStatus = 'DRAFT' | 'SENT' | 'PAID' | 'OVERDUE' | 'CANCELLED' | 'PARTIAL'
-
-export type InvoiceItem = {
-  description: string
-  quantity: number
-  unit_price: number
-  amount: number
-  item_type?: string
+export type Document = {
+  id: string
+  title: string
+  file_url: string
+  file_type: string | null
+  file_size: number | null
+  category: string | null
+  entity_type: string | null
+  entity_id: string | null
+  tags: string[]
+  uploaded_by: string
+  created_at: string
+  updated_at: string
 }
 
-export type Invoice = {
+export type CreateDocumentRequest = {
+  title: string
+  fileUrl: string
+  fileType?: string
+  fileSize?: number
+  category?: string
+  entityType?: string
+  entityId?: string
+  tags?: string[]
+}
+
+export type UpdateDocumentRequest = Partial<CreateDocumentRequest>
+
+export type DocumentListResponse = PaginatedResponse<Document>
+
+export type DocumentQueryParams = {
+  page?: number
+  limit?: number
+  category?: string
+  entityType?: string
+  entityId?: string
+}
+
+// ─── ISODocument ──────────────────────────────────────────────────────────────
+
+export type ISODocumentStatus = 'DRAFT' | 'ACTIVE' | 'ARCHIVED' | 'SUPERSEDED'
+
+export type ISODocument = {
   id: string
-  invoice_number: string
-  contract_id: string | null
-  customer_id: string
-  items: InvoiceItem[]
-  subtotal: number
-  tax: number
-  total: number
-  due_date: string | null
-  status: InvoiceStatus
-  notes: string | null
+  document_number: string
+  title: string
+  category: string
+  revision: string
+  status: ISODocumentStatus
+  content: string | null
+  effective_date: string | null
+  review_date: string | null
+  approved_by: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type CreateISODocumentRequest = {
+  documentNumber?: string
+  title: string
+  category: string
+  revision: string
+  status?: ISODocumentStatus
+  content?: string
+  effectiveDate?: string
+  reviewDate?: string
+  approvedBy?: string
+}
+
+export type UpdateISODocumentRequest = Partial<CreateISODocumentRequest>
+
+export type ISODocumentListResponse = PaginatedResponse<ISODocument>
+
+export type ISODocumentQueryParams = {
+  page?: number
+  limit?: number
+  category?: string
+  status?: ISODocumentStatus | 'all'
+}
+
+// ─── PDFTemplate ──────────────────────────────────────────────────────────────
+
+export type PDFTemplate = {
+  id: string
+  name: string
+  template_type: string
+  header: Record<string, unknown>
+  footer: Record<string, unknown>
+  styles: Record<string, unknown>
+  is_default: boolean
+  created_at: string
+  updated_at: string
+}
+
+export type CreatePDFTemplateRequest = {
+  name: string
+  templateType: string
+  header?: Record<string, unknown>
+  footer?: Record<string, unknown>
+  styles?: Record<string, unknown>
+  isDefault?: boolean
+}
+
+export type UpdatePDFTemplateRequest = Partial<CreatePDFTemplateRequest>
+
+export type PDFTemplateListResponse = { data: PDFTemplate[] }
+
+// ─── Meeting ──────────────────────────────────────────────────────────────────
+
+export type MeetingStatus = 'DRAFT' | 'FINALIZED' | 'DISTRIBUTED'
+
+export type MeetingAttendee = {
+  name: string
+  email?: string
+  role?: string
+}
+
+export type MeetingAgendaItem = {
+  order: number
+  topic: string
+  duration?: number
+  presenter?: string
+}
+
+export type MeetingActionItem = {
+  description: string
+  assignee?: string
+  dueDate?: string
+  status?: string
+}
+
+export type Meeting = {
+  id: string
+  title: string
+  meeting_date: string
+  location: string | null
+  attendees: MeetingAttendee[]
+  agenda: MeetingAgendaItem[]
+  minutes: Record<string, unknown>
+  action_items: MeetingActionItem[]
+  pdf_url: string | null
+  status: MeetingStatus
   created_by: string
   created_at: string
   updated_at: string
 }
 
-export type InvoiceWithRelations = Invoice & {
-  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'>
-  contract: { id: string; contract_number: string; type: string; status: string } | null
-  creator: { id: string; first_name: string; last_name: string }
-}
-
-export type CreateInvoiceRequest = {
-  invoiceNumber?: string
-  contractId?: string
-  customerId: string
-  items?: InvoiceItem[]
-  subtotal?: number
-  tax?: number
-  total?: number
-  dueDate?: string
-  status?: InvoiceStatus
-  notes?: string
-}
-
-export type UpdateInvoiceRequest = Partial<CreateInvoiceRequest>
-
-export type InvoiceListResponse = PaginatedResponse<Invoice>
-
-export type InvoiceQueryParams = {
-  page?: number
-  limit?: number
-  status?: InvoiceStatus | 'all'
-  customerId?: string
-  contractId?: string
-}
-
-// ─── Payment ──────────────────────────────────────────────────────────────────
-
-export type PaymentMethod = 'CASH' | 'BANK_TRANSFER' | 'CHEQUE' | 'CREDIT_CARD' | 'ONLINE'
-
-export type Payment = {
-  id: string
-  invoice_id: string
-  amount: number
-  payment_date: string
-  payment_method: PaymentMethod
-  reference_number: string | null
-  notes: string | null
-  received_by: string | null
-  created_at: string
-}
-
-export type PaymentWithRelations = Payment & {
-  invoice: {
-    id: string
-    invoice_number: string
-    total: number
-    status: InvoiceStatus
-    customer_id: string
-  }
-  receiver: { id: string; first_name: string; last_name: string } | null
-}
-
-export type CreatePaymentRequest = {
-  invoiceId: string
-  amount: number
-  paymentDate: string
-  paymentMethod: PaymentMethod
-  referenceNumber?: string
-  notes?: string
-}
-
-export type UpdatePaymentRequest = Partial<CreatePaymentRequest>
-
-export type PaymentListResponse = PaginatedResponse<Payment>
-
-export type PaymentQueryParams = {
-  page?: number
-  limit?: number
-  invoiceId?: string
-  paymentMethod?: PaymentMethod
-}
-
-// ─── Deposit ──────────────────────────────────────────────────────────────────
-
-export type DepositStatus = 'HELD' | 'APPLIED' | 'REFUNDED' | 'FORFEITED'
-
-export type Deposit = {
-  id: string
-  contract_id: string
-  customer_id: string
-  amount: number
-  deposit_date: string
-  status: DepositStatus
-  refund_date: string | null
-  refund_amount: number | null
-  notes: string | null
-  created_at: string
-  updated_at: string
-}
-
-export type DepositWithRelations = Deposit & {
-  contract: { id: string; contract_number: string; type: string; status: string }
-  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'>
-}
-
-export type CreateDepositRequest = {
-  contractId: string
-  customerId: string
-  amount: number
-  depositDate: string
-  status?: DepositStatus
-  refundDate?: string
-  refundAmount?: number
-  notes?: string
-}
-
-export type UpdateDepositRequest = Partial<CreateDepositRequest>
-
-export type DepositListResponse = PaginatedResponse<Deposit>
-
-export type DepositQueryParams = {
-  page?: number
-  limit?: number
-  status?: DepositStatus | 'all'
-  contractId?: string
-  customerId?: string
-}
-
-// ─── TaskStatus ───────────────────────────────────────────────────────────────
-
-export type TaskStatus = {
-  id: string
-  name: string
-  color: string
-  order: number
-  is_default: boolean
-  is_closed: boolean
-  created_at: string
-}
-
-export type CreateTaskStatusRequest = {
-  name: string
-  color: string
-  order: number
-  isDefault?: boolean
-  isClosed?: boolean
-}
-
-export type UpdateTaskStatusRequest = Partial<CreateTaskStatusRequest>
-
-export type TaskStatusListResponse = { data: TaskStatus[] }
-
-// ─── AutomationRule ───────────────────────────────────────────────────────────
-
-export type AutomationRule = {
-  id: string
-  name: string
-  trigger_event: string
-  conditions: Record<string, unknown>
-  actions: unknown[]
-  is_active: boolean
-  created_at: string
-}
-
-export type CreateAutomationRuleRequest = {
-  name: string
-  triggerEvent: string
-  conditions?: Record<string, unknown>
-  actions?: unknown[]
-  isActive?: boolean
-}
-
-export type UpdateAutomationRuleRequest = Partial<CreateAutomationRuleRequest>
-
-export type AutomationRuleListResponse = { data: AutomationRule[] }
-
-// ─── Ticket ───────────────────────────────────────────────────────────────────
-
-export type TicketStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED'
-export type TicketPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
-
-export type Ticket = {
-  id: string
+export type CreateMeetingRequest = {
   title: string
+  meetingDate: string
+  location?: string
+  attendees?: MeetingAttendee[]
+  agenda?: MeetingAgendaItem[]
+  minutes?: Record<string, unknown>
+  actionItems?: MeetingActionItem[]
+  pdfUrl?: string
+  status?: MeetingStatus
+}
+
+export type UpdateMeetingRequest = Partial<CreateMeetingRequest>
+
+export type MeetingListResponse = PaginatedResponse<Meeting>
+
+export type MeetingQueryParams = {
+  page?: number
+  limit?: number
+  status?: MeetingStatus | 'all'
+}
+
+// ─── MeetingTemplate ──────────────────────────────────────────────────────────
+
+export type MeetingTemplateSection = {
+  title: string
+  content?: string
+  order: number
+}
+
+export type MeetingTemplate = {
+  id: string
+  name: string
   description: string | null
-  customer_id: string | null
-  unit_id: string | null
-  category: string | null
-  priority: TicketPriority
-  status: TicketStatus
-  assigned_to: string | null
-  resolved_at: string | null
+  sections: MeetingTemplateSection[]
   created_at: string
   updated_at: string
 }
 
-export type TicketWithRelations = Ticket & {
-  customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'> | null
-  unit: Pick<Unit, 'id' | 'unit_number' | 'floor' | 'building'> | null
-  assignee: { id: string; first_name: string; last_name: string } | null
-}
-
-export type CreateTicketRequest = {
-  title: string
+export type CreateMeetingTemplateRequest = {
+  name: string
   description?: string
-  customerId?: string
-  unitId?: string
-  category?: string
-  priority?: TicketPriority
-  status?: TicketStatus
-  assignedTo?: string
+  sections?: MeetingTemplateSection[]
 }
 
-export type UpdateTicketRequest = Partial<CreateTicketRequest>
+export type UpdateMeetingTemplateRequest = Partial<CreateMeetingTemplateRequest>
 
-export type TicketListResponse = PaginatedResponse<Ticket>
+export type MeetingTemplateListResponse = { data: MeetingTemplate[] }
 
-export type TicketQueryParams = {
+// ─── Notification ─────────────────────────────────────────────────────────────
+
+export type Notification = {
+  id: string
+  user_id: string
+  title: string
+  message: string
+  type: string
+  entity_type: string | null
+  entity_id: string | null
+  is_read: boolean
+  created_at: string
+}
+
+export type NotificationListResponse = PaginatedResponse<Notification>
+
+export type NotificationQueryParams = {
   page?: number
   limit?: number
-  status?: TicketStatus | 'all'
-  priority?: TicketPriority | 'all'
+  isRead?: boolean
+}
+
+export type NotificationPreference = {
+  id: string
+  user_id: string
+  notification_type: string
+  email_enabled: boolean
+  in_app_enabled: boolean
+  created_at: string
+}
+
+export type UpdateNotificationPreferenceRequest = {
+  notificationType: string
+  emailEnabled?: boolean
+  inAppEnabled?: boolean
+}
+
+// ─── ActivityLog ──────────────────────────────────────────────────────────────
+
+export type ActivityLog = {
+  id: string
+  user_id: string | null
+  action: string
+  entity_type: string | null
+  entity_id: string | null
+  details: Record<string, unknown> | null
+  ip_address: string | null
+  created_at: string
+  user?: { id: string; first_name: string; last_name: string; email: string } | null
+}
+
+export type ActivityLogListResponse = PaginatedResponse<ActivityLog>
+
+export type ActivityLogQueryParams = {
+  page?: number
+  limit?: number
+  userId?: string
+  entityType?: string
+  action?: string
+}
+
+export type UserAuditLog = {
+  id: string
+  user_id: string
+  action: string
+  details: Record<string, unknown> | null
+  ip_address: string | null
+  created_at: string
+  user?: { id: string; first_name: string; last_name: string; email: string }
+}
+
+export type UserAuditLogListResponse = PaginatedResponse<UserAuditLog>
+
+export type AuditLogQueryParams = {
+  page?: number
+  limit?: number
+  userId?: string
+  action?: string
+}
+
+// ─── Comment ──────────────────────────────────────────────────────────────────
+
+export type Comment = {
+  id: string
+  entity_type: string
+  entity_id: string
+  user_id: string
+  content: string
+  created_at: string
+  updated_at: string
+  user?: { id: string; first_name: string; last_name: string; email: string }
+}
+
+export type CreateCommentRequest = {
+  entityType: string
+  entityId: string
+  content: string
+}
+
+export type UpdateCommentRequest = {
+  content: string
+}
+
+export type CommentListResponse = { data: Comment[] }
+
+// ─── WarehouseRequirement ─────────────────────────────────────────────────────
+
+export type WarehouseRequirementStatus =
+  | 'DRAFT'
+  | 'SUBMITTED'
+  | 'REVIEWED'
+  | 'APPROVED'
+  | 'REJECTED'
+
+export type WarehouseRequirement = {
+  id: string
+  customer_id: string
+  project_id: string | null
+  requirements: Record<string, unknown>
+  specifications: Record<string, unknown>
+  status: WarehouseRequirementStatus
+  created_by: string
+  created_at: string
+  updated_at: string
+  customer?: { id: string; name: string; email: string | null; phone: string | null }
+  project?: { id: string; name: string; code: string } | null
+  creator?: { id: string; first_name: string; last_name: string }
+}
+
+export type CreateWarehouseRequirementRequest = {
+  customerId: string
+  projectId?: string
+  requirements?: Record<string, unknown>
+  specifications?: Record<string, unknown>
+  status?: WarehouseRequirementStatus
+}
+
+export type UpdateWarehouseRequirementRequest = Partial<CreateWarehouseRequirementRequest>
+
+export type WarehouseRequirementListResponse = PaginatedResponse<WarehouseRequirement>
+
+export type WarehouseRequirementQueryParams = {
+  page?: number
+  limit?: number
+  status?: WarehouseRequirementStatus | 'all'
   customerId?: string
-  assignedTo?: string
+  projectId?: string
+}
+
+// ─── SaleJob04F01 ─────────────────────────────────────────────────────────────
+
+export type SaleJobStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED'
+
+export type SaleJob04F01 = {
+  id: string
+  form_number: string
+  project_id: string
+  customer_id: string
+  unit_id: string | null
+  form_data: Record<string, unknown>
+  status: SaleJobStatus
+  created_by: string
+  approved_by: string | null
+  created_at: string
+  updated_at: string
+  project?: { id: string; name: string; code: string }
+  customer?: { id: string; name: string; email: string | null; phone: string | null }
+  unit?: { id: string; unit_number: string; floor: number | null; building: string | null } | null
+  creator?: { id: string; first_name: string; last_name: string }
+  approver?: { id: string; first_name: string; last_name: string } | null
+}
+
+export type CreateSaleJob04F01Request = {
+  formNumber?: string
+  projectId: string
+  customerId: string
+  unitId?: string
+  formData?: Record<string, unknown>
+  status?: SaleJobStatus
+}
+
+export type UpdateSaleJob04F01Request = Partial<Omit<CreateSaleJob04F01Request, 'formNumber'>>
+
+export type SaleJob04F01ListResponse = PaginatedResponse<SaleJob04F01>
+
+export type SaleJobQueryParams = {
+  page?: number
+  limit?: number
+  status?: SaleJobStatus | 'all'
+  projectId?: string
+  customerId?: string
 }
