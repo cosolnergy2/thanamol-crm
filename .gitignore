@@ -2,4 +2,11 @@ node_modules/
 dist/
 .env
 .env.local
+.env.*.local
 .claude/settings.local.json
+*.log
+.turbo
+.vite
+playwright-report/
+test-results/
+.playwright/
