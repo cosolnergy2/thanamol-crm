@@ -30,6 +30,10 @@ import { Route as AuthenticatedProjectsProjectIdRouteImport } from './routes/_au
 import { Route as AuthenticatedLeadsLeadIdRouteImport } from './routes/_authenticated/leads/$leadId'
 import { Route as AuthenticatedFormsSaleQuotationRouteImport } from './routes/_authenticated/forms/sale-quotation'
 import { Route as AuthenticatedFormsSaleCommercialProposalRouteImport } from './routes/_authenticated/forms/sale-commercial-proposal'
+import { Route as AuthenticatedFinanceMonthlyBillingRouteImport } from './routes/_authenticated/finance/monthly-billing'
+import { Route as AuthenticatedFinanceDepositsRouteImport } from './routes/_authenticated/finance/deposits'
+import { Route as AuthenticatedFinanceCompaniesRouteImport } from './routes/_authenticated/finance/companies'
+import { Route as AuthenticatedFinanceArAgingRouteImport } from './routes/_authenticated/finance/ar-aging'
 import { Route as AuthenticatedDealsDealIdRouteImport } from './routes/_authenticated/deals/$dealId'
 import { Route as AuthenticatedCustomersCreateRouteImport } from './routes/_authenticated/customers/create'
 import { Route as AuthenticatedQuotationsCommercialIndexRouteImport } from './routes/_authenticated/quotations/commercial/index'
@@ -157,6 +161,30 @@ const AuthenticatedFormsSaleCommercialProposalRoute =
     path: '/forms/sale-commercial-proposal',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFinanceMonthlyBillingRoute =
+  AuthenticatedFinanceMonthlyBillingRouteImport.update({
+    id: '/finance/monthly-billing',
+    path: '/finance/monthly-billing',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceDepositsRoute =
+  AuthenticatedFinanceDepositsRouteImport.update({
+    id: '/finance/deposits',
+    path: '/finance/deposits',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceCompaniesRoute =
+  AuthenticatedFinanceCompaniesRouteImport.update({
+    id: '/finance/companies',
+    path: '/finance/companies',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceArAgingRoute =
+  AuthenticatedFinanceArAgingRouteImport.update({
+    id: '/finance/ar-aging',
+    path: '/finance/ar-aging',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDealsDealIdRoute =
   AuthenticatedDealsDealIdRouteImport.update({
     id: '/deals/$dealId',
@@ -226,6 +254,10 @@ export interface FileRoutesByFullPath {
   '/contacts': typeof AuthenticatedContactsRoute
   '/customers/create': typeof AuthenticatedCustomersCreateRoute
   '/deals/$dealId': typeof AuthenticatedDealsDealIdRoute
+  '/finance/ar-aging': typeof AuthenticatedFinanceArAgingRoute
+  '/finance/companies': typeof AuthenticatedFinanceCompaniesRoute
+  '/finance/deposits': typeof AuthenticatedFinanceDepositsRoute
+  '/finance/monthly-billing': typeof AuthenticatedFinanceMonthlyBillingRoute
   '/forms/sale-commercial-proposal': typeof AuthenticatedFormsSaleCommercialProposalRoute
   '/forms/sale-quotation': typeof AuthenticatedFormsSaleQuotationRoute
   '/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
@@ -258,6 +290,10 @@ export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/customers/create': typeof AuthenticatedCustomersCreateRoute
   '/deals/$dealId': typeof AuthenticatedDealsDealIdRoute
+  '/finance/ar-aging': typeof AuthenticatedFinanceArAgingRoute
+  '/finance/companies': typeof AuthenticatedFinanceCompaniesRoute
+  '/finance/deposits': typeof AuthenticatedFinanceDepositsRoute
+  '/finance/monthly-billing': typeof AuthenticatedFinanceMonthlyBillingRoute
   '/forms/sale-commercial-proposal': typeof AuthenticatedFormsSaleCommercialProposalRoute
   '/forms/sale-quotation': typeof AuthenticatedFormsSaleQuotationRoute
   '/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
@@ -292,6 +328,10 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/customers/create': typeof AuthenticatedCustomersCreateRoute
   '/_authenticated/deals/$dealId': typeof AuthenticatedDealsDealIdRoute
+  '/_authenticated/finance/ar-aging': typeof AuthenticatedFinanceArAgingRoute
+  '/_authenticated/finance/companies': typeof AuthenticatedFinanceCompaniesRoute
+  '/_authenticated/finance/deposits': typeof AuthenticatedFinanceDepositsRoute
+  '/_authenticated/finance/monthly-billing': typeof AuthenticatedFinanceMonthlyBillingRoute
   '/_authenticated/forms/sale-commercial-proposal': typeof AuthenticatedFormsSaleCommercialProposalRoute
   '/_authenticated/forms/sale-quotation': typeof AuthenticatedFormsSaleQuotationRoute
   '/_authenticated/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
@@ -326,6 +366,10 @@ export interface FileRouteTypes {
     | '/contacts'
     | '/customers/create'
     | '/deals/$dealId'
+    | '/finance/ar-aging'
+    | '/finance/companies'
+    | '/finance/deposits'
+    | '/finance/monthly-billing'
     | '/forms/sale-commercial-proposal'
     | '/forms/sale-quotation'
     | '/leads/$leadId'
@@ -358,6 +402,10 @@ export interface FileRouteTypes {
     | '/'
     | '/customers/create'
     | '/deals/$dealId'
+    | '/finance/ar-aging'
+    | '/finance/companies'
+    | '/finance/deposits'
+    | '/finance/monthly-billing'
     | '/forms/sale-commercial-proposal'
     | '/forms/sale-quotation'
     | '/leads/$leadId'
@@ -391,6 +439,10 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/_authenticated/customers/create'
     | '/_authenticated/deals/$dealId'
+    | '/_authenticated/finance/ar-aging'
+    | '/_authenticated/finance/companies'
+    | '/_authenticated/finance/deposits'
+    | '/_authenticated/finance/monthly-billing'
     | '/_authenticated/forms/sale-commercial-proposal'
     | '/_authenticated/forms/sale-quotation'
     | '/_authenticated/leads/$leadId'
@@ -570,6 +622,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFormsSaleCommercialProposalRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/finance/monthly-billing': {
+      id: '/_authenticated/finance/monthly-billing'
+      path: '/finance/monthly-billing'
+      fullPath: '/finance/monthly-billing'
+      preLoaderRoute: typeof AuthenticatedFinanceMonthlyBillingRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/deposits': {
+      id: '/_authenticated/finance/deposits'
+      path: '/finance/deposits'
+      fullPath: '/finance/deposits'
+      preLoaderRoute: typeof AuthenticatedFinanceDepositsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/companies': {
+      id: '/_authenticated/finance/companies'
+      path: '/finance/companies'
+      fullPath: '/finance/companies'
+      preLoaderRoute: typeof AuthenticatedFinanceCompaniesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/ar-aging': {
+      id: '/_authenticated/finance/ar-aging'
+      path: '/finance/ar-aging'
+      fullPath: '/finance/ar-aging'
+      preLoaderRoute: typeof AuthenticatedFinanceArAgingRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/deals/$dealId': {
       id: '/_authenticated/deals/$dealId'
       path: '/deals/$dealId'
@@ -650,6 +730,10 @@ interface AuthenticatedRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedCustomersCreateRoute: typeof AuthenticatedCustomersCreateRoute
   AuthenticatedDealsDealIdRoute: typeof AuthenticatedDealsDealIdRoute
+  AuthenticatedFinanceArAgingRoute: typeof AuthenticatedFinanceArAgingRoute
+  AuthenticatedFinanceCompaniesRoute: typeof AuthenticatedFinanceCompaniesRoute
+  AuthenticatedFinanceDepositsRoute: typeof AuthenticatedFinanceDepositsRoute
+  AuthenticatedFinanceMonthlyBillingRoute: typeof AuthenticatedFinanceMonthlyBillingRoute
   AuthenticatedFormsSaleCommercialProposalRoute: typeof AuthenticatedFormsSaleCommercialProposalRoute
   AuthenticatedFormsSaleQuotationRoute: typeof AuthenticatedFormsSaleQuotationRoute
   AuthenticatedLeadsLeadIdRoute: typeof AuthenticatedLeadsLeadIdRoute
@@ -682,6 +766,11 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedCustomersCreateRoute: AuthenticatedCustomersCreateRoute,
   AuthenticatedDealsDealIdRoute: AuthenticatedDealsDealIdRoute,
+  AuthenticatedFinanceArAgingRoute: AuthenticatedFinanceArAgingRoute,
+  AuthenticatedFinanceCompaniesRoute: AuthenticatedFinanceCompaniesRoute,
+  AuthenticatedFinanceDepositsRoute: AuthenticatedFinanceDepositsRoute,
+  AuthenticatedFinanceMonthlyBillingRoute:
+    AuthenticatedFinanceMonthlyBillingRoute,
   AuthenticatedFormsSaleCommercialProposalRoute:
     AuthenticatedFormsSaleCommercialProposalRoute,
   AuthenticatedFormsSaleQuotationRoute: AuthenticatedFormsSaleQuotationRoute,
