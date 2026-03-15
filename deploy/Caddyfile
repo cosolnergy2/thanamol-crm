@@ -1,4 +1,4 @@
-ecm.thanamol.com {
+:80 {
 	handle /api/* {
 		reverse_proxy api:3000
 	}
