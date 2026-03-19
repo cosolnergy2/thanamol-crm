@@ -26,3 +26,6 @@ T-024,Frontend — QuotationList/Create/Edit/Detail/PendingApproval/PrintQuotati
 T-025,Frontend — Commercial quotation pages,dev,Ready to Dev,tasks/T-025.md
 T-026,Frontend — PendingApprovals hub/FormSaleQuotation/FormSaleCommercialProposal,dev,Ready to Dev,tasks/T-026.md
 T-027,E2E tests — quotation workflow,tester,Ready to Dev,tasks/T-027.md
+T-070,Invoice API enhancement — billing fields item types discount overdue logic customer name in list,tester,Ready to Test,tasks/T-070.md
+T-071,Invoice UI enhancement — customer names item types discount billing period record payment overdue actions,tester,Ready to Test,tasks/T-071.md
+T-072,Invoice E2E tests,dev,Ready to Dev,tasks/T-072.md
