@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
 import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 const WAREHOUSE_STATUSES = ['DRAFT', 'SUBMITTED', 'REVIEWED', 'APPROVED', 'REJECTED'] as const
 type WarehouseStatusValue = (typeof WAREHOUSE_STATUSES)[number]
@@ -130,7 +131,7 @@ export const warehouseRequirementsRoutes = new Elysia({
         })
         .post(
           '/',
-          async ({ body, authUser, set }) => {
+          async ({ body, authUser, headers, set }) => {
             const user = authUser as AuthenticatedUser
             const item = await prisma.warehouseRequirement.create({
               data: {
@@ -143,6 +144,13 @@ export const warehouseRequirementsRoutes = new Elysia({
               },
               include: warehouseIncludes,
             })
+            logActivity({
+              userId: user.id,
+              action: 'CREATE',
+              entityType: 'WarehouseRequirement',
+              entityId: item.id,
+              ipAddress: getIpAddress(headers),
+            })
             set.status = 201
             return { warehouseRequirement: item }
           },
@@ -150,7 +158,7 @@ export const warehouseRequirementsRoutes = new Elysia({
         )
         .put(
           '/:id',
-          async ({ params, body, set }) => {
+          async ({ params, body, authUser, headers, set }) => {
             const existing = await prisma.warehouseRequirement.findUnique({
               where: { id: params.id },
             })
@@ -169,11 +177,18 @@ export const warehouseRequirementsRoutes = new Elysia({
               },
               include: warehouseIncludes,
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'UPDATE',
+              entityType: 'WarehouseRequirement',
+              entityId: params.id,
+              ipAddress: getIpAddress(headers),
+            })
             return { warehouseRequirement: item }
           },
           { body: updateWarehouseRequirementSchema }
         )
-        .delete('/:id', async ({ params, set }) => {
+        .delete('/:id', async ({ params, authUser, headers, set }) => {
           const existing = await prisma.warehouseRequirement.findUnique({
             where: { id: params.id },
           })
@@ -186,6 +201,13 @@ export const warehouseRequirementsRoutes = new Elysia({
             return { error: 'Only DRAFT warehouse requirements can be deleted' }
           }
           await prisma.warehouseRequirement.delete({ where: { id: params.id } })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'DELETE',
+            entityType: 'WarehouseRequirement',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { success: true }
         })
   )

@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
-import { authPlugin } from '../middleware/auth'
+import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 const INSPECTION_STATUSES = ['PASS', 'FAIL', 'CONDITIONAL'] as const
 
@@ -139,7 +140,7 @@ export const preHandoverInspectionsRoutes = new Elysia({
         })
         .post(
           '/',
-          async ({ body, set }) => {
+          async ({ body, authUser, headers, set }) => {
             const contractExists = await prisma.contract.findUnique({
               where: { id: body.contractId },
             })
@@ -159,6 +160,13 @@ export const preHandoverInspectionsRoutes = new Elysia({
                 photos: (body.photos ?? []) as string[],
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'CREATE',
+              entityType: 'PreHandoverInspection',
+              entityId: inspection.id,
+              ipAddress: getIpAddress(headers),
+            })
             set.status = 201
             return { inspection }
           },
@@ -166,7 +174,7 @@ export const preHandoverInspectionsRoutes = new Elysia({
         )
         .put(
           '/:id',
-          async ({ params, body, set }) => {
+          async ({ params, body, authUser, headers, set }) => {
             const existing = await prisma.preHandoverInspection.findUnique({
               where: { id: params.id },
             })
@@ -186,11 +194,18 @@ export const preHandoverInspectionsRoutes = new Elysia({
                 photos: body.photos !== undefined ? (body.photos as string[]) : undefined,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'UPDATE',
+              entityType: 'PreHandoverInspection',
+              entityId: params.id,
+              ipAddress: getIpAddress(headers),
+            })
             return { inspection }
           },
           { body: updatePreHandoverInspectionSchema },
         )
-        .delete('/:id', async ({ params, set }) => {
+        .delete('/:id', async ({ params, authUser, headers, set }) => {
           const existing = await prisma.preHandoverInspection.findUnique({
             where: { id: params.id },
           })
@@ -199,6 +214,13 @@ export const preHandoverInspectionsRoutes = new Elysia({
             return { error: 'Pre-handover inspection not found' }
           }
           await prisma.preHandoverInspection.delete({ where: { id: params.id } })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'DELETE',
+            entityType: 'PreHandoverInspection',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { success: true }
         }),
   )

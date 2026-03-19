@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
-import { authPlugin } from '../middleware/auth'
+import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 const createHandoverPhotosSchema = t.Object({
   handoverId: t.String({ minLength: 1 }),
@@ -85,7 +86,7 @@ export const handoverPhotosRoutes = new Elysia({ prefix: '/api/handover-photos' 
         })
         .post(
           '/',
-          async ({ body, set }) => {
+          async ({ body, authUser, headers, set }) => {
             const photo = await prisma.handoverPhotos.create({
               data: {
                 handover_id: body.handoverId,
@@ -94,6 +95,13 @@ export const handoverPhotosRoutes = new Elysia({ prefix: '/api/handover-photos' 
                 category: body.category ?? null,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'CREATE',
+              entityType: 'HandoverPhoto',
+              entityId: photo.id,
+              ipAddress: getIpAddress(headers),
+            })
             set.status = 201
             return { photo }
           },
@@ -101,7 +109,7 @@ export const handoverPhotosRoutes = new Elysia({ prefix: '/api/handover-photos' 
         )
         .put(
           '/:id',
-          async ({ params, body, set }) => {
+          async ({ params, body, authUser, headers, set }) => {
             const existing = await prisma.handoverPhotos.findUnique({ where: { id: params.id } })
             if (!existing) {
               set.status = 404
@@ -116,17 +124,31 @@ export const handoverPhotosRoutes = new Elysia({ prefix: '/api/handover-photos' 
                 category: body.category,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'UPDATE',
+              entityType: 'HandoverPhoto',
+              entityId: params.id,
+              ipAddress: getIpAddress(headers),
+            })
             return { photo }
           },
           { body: updateHandoverPhotosSchema }
         )
-        .delete('/:id', async ({ params, set }) => {
+        .delete('/:id', async ({ params, authUser, headers, set }) => {
           const existing = await prisma.handoverPhotos.findUnique({ where: { id: params.id } })
           if (!existing) {
             set.status = 404
             return { error: 'Handover photo not found' }
           }
           await prisma.handoverPhotos.delete({ where: { id: params.id } })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'DELETE',
+            entityType: 'HandoverPhoto',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { success: true }
         })
   )

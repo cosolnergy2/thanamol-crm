@@ -3,6 +3,7 @@ import { jwt } from '@elysiajs/jwt'
 import bcrypt from 'bcryptjs'
 import { prisma } from '../lib/prisma'
 import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
+import { logAudit, logActivity, getIpAddress } from '../lib/activity-logger'
 
 const JWT_SECRET = process.env.JWT_SECRET ?? 'thanamol-jwt-secret-dev-only'
 const ACCESS_TOKEN_EXP = '15m'
@@ -79,7 +80,7 @@ export const authRoutes = new Elysia({ prefix: '/api/auth' })
   .use(jwtRefreshPlugin)
   .post(
     '/register',
-    async ({ jwtAccess, jwtRefresh, body, set }) => {
+    async ({ jwtAccess, jwtRefresh, body, set, headers }) => {
       const { email, password, firstName, lastName, phone, department, position, roleId } = body
 
       const existing = await prisma.user.findUnique({ where: { email } })
@@ -126,6 +127,8 @@ export const authRoutes = new Elysia({ prefix: '/api/auth' })
         jwtRefresh as unknown as JwtContext
       )
 
+      logAudit({ userId: user.id, action: 'REGISTER', ipAddress: getIpAddress(headers) })
+
       return {
         user: buildAuthUser(user),
         accessToken,
@@ -147,7 +150,7 @@ export const authRoutes = new Elysia({ prefix: '/api/auth' })
   )
   .post(
     '/login',
-    async ({ jwtAccess, jwtRefresh, body, set }) => {
+    async ({ jwtAccess, jwtRefresh, body, set, headers }) => {
       const { email, password } = body
 
       const user = await prisma.user.findUnique({
@@ -164,6 +167,7 @@ export const authRoutes = new Elysia({ prefix: '/api/auth' })
 
       const passwordMatch = await bcrypt.compare(password, user.password_hash)
       if (!passwordMatch) {
+        logAudit({ userId: user.id, action: 'LOGIN_FAILED', ipAddress: getIpAddress(headers) })
         set.status = 401
         return { message: 'Invalid credentials' }
       }
@@ -173,6 +177,8 @@ export const authRoutes = new Elysia({ prefix: '/api/auth' })
         jwtAccess as unknown as JwtContext,
         jwtRefresh as unknown as JwtContext
       )
+
+      logAudit({ userId: user.id, action: 'LOGIN', ipAddress: getIpAddress(headers) })
 
       return {
         user: buildAuthUser(user),
@@ -271,7 +277,7 @@ export const authRoutes = new Elysia({ prefix: '/api/auth' })
         })
         .put(
           '/users/:id',
-          async ({ params, body, set }) => {
+          async ({ params, body, set, authUser, headers }) => {
             const user = await prisma.user.findUnique({ where: { id: params.id } })
             if (!user) {
               set.status = 404
@@ -311,6 +317,14 @@ export const authRoutes = new Elysia({ prefix: '/api/auth' })
               return updatedUser
             })
 
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'UPDATE',
+              entityType: 'User',
+              entityId: params.id,
+              ipAddress: getIpAddress(headers),
+            })
+
             return { user: buildAuthUser(updated) }
           },
           {
@@ -327,7 +341,7 @@ export const authRoutes = new Elysia({ prefix: '/api/auth' })
         )
         .post(
           '/users/:id/reset-password',
-          async ({ params, body, set }) => {
+          async ({ params, body, set, authUser, headers }) => {
             const user = await prisma.user.findUnique({ where: { id: params.id } })
             if (!user) {
               set.status = 404
@@ -340,6 +354,13 @@ export const authRoutes = new Elysia({ prefix: '/api/auth' })
               data: { password_hash: passwordHash },
             })
 
+            logAudit({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'RESET_PASSWORD',
+              details: { targetUserId: params.id },
+              ipAddress: getIpAddress(headers),
+            })
+
             return { success: true }
           },
           {
@@ -350,8 +371,14 @@ export const authRoutes = new Elysia({ prefix: '/api/auth' })
         )
         .post(
           '/logout',
-          async ({ authUser, body }) => {
+          async ({ authUser, body, headers }) => {
             const { refreshToken } = body
+
+            logAudit({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'LOGOUT',
+              ipAddress: getIpAddress(headers),
+            })
 
             if (refreshToken) {
               await prisma.refreshToken

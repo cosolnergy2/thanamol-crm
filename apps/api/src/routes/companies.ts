@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
-import { authPlugin } from '../middleware/auth'
+import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 const createCompanySchema = t.Object({
   name: t.String({ minLength: 1 }),
@@ -109,7 +110,7 @@ export const companiesRoutes = new Elysia({ prefix: '/api/companies' })
         })
         .post(
           '/',
-          async ({ body, set }) => {
+          async ({ body, set, authUser, headers }) => {
             const company = await prisma.company.create({
               data: {
                 name: body.name,
@@ -123,6 +124,13 @@ export const companiesRoutes = new Elysia({ prefix: '/api/companies' })
                 notes: body.notes,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'CREATE',
+              entityType: 'Company',
+              entityId: company.id,
+              ipAddress: getIpAddress(headers),
+            })
             set.status = 201
             return { company }
           },
@@ -130,7 +138,7 @@ export const companiesRoutes = new Elysia({ prefix: '/api/companies' })
         )
         .put(
           '/:id',
-          async ({ params, body, set }) => {
+          async ({ params, body, set, authUser, headers }) => {
             const existing = await prisma.company.findUnique({ where: { id: params.id } })
             if (!existing) {
               set.status = 404
@@ -150,17 +158,31 @@ export const companiesRoutes = new Elysia({ prefix: '/api/companies' })
                 notes: body.notes,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'UPDATE',
+              entityType: 'Company',
+              entityId: company.id,
+              ipAddress: getIpAddress(headers),
+            })
             return { company }
           },
           { body: updateCompanySchema }
         )
-        .delete('/:id', async ({ params, set }) => {
+        .delete('/:id', async ({ params, set, authUser, headers }) => {
           const existing = await prisma.company.findUnique({ where: { id: params.id } })
           if (!existing) {
             set.status = 404
             return { error: 'Company not found' }
           }
           await prisma.company.delete({ where: { id: params.id } })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'DELETE',
+            entityType: 'Company',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { success: true }
         })
   )

@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
-import { authPlugin } from '../middleware/auth'
+import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 const DEPOSIT_STATUSES = ['HELD', 'APPLIED', 'REFUNDED', 'FORFEITED'] as const
 type DepositStatusValue = (typeof DEPOSIT_STATUSES)[number]
@@ -127,7 +128,7 @@ export const depositsRoutes = new Elysia({ prefix: '/api/deposits' })
         })
         .post(
           '/',
-          async ({ body, set }) => {
+          async ({ body, set, authUser, headers }) => {
             const deposit = await prisma.deposit.create({
               data: {
                 contract_id: body.contractId,
@@ -140,6 +141,13 @@ export const depositsRoutes = new Elysia({ prefix: '/api/deposits' })
                 notes: body.notes ?? null,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'CREATE',
+              entityType: 'Deposit',
+              entityId: deposit.id,
+              ipAddress: getIpAddress(headers),
+            })
             set.status = 201
             return { deposit }
           },
@@ -147,7 +155,7 @@ export const depositsRoutes = new Elysia({ prefix: '/api/deposits' })
         )
         .put(
           '/:id',
-          async ({ params, body, set }) => {
+          async ({ params, body, set, authUser, headers }) => {
             const existing = await prisma.deposit.findUnique({ where: { id: params.id } })
             if (!existing) {
               set.status = 404
@@ -183,17 +191,31 @@ export const depositsRoutes = new Elysia({ prefix: '/api/deposits' })
                 notes: body.notes,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'UPDATE',
+              entityType: 'Deposit',
+              entityId: deposit.id,
+              ipAddress: getIpAddress(headers),
+            })
             return { deposit }
           },
           { body: updateDepositSchema }
         )
-        .delete('/:id', async ({ params, set }) => {
+        .delete('/:id', async ({ params, set, authUser, headers }) => {
           const existing = await prisma.deposit.findUnique({ where: { id: params.id } })
           if (!existing) {
             set.status = 404
             return { error: 'Deposit not found' }
           }
           await prisma.deposit.delete({ where: { id: params.id } })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'DELETE',
+            entityType: 'Deposit',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { success: true }
         })
   )

@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
-import { authPlugin } from '../middleware/auth'
+import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 const LEASE_STATUSES = ['DRAFT', 'ACTIVE', 'EXPIRED', 'TERMINATED'] as const
 
@@ -124,7 +125,7 @@ export const leaseAgreementsRoutes = new Elysia({ prefix: '/api/lease-agreements
         })
         .post(
           '/',
-          async ({ body, set }) => {
+          async ({ body, set, authUser, headers }) => {
             const contractExists = await prisma.contract.findUnique({
               where: { id: body.contractId },
             })
@@ -141,6 +142,13 @@ export const leaseAgreementsRoutes = new Elysia({ prefix: '/api/lease-agreements
                 status: body.status ?? 'DRAFT',
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'CREATE',
+              entityType: 'LeaseAgreement',
+              entityId: leaseAgreement.id,
+              ipAddress: getIpAddress(headers),
+            })
             set.status = 201
             return { leaseAgreement }
           },
@@ -148,7 +156,7 @@ export const leaseAgreementsRoutes = new Elysia({ prefix: '/api/lease-agreements
         )
         .put(
           '/:id',
-          async ({ params, body, set }) => {
+          async ({ params, body, set, authUser, headers }) => {
             const existing = await prisma.leaseAgreement.findUnique({ where: { id: params.id } })
             if (!existing) {
               set.status = 404
@@ -163,17 +171,31 @@ export const leaseAgreementsRoutes = new Elysia({ prefix: '/api/lease-agreements
                 status: body.status,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'UPDATE',
+              entityType: 'LeaseAgreement',
+              entityId: leaseAgreement.id,
+              ipAddress: getIpAddress(headers),
+            })
             return { leaseAgreement }
           },
           { body: updateLeaseAgreementSchema }
         )
-        .delete('/:id', async ({ params, set }) => {
+        .delete('/:id', async ({ params, set, authUser, headers }) => {
           const existing = await prisma.leaseAgreement.findUnique({ where: { id: params.id } })
           if (!existing) {
             set.status = 404
             return { error: 'Lease agreement not found' }
           }
           await prisma.leaseAgreement.delete({ where: { id: params.id } })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'DELETE',
+            entityType: 'LeaseAgreement',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { success: true }
         })
   )

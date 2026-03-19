@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
-import { authPlugin } from '../middleware/auth'
+import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 const HANDOVER_TYPES = ['INITIAL', 'FINAL', 'PARTIAL'] as const
 type HandoverTypeValue = typeof HANDOVER_TYPES[number]
@@ -127,7 +128,7 @@ export const handoversRoutes = new Elysia({ prefix: '/api/handovers' })
         })
         .post(
           '/',
-          async ({ body, set }) => {
+          async ({ body, set, authUser, headers }) => {
             const handover = await prisma.handover.create({
               data: {
                 contract_id: body.contractId,
@@ -140,6 +141,13 @@ export const handoversRoutes = new Elysia({ prefix: '/api/handovers' })
                 handed_by: body.handedBy ?? null,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'CREATE',
+              entityType: 'Handover',
+              entityId: handover.id,
+              ipAddress: getIpAddress(headers),
+            })
             set.status = 201
             return { handover }
           },
@@ -147,7 +155,7 @@ export const handoversRoutes = new Elysia({ prefix: '/api/handovers' })
         )
         .put(
           '/:id',
-          async ({ params, body, set }) => {
+          async ({ params, body, set, authUser, headers }) => {
             const existing = await prisma.handover.findUnique({ where: { id: params.id } })
             if (!existing) {
               set.status = 404
@@ -166,11 +174,18 @@ export const handoversRoutes = new Elysia({ prefix: '/api/handovers' })
                 handed_by: body.handedBy,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'UPDATE',
+              entityType: 'Handover',
+              entityId: handover.id,
+              ipAddress: getIpAddress(headers),
+            })
             return { handover }
           },
           { body: updateHandoverSchema }
         )
-        .delete('/:id', async ({ params, set }) => {
+        .delete('/:id', async ({ params, set, authUser, headers }) => {
           const existing = await prisma.handover.findUnique({ where: { id: params.id } })
           if (!existing) {
             set.status = 404
@@ -181,6 +196,13 @@ export const handoversRoutes = new Elysia({ prefix: '/api/handovers' })
             return { error: 'Only PENDING handovers can be deleted' }
           }
           await prisma.handover.delete({ where: { id: params.id } })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'DELETE',
+            entityType: 'Handover',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { success: true }
         })
   )

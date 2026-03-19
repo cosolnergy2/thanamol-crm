@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
 import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 const PROJECT_STATUSES = ['PLANNING', 'ACTIVE', 'COMPLETED', 'SUSPENDED'] as const
 const UNIT_STATUSES = ['AVAILABLE', 'RESERVED', 'SOLD', 'RENTED', 'UNDER_MAINTENANCE'] as const
@@ -183,7 +184,7 @@ export const projectsRoutes = new Elysia({ prefix: '/api/projects' })
         })
         .post(
           '/',
-          async ({ body, set }) => {
+          async ({ body, authUser, headers, set }) => {
             const existing = await prisma.project.findUnique({ where: { code: body.code } })
             if (existing) {
               set.status = 409
@@ -202,6 +203,13 @@ export const projectsRoutes = new Elysia({ prefix: '/api/projects' })
                 settings: body.settings ?? {},
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'CREATE',
+              entityType: 'Project',
+              entityId: project.id,
+              ipAddress: getIpAddress(headers),
+            })
             set.status = 201
             return { project }
           },
@@ -209,7 +217,7 @@ export const projectsRoutes = new Elysia({ prefix: '/api/projects' })
         )
         .put(
           '/:id',
-          async ({ params, body, set }) => {
+          async ({ params, body, authUser, headers, set }) => {
             const existing = await prisma.project.findUnique({ where: { id: params.id } })
             if (!existing) {
               set.status = 404
@@ -237,11 +245,18 @@ export const projectsRoutes = new Elysia({ prefix: '/api/projects' })
                 settings: body.settings,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'UPDATE',
+              entityType: 'Project',
+              entityId: params.id,
+              ipAddress: getIpAddress(headers),
+            })
             return { project }
           },
           { body: updateProjectSchema }
         )
-        .delete('/:id', async ({ params, set }) => {
+        .delete('/:id', async ({ params, authUser, headers, set }) => {
           const existing = await prisma.project.findUnique({ where: { id: params.id } })
           if (!existing) {
             set.status = 404
@@ -251,6 +266,13 @@ export const projectsRoutes = new Elysia({ prefix: '/api/projects' })
           const project = await prisma.project.update({
             where: { id: params.id },
             data: { status: 'SUSPENDED' },
+          })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'DELETE',
+            entityType: 'Project',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
           })
           return { project }
         })

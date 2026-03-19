@@ -2,6 +2,7 @@ import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
 import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
 import { getUserAggregatedPermissions } from '../middleware/permissions'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 const QUOTATION_STATUSES = ['DRAFT', 'SENT', 'APPROVED', 'REJECTED', 'EXPIRED'] as const
 type QuotationStatusValue = typeof QUOTATION_STATUSES[number]
@@ -171,7 +172,7 @@ export const quotationsRoutes = new Elysia({ prefix: '/api/quotations' })
         })
         .post(
           '/',
-          async ({ body, authUser, set }) => {
+          async ({ body, authUser, headers, set }) => {
             const user = authUser as AuthenticatedUser
             const quotationNumber = body.quotationNumber || (await generateQuotationNumber())
 
@@ -192,6 +193,13 @@ export const quotationsRoutes = new Elysia({ prefix: '/api/quotations' })
                 created_by: user.id,
               },
             })
+            logActivity({
+              userId: user.id,
+              action: 'CREATE',
+              entityType: 'Quotation',
+              entityId: quotation.id,
+              ipAddress: getIpAddress(headers),
+            })
             set.status = 201
             return { quotation }
           },
@@ -199,7 +207,7 @@ export const quotationsRoutes = new Elysia({ prefix: '/api/quotations' })
         )
         .put(
           '/:id',
-          async ({ params, body, set }) => {
+          async ({ params, body, authUser, headers, set }) => {
             const existing = await prisma.quotation.findUnique({ where: { id: params.id } })
             if (!existing) {
               set.status = 404
@@ -228,17 +236,31 @@ export const quotationsRoutes = new Elysia({ prefix: '/api/quotations' })
                 notes: body.notes,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'UPDATE',
+              entityType: 'Quotation',
+              entityId: params.id,
+              ipAddress: getIpAddress(headers),
+            })
             return { quotation }
           },
           { body: updateQuotationSchema }
         )
-        .delete('/:id', async ({ params, set }) => {
+        .delete('/:id', async ({ params, authUser, headers, set }) => {
           const existing = await prisma.quotation.findUnique({ where: { id: params.id } })
           if (!existing) {
             set.status = 404
             return { error: 'Quotation not found' }
           }
           await prisma.quotation.delete({ where: { id: params.id } })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'DELETE',
+            entityType: 'Quotation',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { success: true }
         })
         .guard(
@@ -255,7 +277,7 @@ export const quotationsRoutes = new Elysia({ prefix: '/api/quotations' })
           },
           (inner) =>
             inner
-              .post('/:id/approve', async ({ params, authUser, set }) => {
+              .post('/:id/approve', async ({ params, authUser, headers, set }) => {
                 const quotation = await prisma.quotation.findUnique({ where: { id: params.id } })
                 if (!quotation) {
                   set.status = 404
@@ -273,11 +295,18 @@ export const quotationsRoutes = new Elysia({ prefix: '/api/quotations' })
                     approved_by: user.id,
                   },
                 })
+                logActivity({
+                  userId: user.id,
+                  action: 'UPDATE',
+                  entityType: 'Quotation',
+                  entityId: params.id,
+                  ipAddress: getIpAddress(headers),
+                })
                 return { quotation: updated }
               })
               .post(
                 '/:id/reject',
-                async ({ params, body, set }) => {
+                async ({ params, body, authUser, headers, set }) => {
                   const quotation = await prisma.quotation.findUnique({
                     where: { id: params.id },
                   })
@@ -295,6 +324,13 @@ export const quotationsRoutes = new Elysia({ prefix: '/api/quotations' })
                       status: 'REJECTED',
                       notes: body.reason,
                     },
+                  })
+                  logActivity({
+                    userId: (authUser as AuthenticatedUser).id,
+                    action: 'UPDATE',
+                    entityType: 'Quotation',
+                    entityId: params.id,
+                    ipAddress: getIpAddress(headers),
                   })
                   return { quotation: updated }
                 },

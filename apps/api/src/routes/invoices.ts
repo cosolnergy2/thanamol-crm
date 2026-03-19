@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
 import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 const INVOICE_STATUSES = ['DRAFT', 'SENT', 'PAID', 'OVERDUE', 'CANCELLED', 'PARTIAL'] as const
 type InvoiceStatusValue = (typeof INVOICE_STATUSES)[number]
@@ -186,7 +187,7 @@ export const invoicesRoutes = new Elysia({ prefix: '/api/invoices' })
         })
         .post(
           '/',
-          async ({ body, authUser, set }) => {
+          async ({ body, authUser, headers, set }) => {
             const user = authUser as AuthenticatedUser
             const invoiceNumber = body.invoiceNumber || (await generateInvoiceNumber())
 
@@ -211,6 +212,13 @@ export const invoicesRoutes = new Elysia({ prefix: '/api/invoices' })
                 created_by: user.id,
               },
             })
+            logActivity({
+              userId: user.id,
+              action: 'CREATE',
+              entityType: 'Invoice',
+              entityId: invoice.id,
+              ipAddress: getIpAddress(headers),
+            })
             set.status = 201
             return { invoice }
           },
@@ -218,7 +226,7 @@ export const invoicesRoutes = new Elysia({ prefix: '/api/invoices' })
         )
         .put(
           '/:id',
-          async ({ params, body, set }) => {
+          async ({ params, body, authUser, headers, set }) => {
             const existing = await prisma.invoice.findUnique({ where: { id: params.id } })
             if (!existing) {
               set.status = 404
@@ -264,11 +272,18 @@ export const invoicesRoutes = new Elysia({ prefix: '/api/invoices' })
                 notes: body.notes,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'UPDATE',
+              entityType: 'Invoice',
+              entityId: params.id,
+              ipAddress: getIpAddress(headers),
+            })
             return { invoice }
           },
           { body: updateInvoiceSchema }
         )
-        .patch('/:id/mark-overdue', async ({ params, set }) => {
+        .patch('/:id/mark-overdue', async ({ params, authUser, headers, set }) => {
           const invoice = await prisma.invoice.findUnique({ where: { id: params.id } })
           if (!invoice) {
             set.status = 404
@@ -291,9 +306,16 @@ export const invoicesRoutes = new Elysia({ prefix: '/api/invoices' })
             where: { id: params.id },
             data: { status: 'OVERDUE', days_overdue: daysOverdue },
           })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'UPDATE',
+            entityType: 'Invoice',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { invoice: updated }
         })
-        .patch('/:id/void', async ({ params, set }) => {
+        .patch('/:id/void', async ({ params, authUser, headers, set }) => {
           const invoice = await prisma.invoice.findUnique({ where: { id: params.id } })
           if (!invoice) {
             set.status = 404
@@ -309,9 +331,16 @@ export const invoicesRoutes = new Elysia({ prefix: '/api/invoices' })
             where: { id: params.id },
             data: { status: 'CANCELLED' },
           })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'UPDATE',
+            entityType: 'Invoice',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { invoice: updated }
         })
-        .delete('/:id', async ({ params, set }) => {
+        .delete('/:id', async ({ params, authUser, headers, set }) => {
           const existing = await prisma.invoice.findUnique({ where: { id: params.id } })
           if (!existing) {
             set.status = 404
@@ -322,6 +351,13 @@ export const invoicesRoutes = new Elysia({ prefix: '/api/invoices' })
             return { error: 'Only DRAFT invoices can be deleted' }
           }
           await prisma.invoice.delete({ where: { id: params.id } })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'DELETE',
+            entityType: 'Invoice',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { success: true }
         })
   )

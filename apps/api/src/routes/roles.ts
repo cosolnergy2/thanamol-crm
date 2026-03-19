@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
 import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 import { getUserAggregatedPermissions } from '../middleware/permissions'
 import { ROLE_TEMPLATES } from '@thanamol/shared'
 
@@ -97,7 +98,7 @@ export const rolesRoutes = new Elysia({ prefix: '/api/roles' })
             inner
               .post(
                 '/',
-                async ({ body, set }) => {
+                async ({ body, authUser, headers, set }) => {
                   const { name, code, description, permissions } = body
                   const existing = await prisma.role.findUnique({ where: { name } })
                   if (existing) {
@@ -113,6 +114,13 @@ export const rolesRoutes = new Elysia({ prefix: '/api/roles' })
                       permissions: permissions ?? {},
                     },
                   })
+                  logActivity({
+                    userId: (authUser as AuthenticatedUser).id,
+                    action: 'CREATE',
+                    entityType: 'Role',
+                    entityId: role.id,
+                    ipAddress: getIpAddress(headers),
+                  })
                   set.status = 201
                   return { role }
                 },
@@ -120,7 +128,7 @@ export const rolesRoutes = new Elysia({ prefix: '/api/roles' })
               )
               .put(
                 '/:id',
-                async ({ params, body, set }) => {
+                async ({ params, body, authUser, headers, set }) => {
                   const existing = await prisma.role.findUnique({ where: { id: params.id } })
                   if (!existing) {
                     set.status = 404
@@ -143,11 +151,18 @@ export const rolesRoutes = new Elysia({ prefix: '/api/roles' })
                         body.permissions ?? (existing.permissions as Record<string, boolean>),
                     },
                   })
+                  logActivity({
+                    userId: (authUser as AuthenticatedUser).id,
+                    action: 'UPDATE',
+                    entityType: 'Role',
+                    entityId: params.id,
+                    ipAddress: getIpAddress(headers),
+                  })
                   return { role }
                 },
                 { body: roleBodySchema }
               )
-              .delete('/:id', async ({ params, set }) => {
+              .delete('/:id', async ({ params, authUser, headers, set }) => {
                 const existing = await prisma.role.findUnique({ where: { id: params.id } })
                 if (!existing) {
                   set.status = 404
@@ -165,6 +180,13 @@ export const rolesRoutes = new Elysia({ prefix: '/api/roles' })
                   return { error: 'Cannot delete role with assigned users' }
                 }
                 await prisma.role.delete({ where: { id: params.id } })
+                logActivity({
+                  userId: (authUser as AuthenticatedUser).id,
+                  action: 'DELETE',
+                  entityType: 'Role',
+                  entityId: params.id,
+                  ipAddress: getIpAddress(headers),
+                })
                 return { success: true }
               })
         )
@@ -208,7 +230,7 @@ export const userRoleRoutes = new Elysia({ prefix: '/api/users' })
             inner
               .post(
                 '/:userId/roles',
-                async ({ params, body, set }) => {
+                async ({ params, body, authUser, headers, set }) => {
                   const { roleId } = body
                   const user = await prisma.user.findUnique({ where: { id: params.userId } })
                   if (!user) {
@@ -230,6 +252,13 @@ export const userRoleRoutes = new Elysia({ prefix: '/api/users' })
                   await prisma.userRole.create({
                     data: { user_id: params.userId, role_id: roleId },
                   })
+                  logActivity({
+                    userId: (authUser as AuthenticatedUser).id,
+                    action: 'CREATE',
+                    entityType: 'UserRole',
+                    entityId: params.userId,
+                    ipAddress: getIpAddress(headers),
+                  })
                   set.status = 201
                   return { success: true }
                 },
@@ -239,7 +268,7 @@ export const userRoleRoutes = new Elysia({ prefix: '/api/users' })
                   }),
                 }
               )
-              .delete('/:userId/roles/:roleId', async ({ params, set }) => {
+              .delete('/:userId/roles/:roleId', async ({ params, authUser, headers, set }) => {
                 const userRole = await prisma.userRole.findUnique({
                   where: {
                     user_id_role_id: { user_id: params.userId, role_id: params.roleId },
@@ -253,6 +282,13 @@ export const userRoleRoutes = new Elysia({ prefix: '/api/users' })
                   where: {
                     user_id_role_id: { user_id: params.userId, role_id: params.roleId },
                   },
+                })
+                logActivity({
+                  userId: (authUser as AuthenticatedUser).id,
+                  action: 'DELETE',
+                  entityType: 'UserRole',
+                  entityId: params.userId,
+                  ipAddress: getIpAddress(headers),
                 })
                 return { success: true }
               })

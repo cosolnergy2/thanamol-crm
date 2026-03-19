@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
 import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 const SALE_JOB_STATUSES = ['DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED'] as const
 type SaleJobStatusValue = (typeof SALE_JOB_STATUSES)[number]
@@ -132,7 +133,7 @@ export const saleJobsRoutes = new Elysia({ prefix: '/api/sale-jobs' })
         })
         .post(
           '/',
-          async ({ body, authUser, set }) => {
+          async ({ body, authUser, headers, set }) => {
             const user = authUser as AuthenticatedUser
             const formNumber = body.formNumber || (await generateFormNumber())
             const item = await prisma.saleJob04F01.create({
@@ -147,6 +148,13 @@ export const saleJobsRoutes = new Elysia({ prefix: '/api/sale-jobs' })
               },
               include: saleJobIncludes,
             })
+            logActivity({
+              userId: user.id,
+              action: 'CREATE',
+              entityType: 'SaleJob',
+              entityId: item.id,
+              ipAddress: getIpAddress(headers),
+            })
             set.status = 201
             return { saleJob: item }
           },
@@ -154,7 +162,7 @@ export const saleJobsRoutes = new Elysia({ prefix: '/api/sale-jobs' })
         )
         .put(
           '/:id',
-          async ({ params, body, set }) => {
+          async ({ params, body, authUser, headers, set }) => {
             const existing = await prisma.saleJob04F01.findUnique({ where: { id: params.id } })
             if (!existing) {
               set.status = 404
@@ -171,11 +179,18 @@ export const saleJobsRoutes = new Elysia({ prefix: '/api/sale-jobs' })
               },
               include: saleJobIncludes,
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'UPDATE',
+              entityType: 'SaleJob',
+              entityId: params.id,
+              ipAddress: getIpAddress(headers),
+            })
             return { saleJob: item }
           },
           { body: updateSaleJobSchema }
         )
-        .delete('/:id', async ({ params, set }) => {
+        .delete('/:id', async ({ params, authUser, headers, set }) => {
           const existing = await prisma.saleJob04F01.findUnique({ where: { id: params.id } })
           if (!existing) {
             set.status = 404
@@ -186,9 +201,16 @@ export const saleJobsRoutes = new Elysia({ prefix: '/api/sale-jobs' })
             return { error: 'Only DRAFT sale jobs can be deleted' }
           }
           await prisma.saleJob04F01.delete({ where: { id: params.id } })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'DELETE',
+            entityType: 'SaleJob',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { success: true }
         })
-        .post('/:id/approve', async ({ params, authUser, set }) => {
+        .post('/:id/approve', async ({ params, authUser, headers, set }) => {
           const existing = await prisma.saleJob04F01.findUnique({ where: { id: params.id } })
           if (!existing) {
             set.status = 404
@@ -204,11 +226,18 @@ export const saleJobsRoutes = new Elysia({ prefix: '/api/sale-jobs' })
             data: { status: 'APPROVED', approved_by: user.id },
             include: saleJobIncludes,
           })
+          logActivity({
+            userId: user.id,
+            action: 'UPDATE',
+            entityType: 'SaleJob',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { saleJob: item }
         })
         .post(
           '/:id/reject',
-          async ({ params, set }) => {
+          async ({ params, authUser, headers, set }) => {
             const existing = await prisma.saleJob04F01.findUnique({ where: { id: params.id } })
             if (!existing) {
               set.status = 404
@@ -222,6 +251,13 @@ export const saleJobsRoutes = new Elysia({ prefix: '/api/sale-jobs' })
               where: { id: params.id },
               data: { status: 'REJECTED' },
               include: saleJobIncludes,
+            })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'UPDATE',
+              entityType: 'SaleJob',
+              entityId: params.id,
+              ipAddress: getIpAddress(headers),
             })
             return { saleJob: item }
           }

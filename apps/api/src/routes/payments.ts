@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
 import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 const PAYMENT_METHODS = ['CASH', 'BANK_TRANSFER', 'CHEQUE', 'CREDIT_CARD', 'ONLINE'] as const
 
@@ -164,7 +165,7 @@ export const paymentsRoutes = new Elysia({ prefix: '/api/payments' })
         })
         .post(
           '/',
-          async ({ body, authUser, set }) => {
+          async ({ body, authUser, headers, set }) => {
             const user = authUser as AuthenticatedUser
 
             const invoice = await prisma.invoice.findUnique({ where: { id: body.invoiceId } })
@@ -187,6 +188,13 @@ export const paymentsRoutes = new Elysia({ prefix: '/api/payments' })
 
             await recalculateInvoiceStatus(body.invoiceId)
 
+            logActivity({
+              userId: user.id,
+              action: 'CREATE',
+              entityType: 'Payment',
+              entityId: payment.id,
+              ipAddress: getIpAddress(headers),
+            })
             set.status = 201
             return { payment }
           },
@@ -194,7 +202,7 @@ export const paymentsRoutes = new Elysia({ prefix: '/api/payments' })
         )
         .put(
           '/:id',
-          async ({ params, body, set }) => {
+          async ({ params, body, authUser, headers, set }) => {
             const existing = await prisma.payment.findUnique({ where: { id: params.id } })
             if (!existing) {
               set.status = 404
@@ -216,11 +224,18 @@ export const paymentsRoutes = new Elysia({ prefix: '/api/payments' })
             const targetInvoiceId = body.invoiceId ?? existing.invoice_id
             await recalculateInvoiceStatus(targetInvoiceId)
 
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'UPDATE',
+              entityType: 'Payment',
+              entityId: params.id,
+              ipAddress: getIpAddress(headers),
+            })
             return { payment }
           },
           { body: updatePaymentSchema }
         )
-        .delete('/:id', async ({ params, set }) => {
+        .delete('/:id', async ({ params, authUser, headers, set }) => {
           const existing = await prisma.payment.findUnique({ where: { id: params.id } })
           if (!existing) {
             set.status = 404
@@ -230,6 +245,13 @@ export const paymentsRoutes = new Elysia({ prefix: '/api/payments' })
           await prisma.payment.delete({ where: { id: params.id } })
           await recalculateInvoiceStatus(existing.invoice_id)
 
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'DELETE',
+            entityType: 'Payment',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { success: true }
         })
   )
