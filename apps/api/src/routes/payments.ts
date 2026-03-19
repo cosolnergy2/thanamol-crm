@@ -48,16 +48,32 @@ async function recalculateInvoiceStatus(invoiceId: string): Promise<void> {
 
   const totalPaid = invoice.payments.reduce((sum, p) => sum + p.amount, 0)
 
-  let newStatus: 'PAID' | 'PARTIAL' | 'SENT'
   if (totalPaid >= invoice.total) {
-    newStatus = 'PAID'
-  } else if (totalPaid > 0) {
-    newStatus = 'PARTIAL'
-  } else {
-    newStatus = 'SENT'
+    if (invoice.status !== 'PAID') {
+      await prisma.invoice.update({
+        where: { id: invoiceId },
+        data: { status: 'PAID' },
+      })
+    }
+    return
   }
 
-  if (invoice.status !== 'PAID' && invoice.status !== 'CANCELLED' && invoice.status !== newStatus) {
+  // When not fully paid, only transition away from OVERDUE if explicitly upgrading to PARTIAL.
+  // OVERDUE status is preserved when balance is still outstanding.
+  if (invoice.status === 'OVERDUE') {
+    if (totalPaid > 0) {
+      await prisma.invoice.update({
+        where: { id: invoiceId },
+        data: { status: 'PARTIAL' },
+      })
+    }
+    return
+  }
+
+  if (invoice.status === 'PAID' || invoice.status === 'CANCELLED') return
+
+  const newStatus: 'PARTIAL' | 'SENT' = totalPaid > 0 ? 'PARTIAL' : 'SENT'
+  if (invoice.status !== newStatus) {
     await prisma.invoice.update({
       where: { id: invoiceId },
       data: { status: newStatus },

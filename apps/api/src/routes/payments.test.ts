@@ -270,6 +270,68 @@ describe('POST /api/payments', () => {
     )
   })
 
+  it('preserves OVERDUE status when payment does not cover full balance', async () => {
+    const overdueInvoice = { ...mockInvoice, status: 'OVERDUE', payments: [] }
+    const overdueInvoiceAfterPayment = { ...overdueInvoice, payments: [mockPayment] }
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
+    vi.mocked(prisma.invoice.findUnique)
+      .mockResolvedValueOnce(overdueInvoice as never)
+      .mockResolvedValueOnce(overdueInvoiceAfterPayment as never)
+    vi.mocked(prisma.payment.create).mockResolvedValue(mockPayment as never)
+    vi.mocked(prisma.invoice.update).mockResolvedValue({ ...overdueInvoice, status: 'PARTIAL' } as never)
+
+    const token = await signToken()
+    const res = await request(
+      'POST',
+      '/api/payments',
+      {
+        invoiceId: 'inv-1',
+        amount: 5000,
+        paymentDate: '2026-03-15',
+        paymentMethod: 'BANK_TRANSFER',
+      },
+      token
+    )
+
+    expect(res.status).toBe(201)
+    // When OVERDUE and partial payment: transitions to PARTIAL (not back to SENT)
+    expect(vi.mocked(prisma.invoice.update)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'PARTIAL' }),
+      })
+    )
+  })
+
+  it('transitions OVERDUE to PAID when fully paid', async () => {
+    const fullPayment = { ...mockPayment, amount: 10700 }
+    const overdueInvoice = { ...mockInvoice, status: 'OVERDUE', payments: [] }
+    const overdueInvoiceFullyPaid = { ...overdueInvoice, payments: [fullPayment] }
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
+    vi.mocked(prisma.invoice.findUnique)
+      .mockResolvedValueOnce(overdueInvoice as never)
+      .mockResolvedValueOnce(overdueInvoiceFullyPaid as never)
+    vi.mocked(prisma.payment.create).mockResolvedValue(fullPayment as never)
+    vi.mocked(prisma.invoice.update).mockResolvedValue({ ...overdueInvoice, status: 'PAID' } as never)
+
+    const token = await signToken()
+    const res = await request(
+      'POST',
+      '/api/payments',
+      {
+        invoiceId: 'inv-1',
+        amount: 10700,
+        paymentDate: '2026-03-15',
+        paymentMethod: 'CASH',
+      },
+      token
+    )
+
+    expect(res.status).toBe(201)
+    expect(vi.mocked(prisma.invoice.update)).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'PAID' }) })
+    )
+  })
+
   it('returns 404 when invoice does not exist', async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
     vi.mocked(prisma.invoice.findUnique).mockResolvedValue(null)
