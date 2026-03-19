@@ -238,21 +238,20 @@ function buildNavigation(t: ReturnType<typeof useLanguage>['t']): NavItem[] {
 
 const ADMIN_ROLE = 'admin'
 
-// Maps sidebar permission keys to role permission keys
 const PERMISSION_MAP: Record<string, string[]> = {
-  dashboard: [],  // everyone can see dashboard
-  projects: ['manage_projects'],
-  customers: ['manage_projects'],
-  leads_deals: ['manage_projects'],
-  units: ['manage_projects'],
-  quotations: ['manage_contracts'],
-  contracts: ['manage_contracts'],
-  finance: ['manage_finance'],
-  utilities: ['manage_projects'],
-  service: ['manage_projects'],
-  documents: ['manage_documents'],
-  reports: ['view_reports'],
-  settings: ['manage_settings', 'manage_users', 'manage_roles'],
+  dashboard: [],
+  projects: ['projects.view'],
+  customers: ['customers.view'],
+  leads_deals: ['leads.view', 'deals.view'],
+  units: ['units.view'],
+  quotations: ['quotations.view'],
+  contracts: ['contracts.view'],
+  finance: ['invoices.view'],
+  utilities: ['utilities.view'],
+  service: ['service.view'],
+  documents: ['documents.view'],
+  reports: ['reports.view'],
+  settings: ['settings.view', 'users.view'],
 }
 
 function userHasPermission(

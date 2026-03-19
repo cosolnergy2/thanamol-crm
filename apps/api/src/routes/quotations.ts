@@ -247,7 +247,7 @@ export const quotationsRoutes = new Elysia({ prefix: '/api/quotations' })
               const perms = await getUserAggregatedPermissions(
                 (authUser as AuthenticatedUser).id
               )
-              if (!perms['manage_contracts']) {
+              if (!perms['quotations.approve']) {
                 set.status = 403
                 return { error: 'Forbidden' }
               }

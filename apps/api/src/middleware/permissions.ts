@@ -1,5 +1,4 @@
 import { prisma } from '../lib/prisma'
-import { LEGACY_KEY_MODULE_MAP } from '@thanamol/shared'
 import type { GranularPermissions } from '@thanamol/shared'
 
 function isNestedPermissions(permissions: unknown): permissions is GranularPermissions {
@@ -17,17 +16,6 @@ function flattenNestedPermissions(nested: GranularPermissions): Record<string, b
       if (value === true) {
         flat[`${module}.${action}`] = true
       }
-    }
-  }
-
-  for (const [legacyKey, modules] of Object.entries(LEGACY_KEY_MODULE_MAP)) {
-    const hasAnyAction = modules.some((module) => {
-      const actions = nested[module as keyof GranularPermissions]
-      if (!actions) return false
-      return Object.values(actions).some(Boolean)
-    })
-    if (hasAnyAction) {
-      flat[legacyKey] = true
     }
   }
 

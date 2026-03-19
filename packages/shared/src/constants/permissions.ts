@@ -9,6 +9,11 @@ export const PERMISSION_MODULES = [
   'reports',
   'settings',
   'projects',
+  'units',
+  'utilities',
+  'service',
+  'documents',
+  'leads',
 ] as const
 
 export type PermissionModule = (typeof PERMISSION_MODULES)[number]
@@ -73,6 +78,11 @@ export const ROLE_TEMPLATES: RoleTemplate[] = [
       projects: { view: true, create: false, edit: false, delete: false, approve: false },
       users: { view: true, create: false, edit: false, delete: false, approve: false },
       settings: { view: false, create: false, edit: false, delete: false, approve: false },
+      units: { ...VIEW_ONLY_ACTIONS },
+      utilities: { view: false, create: false, edit: false, delete: false, approve: false },
+      service: { view: false, create: false, edit: false, delete: false, approve: false },
+      documents: { ...VIEW_ONLY_ACTIONS },
+      leads: { ...ALL_ACTIONS },
     },
   },
   {
@@ -89,6 +99,11 @@ export const ROLE_TEMPLATES: RoleTemplate[] = [
       projects: { view: true, create: false, edit: false, delete: false, approve: false },
       users: { view: false, create: false, edit: false, delete: false, approve: false },
       settings: { view: false, create: false, edit: false, delete: false, approve: false },
+      units: { ...VIEW_ONLY_ACTIONS },
+      utilities: { view: false, create: false, edit: false, delete: false, approve: false },
+      service: { view: false, create: false, edit: false, delete: false, approve: false },
+      documents: { ...VIEW_ONLY_ACTIONS },
+      leads: { ...EDIT_ACTIONS },
     },
   },
   {
@@ -105,6 +120,11 @@ export const ROLE_TEMPLATES: RoleTemplate[] = [
       projects: { view: true, create: false, edit: false, delete: false, approve: false },
       users: { view: false, create: false, edit: false, delete: false, approve: false },
       settings: { view: false, create: false, edit: false, delete: false, approve: false },
+      units: { view: false, create: false, edit: false, delete: false, approve: false },
+      utilities: { ...ALL_ACTIONS },
+      service: { view: true, create: false, edit: false, delete: false, approve: false },
+      documents: { ...VIEW_ONLY_ACTIONS },
+      leads: { view: false, create: false, edit: false, delete: false, approve: false },
     },
   },
   {
@@ -116,13 +136,3 @@ export const ROLE_TEMPLATES: RoleTemplate[] = [
   },
 ]
 
-export const LEGACY_KEY_MODULE_MAP: Record<string, PermissionModule[]> = {
-  manage_projects: ['customers', 'projects', 'deals'],
-  manage_contracts: ['contracts', 'quotations'],
-  manage_finance: ['invoices'],
-  manage_documents: ['tasks'],
-  manage_users: ['users'],
-  manage_roles: ['settings'],
-  manage_settings: ['settings'],
-  view_reports: ['reports'],
-}

@@ -87,7 +87,7 @@ export const rolesRoutes = new Elysia({ prefix: '/api/roles' })
               const perms = await getUserAggregatedPermissions(
                 (authUser as AuthenticatedUser).id
               )
-              if (!perms['manage_roles']) {
+              if (!perms['settings.edit']) {
                 set.status = 403
                 return { error: 'Forbidden' }
               }
@@ -198,7 +198,7 @@ export const userRoleRoutes = new Elysia({ prefix: '/api/users' })
               const perms = await getUserAggregatedPermissions(
                 (authUser as AuthenticatedUser).id
               )
-              if (!perms['manage_roles']) {
+              if (!perms['settings.edit']) {
                 set.status = 403
                 return { error: 'Forbidden' }
               }

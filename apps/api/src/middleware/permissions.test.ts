@@ -54,26 +54,12 @@ describe('getUserAggregatedPermissions', () => {
     expect(result['invoices.view']).toBe(true)
   })
 
-  it('generates legacy keys for nested permissions', async () => {
+  it('does not generate legacy keys from nested permissions', async () => {
     vi.mocked(prisma.userRole.findMany).mockResolvedValue([
       {
         role: {
           permissions: {
             invoices: { view: true, create: true },
-          },
-        },
-      },
-    ] as never)
-
-    const result = await getUserAggregatedPermissions('user-1')
-    expect(result['manage_finance']).toBe(true)
-  })
-
-  it('generates manage_projects legacy key when customers module has actions', async () => {
-    vi.mocked(prisma.userRole.findMany).mockResolvedValue([
-      {
-        role: {
-          permissions: {
             customers: { view: true },
           },
         },
@@ -81,32 +67,48 @@ describe('getUserAggregatedPermissions', () => {
     ] as never)
 
     const result = await getUserAggregatedPermissions('user-1')
-    expect(result['manage_projects']).toBe(true)
+    expect(result['invoices.view']).toBe(true)
+    expect(result['invoices.create']).toBe(true)
+    expect(result['customers.view']).toBe(true)
+    expect(result['manage_finance']).toBeUndefined()
+    expect(result['manage_projects']).toBeUndefined()
   })
 
-  it('does not generate legacy keys when nested module has no true actions', async () => {
+  it('flattens new module permissions (units, utilities, service, documents, leads)', async () => {
     vi.mocked(prisma.userRole.findMany).mockResolvedValue([
       {
         role: {
           permissions: {
-            invoices: { view: false, create: false },
+            units: { view: true, create: false },
+            utilities: { view: true, edit: true },
+            service: { view: true },
+            documents: { view: true, create: true },
+            leads: { view: true, create: true, edit: true },
           },
         },
       },
     ] as never)
 
     const result = await getUserAggregatedPermissions('user-1')
-    expect(result['manage_finance']).toBeUndefined()
+    expect(result['units.view']).toBe(true)
+    expect(result['units.create']).toBeUndefined()
+    expect(result['utilities.view']).toBe(true)
+    expect(result['utilities.edit']).toBe(true)
+    expect(result['service.view']).toBe(true)
+    expect(result['documents.view']).toBe(true)
+    expect(result['documents.create']).toBe(true)
+    expect(result['leads.view']).toBe(true)
+    expect(result['leads.edit']).toBe(true)
   })
 
-  it('merges nested and flat permissions from different roles', async () => {
+  it('merges nested permissions from different roles', async () => {
     vi.mocked(prisma.userRole.findMany).mockResolvedValue([
-      { role: { permissions: { manage_roles: true } } },
+      { role: { permissions: { settings: { edit: true } } } },
       { role: { permissions: { customers: { view: true } } } },
     ] as never)
 
     const result = await getUserAggregatedPermissions('user-1')
-    expect(result['manage_roles']).toBe(true)
+    expect(result['settings.edit']).toBe(true)
     expect(result['customers.view']).toBe(true)
   })
 })

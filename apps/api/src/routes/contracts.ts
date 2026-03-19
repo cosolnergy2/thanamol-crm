@@ -312,7 +312,7 @@ export const contractsRoutes = new Elysia({ prefix: '/api/contracts' })
               const perms = await getUserAggregatedPermissions(
                 (authUser as AuthenticatedUser).id
               )
-              if (!perms['manage_contracts']) {
+              if (!perms['contracts.approve']) {
                 set.status = 403
                 return { error: 'Forbidden' }
               }

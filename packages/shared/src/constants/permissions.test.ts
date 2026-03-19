@@ -3,7 +3,6 @@ import {
   PERMISSION_MODULES,
   PERMISSION_ACTIONS,
   ROLE_TEMPLATES,
-  LEGACY_KEY_MODULE_MAP,
 } from './permissions'
 
 describe('PERMISSION_MODULES', () => {
@@ -15,6 +14,14 @@ describe('PERMISSION_MODULES', () => {
     expect(PERMISSION_MODULES).toContain('users')
     expect(PERMISSION_MODULES).toContain('reports')
     expect(PERMISSION_MODULES).toContain('settings')
+  })
+
+  it('contains new granular modules', () => {
+    expect(PERMISSION_MODULES).toContain('units')
+    expect(PERMISSION_MODULES).toContain('utilities')
+    expect(PERMISSION_MODULES).toContain('service')
+    expect(PERMISSION_MODULES).toContain('documents')
+    expect(PERMISSION_MODULES).toContain('leads')
   })
 })
 
@@ -69,20 +76,5 @@ describe('ROLE_TEMPLATES', () => {
     expect(salesStaff).toBeDefined()
     expect(salesStaff!.permissions.quotations?.view).toBe(true)
     expect(salesStaff!.permissions.settings?.view).toBe(false)
-  })
-})
-
-describe('LEGACY_KEY_MODULE_MAP', () => {
-  it('maps manage_finance to invoices', () => {
-    expect(LEGACY_KEY_MODULE_MAP['manage_finance']).toContain('invoices')
-  })
-
-  it('maps manage_projects to customers and projects', () => {
-    expect(LEGACY_KEY_MODULE_MAP['manage_projects']).toContain('customers')
-    expect(LEGACY_KEY_MODULE_MAP['manage_projects']).toContain('projects')
-  })
-
-  it('maps manage_contracts to contracts', () => {
-    expect(LEGACY_KEY_MODULE_MAP['manage_contracts']).toContain('contracts')
   })
 })
