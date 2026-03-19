@@ -1,9 +1,15 @@
+export const DEPARTMENTS = ['Admin', 'Sale', 'Legal', 'Account', 'Service'] as const
+export type Department = (typeof DEPARTMENTS)[number]
+
 export type AuthUser = {
   id: string
   email: string
   firstName: string
   lastName: string
   avatarUrl: string | null
+  phone: string | null
+  department: string | null
+  position: string | null
   isActive: boolean
   roles: Array<{ id: string; name: string }>
 }
@@ -13,6 +19,21 @@ export type RegisterRequest = {
   password: string
   firstName: string
   lastName: string
+}
+
+export type CreateUserRequest = {
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+  phone?: string
+  department?: string
+  position?: string
+  roleId?: string
+}
+
+export type ResetPasswordRequest = {
+  newPassword: string
 }
 
 export type LoginRequest = {
@@ -821,11 +842,14 @@ export type PreHandoverInspectionListResponse = PaginatedResponse<PreHandoverIns
 
 export type InvoiceStatus = 'DRAFT' | 'SENT' | 'PAID' | 'OVERDUE' | 'CANCELLED' | 'PARTIAL'
 
+export type InvoiceItemType = 'Rent' | 'Common Fee' | 'Water' | 'Electricity' | 'Parking' | 'Other'
+
 export type InvoiceItem = {
   description: string
   quantity: number
   unit_price: number
   amount: number
+  item_type?: InvoiceItemType
 }
 
 export type Invoice = {
@@ -837,8 +861,13 @@ export type Invoice = {
   subtotal: number
   tax: number
   total: number
+  discount: number
   due_date: string | null
+  invoice_date: string | null
+  billing_period_start: string | null
+  billing_period_end: string | null
   status: InvoiceStatus
+  days_overdue: number
   notes: string | null
   created_by: string
   created_at: string
@@ -859,14 +888,22 @@ export type CreateInvoiceRequest = {
   subtotal?: number
   tax?: number
   total?: number
+  discount?: number
   dueDate?: string
+  invoiceDate?: string
+  billingPeriodStart?: string
+  billingPeriodEnd?: string
   status?: InvoiceStatus
   notes?: string
 }
 
 export type UpdateInvoiceRequest = Partial<CreateInvoiceRequest>
 
-export type InvoiceListResponse = PaginatedResponse<Invoice>
+export type InvoiceWithCustomer = Invoice & {
+  customer: Pick<Customer, 'id' | 'name'>
+}
+
+export type InvoiceListResponse = PaginatedResponse<InvoiceWithCustomer>
 
 export type InvoiceQueryParams = {
   page?: number

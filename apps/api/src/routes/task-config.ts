@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
 import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 const createTaskStatusSchema = t.Object({
   name: t.String({ minLength: 1 }),
@@ -57,7 +58,7 @@ export const taskConfigRoutes = new Elysia()
             })
             .post(
               '/',
-              async ({ body, set }) => {
+              async ({ body, authUser, headers, set }) => {
                 const existing = await prisma.taskStatus.findUnique({ where: { name: body.name } })
                 if (existing) {
                   set.status = 409
@@ -72,6 +73,13 @@ export const taskConfigRoutes = new Elysia()
                     is_closed: body.isClosed ?? false,
                   },
                 })
+                logActivity({
+                  userId: (authUser as AuthenticatedUser).id,
+                  action: 'CREATE',
+                  entityType: 'TaskStatus',
+                  entityId: status.id,
+                  ipAddress: getIpAddress(headers),
+                })
                 set.status = 201
                 return { status }
               },
@@ -79,7 +87,7 @@ export const taskConfigRoutes = new Elysia()
             )
             .put(
               '/:id',
-              async ({ params, body, set }) => {
+              async ({ params, body, authUser, headers, set }) => {
                 const existing = await prisma.taskStatus.findUnique({ where: { id: params.id } })
                 if (!existing) {
                   set.status = 404
@@ -104,17 +112,31 @@ export const taskConfigRoutes = new Elysia()
                     is_closed: body.isClosed,
                   },
                 })
+                logActivity({
+                  userId: (authUser as AuthenticatedUser).id,
+                  action: 'UPDATE',
+                  entityType: 'TaskStatus',
+                  entityId: params.id,
+                  ipAddress: getIpAddress(headers),
+                })
                 return { status }
               },
               { body: updateTaskStatusSchema }
             )
-            .delete('/:id', async ({ params, set }) => {
+            .delete('/:id', async ({ params, authUser, headers, set }) => {
               const existing = await prisma.taskStatus.findUnique({ where: { id: params.id } })
               if (!existing) {
                 set.status = 404
                 return { error: 'Task status not found' }
               }
               await prisma.taskStatus.delete({ where: { id: params.id } })
+              logActivity({
+                userId: (authUser as AuthenticatedUser).id,
+                action: 'DELETE',
+                entityType: 'TaskStatus',
+                entityId: params.id,
+                ipAddress: getIpAddress(headers),
+              })
               return { success: true }
             })
       )
@@ -140,7 +162,7 @@ export const taskConfigRoutes = new Elysia()
             })
             .post(
               '/',
-              async ({ body, set }) => {
+              async ({ body, authUser, headers, set }) => {
                 const rule = await prisma.automationRule.create({
                   data: {
                     name: body.name,
@@ -150,6 +172,13 @@ export const taskConfigRoutes = new Elysia()
                     is_active: body.isActive ?? true,
                   },
                 })
+                logActivity({
+                  userId: (authUser as AuthenticatedUser).id,
+                  action: 'CREATE',
+                  entityType: 'AutomationRule',
+                  entityId: rule.id,
+                  ipAddress: getIpAddress(headers),
+                })
                 set.status = 201
                 return { rule }
               },
@@ -157,7 +186,7 @@ export const taskConfigRoutes = new Elysia()
             )
             .put(
               '/:id',
-              async ({ params, body, set }) => {
+              async ({ params, body, authUser, headers, set }) => {
                 const existing = await prisma.automationRule.findUnique({
                   where: { id: params.id },
                 })
@@ -179,11 +208,18 @@ export const taskConfigRoutes = new Elysia()
                     is_active: body.isActive,
                   },
                 })
+                logActivity({
+                  userId: (authUser as AuthenticatedUser).id,
+                  action: 'UPDATE',
+                  entityType: 'AutomationRule',
+                  entityId: params.id,
+                  ipAddress: getIpAddress(headers),
+                })
                 return { rule }
               },
               { body: updateAutomationRuleSchema }
             )
-            .delete('/:id', async ({ params, set }) => {
+            .delete('/:id', async ({ params, authUser, headers, set }) => {
               const existing = await prisma.automationRule.findUnique({
                 where: { id: params.id },
               })
@@ -192,6 +228,13 @@ export const taskConfigRoutes = new Elysia()
                 return { error: 'Automation rule not found' }
               }
               await prisma.automationRule.delete({ where: { id: params.id } })
+              logActivity({
+                userId: (authUser as AuthenticatedUser).id,
+                action: 'DELETE',
+                entityType: 'AutomationRule',
+                entityId: params.id,
+                ipAddress: getIpAddress(headers),
+              })
               return { success: true }
             })
       )

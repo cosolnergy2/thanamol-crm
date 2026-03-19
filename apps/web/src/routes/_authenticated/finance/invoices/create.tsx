@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { Plus, Trash2, ChevronLeft } from 'lucide-react'
+import { Plus, Trash2, ChevronLeft, Wand2 } from 'lucide-react'
 import { format, addDays } from 'date-fns'
 import { toast } from 'sonner'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -34,7 +34,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { useCreateInvoice } from '@/hooks/useInvoices'
 import { useContracts } from '@/hooks/useContracts'
 import { useCustomers } from '@/hooks/useCustomers'
-import type { InvoiceItem } from '@thanamol/shared'
+import type { InvoiceItem, InvoiceItemType } from '@thanamol/shared'
 
 export const Route = createFileRoute('/_authenticated/finance/invoices/create')({
   component: InvoiceCreatePage,
@@ -43,6 +43,15 @@ export const Route = createFileRoute('/_authenticated/finance/invoices/create')(
 const VAT_RATE = 0.07
 const DEFAULT_PAYMENT_DAYS = 30
 
+const ITEM_TYPE_OPTIONS: { value: InvoiceItemType; label: string }[] = [
+  { value: 'Rent', label: 'Rent (ค่าเช่า)' },
+  { value: 'Common Fee', label: 'Common Fee (ค่าสวนกลาง)' },
+  { value: 'Water', label: 'Water (ค่าน้ำ)' },
+  { value: 'Electricity', label: 'Electricity (ค่าไฟ)' },
+  { value: 'Parking', label: 'Parking (ค่าจอดรถ)' },
+  { value: 'Other', label: 'Other (อื่นๆ)' },
+]
+
 type LineItemDraft = InvoiceItem & { _id: number }
 
 const EMPTY_LINE_ITEM: Omit<LineItemDraft, '_id'> = {
@@ -50,6 +59,7 @@ const EMPTY_LINE_ITEM: Omit<LineItemDraft, '_id'> = {
   quantity: 1,
   unit_price: 0,
   amount: 0,
+  item_type: undefined,
 }
 
 let nextLineItemId = 1
@@ -65,7 +75,11 @@ function InvoiceCreatePage() {
   const [customerId, setCustomerId] = useState('')
   const [contractId, setContractId] = useState('')
   const [notes, setNotes] = useState('')
+  const [invoiceDate, setInvoiceDate] = useState(format(new Date(), 'yyyy-MM-dd'))
   const [dueDate, setDueDate] = useState(format(addDays(new Date(), DEFAULT_PAYMENT_DAYS), 'yyyy-MM-dd'))
+  const [billingPeriodStart, setBillingPeriodStart] = useState('')
+  const [billingPeriodEnd, setBillingPeriodEnd] = useState('')
+  const [discount, setDiscount] = useState(0)
   const [lineItems, setLineItems] = useState<LineItemDraft[]>([])
 
   const [isItemDialogOpen, setIsItemDialogOpen] = useState(false)
@@ -78,9 +92,11 @@ function InvoiceCreatePage() {
   const contracts = contractsData?.data ?? []
   const customers = customersData?.data ?? []
 
+  const selectedContract = contracts.find((c) => c.id === contractId)
+
   const subtotal = lineItems.reduce((sum, item) => sum + item.amount, 0)
   const tax = Math.round(subtotal * VAT_RATE * 100) / 100
-  const total = subtotal + tax
+  const total = subtotal + tax - discount
 
   function openAddItemDialog() {
     setEditingItem(null)
@@ -90,7 +106,13 @@ function InvoiceCreatePage() {
 
   function openEditItemDialog(item: LineItemDraft) {
     setEditingItem(item)
-    setItemForm({ description: item.description, quantity: item.quantity, unit_price: item.unit_price, amount: item.amount })
+    setItemForm({
+      description: item.description,
+      quantity: item.quantity,
+      unit_price: item.unit_price,
+      amount: item.amount,
+      item_type: item.item_type,
+    })
     setIsItemDialogOpen(true)
   }
 
@@ -131,6 +153,22 @@ function InvoiceCreatePage() {
     setLineItems((prev) => prev.filter((item) => item._id !== id))
   }
 
+  function autoFillFromContract() {
+    if (!selectedContract || !selectedContract.monthly_rent) return
+    setLineItems((prev) => [
+      ...prev,
+      {
+        _id: nextLineItemId++,
+        item_type: 'Rent',
+        description: 'ค่าเช่า',
+        quantity: 1,
+        unit_price: selectedContract.monthly_rent!,
+        amount: selectedContract.monthly_rent!,
+      },
+    ])
+    toast.success('Rent line item added from contract')
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!customerId) {
@@ -147,8 +185,12 @@ function InvoiceCreatePage() {
         items,
         subtotal,
         tax,
+        discount: discount > 0 ? discount : undefined,
         total,
+        invoiceDate: invoiceDate || undefined,
         dueDate: dueDate || undefined,
+        billingPeriodStart: billingPeriodStart || undefined,
+        billingPeriodEnd: billingPeriodEnd || undefined,
         notes: notes || undefined,
       })
       toast.success(`Invoice ${result.invoice.invoice_number} created`)
@@ -197,12 +239,15 @@ function InvoiceCreatePage() {
 
                   <div className="space-y-1.5">
                     <Label className="text-[11px] text-slate-500">Contract (optional)</Label>
-                    <Select value={contractId} onValueChange={setContractId}>
+                    <Select
+                      value={contractId || '__none__'}
+                      onValueChange={(v) => setContractId(v === '__none__' ? '' : v)}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Link to contract" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">None</SelectItem>
+                        <SelectItem value="__none__">None</SelectItem>
                         {contracts.map((c) => (
                           <SelectItem key={c.id} value={c.id}>
                             {c.contract_number}
@@ -213,11 +258,38 @@ function InvoiceCreatePage() {
                   </div>
 
                   <div className="space-y-1.5">
+                    <Label className="text-[11px] text-slate-500">Invoice Date</Label>
+                    <Input
+                      type="date"
+                      value={invoiceDate}
+                      onChange={(e) => setInvoiceDate(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
                     <Label className="text-[11px] text-slate-500">Due Date</Label>
                     <Input
                       type="date"
                       value={dueDate}
                       onChange={(e) => setDueDate(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-[11px] text-slate-500">Billing Period From</Label>
+                    <Input
+                      type="date"
+                      value={billingPeriodStart}
+                      onChange={(e) => setBillingPeriodStart(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-[11px] text-slate-500">Billing Period To</Label>
+                    <Input
+                      type="date"
+                      value={billingPeriodEnd}
+                      onChange={(e) => setBillingPeriodEnd(e.target.value)}
                     />
                   </div>
                 </div>
@@ -237,10 +309,24 @@ function InvoiceCreatePage() {
             <Card>
               <CardHeader className="pb-3 flex flex-row items-center justify-between">
                 <CardTitle className="text-sm font-light text-slate-700">Line Items</CardTitle>
-                <Button type="button" size="sm" variant="outline" onClick={openAddItemDialog}>
-                  <Plus className="w-3.5 h-3.5 mr-1" />
-                  Add Item
-                </Button>
+                <div className="flex gap-2">
+                  {selectedContract && selectedContract.monthly_rent && selectedContract.monthly_rent > 0 && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={autoFillFromContract}
+                      className="text-teal-700 border-teal-200 hover:bg-teal-50"
+                    >
+                      <Wand2 className="w-3.5 h-3.5 mr-1" />
+                      Auto-fill from contract
+                    </Button>
+                  )}
+                  <Button type="button" size="sm" variant="outline" onClick={openAddItemDialog}>
+                    <Plus className="w-3.5 h-3.5 mr-1" />
+                    Add Item
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 {lineItems.length === 0 ? (
@@ -251,6 +337,9 @@ function InvoiceCreatePage() {
                   <Table>
                     <TableHeader>
                       <TableRow className="border-slate-100">
+                        <TableHead className="text-[10px] font-extralight text-slate-400 tracking-widest uppercase">
+                          Type
+                        </TableHead>
                         <TableHead className="text-[10px] font-extralight text-slate-400 tracking-widest uppercase">
                           Description
                         </TableHead>
@@ -273,6 +362,9 @@ function InvoiceCreatePage() {
                           className="border-slate-100 cursor-pointer hover:bg-slate-50/50"
                           onClick={() => openEditItemDialog(item)}
                         >
+                          <TableCell className="py-2 text-[10px] text-slate-500">
+                            {item.item_type ?? '—'}
+                          </TableCell>
                           <TableCell className="py-2 text-[11px] text-slate-700">
                             {item.description}
                           </TableCell>
@@ -322,6 +414,19 @@ function InvoiceCreatePage() {
                   <span className="text-slate-500">VAT (7%)</span>
                   <span className="text-slate-700">฿{tax.toLocaleString()}</span>
                 </div>
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <Label className="text-slate-500 text-[11px]">Discount (฿)</Label>
+                  </div>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={discount}
+                    onChange={(e) => setDiscount(Number(e.target.value))}
+                    className="h-7 text-[11px]"
+                  />
+                </div>
                 <div className="border-t border-slate-100 pt-3 flex justify-between">
                   <span className="text-[12px] font-light text-slate-700">Total</span>
                   <span className="text-[14px] font-light text-indigo-700">
@@ -350,6 +455,27 @@ function InvoiceCreatePage() {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label className="text-[11px] text-slate-500">Item Type</Label>
+              <Select
+                value={itemForm.item_type ?? '__none__'}
+                onValueChange={(v) =>
+                  updateItemFormField('item_type', v === '__none__' ? undefined : (v as InvoiceItemType))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">None</SelectItem>
+                  {ITEM_TYPE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-1.5">
               <Label className="text-[11px] text-slate-500">Description *</Label>
               <Input

@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
 import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 function buildPagination(page: number, limit: number, total: number) {
   return {
@@ -67,15 +68,22 @@ export const notificationsRoutes = new Elysia({ prefix: '/api/notifications' })
             }),
           }
         )
-        .put('/read-all', async ({ authUser }) => {
+        .put('/read-all', async ({ authUser, headers }) => {
           const user = authUser as AuthenticatedUser
           await prisma.notification.updateMany({
             where: { user_id: user.id, is_read: false },
             data: { is_read: true },
           })
+          logActivity({
+            userId: user.id,
+            action: 'UPDATE',
+            entityType: 'Notification',
+            entityId: 'bulk',
+            ipAddress: getIpAddress(headers),
+          })
           return { success: true }
         })
-        .put('/:id/read', async ({ authUser, params, set }) => {
+        .put('/:id/read', async ({ authUser, params, headers, set }) => {
           const user = authUser as AuthenticatedUser
           const notification = await prisma.notification.findUnique({
             where: { id: params.id },
@@ -91,6 +99,13 @@ export const notificationsRoutes = new Elysia({ prefix: '/api/notifications' })
           const updated = await prisma.notification.update({
             where: { id: params.id },
             data: { is_read: true },
+          })
+          logActivity({
+            userId: user.id,
+            action: 'UPDATE',
+            entityType: 'Notification',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
           })
           return { notification: updated }
         })
@@ -121,7 +136,7 @@ export const notificationPreferencesRoutes = new Elysia({
         })
         .put(
           '/',
-          async ({ authUser, body }) => {
+          async ({ authUser, body, headers }) => {
             const user = authUser as AuthenticatedUser
             const preference = await prisma.notificationPreference.upsert({
               where: {
@@ -140,6 +155,13 @@ export const notificationPreferencesRoutes = new Elysia({
                 email_enabled: body.emailEnabled ?? true,
                 in_app_enabled: body.inAppEnabled ?? true,
               },
+            })
+            logActivity({
+              userId: user.id,
+              action: 'UPDATE',
+              entityType: 'NotificationPreference',
+              entityId: body.notificationType,
+              ipAddress: getIpAddress(headers),
             })
             return { preference }
           },

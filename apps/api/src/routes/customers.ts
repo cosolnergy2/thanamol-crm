@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
-import { authPlugin } from '../middleware/auth'
+import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 const CUSTOMER_TYPES = ['INDIVIDUAL', 'COMPANY'] as const
 const CUSTOMER_STATUSES = ['ACTIVE', 'INACTIVE', 'PROSPECT'] as const
@@ -117,7 +118,7 @@ export const customersRoutes = new Elysia({ prefix: '/api/customers' })
         })
         .post(
           '/',
-          async ({ body, set }) => {
+          async ({ body, set, authUser, headers }) => {
             const customer = await prisma.customer.create({
               data: {
                 name: body.name,
@@ -130,6 +131,13 @@ export const customersRoutes = new Elysia({ prefix: '/api/customers' })
                 notes: body.notes,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'CREATE',
+              entityType: 'Customer',
+              entityId: customer.id,
+              ipAddress: getIpAddress(headers),
+            })
             set.status = 201
             return { customer }
           },
@@ -137,7 +145,7 @@ export const customersRoutes = new Elysia({ prefix: '/api/customers' })
         )
         .put(
           '/:id',
-          async ({ params, body, set }) => {
+          async ({ params, body, set, authUser, headers }) => {
             const existing = await prisma.customer.findUnique({ where: { id: params.id } })
             if (!existing) {
               set.status = 404
@@ -156,17 +164,31 @@ export const customersRoutes = new Elysia({ prefix: '/api/customers' })
                 notes: body.notes,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'UPDATE',
+              entityType: 'Customer',
+              entityId: customer.id,
+              ipAddress: getIpAddress(headers),
+            })
             return { customer }
           },
           { body: updateCustomerSchema }
         )
-        .delete('/:id', async ({ params, set }) => {
+        .delete('/:id', async ({ params, set, authUser, headers }) => {
           const existing = await prisma.customer.findUnique({ where: { id: params.id } })
           if (!existing) {
             set.status = 404
             return { error: 'Customer not found' }
           }
           await prisma.customer.delete({ where: { id: params.id } })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'DELETE',
+            entityType: 'Customer',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { success: true }
         })
   )

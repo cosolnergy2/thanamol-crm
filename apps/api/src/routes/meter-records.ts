@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
-import { authPlugin } from '../middleware/auth'
+import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 const METER_TYPES = ['ELECTRICITY', 'WATER', 'GAS'] as const
 type MeterTypeValue = (typeof METER_TYPES)[number]
@@ -113,7 +114,7 @@ export const meterRecordsRoutes = new Elysia({ prefix: '/api/meter-records' })
         })
         .post(
           '/',
-          async ({ body, set }) => {
+          async ({ body, authUser, headers, set }) => {
             try {
               const usage = calculateUsage(body.previousReading, body.currentReading)
               const record = await prisma.meterRecord.create({
@@ -129,6 +130,13 @@ export const meterRecordsRoutes = new Elysia({ prefix: '/api/meter-records' })
                 },
                 include: meterRecordIncludes,
               })
+              logActivity({
+                userId: (authUser as AuthenticatedUser).id,
+                action: 'CREATE',
+                entityType: 'MeterRecord',
+                entityId: record.id,
+                ipAddress: getIpAddress(headers),
+              })
               set.status = 201
               return { meterRecord: record }
             } catch (err: unknown) {
@@ -140,7 +148,7 @@ export const meterRecordsRoutes = new Elysia({ prefix: '/api/meter-records' })
         )
         .put(
           '/:id',
-          async ({ params, body, set }) => {
+          async ({ params, body, authUser, headers, set }) => {
             const existing = await prisma.meterRecord.findUnique({ where: { id: params.id } })
             if (!existing) {
               set.status = 404
@@ -165,6 +173,13 @@ export const meterRecordsRoutes = new Elysia({ prefix: '/api/meter-records' })
                 },
                 include: meterRecordIncludes,
               })
+              logActivity({
+                userId: (authUser as AuthenticatedUser).id,
+                action: 'UPDATE',
+                entityType: 'MeterRecord',
+                entityId: params.id,
+                ipAddress: getIpAddress(headers),
+              })
               return { meterRecord: record }
             } catch (err: unknown) {
               set.status = 400
@@ -173,13 +188,20 @@ export const meterRecordsRoutes = new Elysia({ prefix: '/api/meter-records' })
           },
           { body: updateMeterRecordSchema }
         )
-        .delete('/:id', async ({ params, set }) => {
+        .delete('/:id', async ({ params, authUser, headers, set }) => {
           const existing = await prisma.meterRecord.findUnique({ where: { id: params.id } })
           if (!existing) {
             set.status = 404
             return { error: 'MeterRecord not found' }
           }
           await prisma.meterRecord.delete({ where: { id: params.id } })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'DELETE',
+            entityType: 'MeterRecord',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { success: true }
         })
   )

@@ -2,6 +2,7 @@ import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
 import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
 import { getUserAggregatedPermissions } from '../middleware/permissions'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 const CONTRACT_STATUSES = [
   'DRAFT',
@@ -230,7 +231,7 @@ export const contractsRoutes = new Elysia({ prefix: '/api/contracts' })
         })
         .post(
           '/',
-          async ({ body, authUser, set }) => {
+          async ({ body, authUser, headers, set }) => {
             const user = authUser as AuthenticatedUser
             const contractNumber = body.contractNumber || (await generateContractNumber())
 
@@ -252,6 +253,13 @@ export const contractsRoutes = new Elysia({ prefix: '/api/contracts' })
                 created_by: user.id,
               },
             })
+            logActivity({
+              userId: user.id,
+              action: 'CREATE',
+              entityType: 'Contract',
+              entityId: contract.id,
+              ipAddress: getIpAddress(headers),
+            })
             set.status = 201
             return { contract }
           },
@@ -259,7 +267,7 @@ export const contractsRoutes = new Elysia({ prefix: '/api/contracts' })
         )
         .put(
           '/:id',
-          async ({ params, body, set }) => {
+          async ({ params, body, authUser, headers, set }) => {
             const existing = await prisma.contract.findUnique({ where: { id: params.id } })
             if (!existing) {
               set.status = 404
@@ -289,11 +297,18 @@ export const contractsRoutes = new Elysia({ prefix: '/api/contracts' })
                 status: body.status,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'UPDATE',
+              entityType: 'Contract',
+              entityId: params.id,
+              ipAddress: getIpAddress(headers),
+            })
             return { contract }
           },
           { body: updateContractSchema }
         )
-        .delete('/:id', async ({ params, set }) => {
+        .delete('/:id', async ({ params, authUser, headers, set }) => {
           const existing = await prisma.contract.findUnique({ where: { id: params.id } })
           if (!existing) {
             set.status = 404
@@ -304,6 +319,13 @@ export const contractsRoutes = new Elysia({ prefix: '/api/contracts' })
             return { error: 'Only DRAFT contracts can be deleted' }
           }
           await prisma.contract.delete({ where: { id: params.id } })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'DELETE',
+            entityType: 'Contract',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { success: true }
         })
         .guard(
@@ -312,7 +334,7 @@ export const contractsRoutes = new Elysia({ prefix: '/api/contracts' })
               const perms = await getUserAggregatedPermissions(
                 (authUser as AuthenticatedUser).id
               )
-              if (!perms['manage_contracts']) {
+              if (!perms['contracts.approve']) {
                 set.status = 403
                 return { error: 'Forbidden' }
               }
@@ -320,7 +342,7 @@ export const contractsRoutes = new Elysia({ prefix: '/api/contracts' })
           },
           (inner) =>
             inner
-              .post('/:id/approve', async ({ params, authUser, set }) => {
+              .post('/:id/approve', async ({ params, authUser, headers, set }) => {
                 const contract = await prisma.contract.findUnique({ where: { id: params.id } })
                 if (!contract) {
                   set.status = 404
@@ -343,11 +365,18 @@ export const contractsRoutes = new Elysia({ prefix: '/api/contracts' })
                     approved_by: user.id,
                   },
                 })
+                logActivity({
+                  userId: user.id,
+                  action: 'UPDATE',
+                  entityType: 'Contract',
+                  entityId: params.id,
+                  ipAddress: getIpAddress(headers),
+                })
                 return { contract: updated }
               })
               .post(
                 '/:id/reject',
-                async ({ params, body, set }) => {
+                async ({ params, body, authUser, headers, set }) => {
                   const contract = await prisma.contract.findUnique({
                     where: { id: params.id },
                   })
@@ -365,6 +394,13 @@ export const contractsRoutes = new Elysia({ prefix: '/api/contracts' })
                       status: 'CANCELLED',
                       terms: body.reason,
                     },
+                  })
+                  logActivity({
+                    userId: (authUser as AuthenticatedUser).id,
+                    action: 'UPDATE',
+                    entityType: 'Contract',
+                    entityId: params.id,
+                    ipAddress: getIpAddress(headers),
                   })
                   return { contract: updated }
                 },

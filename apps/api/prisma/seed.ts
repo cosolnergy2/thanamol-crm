@@ -1,6 +1,7 @@
 import { PrismaClient } from "../generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcryptjs";
+import { ROLE_TEMPLATES } from "@thanamol/shared";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL ?? "" });
 const prisma = new PrismaClient({ adapter });
@@ -8,32 +9,59 @@ const prisma = new PrismaClient({ adapter });
 const PASSWORD_SALT_ROUNDS = 10;
 const DEFAULT_PASSWORD = "password123";
 
+function toKebabCase(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+const SYSTEM_ROLE_NAMES = new Set(["Admin", "User"]);
+
+const ROLE_ADMIN_TEMPLATE = ROLE_TEMPLATES.find((t) => t.name === "Admin")!;
+const ROLE_SALES_MANAGER_TEMPLATE = ROLE_TEMPLATES.find((t) => t.name === "Sales Manager")!;
+const ROLE_FINANCE_OFFICER_TEMPLATE = ROLE_TEMPLATES.find((t) => t.name === "Finance Officer")!;
+const ROLE_VIEWER_TEMPLATE = ROLE_TEMPLATES.find((t) => t.name === "Viewer Only")!;
+
 const ROLE_ADMIN = {
   name: "Admin",
+  code: "admin",
   description: "Full permissions across all modules",
-  permissions: {
-    manage_users: true,
-    manage_roles: true,
-    manage_projects: true,
-    manage_settings: true,
-    view_reports: true,
-    manage_contracts: true,
-    manage_finance: true,
-    manage_documents: true,
-  },
+  is_system_role: true,
+  permissions: ROLE_ADMIN_TEMPLATE.permissions,
 };
 
 const ROLE_USER = {
   name: "User",
+  code: "user",
   description: "Read/write permissions scoped to assigned resources",
-  permissions: {
-    view_reports: true,
-    manage_projects: true,
-    manage_contracts: false,
-    manage_finance: false,
-    manage_documents: true,
-  },
+  is_system_role: true,
+  permissions: ROLE_SALES_MANAGER_TEMPLATE.permissions,
 };
+
+const EXTRA_ROLES = [
+  {
+    name: "Sales Manager",
+    code: "sales-manager",
+    description: ROLE_SALES_MANAGER_TEMPLATE.description,
+    is_system_role: false,
+    permissions: ROLE_SALES_MANAGER_TEMPLATE.permissions,
+  },
+  {
+    name: "Finance Officer",
+    code: "finance-officer",
+    description: ROLE_FINANCE_OFFICER_TEMPLATE.description,
+    is_system_role: false,
+    permissions: ROLE_FINANCE_OFFICER_TEMPLATE.permissions,
+  },
+  {
+    name: "Viewer Only",
+    code: "viewer-only",
+    description: ROLE_VIEWER_TEMPLATE.description,
+    is_system_role: false,
+    permissions: ROLE_VIEWER_TEMPLATE.permissions,
+  },
+];
 
 const USERS = [
   {
@@ -233,15 +261,37 @@ const NOTIFICATION_TYPES = ["contract_expiry", "task_assigned", "deal_updated", 
 async function seedRoles() {
   const adminRole = await prisma.role.upsert({
     where: { name: ROLE_ADMIN.name },
-    update: { permissions: ROLE_ADMIN.permissions, description: ROLE_ADMIN.description },
+    update: {
+      permissions: ROLE_ADMIN.permissions,
+      description: ROLE_ADMIN.description,
+      code: ROLE_ADMIN.code,
+      is_system_role: true,
+    },
     create: ROLE_ADMIN,
   });
 
   const userRole = await prisma.role.upsert({
     where: { name: ROLE_USER.name },
-    update: { permissions: ROLE_USER.permissions, description: ROLE_USER.description },
+    update: {
+      permissions: ROLE_USER.permissions,
+      description: ROLE_USER.description,
+      code: ROLE_USER.code,
+      is_system_role: true,
+    },
     create: ROLE_USER,
   });
+
+  for (const roleData of EXTRA_ROLES) {
+    await prisma.role.upsert({
+      where: { name: roleData.name },
+      update: {
+        permissions: roleData.permissions,
+        description: roleData.description,
+        code: roleData.code,
+      },
+      create: roleData,
+    });
+  }
 
   return { adminRole, userRole };
 }

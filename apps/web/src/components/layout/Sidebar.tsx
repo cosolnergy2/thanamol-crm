@@ -238,21 +238,20 @@ function buildNavigation(t: ReturnType<typeof useLanguage>['t']): NavItem[] {
 
 const ADMIN_ROLE = 'admin'
 
-// Maps sidebar permission keys to role permission keys
 const PERMISSION_MAP: Record<string, string[]> = {
-  dashboard: [],  // everyone can see dashboard
-  projects: ['manage_projects'],
-  customers: ['manage_projects'],
-  leads_deals: ['manage_projects'],
-  units: ['manage_projects'],
-  quotations: ['manage_contracts'],
-  contracts: ['manage_contracts'],
-  finance: ['manage_finance'],
-  utilities: ['manage_projects'],
-  service: ['manage_projects'],
-  documents: ['manage_documents'],
-  reports: ['view_reports'],
-  settings: ['manage_settings', 'manage_users', 'manage_roles'],
+  dashboard: [],
+  projects: ['projects.view'],
+  customers: ['customers.view'],
+  leads_deals: ['leads.view', 'deals.view'],
+  units: ['units.view'],
+  quotations: ['quotations.view'],
+  contracts: ['contracts.view'],
+  finance: ['invoices.view'],
+  utilities: ['utilities.view'],
+  service: ['service.view'],
+  documents: ['documents.view'],
+  reports: ['reports.view'],
+  settings: ['settings.view', 'users.view'],
 }
 
 function userHasPermission(
@@ -263,12 +262,12 @@ function userHasPermission(
   if (!user) return false
   if (user.roles.some((r) => r.name.toLowerCase() === ADMIN_ROLE)) return true
 
-  // If no permissions loaded yet, show all items (will re-render when loaded)
-  if (!userPermissions) return true
-
   const requiredPerms = PERMISSION_MAP[permission]
   // No specific permission required (e.g. dashboard) — show to all
   if (!requiredPerms || requiredPerms.length === 0) return true
+
+  // No permissions loaded or empty — only show unrestricted items
+  if (!userPermissions || Object.keys(userPermissions).length === 0) return false
 
   // User needs at least one of the mapped permissions
   return requiredPerms.some((p) => userPermissions[p] === true)

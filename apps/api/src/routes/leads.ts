@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
-import { authPlugin } from '../middleware/auth'
+import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 const LEAD_STATUSES = ['NEW', 'CONTACTED', 'QUALIFIED', 'UNQUALIFIED', 'CONVERTED'] as const
 type LeadStatusValue = typeof LEAD_STATUSES[number]
@@ -149,7 +150,7 @@ export const leadsRoutes = new Elysia({ prefix: '/api/leads' })
         })
         .post(
           '/',
-          async ({ body, set }) => {
+          async ({ body, set, authUser, headers }) => {
             const lead = await prisma.lead.create({
               data: {
                 title: body.title,
@@ -166,6 +167,13 @@ export const leadsRoutes = new Elysia({ prefix: '/api/leads' })
                 assigned_to: body.assignedTo,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'CREATE',
+              entityType: 'Lead',
+              entityId: lead.id,
+              ipAddress: getIpAddress(headers),
+            })
             set.status = 201
             return { lead }
           },
@@ -173,7 +181,7 @@ export const leadsRoutes = new Elysia({ prefix: '/api/leads' })
         )
         .put(
           '/:id',
-          async ({ params, body, set }) => {
+          async ({ params, body, set, authUser, headers }) => {
             const existing = await prisma.lead.findUnique({ where: { id: params.id } })
             if (!existing) {
               set.status = 404
@@ -206,17 +214,31 @@ export const leadsRoutes = new Elysia({ prefix: '/api/leads' })
                 assigned_to: body.assignedTo,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'UPDATE',
+              entityType: 'Lead',
+              entityId: lead.id,
+              ipAddress: getIpAddress(headers),
+            })
             return { lead }
           },
           { body: updateLeadSchema }
         )
-        .delete('/:id', async ({ params, set }) => {
+        .delete('/:id', async ({ params, set, authUser, headers }) => {
           const existing = await prisma.lead.findUnique({ where: { id: params.id } })
           if (!existing) {
             set.status = 404
             return { error: 'Lead not found' }
           }
           await prisma.lead.delete({ where: { id: params.id } })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'DELETE',
+            entityType: 'Lead',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { success: true }
         })
   )

@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
-import { authPlugin } from '../middleware/auth'
+import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 const DEAL_STAGES = [
   'PROSPECTING',
@@ -178,7 +179,7 @@ export const dealsRoutes = new Elysia({ prefix: '/api/deals' })
         })
         .post(
           '/',
-          async ({ body, set }) => {
+          async ({ body, set, authUser, headers }) => {
             const deal = await prisma.deal.create({
               data: {
                 title: body.title,
@@ -194,6 +195,13 @@ export const dealsRoutes = new Elysia({ prefix: '/api/deals' })
                 assigned_to: body.assignedTo,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'CREATE',
+              entityType: 'Deal',
+              entityId: deal.id,
+              ipAddress: getIpAddress(headers),
+            })
             set.status = 201
             return { deal }
           },
@@ -201,7 +209,7 @@ export const dealsRoutes = new Elysia({ prefix: '/api/deals' })
         )
         .put(
           '/:id',
-          async ({ params, body, set }) => {
+          async ({ params, body, set, authUser, headers }) => {
             const existing = await prisma.deal.findUnique({ where: { id: params.id } })
             if (!existing) {
               set.status = 404
@@ -233,17 +241,31 @@ export const dealsRoutes = new Elysia({ prefix: '/api/deals' })
                 assigned_to: body.assignedTo,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'UPDATE',
+              entityType: 'Deal',
+              entityId: deal.id,
+              ipAddress: getIpAddress(headers),
+            })
             return { deal }
           },
           { body: updateDealSchema }
         )
-        .delete('/:id', async ({ params, set }) => {
+        .delete('/:id', async ({ params, set, authUser, headers }) => {
           const existing = await prisma.deal.findUnique({ where: { id: params.id } })
           if (!existing) {
             set.status = 404
             return { error: 'Deal not found' }
           }
           await prisma.deal.delete({ where: { id: params.id } })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'DELETE',
+            entityType: 'Deal',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { success: true }
         })
   )

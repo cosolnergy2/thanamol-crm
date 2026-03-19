@@ -2,6 +2,7 @@ import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
 import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
 import { getUserAggregatedPermissions } from '../middleware/permissions'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 const QUOTATION_STATUSES = ['DRAFT', 'SENT', 'APPROVED', 'REJECTED', 'EXPIRED'] as const
 type QuotationStatusValue = typeof QUOTATION_STATUSES[number]
@@ -161,7 +162,7 @@ export const commercialQuotationsRoutes = new Elysia({ prefix: '/api/commercial-
         })
         .post(
           '/',
-          async ({ body, authUser, set }) => {
+          async ({ body, authUser, headers, set }) => {
             const user = authUser as AuthenticatedUser
             const quotationNumber =
               body.quotationNumber || (await generateCommercialQuotationNumber())
@@ -179,6 +180,13 @@ export const commercialQuotationsRoutes = new Elysia({ prefix: '/api/commercial-
                 created_by: user.id,
               },
             })
+            logActivity({
+              userId: user.id,
+              action: 'CREATE',
+              entityType: 'CommercialQuotation',
+              entityId: quotation.id,
+              ipAddress: getIpAddress(headers),
+            })
             set.status = 201
             return { quotation }
           },
@@ -186,7 +194,7 @@ export const commercialQuotationsRoutes = new Elysia({ prefix: '/api/commercial-
         )
         .put(
           '/:id',
-          async ({ params, body, set }) => {
+          async ({ params, body, authUser, headers, set }) => {
             const existing = await prisma.commercialQuotation.findUnique({
               where: { id: params.id },
             })
@@ -208,11 +216,18 @@ export const commercialQuotationsRoutes = new Elysia({ prefix: '/api/commercial-
                 status: body.status,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'UPDATE',
+              entityType: 'CommercialQuotation',
+              entityId: params.id,
+              ipAddress: getIpAddress(headers),
+            })
             return { quotation }
           },
           { body: updateCommercialQuotationSchema }
         )
-        .delete('/:id', async ({ params, set }) => {
+        .delete('/:id', async ({ params, authUser, headers, set }) => {
           const existing = await prisma.commercialQuotation.findUnique({
             where: { id: params.id },
           })
@@ -221,6 +236,13 @@ export const commercialQuotationsRoutes = new Elysia({ prefix: '/api/commercial-
             return { error: 'Commercial quotation not found' }
           }
           await prisma.commercialQuotation.delete({ where: { id: params.id } })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'DELETE',
+            entityType: 'CommercialQuotation',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { success: true }
         })
         .guard(
@@ -229,7 +251,7 @@ export const commercialQuotationsRoutes = new Elysia({ prefix: '/api/commercial-
               const perms = await getUserAggregatedPermissions(
                 (authUser as AuthenticatedUser).id
               )
-              if (!perms['manage_contracts']) {
+              if (!perms['quotations.approve']) {
                 set.status = 403
                 return { error: 'Forbidden' }
               }
@@ -237,7 +259,7 @@ export const commercialQuotationsRoutes = new Elysia({ prefix: '/api/commercial-
           },
           (inner) =>
             inner
-              .post('/:id/approve', async ({ params, set }) => {
+              .post('/:id/approve', async ({ params, authUser, headers, set }) => {
                 const quotation = await prisma.commercialQuotation.findUnique({
                   where: { id: params.id },
                 })
@@ -253,11 +275,18 @@ export const commercialQuotationsRoutes = new Elysia({ prefix: '/api/commercial-
                   where: { id: params.id },
                   data: { status: 'APPROVED' },
                 })
+                logActivity({
+                  userId: (authUser as AuthenticatedUser).id,
+                  action: 'UPDATE',
+                  entityType: 'CommercialQuotation',
+                  entityId: params.id,
+                  ipAddress: getIpAddress(headers),
+                })
                 return { quotation: updated }
               })
               .post(
                 '/:id/reject',
-                async ({ params, body, set }) => {
+                async ({ params, body, authUser, headers, set }) => {
                   const quotation = await prisma.commercialQuotation.findUnique({
                     where: { id: params.id },
                   })
@@ -272,6 +301,13 @@ export const commercialQuotationsRoutes = new Elysia({ prefix: '/api/commercial-
                   const updated = await prisma.commercialQuotation.update({
                     where: { id: params.id },
                     data: { status: 'REJECTED' },
+                  })
+                  logActivity({
+                    userId: (authUser as AuthenticatedUser).id,
+                    action: 'UPDATE',
+                    entityType: 'CommercialQuotation',
+                    entityId: params.id,
+                    ipAddress: getIpAddress(headers),
                   })
                   return { quotation: updated, reason: body.reason }
                 },

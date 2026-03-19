@@ -90,7 +90,7 @@ const mockApprovedQuotation = { ...mockQuotation, status: 'APPROVED' }
 const mockUserRoleWithManageContracts = [
   {
     role: {
-      permissions: { manage_contracts: true },
+      permissions: { quotations: { view: true, create: true, edit: true, approve: true } },
     },
   },
 ]
@@ -411,7 +411,7 @@ describe('POST /api/quotations/:id/approve', () => {
     )
   })
 
-  it('returns 403 when user lacks manage_contracts permission', async () => {
+  it('returns 403 when user lacks quotations.approve permission', async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
     vi.mocked(prisma.userRole.findMany).mockResolvedValue(
       mockUserRoleWithoutPermission as never
@@ -498,7 +498,7 @@ describe('POST /api/quotations/:id/reject', () => {
     expect(res.status).toBe(422)
   })
 
-  it('returns 403 when user lacks manage_contracts permission', async () => {
+  it('returns 403 when user lacks quotations.approve permission', async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
     vi.mocked(prisma.userRole.findMany).mockResolvedValue(
       mockUserRoleWithoutPermission as never

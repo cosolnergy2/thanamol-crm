@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
 import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 const createCommentSchema = t.Object({
   entityType: t.String({ minLength: 1 }),
@@ -57,7 +58,7 @@ export const commentsRoutes = new Elysia({ prefix: '/api/comments' })
         )
         .post(
           '/',
-          async ({ body, authUser, set }) => {
+          async ({ body, authUser, headers, set }) => {
             const user = authUser as AuthenticatedUser
             const comment = await prisma.comment.create({
               data: {
@@ -72,6 +73,13 @@ export const commentsRoutes = new Elysia({ prefix: '/api/comments' })
                 },
               },
             })
+            logActivity({
+              userId: user.id,
+              action: 'CREATE',
+              entityType: 'Comment',
+              entityId: comment.id,
+              ipAddress: getIpAddress(headers),
+            })
             set.status = 201
             return { comment }
           },
@@ -79,7 +87,7 @@ export const commentsRoutes = new Elysia({ prefix: '/api/comments' })
         )
         .put(
           '/:id',
-          async ({ params, body, authUser, set }) => {
+          async ({ params, body, authUser, headers, set }) => {
             const user = authUser as AuthenticatedUser
             const existing = await prisma.comment.findUnique({ where: { id: params.id } })
             if (!existing) {
@@ -99,11 +107,18 @@ export const commentsRoutes = new Elysia({ prefix: '/api/comments' })
                 },
               },
             })
+            logActivity({
+              userId: user.id,
+              action: 'UPDATE',
+              entityType: 'Comment',
+              entityId: params.id,
+              ipAddress: getIpAddress(headers),
+            })
             return { comment }
           },
           { body: updateCommentSchema }
         )
-        .delete('/:id', async ({ params, authUser, set }) => {
+        .delete('/:id', async ({ params, authUser, headers, set }) => {
           const user = authUser as AuthenticatedUser
           const existing = await prisma.comment.findUnique({ where: { id: params.id } })
           if (!existing) {
@@ -115,6 +130,13 @@ export const commentsRoutes = new Elysia({ prefix: '/api/comments' })
             return { error: 'Forbidden' }
           }
           await prisma.comment.delete({ where: { id: params.id } })
+          logActivity({
+            userId: user.id,
+            action: 'DELETE',
+            entityType: 'Comment',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { success: true }
         })
   )

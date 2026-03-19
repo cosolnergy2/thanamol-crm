@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
-import { authPlugin } from '../middleware/auth'
+import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 const createContactSchema = t.Object({
   customerId: t.String({ minLength: 1 }),
@@ -109,7 +110,7 @@ export const contactsRoutes = new Elysia({ prefix: '/api/contacts' })
         })
         .post(
           '/',
-          async ({ body, set }) => {
+          async ({ body, set, authUser, headers }) => {
             const customerExists = await prisma.customer.findUnique({
               where: { id: body.customerId },
             })
@@ -133,6 +134,13 @@ export const contactsRoutes = new Elysia({ prefix: '/api/contacts' })
                 is_primary: body.isPrimary ?? false,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'CREATE',
+              entityType: 'Contact',
+              entityId: contact.id,
+              ipAddress: getIpAddress(headers),
+            })
             set.status = 201
             return { contact }
           },
@@ -140,7 +148,7 @@ export const contactsRoutes = new Elysia({ prefix: '/api/contacts' })
         )
         .put(
           '/:id',
-          async ({ params, body, set }) => {
+          async ({ params, body, set, authUser, headers }) => {
             const existing = await prisma.contact.findUnique({ where: { id: params.id } })
             if (!existing) {
               set.status = 404
@@ -162,17 +170,31 @@ export const contactsRoutes = new Elysia({ prefix: '/api/contacts' })
                 is_primary: body.isPrimary,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'UPDATE',
+              entityType: 'Contact',
+              entityId: contact.id,
+              ipAddress: getIpAddress(headers),
+            })
             return { contact }
           },
           { body: updateContactSchema }
         )
-        .delete('/:id', async ({ params, set }) => {
+        .delete('/:id', async ({ params, set, authUser, headers }) => {
           const existing = await prisma.contact.findUnique({ where: { id: params.id } })
           if (!existing) {
             set.status = 404
             return { error: 'Contact not found' }
           }
           await prisma.contact.delete({ where: { id: params.id } })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'DELETE',
+            entityType: 'Contact',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { success: true }
         })
   )

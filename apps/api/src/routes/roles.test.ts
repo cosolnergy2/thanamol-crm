@@ -98,9 +98,12 @@ const mockUserWithoutPermissions = {
 const mockRole = {
   id: 'role-1',
   name: 'Manager',
+  code: 'manager',
   description: 'Manager role',
-  permissions: { manage_roles: true, view_reports: true },
+  permissions: { settings: { view: true, edit: true }, reports: { view: true } },
+  is_system_role: false,
   created_at: new Date(),
+  _count: { user_roles: 0 },
 }
 
 beforeEach(() => {
@@ -165,7 +168,7 @@ describe('POST /api/roles', () => {
     expect(res.status).toBe(401)
   })
 
-  it('returns 403 when user lacks manage_roles permission', async () => {
+  it('returns 403 when user lacks settings.edit permission', async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithoutPermissions as never)
     vi.mocked(prisma.userRole.findMany).mockResolvedValue([])
 
@@ -177,10 +180,10 @@ describe('POST /api/roles', () => {
     expect(body.error).toBe('Forbidden')
   })
 
-  it('creates a role when user has manage_roles permission', async () => {
+  it('creates a role when user has settings.edit permission', async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithManageRoles as never)
     vi.mocked(prisma.userRole.findMany).mockResolvedValue([
-      { role: { permissions: { manage_roles: true } } },
+      { role: { permissions: { settings: { view: true, edit: true } } } },
     ] as never)
     vi.mocked(prisma.role.findUnique).mockResolvedValue(null)
     vi.mocked(prisma.role.create).mockResolvedValue(mockRole as never)
@@ -189,7 +192,7 @@ describe('POST /api/roles', () => {
     const res = await makeRolesRequest(
       'POST',
       '/api/roles',
-      { name: 'Manager', description: 'Manager role', permissions: { manage_roles: true } },
+      { name: 'Manager', description: 'Manager role', permissions: { settings: { view: true, edit: true } } },
       token
     )
 
@@ -201,7 +204,7 @@ describe('POST /api/roles', () => {
   it('returns 400 when name is missing', async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithManageRoles as never)
     vi.mocked(prisma.userRole.findMany).mockResolvedValue([
-      { role: { permissions: { manage_roles: true } } },
+      { role: { permissions: { settings: { view: true, edit: true } } } },
     ] as never)
 
     const token = await signToken()
@@ -213,7 +216,7 @@ describe('POST /api/roles', () => {
   it('returns 409 when role name already exists', async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithManageRoles as never)
     vi.mocked(prisma.userRole.findMany).mockResolvedValue([
-      { role: { permissions: { manage_roles: true } } },
+      { role: { permissions: { settings: { view: true, edit: true } } } },
     ] as never)
     vi.mocked(prisma.role.findUnique).mockResolvedValue(mockRole as never)
 
@@ -229,7 +232,7 @@ describe('POST /api/roles', () => {
 // ─── PUT /api/roles/:id ────────────────────────────────────────────────────────
 
 describe('PUT /api/roles/:id', () => {
-  it('returns 403 when user lacks manage_roles permission', async () => {
+  it('returns 403 when user lacks settings.edit permission', async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithoutPermissions as never)
     vi.mocked(prisma.userRole.findMany).mockResolvedValue([])
 
@@ -239,11 +242,11 @@ describe('PUT /api/roles/:id', () => {
     expect(res.status).toBe(403)
   })
 
-  it('updates role when user has manage_roles permission', async () => {
+  it('updates role when user has settings.edit permission', async () => {
     const updatedRole = { ...mockRole, name: 'Updated Manager' }
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithManageRoles as never)
     vi.mocked(prisma.userRole.findMany).mockResolvedValue([
-      { role: { permissions: { manage_roles: true } } },
+      { role: { permissions: { settings: { view: true, edit: true } } } },
     ] as never)
     vi.mocked(prisma.role.findUnique).mockResolvedValue(mockRole as never)
     vi.mocked(prisma.role.update).mockResolvedValue(updatedRole as never)
@@ -264,7 +267,7 @@ describe('PUT /api/roles/:id', () => {
   it('returns 404 when role does not exist', async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithManageRoles as never)
     vi.mocked(prisma.userRole.findMany).mockResolvedValue([
-      { role: { permissions: { manage_roles: true } } },
+      { role: { permissions: { settings: { view: true, edit: true } } } },
     ] as never)
     vi.mocked(prisma.role.findUnique).mockResolvedValue(null)
 
@@ -278,7 +281,7 @@ describe('PUT /api/roles/:id', () => {
 // ─── DELETE /api/roles/:id ─────────────────────────────────────────────────────
 
 describe('DELETE /api/roles/:id', () => {
-  it('returns 403 when user lacks manage_roles permission', async () => {
+  it('returns 403 when user lacks settings.edit permission', async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithoutPermissions as never)
     vi.mocked(prisma.userRole.findMany).mockResolvedValue([])
 
@@ -291,7 +294,7 @@ describe('DELETE /api/roles/:id', () => {
   it('deletes role when no users are assigned', async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithManageRoles as never)
     vi.mocked(prisma.userRole.findMany).mockResolvedValue([
-      { role: { permissions: { manage_roles: true } } },
+      { role: { permissions: { settings: { view: true, edit: true } } } },
     ] as never)
     vi.mocked(prisma.role.findUnique).mockResolvedValue(mockRole as never)
     vi.mocked(prisma.userRole.count).mockResolvedValue(0)
@@ -308,7 +311,7 @@ describe('DELETE /api/roles/:id', () => {
   it('returns 409 when users are assigned to the role', async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithManageRoles as never)
     vi.mocked(prisma.userRole.findMany).mockResolvedValue([
-      { role: { permissions: { manage_roles: true } } },
+      { role: { permissions: { settings: { view: true, edit: true } } } },
     ] as never)
     vi.mocked(prisma.role.findUnique).mockResolvedValue(mockRole as never)
     vi.mocked(prisma.userRole.count).mockResolvedValue(2)
@@ -324,7 +327,7 @@ describe('DELETE /api/roles/:id', () => {
   it('returns 404 when role does not exist', async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithManageRoles as never)
     vi.mocked(prisma.userRole.findMany).mockResolvedValue([
-      { role: { permissions: { manage_roles: true } } },
+      { role: { permissions: { settings: { view: true, edit: true } } } },
     ] as never)
     vi.mocked(prisma.role.findUnique).mockResolvedValue(null)
 
@@ -335,10 +338,110 @@ describe('DELETE /api/roles/:id', () => {
   })
 })
 
+// ─── GET /api/roles/templates ──────────────────────────────────────────────────
+
+describe('GET /api/roles/templates', () => {
+  it('returns role templates for authenticated user', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithoutPermissions as never)
+
+    const token = await signToken()
+    const res = await makeRolesRequest('GET', '/api/roles/templates', undefined, token)
+
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.templates).toBeDefined()
+    expect(Array.isArray(body.templates)).toBe(true)
+    expect(body.templates.length).toBeGreaterThan(0)
+    expect(body.templates[0]).toHaveProperty('name')
+    expect(body.templates[0]).toHaveProperty('permissions')
+  })
+})
+
+// ─── System role protection ────────────────────────────────────────────────────
+
+describe('System role protection', () => {
+  const systemRole = {
+    ...mockRole,
+    is_system_role: true,
+    name: 'Admin',
+    code: 'admin',
+  }
+
+  it('DELETE /api/roles/:id returns 403 for system role', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithManageRoles as never)
+    vi.mocked(prisma.userRole.findMany).mockResolvedValue([
+      { role: { permissions: { settings: { view: true, edit: true } } } },
+    ] as never)
+    vi.mocked(prisma.role.findUnique).mockResolvedValue(systemRole as never)
+
+    const token = await signToken()
+    const res = await makeRolesRequest('DELETE', '/api/roles/role-1', undefined, token)
+
+    expect(res.status).toBe(403)
+    const body = await res.json()
+    expect(body.error).toBe('Cannot delete a system role')
+  })
+
+  it('PUT /api/roles/:id returns 403 when trying to change system role name', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithManageRoles as never)
+    vi.mocked(prisma.userRole.findMany).mockResolvedValue([
+      { role: { permissions: { settings: { view: true, edit: true } } } },
+    ] as never)
+    vi.mocked(prisma.role.findUnique).mockResolvedValue(systemRole as never)
+
+    const token = await signToken()
+    const res = await makeRolesRequest('PUT', '/api/roles/role-1', { name: 'New Name' }, token)
+
+    expect(res.status).toBe(403)
+    const body = await res.json()
+    expect(body.error).toBe('Cannot change name or code of a system role')
+  })
+
+  it('PUT /api/roles/:id allows permissions change on system role', async () => {
+    const updatedSystemRole = {
+      ...systemRole,
+      permissions: { customers: { view: true, create: true } },
+    }
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithManageRoles as never)
+    vi.mocked(prisma.userRole.findMany).mockResolvedValue([
+      { role: { permissions: { settings: { view: true, edit: true } } } },
+    ] as never)
+    vi.mocked(prisma.role.findUnique).mockResolvedValue(systemRole as never)
+    vi.mocked(prisma.role.update).mockResolvedValue(updatedSystemRole as never)
+
+    const token = await signToken()
+    const res = await makeRolesRequest(
+      'PUT',
+      '/api/roles/role-1',
+      { name: 'Admin', permissions: { customers: { view: true, create: true } } },
+      token
+    )
+
+    expect(res.status).toBe(200)
+  })
+})
+
+// ─── GET /api/roles with user_count ───────────────────────────────────────────
+
+describe('GET /api/roles user_count', () => {
+  it('returns user_count in each role', async () => {
+    const roleWithCount = { ...mockRole, _count: { user_roles: 3 } }
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithoutPermissions as never)
+    vi.mocked(prisma.role.findMany).mockResolvedValue([roleWithCount] as never)
+
+    const token = await signToken()
+    const res = await makeRolesRequest('GET', '/api/roles', undefined, token)
+
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.roles[0].user_count).toBe(3)
+  })
+})
+
 // ─── POST /api/users/:userId/roles ────────────────────────────────────────────
 
 describe('POST /api/users/:userId/roles', () => {
-  it('returns 403 when user lacks manage_roles permission', async () => {
+  it('returns 403 when user lacks settings.edit permission', async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithoutPermissions as never)
     vi.mocked(prisma.userRole.findMany).mockResolvedValue([])
 
@@ -356,7 +459,7 @@ describe('POST /api/users/:userId/roles', () => {
   it('assigns a role to user successfully', async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithManageRoles as never)
     vi.mocked(prisma.userRole.findMany).mockResolvedValue([
-      { role: { permissions: { manage_roles: true } } },
+      { role: { permissions: { settings: { view: true, edit: true } } } },
     ] as never)
     vi.mocked(prisma.role.findUnique).mockResolvedValue(mockRole as never)
     vi.mocked(prisma.userRole.findUnique).mockResolvedValue(null)
@@ -378,7 +481,7 @@ describe('POST /api/users/:userId/roles', () => {
   it('returns 409 when role is already assigned', async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithManageRoles as never)
     vi.mocked(prisma.userRole.findMany).mockResolvedValue([
-      { role: { permissions: { manage_roles: true } } },
+      { role: { permissions: { settings: { view: true, edit: true } } } },
     ] as never)
     vi.mocked(prisma.role.findUnique).mockResolvedValue(mockRole as never)
     vi.mocked(prisma.userRole.findUnique).mockResolvedValue({ user_id: 'user-2', role_id: 'role-1' } as never)
@@ -401,7 +504,7 @@ describe('POST /api/users/:userId/roles', () => {
       .mockResolvedValueOnce(mockUserWithManageRoles as never)
       .mockResolvedValueOnce(null)
     vi.mocked(prisma.userRole.findMany).mockResolvedValue([
-      { role: { permissions: { manage_roles: true } } },
+      { role: { permissions: { settings: { view: true, edit: true } } } },
     ] as never)
 
     const token = await signToken()
@@ -422,7 +525,7 @@ describe('DELETE /api/users/:userId/roles/:roleId', () => {
   it('removes a role from user successfully', async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithManageRoles as never)
     vi.mocked(prisma.userRole.findMany).mockResolvedValue([
-      { role: { permissions: { manage_roles: true } } },
+      { role: { permissions: { settings: { view: true, edit: true } } } },
     ] as never)
     vi.mocked(prisma.userRole.findUnique).mockResolvedValue({
       user_id: 'user-2',
@@ -446,7 +549,7 @@ describe('DELETE /api/users/:userId/roles/:roleId', () => {
   it('returns 404 when user does not have the role', async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithManageRoles as never)
     vi.mocked(prisma.userRole.findMany).mockResolvedValue([
-      { role: { permissions: { manage_roles: true } } },
+      { role: { permissions: { settings: { view: true, edit: true } } } },
     ] as never)
     vi.mocked(prisma.userRole.findUnique).mockResolvedValue(null)
 
@@ -463,7 +566,7 @@ describe('DELETE /api/users/:userId/roles/:roleId', () => {
     expect(body.error).toBe('User does not have this role')
   })
 
-  it('returns 403 when user lacks manage_roles permission', async () => {
+  it('returns 403 when user lacks settings.edit permission', async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithoutPermissions as never)
     vi.mocked(prisma.userRole.findMany).mockResolvedValue([])
 
@@ -492,8 +595,8 @@ describe('GET /api/users/:userId/permissions', () => {
     vi.mocked(prisma.userRole.findMany)
       .mockResolvedValueOnce([]) // auth plugin call
       .mockResolvedValueOnce([
-        { role: { permissions: { view_reports: true, manage_projects: true } } },
-        { role: { permissions: { view_financials: true } } },
+        { role: { permissions: { reports: { view: true }, projects: { view: true } } } },
+        { role: { permissions: { invoices: { view: true } } } },
       ] as never)
 
     const token = await signToken()

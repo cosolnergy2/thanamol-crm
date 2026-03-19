@@ -1,9 +1,12 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
 import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 const INVOICE_STATUSES = ['DRAFT', 'SENT', 'PAID', 'OVERDUE', 'CANCELLED', 'PARTIAL'] as const
 type InvoiceStatusValue = (typeof INVOICE_STATUSES)[number]
+
+const OVERDUE_ELIGIBLE_STATUSES: InvoiceStatusValue[] = ['SENT', 'PARTIAL']
 
 const invoiceStatusUnion = t.Union([
   t.Literal('DRAFT'),
@@ -22,7 +25,11 @@ const createInvoiceSchema = t.Object({
   subtotal: t.Optional(t.Number()),
   tax: t.Optional(t.Number()),
   total: t.Optional(t.Number()),
+  discount: t.Optional(t.Number()),
   dueDate: t.Optional(t.String()),
+  invoiceDate: t.Optional(t.String()),
+  billingPeriodStart: t.Optional(t.String()),
+  billingPeriodEnd: t.Optional(t.String()),
   status: t.Optional(invoiceStatusUnion),
   notes: t.Optional(t.String()),
 })
@@ -35,7 +42,11 @@ const updateInvoiceSchema = t.Object({
   subtotal: t.Optional(t.Number()),
   tax: t.Optional(t.Number()),
   total: t.Optional(t.Number()),
+  discount: t.Optional(t.Number()),
   dueDate: t.Optional(t.String()),
+  invoiceDate: t.Optional(t.String()),
+  billingPeriodStart: t.Optional(t.String()),
+  billingPeriodEnd: t.Optional(t.String()),
   status: t.Optional(invoiceStatusUnion),
   notes: t.Optional(t.String()),
 })
@@ -60,6 +71,36 @@ async function generateInvoiceNumber(): Promise<string> {
 
   const sequence = String(count + 1).padStart(4, '0')
   return `${prefix}${sequence}`
+}
+
+function computeDaysOverdue(dueDate: Date | null): number {
+  if (!dueDate) return 0
+  const now = new Date()
+  const diff = now.getTime() - dueDate.getTime()
+  return diff > 0 ? Math.floor(diff / (1000 * 60 * 60 * 24)) : 0
+}
+
+const invoiceListSelect = {
+  id: true,
+  invoice_number: true,
+  contract_id: true,
+  customer_id: true,
+  items: true,
+  subtotal: true,
+  tax: true,
+  total: true,
+  discount: true,
+  due_date: true,
+  invoice_date: true,
+  billing_period_start: true,
+  billing_period_end: true,
+  status: true,
+  days_overdue: true,
+  notes: true,
+  created_by: true,
+  created_at: true,
+  updated_at: true,
+  customer: { select: { id: true, name: true } },
 }
 
 const invoiceIncludes = {
@@ -102,6 +143,10 @@ export const invoicesRoutes = new Elysia({ prefix: '/api/invoices' })
               where.contract_id = query.contractId
             }
 
+            if (query.search) {
+              where.customer = { name: { contains: query.search, mode: 'insensitive' } }
+            }
+
             const [total, invoices] = await Promise.all([
               prisma.invoice.count({ where }),
               prisma.invoice.findMany({
@@ -109,6 +154,7 @@ export const invoicesRoutes = new Elysia({ prefix: '/api/invoices' })
                 skip,
                 take: limit,
                 orderBy: { created_at: 'desc' },
+                select: invoiceListSelect,
               }),
             ])
 
@@ -124,6 +170,7 @@ export const invoicesRoutes = new Elysia({ prefix: '/api/invoices' })
               status: t.Optional(t.String()),
               customerId: t.Optional(t.String()),
               contractId: t.Optional(t.String()),
+              search: t.Optional(t.String()),
             }),
           }
         )
@@ -140,7 +187,7 @@ export const invoicesRoutes = new Elysia({ prefix: '/api/invoices' })
         })
         .post(
           '/',
-          async ({ body, authUser, set }) => {
+          async ({ body, authUser, headers, set }) => {
             const user = authUser as AuthenticatedUser
             const invoiceNumber = body.invoiceNumber || (await generateInvoiceNumber())
 
@@ -153,11 +200,24 @@ export const invoicesRoutes = new Elysia({ prefix: '/api/invoices' })
                 subtotal: body.subtotal ?? 0,
                 tax: body.tax ?? 0,
                 total: body.total ?? 0,
+                discount: body.discount ?? 0,
                 due_date: body.dueDate ? new Date(body.dueDate) : null,
+                invoice_date: body.invoiceDate ? new Date(body.invoiceDate) : new Date(),
+                billing_period_start: body.billingPeriodStart
+                  ? new Date(body.billingPeriodStart)
+                  : null,
+                billing_period_end: body.billingPeriodEnd ? new Date(body.billingPeriodEnd) : null,
                 status: body.status ?? 'DRAFT',
                 notes: body.notes ?? null,
                 created_by: user.id,
               },
+            })
+            logActivity({
+              userId: user.id,
+              action: 'CREATE',
+              entityType: 'Invoice',
+              entityId: invoice.id,
+              ipAddress: getIpAddress(headers),
             })
             set.status = 201
             return { invoice }
@@ -166,7 +226,7 @@ export const invoicesRoutes = new Elysia({ prefix: '/api/invoices' })
         )
         .put(
           '/:id',
-          async ({ params, body, set }) => {
+          async ({ params, body, authUser, headers, set }) => {
             const existing = await prisma.invoice.findUnique({ where: { id: params.id } })
             if (!existing) {
               set.status = 404
@@ -183,21 +243,104 @@ export const invoicesRoutes = new Elysia({ prefix: '/api/invoices' })
                 subtotal: body.subtotal,
                 tax: body.tax,
                 total: body.total,
+                discount: body.discount,
                 due_date:
                   body.dueDate !== undefined
                     ? body.dueDate
                       ? new Date(body.dueDate)
                       : null
                     : undefined,
+                invoice_date:
+                  body.invoiceDate !== undefined
+                    ? body.invoiceDate
+                      ? new Date(body.invoiceDate)
+                      : null
+                    : undefined,
+                billing_period_start:
+                  body.billingPeriodStart !== undefined
+                    ? body.billingPeriodStart
+                      ? new Date(body.billingPeriodStart)
+                      : null
+                    : undefined,
+                billing_period_end:
+                  body.billingPeriodEnd !== undefined
+                    ? body.billingPeriodEnd
+                      ? new Date(body.billingPeriodEnd)
+                      : null
+                    : undefined,
                 status: body.status,
                 notes: body.notes,
               },
+            })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'UPDATE',
+              entityType: 'Invoice',
+              entityId: params.id,
+              ipAddress: getIpAddress(headers),
             })
             return { invoice }
           },
           { body: updateInvoiceSchema }
         )
-        .delete('/:id', async ({ params, set }) => {
+        .patch('/:id/mark-overdue', async ({ params, authUser, headers, set }) => {
+          const invoice = await prisma.invoice.findUnique({ where: { id: params.id } })
+          if (!invoice) {
+            set.status = 404
+            return { error: 'Invoice not found' }
+          }
+
+          if (!OVERDUE_ELIGIBLE_STATUSES.includes(invoice.status as InvoiceStatusValue)) {
+            set.status = 409
+            return { error: 'Only SENT or PARTIAL invoices can be marked overdue' }
+          }
+
+          if (!invoice.due_date || invoice.due_date >= new Date()) {
+            set.status = 409
+            return { error: 'Invoice due date must be in the past to mark as overdue' }
+          }
+
+          const daysOverdue = computeDaysOverdue(invoice.due_date)
+
+          const updated = await prisma.invoice.update({
+            where: { id: params.id },
+            data: { status: 'OVERDUE', days_overdue: daysOverdue },
+          })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'UPDATE',
+            entityType: 'Invoice',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
+          return { invoice: updated }
+        })
+        .patch('/:id/void', async ({ params, authUser, headers, set }) => {
+          const invoice = await prisma.invoice.findUnique({ where: { id: params.id } })
+          if (!invoice) {
+            set.status = 404
+            return { error: 'Invoice not found' }
+          }
+
+          if (invoice.status === 'PAID') {
+            set.status = 409
+            return { error: 'Paid invoices cannot be voided' }
+          }
+
+          const updated = await prisma.invoice.update({
+            where: { id: params.id },
+            data: { status: 'CANCELLED' },
+          })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'UPDATE',
+            entityType: 'Invoice',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
+          return { invoice: updated }
+        })
+        .delete('/:id', async ({ params, authUser, headers, set }) => {
           const existing = await prisma.invoice.findUnique({ where: { id: params.id } })
           if (!existing) {
             set.status = 404
@@ -208,6 +351,13 @@ export const invoicesRoutes = new Elysia({ prefix: '/api/invoices' })
             return { error: 'Only DRAFT invoices can be deleted' }
           }
           await prisma.invoice.delete({ where: { id: params.id } })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'DELETE',
+            entityType: 'Invoice',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { success: true }
         })
   )

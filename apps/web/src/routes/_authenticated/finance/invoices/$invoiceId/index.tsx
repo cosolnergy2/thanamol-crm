@@ -1,11 +1,29 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { useState } from 'react'
 import { Calendar, ChevronLeft, Edit, FileText } from 'lucide-react'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -15,8 +33,13 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { PageHeader } from '@/components/PageHeader'
-import { useInvoiceById, useUpdateInvoice } from '@/hooks/useInvoices'
-import { usePayments } from '@/hooks/usePayments'
+import {
+  useInvoiceById,
+  useUpdateInvoice,
+  useMarkInvoiceOverdue,
+  useVoidInvoice,
+} from '@/hooks/useInvoices'
+import { usePayments, useCreatePayment } from '@/hooks/usePayments'
 import type { InvoiceStatus, PaymentMethod } from '@thanamol/shared'
 
 export const Route = createFileRoute('/_authenticated/finance/invoices/$invoiceId/')({
@@ -49,12 +72,45 @@ const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   ONLINE: 'Online',
 }
 
+const PAYMENT_METHOD_OPTIONS: { value: PaymentMethod; label: string }[] = [
+  { value: 'CASH', label: 'Cash' },
+  { value: 'BANK_TRANSFER', label: 'Bank Transfer' },
+  { value: 'CHEQUE', label: 'Cheque' },
+  { value: 'CREDIT_CARD', label: 'Credit Card' },
+  { value: 'ONLINE', label: 'Online' },
+]
+
+type PaymentForm = {
+  amount: string
+  paymentDate: string
+  paymentMethod: PaymentMethod
+  referenceNumber: string
+  notes: string
+}
+
+function buildEmptyPaymentForm(): PaymentForm {
+  return {
+    amount: '',
+    paymentDate: format(new Date(), 'yyyy-MM-dd'),
+    paymentMethod: 'BANK_TRANSFER',
+    referenceNumber: '',
+    notes: '',
+  }
+}
+
 function InvoiceDetailPage() {
   const { invoiceId } = Route.useParams()
   const navigate = useNavigate()
   const { data, isLoading, isError } = useInvoiceById(invoiceId)
   const { data: paymentsData } = usePayments({ invoiceId })
   const updateInvoice = useUpdateInvoice()
+  const markOverdue = useMarkInvoiceOverdue()
+  const voidInvoice = useVoidInvoice()
+  const createPayment = useCreatePayment()
+
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false)
+  const [paymentForm, setPaymentForm] = useState<PaymentForm>(buildEmptyPaymentForm)
+  const [isVoidConfirmOpen, setIsVoidConfirmOpen] = useState(false)
 
   async function handleMarkAsSent() {
     try {
@@ -62,6 +118,50 @@ function InvoiceDetailPage() {
       toast.success('Invoice marked as sent')
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to update invoice')
+    }
+  }
+
+  async function handleMarkAsOverdue() {
+    try {
+      await markOverdue.mutateAsync(invoiceId)
+      toast.success('Invoice marked as overdue')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to mark as overdue')
+    }
+  }
+
+  async function handleVoid() {
+    try {
+      await voidInvoice.mutateAsync(invoiceId)
+      toast.success('Invoice voided')
+      setIsVoidConfirmOpen(false)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to void invoice')
+      setIsVoidConfirmOpen(false)
+    }
+  }
+
+  async function handleRecordPayment(e: React.FormEvent) {
+    e.preventDefault()
+    const amount = Number(paymentForm.amount)
+    if (!amount || amount <= 0) {
+      toast.error('Please enter a valid amount')
+      return
+    }
+    try {
+      await createPayment.mutateAsync({
+        invoiceId,
+        amount,
+        paymentDate: paymentForm.paymentDate,
+        paymentMethod: paymentForm.paymentMethod,
+        referenceNumber: paymentForm.referenceNumber || undefined,
+        notes: paymentForm.notes || undefined,
+      })
+      toast.success('Payment recorded')
+      setIsPaymentDialogOpen(false)
+      setPaymentForm(buildEmptyPaymentForm())
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to record payment')
     }
   }
 
@@ -89,12 +189,19 @@ function InvoiceDetailPage() {
   const invoice = data.invoice
   const payments = paymentsData?.data ?? []
 
+  const canRecordPayment = invoice.status === 'SENT' || invoice.status === 'PARTIAL' || invoice.status === 'OVERDUE'
+  const canMarkOverdue =
+    (invoice.status === 'SENT' || invoice.status === 'PARTIAL') &&
+    !!invoice.due_date &&
+    new Date(invoice.due_date) < new Date()
+  const canVoid = invoice.status !== 'PAID' && invoice.status !== 'CANCELLED'
+
   return (
     <div className="space-y-4">
       <PageHeader
         title={invoice.invoice_number}
         actions={
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button variant="outline" onClick={() => navigate({ to: '/finance/invoices' })}>
               <ChevronLeft className="w-4 h-4 mr-1" />
               Back
@@ -115,6 +222,36 @@ function InvoiceDetailPage() {
                   </Button>
                 </Link>
               </>
+            )}
+            {canRecordPayment && (
+              <Button
+                className="bg-emerald-600 hover:bg-emerald-700"
+                onClick={() => {
+                  setPaymentForm(buildEmptyPaymentForm())
+                  setIsPaymentDialogOpen(true)
+                }}
+              >
+                Record Payment
+              </Button>
+            )}
+            {canMarkOverdue && (
+              <Button
+                variant="outline"
+                className="text-rose-600 border-rose-200 hover:bg-rose-50"
+                onClick={handleMarkAsOverdue}
+                disabled={markOverdue.isPending}
+              >
+                Mark as Overdue
+              </Button>
+            )}
+            {canVoid && (
+              <Button
+                variant="outline"
+                className="text-zinc-600 border-zinc-200 hover:bg-zinc-50"
+                onClick={() => setIsVoidConfirmOpen(true)}
+              >
+                Void Invoice
+              </Button>
             )}
           </div>
         }
@@ -148,6 +285,14 @@ function InvoiceDetailPage() {
                     <dd className="text-slate-700 mt-0.5">{invoice.contract.contract_number}</dd>
                   </div>
                 )}
+                {invoice.invoice_date && (
+                  <div>
+                    <dt className="text-slate-400 font-extralight">Invoice Date</dt>
+                    <dd className="text-slate-700 mt-0.5">
+                      {format(new Date(invoice.invoice_date), 'd MMM yyyy')}
+                    </dd>
+                  </div>
+                )}
                 {invoice.due_date && (
                   <div>
                     <dt className="text-slate-400 font-extralight">Due Date</dt>
@@ -155,6 +300,26 @@ function InvoiceDetailPage() {
                       <Calendar className="w-3 h-3" />
                       {format(new Date(invoice.due_date), 'd MMM yyyy')}
                     </dd>
+                  </div>
+                )}
+                {(invoice.billing_period_start || invoice.billing_period_end) && (
+                  <div className="col-span-2">
+                    <dt className="text-slate-400 font-extralight">Billing Period</dt>
+                    <dd className="text-slate-700 mt-0.5">
+                      {invoice.billing_period_start
+                        ? format(new Date(invoice.billing_period_start), 'd MMM yyyy')
+                        : '—'}
+                      {' — '}
+                      {invoice.billing_period_end
+                        ? format(new Date(invoice.billing_period_end), 'd MMM yyyy')
+                        : '—'}
+                    </dd>
+                  </div>
+                )}
+                {invoice.days_overdue > 0 && (
+                  <div>
+                    <dt className="text-slate-400 font-extralight">Days Overdue</dt>
+                    <dd className="text-rose-600 font-light mt-0.5">{invoice.days_overdue} days</dd>
                   </div>
                 )}
                 <div>
@@ -182,6 +347,9 @@ function InvoiceDetailPage() {
                 <TableHeader>
                   <TableRow className="border-slate-100">
                     <TableHead className="text-[10px] font-extralight text-slate-400 tracking-widest uppercase">
+                      Type
+                    </TableHead>
+                    <TableHead className="text-[10px] font-extralight text-slate-400 tracking-widest uppercase">
                       Description
                     </TableHead>
                     <TableHead className="text-[10px] font-extralight text-slate-400 tracking-widest uppercase text-right">
@@ -196,8 +364,19 @@ function InvoiceDetailPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {(invoice.items as Array<{ description: string; quantity: number; unit_price: number; amount: number }>).map((item, idx) => (
+                  {(
+                    invoice.items as Array<{
+                      description: string
+                      quantity: number
+                      unit_price: number
+                      amount: number
+                      item_type?: string
+                    }>
+                  ).map((item, idx) => (
                     <TableRow key={idx} className="border-slate-100">
+                      <TableCell className="py-2 text-[10px] text-slate-500">
+                        {item.item_type ?? '—'}
+                      </TableCell>
                       <TableCell className="py-2 text-[11px] text-slate-700">
                         {item.description}
                       </TableCell>
@@ -224,6 +403,12 @@ function InvoiceDetailPage() {
                   <span className="text-slate-500">VAT (7%)</span>
                   <span className="text-slate-700">฿{invoice.tax.toLocaleString()}</span>
                 </div>
+                {invoice.discount > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Discount</span>
+                    <span className="text-rose-600">−฿{invoice.discount.toLocaleString()}</span>
+                  </div>
+                )}
                 <div className="flex justify-between pt-1.5 border-t border-slate-100">
                   <span className="font-light text-slate-700">Total</span>
                   <span className="font-light text-indigo-700 text-[13px]">
@@ -278,6 +463,121 @@ function InvoiceDetailPage() {
           </Card>
         </div>
       </div>
+
+      {/* Record Payment Dialog */}
+      <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-sm font-light">Record Payment</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleRecordPayment}>
+            <div className="space-y-4 py-2">
+              <div className="space-y-1.5">
+                <Label className="text-[11px] text-slate-500">Amount (฿) *</Label>
+                <Input
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  value={paymentForm.amount}
+                  onChange={(e) => setPaymentForm((prev) => ({ ...prev, amount: e.target.value }))}
+                  placeholder="0.00"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-[11px] text-slate-500">Payment Date *</Label>
+                <Input
+                  type="date"
+                  value={paymentForm.paymentDate}
+                  onChange={(e) =>
+                    setPaymentForm((prev) => ({ ...prev, paymentDate: e.target.value }))
+                  }
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-[11px] text-slate-500">Payment Method *</Label>
+                <Select
+                  value={paymentForm.paymentMethod}
+                  onValueChange={(v) =>
+                    setPaymentForm((prev) => ({ ...prev, paymentMethod: v as PaymentMethod }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PAYMENT_METHOD_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-[11px] text-slate-500">Reference Number (optional)</Label>
+                <Input
+                  value={paymentForm.referenceNumber}
+                  onChange={(e) =>
+                    setPaymentForm((prev) => ({ ...prev, referenceNumber: e.target.value }))
+                  }
+                  placeholder="Transaction / cheque number"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-[11px] text-slate-500">Notes (optional)</Label>
+                <Input
+                  value={paymentForm.notes}
+                  onChange={(e) =>
+                    setPaymentForm((prev) => ({ ...prev, notes: e.target.value }))
+                  }
+                  placeholder="Additional notes"
+                />
+              </div>
+            </div>
+            <DialogFooter className="mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsPaymentDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="bg-emerald-600 hover:bg-emerald-700"
+                disabled={createPayment.isPending}
+              >
+                {createPayment.isPending ? 'Recording...' : 'Record Payment'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Void Confirmation Dialog */}
+      <Dialog open={isVoidConfirmOpen} onOpenChange={setIsVoidConfirmOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Void Invoice</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to void invoice <strong>{invoice.invoice_number}</strong>? This
+              action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsVoidConfirmOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleVoid}
+              disabled={voidInvoice.isPending}
+            >
+              {voidInvoice.isPending ? 'Voiding...' : 'Void Invoice'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

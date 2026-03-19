@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../lib/prisma'
 import { authPlugin, type AuthenticatedUser } from '../middleware/auth'
+import { logActivity, getIpAddress } from '../lib/activity-logger'
 
 const TASK_STATUSES = ['TODO', 'IN_PROGRESS', 'REVIEW', 'DONE', 'CANCELLED'] as const
 const TASK_PRIORITIES = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as const
@@ -164,7 +165,7 @@ export const tasksRoutes = new Elysia({ prefix: '/api/tasks' })
         })
         .post(
           '/',
-          async ({ body, authUser, set }) => {
+          async ({ body, authUser, headers, set }) => {
             const user = authUser as AuthenticatedUser
             const task = await prisma.task.create({
               data: {
@@ -184,6 +185,13 @@ export const tasksRoutes = new Elysia({ prefix: '/api/tasks' })
                 created_by: user.id,
               },
             })
+            logActivity({
+              userId: user.id,
+              action: 'CREATE',
+              entityType: 'Task',
+              entityId: task.id,
+              ipAddress: getIpAddress(headers),
+            })
             set.status = 201
             return { task }
           },
@@ -191,7 +199,7 @@ export const tasksRoutes = new Elysia({ prefix: '/api/tasks' })
         )
         .put(
           '/:id',
-          async ({ params, body, set }) => {
+          async ({ params, body, authUser, headers, set }) => {
             const existing = await prisma.task.findUnique({ where: { id: params.id } })
             if (!existing) {
               set.status = 404
@@ -216,17 +224,31 @@ export const tasksRoutes = new Elysia({ prefix: '/api/tasks' })
                 recurrence_pattern: body.recurrencePattern,
               },
             })
+            logActivity({
+              userId: (authUser as AuthenticatedUser).id,
+              action: 'UPDATE',
+              entityType: 'Task',
+              entityId: params.id,
+              ipAddress: getIpAddress(headers),
+            })
             return { task }
           },
           { body: updateTaskSchema }
         )
-        .delete('/:id', async ({ params, set }) => {
+        .delete('/:id', async ({ params, authUser, headers, set }) => {
           const existing = await prisma.task.findUnique({ where: { id: params.id } })
           if (!existing) {
             set.status = 404
             return { error: 'Task not found' }
           }
           await prisma.task.delete({ where: { id: params.id } })
+          logActivity({
+            userId: (authUser as AuthenticatedUser).id,
+            action: 'DELETE',
+            entityType: 'Task',
+            entityId: params.id,
+            ipAddress: getIpAddress(headers),
+          })
           return { success: true }
         })
         .get('/:id/comments', async ({ params, set }) => {
@@ -246,7 +268,7 @@ export const tasksRoutes = new Elysia({ prefix: '/api/tasks' })
         })
         .post(
           '/:id/comments',
-          async ({ params, body, authUser, set }) => {
+          async ({ params, body, authUser, headers, set }) => {
             const task = await prisma.task.findUnique({ where: { id: params.id } })
             if (!task) {
               set.status = 404
@@ -262,6 +284,13 @@ export const tasksRoutes = new Elysia({ prefix: '/api/tasks' })
               include: {
                 user: { select: { id: true, first_name: true, last_name: true } },
               },
+            })
+            logActivity({
+              userId: user.id,
+              action: 'CREATE',
+              entityType: 'TaskComment',
+              entityId: comment.id,
+              ipAddress: getIpAddress(headers),
             })
             set.status = 201
             return { comment }
