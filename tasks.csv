@@ -29,3 +29,6 @@ T-027,E2E tests — quotation workflow,tester,Ready to Dev,tasks/T-027.md
 T-070,Invoice API enhancement — billing fields item types discount overdue logic customer name in list,tester,Ready to Test,tasks/T-070.md
 T-071,Invoice UI enhancement — customer names item types discount billing period record payment overdue actions,tester,Ready to Test,tasks/T-071.md
 T-072,Invoice E2E tests,dev,Ready to Dev,tasks/T-072.md
+T-073,Register All Missing API Routes,tester,Ready to Test,tasks/T-073.md
+T-074,User Management Enhancement,tester,Ready to Test,tasks/T-074.md
+T-075,Role Management Enhancement,tester,Ready to Test,tasks/T-075.md
