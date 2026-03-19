@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api-client'
+import { apiGet, apiPost, apiPut, apiPatch, apiDelete } from '@/lib/api-client'
 import type {
   Invoice,
   InvoiceWithRelations,
@@ -69,6 +69,28 @@ export function useDeleteInvoice() {
     mutationFn: (id: string) => apiDelete<{ success: boolean }>(`/invoices/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: INVOICE_QUERY_KEYS.all })
+    },
+  })
+}
+
+export function useMarkInvoiceOverdue() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => apiPatch<{ invoice: { id: string; status: string } }>(`/invoices/${id}/mark-overdue`),
+    onSuccess: (_result, id) => {
+      queryClient.invalidateQueries({ queryKey: INVOICE_QUERY_KEYS.all })
+      queryClient.invalidateQueries({ queryKey: INVOICE_QUERY_KEYS.detail(id) })
+    },
+  })
+}
+
+export function useVoidInvoice() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => apiPatch<{ invoice: { id: string; status: string } }>(`/invoices/${id}/void`),
+    onSuccess: (_result, id) => {
+      queryClient.invalidateQueries({ queryKey: INVOICE_QUERY_KEYS.all })
+      queryClient.invalidateQueries({ queryKey: INVOICE_QUERY_KEYS.detail(id) })
     },
   })
 }
