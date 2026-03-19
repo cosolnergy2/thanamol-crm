@@ -8,6 +8,8 @@ import {
   useCreateInvoice,
   useUpdateInvoice,
   useDeleteInvoice,
+  useMarkInvoiceOverdue,
+  useVoidInvoice,
 } from './useInvoices'
 import * as apiClient from '@/lib/api-client'
 
@@ -223,5 +225,67 @@ describe('useDeleteInvoice', () => {
 
     await waitFor(() => expect(result.current.isError).toBe(true))
     expect(result.current.error?.message).toBe('Only DRAFT invoices can be deleted')
+  })
+})
+
+describe('useMarkInvoiceOverdue', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('calls PATCH /invoices/:id/mark-overdue', async () => {
+    vi.mocked(apiClient.apiPatch).mockResolvedValue({ invoice: { id: 'inv-1', status: 'OVERDUE' } })
+
+    const { result } = renderHook(() => useMarkInvoiceOverdue(), {
+      wrapper: createWrapper(),
+    })
+
+    result.current.mutate('inv-1')
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(apiClient.apiPatch).toHaveBeenCalledWith('/invoices/inv-1/mark-overdue')
+  })
+
+  it('surfaces error when mark-overdue fails', async () => {
+    vi.mocked(apiClient.apiPatch).mockRejectedValue(new Error('Invoice not found'))
+
+    const { result } = renderHook(() => useMarkInvoiceOverdue(), {
+      wrapper: createWrapper(),
+    })
+
+    result.current.mutate('bad-id')
+
+    await waitFor(() => expect(result.current.isError).toBe(true))
+    expect(result.current.error?.message).toBe('Invoice not found')
+  })
+})
+
+describe('useVoidInvoice', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('calls PATCH /invoices/:id/void', async () => {
+    vi.mocked(apiClient.apiPatch).mockResolvedValue({
+      invoice: { id: 'inv-1', status: 'CANCELLED' },
+    })
+
+    const { result } = renderHook(() => useVoidInvoice(), {
+      wrapper: createWrapper(),
+    })
+
+    result.current.mutate('inv-1')
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(apiClient.apiPatch).toHaveBeenCalledWith('/invoices/inv-1/void')
+  })
+
+  it('surfaces error when voiding a PAID invoice', async () => {
+    vi.mocked(apiClient.apiPatch).mockRejectedValue(new Error('Paid invoices cannot be voided'))
+
+    const { result } = renderHook(() => useVoidInvoice(), {
+      wrapper: createWrapper(),
+    })
+
+    result.current.mutate('paid-inv-id')
+
+    await waitFor(() => expect(result.current.isError).toBe(true))
+    expect(result.current.error?.message).toBe('Paid invoices cannot be voided')
   })
 })

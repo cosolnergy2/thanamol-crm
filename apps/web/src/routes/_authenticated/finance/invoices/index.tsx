@@ -98,8 +98,10 @@ function InvoiceListPage() {
   const totalPages = data?.pagination.totalPages ?? 1
 
   const filteredInvoices = debouncedSearch
-    ? invoices.filter((inv) =>
-        inv.invoice_number.toLowerCase().includes(debouncedSearch.toLowerCase()),
+    ? invoices.filter(
+        (inv) =>
+          inv.invoice_number.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+          inv.customer.name.toLowerCase().includes(debouncedSearch.toLowerCase()),
       )
     : invoices
 
@@ -107,18 +109,18 @@ function InvoiceListPage() {
     { label: 'Total', value: data?.pagination.total ?? 0, color: 'text-slate-900' },
     {
       label: 'Outstanding',
-      value: invoices.filter((i) => i.status === 'SENT' || i.status === 'OVERDUE').length,
-      color: 'text-rose-600',
-    },
-    {
-      label: 'Partial',
-      value: invoices.filter((i) => i.status === 'PARTIAL').length,
-      color: 'text-amber-600',
+      value: invoices.filter((i) => i.status === 'SENT' || i.status === 'PARTIAL').length,
+      color: 'text-blue-600',
     },
     {
       label: 'Paid',
       value: invoices.filter((i) => i.status === 'PAID').length,
       color: 'text-emerald-600',
+    },
+    {
+      label: 'Overdue',
+      value: invoices.filter((i) => i.status === 'OVERDUE').length,
+      color: 'text-rose-600',
     },
   ]
 
@@ -157,7 +159,7 @@ function InvoiceListPage() {
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <Input
-                placeholder="Search invoice number..."
+                placeholder="Search invoice number or customer..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-10"
@@ -246,7 +248,7 @@ function InvoiceListPage() {
                     </TableCell>
                     <TableCell className="py-3">
                       <span className="text-[11px] text-slate-600 font-extralight">
-                        {invoice.customer_id}
+                        {invoice.customer.name}
                       </span>
                     </TableCell>
                     <TableCell className="py-3">
