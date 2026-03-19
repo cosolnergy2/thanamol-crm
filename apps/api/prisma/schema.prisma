@@ -244,11 +244,13 @@ model User {
 }
 
 model Role {
-  id          String   @id @default(uuid())
-  name        String   @unique
-  description String?
-  permissions Json     @default("{}")
-  created_at  DateTime @default(now())
+  id             String   @id @default(uuid())
+  name           String   @unique
+  code           String?  @unique
+  description    String?
+  permissions    Json     @default("{}")
+  is_system_role Boolean  @default(false)
+  created_at     DateTime @default(now())
 
   user_roles UserRole[]
 }
