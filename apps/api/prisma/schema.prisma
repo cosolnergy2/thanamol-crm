@@ -671,20 +671,25 @@ model HandoverPhotos {
 // ─── Finance Domain ───────────────────────────────────────────────────────────
 
 model Invoice {
-  id             String        @id @default(uuid())
-  invoice_number String        @unique
-  contract_id    String?
-  customer_id    String
-  items          Json          @default("[]")
-  subtotal       Float         @default(0)
-  tax            Float         @default(0)
-  total          Float         @default(0)
-  due_date       DateTime?
-  status         InvoiceStatus @default(DRAFT)
-  notes          String?
-  created_by     String
-  created_at     DateTime      @default(now())
-  updated_at     DateTime      @updatedAt
+  id                   String        @id @default(uuid())
+  invoice_number       String        @unique
+  contract_id          String?
+  customer_id          String
+  items                Json          @default("[]")
+  subtotal             Float         @default(0)
+  tax                  Float         @default(0)
+  total                Float         @default(0)
+  discount             Float         @default(0)
+  due_date             DateTime?
+  invoice_date         DateTime?
+  billing_period_start DateTime?
+  billing_period_end   DateTime?
+  status               InvoiceStatus @default(DRAFT)
+  days_overdue         Int           @default(0)
+  notes                String?
+  created_by           String
+  created_at           DateTime      @default(now())
+  updated_at           DateTime      @updatedAt
 
   contract Contract? @relation(fields: [contract_id], references: [id])
   customer Customer  @relation(fields: [customer_id], references: [id])
