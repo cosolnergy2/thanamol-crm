@@ -31,22 +31,23 @@ describe("seed.ts structure", () => {
 });
 
 describe("seed data — roles", () => {
-  it("defines Admin role with full permissions", () => {
+  it("defines Admin role as system role with nested permissions", () => {
     expect(seedSource).toContain("name: \"Admin\"");
-    expect(seedSource).toContain("manage_users: true");
-    expect(seedSource).toContain("manage_roles: true");
-    expect(seedSource).toContain("manage_projects: true");
-    expect(seedSource).toContain("manage_settings: true");
-    expect(seedSource).toContain("view_reports: true");
-    expect(seedSource).toContain("manage_contracts: true");
-    expect(seedSource).toContain("manage_finance: true");
-    expect(seedSource).toContain("manage_documents: true");
+    expect(seedSource).toContain("code: \"admin\"");
+    expect(seedSource).toContain("is_system_role: true");
+    expect(seedSource).toContain("ROLE_ADMIN_TEMPLATE");
   });
 
-  it("defines User role with limited permissions", () => {
+  it("defines User role as system role", () => {
     expect(seedSource).toContain("name: \"User\"");
-    expect(seedSource).toContain("manage_contracts: false");
-    expect(seedSource).toContain("manage_finance: false");
+    expect(seedSource).toContain("code: \"user\"");
+    expect(seedSource).toContain("is_system_role: true");
+  });
+
+  it("seeds additional roles from ROLE_TEMPLATES", () => {
+    expect(seedSource).toContain("Sales Manager");
+    expect(seedSource).toContain("Finance Officer");
+    expect(seedSource).toContain("Viewer Only");
   });
 });
 

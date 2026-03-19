@@ -98,9 +98,12 @@ const mockUserWithoutPermissions = {
 const mockRole = {
   id: 'role-1',
   name: 'Manager',
+  code: 'manager',
   description: 'Manager role',
   permissions: { manage_roles: true, view_reports: true },
+  is_system_role: false,
   created_at: new Date(),
+  _count: { user_roles: 0 },
 }
 
 beforeEach(() => {
@@ -332,6 +335,106 @@ describe('DELETE /api/roles/:id', () => {
     const res = await makeRolesRequest('DELETE', '/api/roles/ghost', undefined, token)
 
     expect(res.status).toBe(404)
+  })
+})
+
+// ─── GET /api/roles/templates ──────────────────────────────────────────────────
+
+describe('GET /api/roles/templates', () => {
+  it('returns role templates for authenticated user', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithoutPermissions as never)
+
+    const token = await signToken()
+    const res = await makeRolesRequest('GET', '/api/roles/templates', undefined, token)
+
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.templates).toBeDefined()
+    expect(Array.isArray(body.templates)).toBe(true)
+    expect(body.templates.length).toBeGreaterThan(0)
+    expect(body.templates[0]).toHaveProperty('name')
+    expect(body.templates[0]).toHaveProperty('permissions')
+  })
+})
+
+// ─── System role protection ────────────────────────────────────────────────────
+
+describe('System role protection', () => {
+  const systemRole = {
+    ...mockRole,
+    is_system_role: true,
+    name: 'Admin',
+    code: 'admin',
+  }
+
+  it('DELETE /api/roles/:id returns 403 for system role', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithManageRoles as never)
+    vi.mocked(prisma.userRole.findMany).mockResolvedValue([
+      { role: { permissions: { manage_roles: true } } },
+    ] as never)
+    vi.mocked(prisma.role.findUnique).mockResolvedValue(systemRole as never)
+
+    const token = await signToken()
+    const res = await makeRolesRequest('DELETE', '/api/roles/role-1', undefined, token)
+
+    expect(res.status).toBe(403)
+    const body = await res.json()
+    expect(body.error).toBe('Cannot delete a system role')
+  })
+
+  it('PUT /api/roles/:id returns 403 when trying to change system role name', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithManageRoles as never)
+    vi.mocked(prisma.userRole.findMany).mockResolvedValue([
+      { role: { permissions: { manage_roles: true } } },
+    ] as never)
+    vi.mocked(prisma.role.findUnique).mockResolvedValue(systemRole as never)
+
+    const token = await signToken()
+    const res = await makeRolesRequest('PUT', '/api/roles/role-1', { name: 'New Name' }, token)
+
+    expect(res.status).toBe(403)
+    const body = await res.json()
+    expect(body.error).toBe('Cannot change name or code of a system role')
+  })
+
+  it('PUT /api/roles/:id allows permissions change on system role', async () => {
+    const updatedSystemRole = {
+      ...systemRole,
+      permissions: { customers: { view: true, create: true } },
+    }
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithManageRoles as never)
+    vi.mocked(prisma.userRole.findMany).mockResolvedValue([
+      { role: { permissions: { manage_roles: true } } },
+    ] as never)
+    vi.mocked(prisma.role.findUnique).mockResolvedValue(systemRole as never)
+    vi.mocked(prisma.role.update).mockResolvedValue(updatedSystemRole as never)
+
+    const token = await signToken()
+    const res = await makeRolesRequest(
+      'PUT',
+      '/api/roles/role-1',
+      { name: 'Admin', permissions: { customers: { view: true, create: true } } },
+      token
+    )
+
+    expect(res.status).toBe(200)
+  })
+})
+
+// ─── GET /api/roles with user_count ───────────────────────────────────────────
+
+describe('GET /api/roles user_count', () => {
+  it('returns user_count in each role', async () => {
+    const roleWithCount = { ...mockRole, _count: { user_roles: 3 } }
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUserWithoutPermissions as never)
+    vi.mocked(prisma.role.findMany).mockResolvedValue([roleWithCount] as never)
+
+    const token = await signToken()
+    const res = await makeRolesRequest('GET', '/api/roles', undefined, token)
+
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.roles[0].user_count).toBe(3)
   })
 })
 

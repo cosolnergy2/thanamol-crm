@@ -7,6 +7,7 @@ export type UsePermissionsResult = {
   permissions: Record<string, boolean>
   roles: string[]
   hasPermission: (permission: string) => boolean
+  hasModulePermission: (module: string, action: string) => boolean
   hasRole: (role: string) => boolean
   isLoading: boolean
   isError: boolean
@@ -30,9 +31,13 @@ export function usePermissions(): UsePermissionsResult {
     return permissions[permission] === true
   }
 
+  function hasModulePermission(module: string, action: string): boolean {
+    return permissions[`${module}.${action}`] === true
+  }
+
   function hasRole(role: string): boolean {
     return roles.includes(role)
   }
 
-  return { permissions, roles, hasPermission, hasRole, isLoading, isError }
+  return { permissions, roles, hasPermission, hasModulePermission, hasRole, isLoading, isError }
 }
