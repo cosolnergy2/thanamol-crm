@@ -203,6 +203,9 @@ model User {
   first_name    String
   last_name     String
   avatar_url    String?
+  phone         String?
+  department    String?
+  position      String?
   is_active     Boolean  @default(true)
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt

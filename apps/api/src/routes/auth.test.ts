@@ -9,6 +9,12 @@ vi.mock('../lib/prisma', () => ({
     user: {
       findUnique: vi.fn(),
       create: vi.fn(),
+      update: vi.fn(),
+      findUniqueOrThrow: vi.fn(),
+    },
+    userRole: {
+      create: vi.fn(),
+      deleteMany: vi.fn(),
     },
     refreshToken: {
       create: vi.fn(),
@@ -16,6 +22,7 @@ vi.mock('../lib/prisma', () => ({
       delete: vi.fn(),
       deleteMany: vi.fn(),
     },
+    $transaction: vi.fn(),
   },
 }))
 
@@ -71,8 +78,23 @@ const mockUser = {
   first_name: 'Test',
   last_name: 'User',
   avatar_url: null,
+  phone: null,
+  department: null,
+  position: null,
   is_active: true,
   roles: [],
+}
+
+const mockTx = {
+  user: {
+    create: vi.fn(),
+    update: vi.fn(),
+    findUniqueOrThrow: vi.fn(),
+  },
+  userRole: {
+    create: vi.fn(),
+    deleteMany: vi.fn(),
+  },
 }
 
 beforeEach(() => {
@@ -82,7 +104,8 @@ beforeEach(() => {
 describe('POST /api/auth/register', () => {
   it('registers a new user and returns tokens', async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(null)
-    vi.mocked(prisma.user.create).mockResolvedValue(mockUser as never)
+    mockTx.user.create.mockResolvedValue(mockUser)
+    vi.mocked(prisma.$transaction).mockImplementation(async (fn) => fn(mockTx as never))
     vi.mocked(prisma.refreshToken.create).mockResolvedValue({} as never)
 
     const res = await makeRequest('POST', '/api/auth/register', {
@@ -100,6 +123,34 @@ describe('POST /api/auth/register', () => {
     expect(typeof body.accessToken).toBe('string')
     expect(typeof body.refreshToken).toBe('string')
     expect(prisma.refreshToken.create).toHaveBeenCalledOnce()
+  })
+
+  it('registers a user with optional fields and roleId', async () => {
+    const userWithRole = { ...mockUser, phone: '+66-81-234-5678', department: 'Sale', position: 'Manager', roles: [{ role: { id: 'r1', name: 'sales' } }] }
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(null)
+    mockTx.user.create.mockResolvedValue({ ...mockUser })
+    mockTx.userRole.create.mockResolvedValue({})
+    mockTx.user.findUniqueOrThrow.mockResolvedValue(userWithRole)
+    vi.mocked(prisma.$transaction).mockImplementation(async (fn) => fn(mockTx as never))
+    vi.mocked(prisma.refreshToken.create).mockResolvedValue({} as never)
+
+    const res = await makeRequest('POST', '/api/auth/register', {
+      email: 'test@example.com',
+      password: 'password123',
+      firstName: 'Test',
+      lastName: 'User',
+      phone: '+66-81-234-5678',
+      department: 'Sale',
+      position: 'Manager',
+      roleId: 'r1',
+    })
+
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.user.phone).toBe('+66-81-234-5678')
+    expect(body.user.department).toBe('Sale')
+    expect(body.user.position).toBe('Manager')
+    expect(body.user.roles[0].name).toBe('sales')
   })
 
   it('returns 409 when email already registered', async () => {
@@ -315,5 +366,103 @@ describe('POST /api/auth/logout', () => {
     expect(prisma.refreshToken.deleteMany).toHaveBeenCalledWith({
       where: { user_id: 'user-1' },
     })
+  })
+})
+
+describe('PUT /api/auth/users/:id', () => {
+  it('returns 401 when no token provided', async () => {
+    const res = await makeRequest('PUT', '/api/auth/users/user-1', { firstName: 'Updated' })
+    expect(res.status).toBe(401)
+  })
+
+  it('returns 404 when user not found', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(mockUser as never) // auth middleware
+    vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(null) // user lookup
+
+    const token = await signAccessToken()
+    const res = await makeRequest('PUT', '/api/auth/users/nonexistent', { firstName: 'X' }, token)
+    expect(res.status).toBe(404)
+    const body = await res.json()
+    expect(body.error).toBe('User not found')
+  })
+
+  it('updates user profile fields', async () => {
+    const updatedUser = { ...mockUser, phone: '+66-81-999-0000', department: 'Admin', position: 'Lead', roles: [] }
+    vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(mockUser as never) // auth middleware
+    vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(mockUser as never) // user lookup
+    mockTx.user.update.mockResolvedValue(updatedUser)
+    vi.mocked(prisma.$transaction).mockImplementation(async (fn) => fn(mockTx as never))
+
+    const token = await signAccessToken()
+    const res = await makeRequest('PUT', '/api/auth/users/user-1', {
+      phone: '+66-81-999-0000',
+      department: 'Admin',
+      position: 'Lead',
+    }, token)
+
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.user.phone).toBe('+66-81-999-0000')
+    expect(body.user.department).toBe('Admin')
+    expect(body.user.position).toBe('Lead')
+  })
+
+  it('updates user role assignment', async () => {
+    const userWithNewRole = { ...mockUser, roles: [{ role: { id: 'r2', name: 'manager' } }] }
+    vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(mockUser as never) // auth middleware
+    vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(mockUser as never) // user lookup
+    mockTx.user.update.mockResolvedValue(mockUser)
+    mockTx.userRole.deleteMany.mockResolvedValue({ count: 0 })
+    mockTx.userRole.create.mockResolvedValue({})
+    mockTx.user.findUniqueOrThrow.mockResolvedValue(userWithNewRole)
+    vi.mocked(prisma.$transaction).mockImplementation(async (fn) => fn(mockTx as never))
+
+    const token = await signAccessToken()
+    const res = await makeRequest('PUT', '/api/auth/users/user-1', { roleId: 'r2' }, token)
+
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.user.roles[0].name).toBe('manager')
+  })
+})
+
+describe('POST /api/auth/users/:id/reset-password', () => {
+  it('returns 401 when no token provided', async () => {
+    const res = await makeRequest('POST', '/api/auth/users/user-1/reset-password', { newPassword: 'newpass123' })
+    expect(res.status).toBe(401)
+  })
+
+  it('returns 404 when user not found', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(mockUser as never) // auth middleware
+    vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(null) // user lookup
+
+    const token = await signAccessToken()
+    const res = await makeRequest('POST', '/api/auth/users/nonexistent/reset-password', { newPassword: 'newpass123' }, token)
+    expect(res.status).toBe(404)
+    const body = await res.json()
+    expect(body.error).toBe('User not found')
+  })
+
+  it('resets password successfully', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(mockUser as never) // auth middleware
+    vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(mockUser as never) // user lookup
+    vi.mocked(prisma.user.update).mockResolvedValue(mockUser as never)
+
+    const token = await signAccessToken()
+    const res = await makeRequest('POST', '/api/auth/users/user-1/reset-password', { newPassword: 'newpass123' }, token)
+
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.success).toBe(true)
+    expect(prisma.user.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'user-1' } })
+    )
+  })
+
+  it('returns 422 when password is too short', async () => {
+    const token = await signAccessToken()
+    vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(mockUser as never)
+    const res = await makeRequest('POST', '/api/auth/users/user-1/reset-password', { newPassword: '123' }, token)
+    expect(res.status).toBe(422)
   })
 })
