@@ -1560,3 +1560,197 @@ export type InspectionItem = {
   responsible_person?: string
   abnormal_condition?: string
 }
+
+// ─── MeetingMinute ────────────────────────────────────────────────────────────
+
+export type MeetingMinuteStatus = 'DRAFT' | 'FINALIZED' | 'DISTRIBUTED'
+
+export type MeetingMinute = {
+  id: string
+  title: string
+  meeting_date: string
+  location: string | null
+  attendees: unknown[]
+  agenda: unknown[]
+  minutes: Record<string, unknown>
+  action_items: unknown[]
+  pdf_url: string | null
+  status: MeetingMinuteStatus
+  created_by: string
+  created_at: string
+  updated_at: string
+}
+
+export type MeetingMinuteWithCreator = MeetingMinute & {
+  creator: {
+    id: string
+    first_name: string
+    last_name: string
+  }
+}
+
+export type CreateMeetingRequest = {
+  title: string
+  meetingDate: string
+  location?: string
+  attendees?: unknown[]
+  agenda?: unknown[]
+  minutes?: Record<string, unknown>
+  actionItems?: unknown[]
+  pdfUrl?: string
+  status?: MeetingMinuteStatus
+}
+
+export type UpdateMeetingRequest = Partial<CreateMeetingRequest>
+
+export type MeetingMinuteListResponse = PaginatedResponse<MeetingMinuteWithCreator>
+
+export type MeetingMinuteQueryParams = {
+  page?: number
+  limit?: number
+  status?: MeetingMinuteStatus | 'all'
+}
+
+// ─── MeetingTemplate ──────────────────────────────────────────────────────────
+
+export type MeetingTemplate = {
+  id: string
+  name: string
+  description: string | null
+  sections: unknown[]
+  created_at: string
+}
+
+export type CreateMeetingTemplateRequest = {
+  name: string
+  description?: string
+  sections?: unknown[]
+}
+
+export type UpdateMeetingTemplateRequest = Partial<CreateMeetingTemplateRequest>
+
+// ─── Document ─────────────────────────────────────────────────────────────────
+
+export type DocumentRecord = {
+  id: string
+  title: string
+  file_url: string
+  file_type: string | null
+  file_size: number | null
+  category: string | null
+  entity_type: string | null
+  entity_id: string | null
+  uploaded_by: string
+  tags: string[]
+  version: number
+  created_at: string
+  updated_at: string
+  uploader?: { id: string; first_name: string; last_name: string }
+}
+
+export type CreateDocumentRequest = {
+  title: string
+  fileUrl: string
+  fileType?: string
+  fileSize?: number
+  category?: string
+  entityType?: string
+  entityId?: string
+  tags?: string[]
+  version?: number
+}
+
+export type UpdateDocumentRequest = Partial<CreateDocumentRequest>
+
+export type DocumentListResponse = PaginatedResponse<DocumentRecord>
+
+export type DocumentQueryParams = {
+  page?: number
+  limit?: number
+  category?: string
+  entityType?: string
+  search?: string
+}
+
+// ─── ISODocument ──────────────────────────────────────────────────────────────
+
+export type ISODocumentStatus = 'DRAFT' | 'ACTIVE' | 'ARCHIVED' | 'SUPERSEDED'
+
+export type ISODocumentRecord = {
+  id: string
+  document_number: string
+  title: string
+  category: string
+  revision: string
+  status: ISODocumentStatus
+  content: string | null
+  effective_date: string | null
+  review_date: string | null
+  approved_by: string | null
+  created_at: string
+  updated_at: string
+  approver?: { id: string; first_name: string; last_name: string } | null
+}
+
+export type CreateISODocumentRequest = {
+  documentNumber: string
+  title: string
+  category: string
+  revision: string
+  status?: ISODocumentStatus
+  content?: string
+  effectiveDate?: string
+  reviewDate?: string
+  approvedBy?: string
+}
+
+export type UpdateISODocumentRequest = Partial<CreateISODocumentRequest>
+
+export type ISODocumentListResponse = PaginatedResponse<ISODocumentRecord>
+
+export type ISODocumentQueryParams = {
+  page?: number
+  limit?: number
+  status?: ISODocumentStatus | 'all'
+  category?: string
+  search?: string
+}
+
+// ─── PDFTemplate ──────────────────────────────────────────────────────────────
+
+export type PDFTemplateType = 'quotation' | 'contract' | 'invoice' | 'receipt' | 'handover'
+
+export type PDFTemplateRecord = {
+  id: string
+  name: string
+  template_type: PDFTemplateType
+  header: Record<string, unknown>
+  footer: Record<string, unknown>
+  styles: Record<string, unknown>
+  is_default: boolean
+  created_at: string
+  updated_at: string
+}
+
+export type CreatePDFTemplateRequest = {
+  name: string
+  templateType: PDFTemplateType
+  header?: Record<string, unknown>
+  footer?: Record<string, unknown>
+  styles?: Record<string, unknown>
+  isDefault?: boolean
+}
+
+export type UpdatePDFTemplateRequest = Partial<CreatePDFTemplateRequest>
+
+export type PDFTemplateListResponse = PaginatedResponse<PDFTemplateRecord>
+
+export type PDFTemplateQueryParams = {
+  page?: number
+  limit?: number
+  type?: PDFTemplateType | 'all'
+}
+
+// Aliases for backward compatibility
+export type ISODocument = ISODocumentRecord
+export type PDFTemplate = PDFTemplateRecord
