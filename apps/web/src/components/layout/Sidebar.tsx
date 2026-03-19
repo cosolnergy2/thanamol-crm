@@ -263,12 +263,12 @@ function userHasPermission(
   if (!user) return false
   if (user.roles.some((r) => r.name.toLowerCase() === ADMIN_ROLE)) return true
 
-  // If no permissions loaded yet, show all items (will re-render when loaded)
-  if (!userPermissions) return true
-
   const requiredPerms = PERMISSION_MAP[permission]
   // No specific permission required (e.g. dashboard) — show to all
   if (!requiredPerms || requiredPerms.length === 0) return true
+
+  // No permissions loaded or empty — only show unrestricted items
+  if (!userPermissions || Object.keys(userPermissions).length === 0) return false
 
   // User needs at least one of the mapped permissions
   return requiredPerms.some((p) => userPermissions[p] === true)
