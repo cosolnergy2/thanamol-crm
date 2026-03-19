@@ -33,6 +33,9 @@ import { taskStatusesRoutes } from './routes/task-statuses'
 import { tasksRoutes } from './routes/tasks'
 import { ticketsRoutes } from './routes/tickets'
 import { warehouseRequirementsRoutes } from './routes/warehouse-requirements'
+import { documentsRoutes } from './routes/documents'
+import { isoDocumentsRoutes } from './routes/iso-documents'
+import { pdfTemplatesRoutes } from './routes/pdf-templates'
 
 const API_PORT = Number(process.env.PORT ?? 3000)
 
@@ -74,6 +77,9 @@ const app = new Elysia()
   .use(tasksRoutes)
   .use(ticketsRoutes)
   .use(warehouseRequirementsRoutes)
+  .use(documentsRoutes)
+  .use(isoDocumentsRoutes)
+  .use(pdfTemplatesRoutes)
   .listen(API_PORT)
 
 console.log(`API running at http://localhost:${API_PORT}`)

@@ -1560,3 +1560,131 @@ export type InspectionItem = {
   responsible_person?: string
   abnormal_condition?: string
 }
+
+// ─── Document Center ──────────────────────────────────────────────────────────
+
+export type DocumentRecord = {
+  id: string
+  title: string
+  file_url: string
+  file_type: string | null
+  file_size: number | null
+  category: string | null
+  entity_type: string | null
+  entity_id: string | null
+  uploaded_by: string
+  tags: string[]
+  version: number
+  created_at: string
+  updated_at: string
+  uploader?: { id: string; first_name: string; last_name: string }
+}
+
+export type CreateDocumentRequest = {
+  title: string
+  fileUrl: string
+  fileType?: string
+  fileSize?: number
+  category?: string
+  entityType?: string
+  entityId?: string
+  tags?: string[]
+  version?: number
+}
+
+export type UpdateDocumentRequest = Partial<CreateDocumentRequest>
+
+export type DocumentListResponse = PaginatedResponse<DocumentRecord>
+
+export type DocumentQueryParams = {
+  page?: number
+  limit?: number
+  category?: string
+  entityType?: string
+  search?: string
+}
+
+// ─── ISO Document Control ─────────────────────────────────────────────────────
+
+export type ISODocumentStatus = 'DRAFT' | 'ACTIVE' | 'ARCHIVED' | 'SUPERSEDED'
+
+export type ISODocumentRecord = {
+  id: string
+  document_number: string
+  title: string
+  category: string
+  revision: string
+  status: ISODocumentStatus
+  content: string | null
+  effective_date: string | null
+  review_date: string | null
+  approved_by: string | null
+  created_at: string
+  updated_at: string
+  approver?: { id: string; first_name: string; last_name: string } | null
+}
+
+export type CreateISODocumentRequest = {
+  documentNumber: string
+  title: string
+  category: string
+  revision: string
+  status?: ISODocumentStatus
+  content?: string
+  effectiveDate?: string
+  reviewDate?: string
+  approvedBy?: string
+}
+
+export type UpdateISODocumentRequest = Partial<CreateISODocumentRequest>
+
+export type ISODocumentListResponse = PaginatedResponse<ISODocumentRecord>
+
+export type ISODocumentQueryParams = {
+  page?: number
+  limit?: number
+  status?: ISODocumentStatus | 'all'
+  category?: string
+  search?: string
+}
+
+// Alias
+export type ISODocument = ISODocumentRecord
+
+// ─── PDF Template Settings ────────────────────────────────────────────────────
+
+export type PDFTemplateType = 'quotation' | 'contract' | 'invoice' | 'receipt' | 'handover'
+
+export type PDFTemplateRecord = {
+  id: string
+  name: string
+  template_type: PDFTemplateType
+  header: Record<string, unknown>
+  footer: Record<string, unknown>
+  styles: Record<string, unknown>
+  is_default: boolean
+  created_at: string
+  updated_at: string
+}
+
+export type CreatePDFTemplateRequest = {
+  name: string
+  templateType: PDFTemplateType
+  header?: Record<string, unknown>
+  footer?: Record<string, unknown>
+  styles?: Record<string, unknown>
+  isDefault?: boolean
+}
+
+export type UpdatePDFTemplateRequest = Partial<CreatePDFTemplateRequest>
+
+export type PDFTemplateListResponse = PaginatedResponse<PDFTemplateRecord>
+
+export type PDFTemplateQueryParams = {
+  page?: number
+  limit?: number
+  type?: PDFTemplateType | 'all'
+}
+
+// Alias
+export type PDFTemplate = PDFTemplateRecord
