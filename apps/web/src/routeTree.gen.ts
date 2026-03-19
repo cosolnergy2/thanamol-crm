@@ -22,7 +22,9 @@ import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedReportsIndexRouteImport } from './routes/_authenticated/reports/index'
 import { Route as AuthenticatedQuotationsIndexRouteImport } from './routes/_authenticated/quotations/index'
 import { Route as AuthenticatedProjectsIndexRouteImport } from './routes/_authenticated/projects/index'
+import { Route as AuthenticatedMeetingsIndexRouteImport } from './routes/_authenticated/meetings/index'
 import { Route as AuthenticatedLeadsIndexRouteImport } from './routes/_authenticated/leads/index'
+import { Route as AuthenticatedDocumentsIndexRouteImport } from './routes/_authenticated/documents/index'
 import { Route as AuthenticatedDealsIndexRouteImport } from './routes/_authenticated/deals/index'
 import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers/index'
 import { Route as AuthenticatedContractsIndexRouteImport } from './routes/_authenticated/contracts/index'
@@ -40,6 +42,7 @@ import { Route as AuthenticatedSettingsUsersRouteImport } from './routes/_authen
 import { Route as AuthenticatedSettingsSystemRouteImport } from './routes/_authenticated/settings/system'
 import { Route as AuthenticatedSettingsRolesRouteImport } from './routes/_authenticated/settings/roles'
 import { Route as AuthenticatedSettingsProjectsRouteImport } from './routes/_authenticated/settings/projects'
+import { Route as AuthenticatedSettingsPdfTemplateRouteImport } from './routes/_authenticated/settings/pdf-template'
 import { Route as AuthenticatedSettingsExportRouteImport } from './routes/_authenticated/settings/export'
 import { Route as AuthenticatedSettingsAuditRouteImport } from './routes/_authenticated/settings/audit'
 import { Route as AuthenticatedSettingsActivityLogRouteImport } from './routes/_authenticated/settings/activity-log'
@@ -53,6 +56,8 @@ import { Route as AuthenticatedQuotationsCreateRouteImport } from './routes/_aut
 import { Route as AuthenticatedProjectsDashboardRouteImport } from './routes/_authenticated/projects/dashboard'
 import { Route as AuthenticatedProjectsCustomerOverviewRouteImport } from './routes/_authenticated/projects/customer-overview'
 import { Route as AuthenticatedProjectsProjectIdRouteImport } from './routes/_authenticated/projects/$projectId'
+import { Route as AuthenticatedMeetingsTemplatesRouteImport } from './routes/_authenticated/meetings/templates'
+import { Route as AuthenticatedMeetingsCreateRouteImport } from './routes/_authenticated/meetings/create'
 import { Route as AuthenticatedLeadsLeadIdRouteImport } from './routes/_authenticated/leads/$leadId'
 import { Route as AuthenticatedFormsSaleQuotationRouteImport } from './routes/_authenticated/forms/sale-quotation'
 import { Route as AuthenticatedFormsSaleCommercialProposalRouteImport } from './routes/_authenticated/forms/sale-commercial-proposal'
@@ -62,6 +67,7 @@ import { Route as AuthenticatedFinanceMonthlyBillingRouteImport } from './routes
 import { Route as AuthenticatedFinanceDepositsRouteImport } from './routes/_authenticated/finance/deposits'
 import { Route as AuthenticatedFinanceCompaniesRouteImport } from './routes/_authenticated/finance/companies'
 import { Route as AuthenticatedFinanceArAgingRouteImport } from './routes/_authenticated/finance/ar-aging'
+import { Route as AuthenticatedDocumentsIsoRouteImport } from './routes/_authenticated/documents/iso'
 import { Route as AuthenticatedDealsDealIdRouteImport } from './routes/_authenticated/deals/$dealId'
 import { Route as AuthenticatedCustomersCreateRouteImport } from './routes/_authenticated/customers/create'
 import { Route as AuthenticatedContractsExpiringRouteImport } from './routes/_authenticated/contracts/expiring'
@@ -82,6 +88,7 @@ import { Route as AuthenticatedTasksTaskIdEditRouteImport } from './routes/_auth
 import { Route as AuthenticatedQuotationsCommercialNewRouteImport } from './routes/_authenticated/quotations/commercial/new'
 import { Route as AuthenticatedQuotationsQuotationIdPrintRouteImport } from './routes/_authenticated/quotations/$quotationId/print'
 import { Route as AuthenticatedQuotationsQuotationIdEditRouteImport } from './routes/_authenticated/quotations/$quotationId/edit'
+import { Route as AuthenticatedMeetingsMeetingIdEditRouteImport } from './routes/_authenticated/meetings/$meetingId/edit'
 import { Route as AuthenticatedFormsSaleJob04F01NewRouteImport } from './routes/_authenticated/forms/sale-job04-f01/new'
 import { Route as AuthenticatedFormsSaleJob03F01NewRouteImport } from './routes/_authenticated/forms/sale-job03-f01/new'
 import { Route as AuthenticatedFormsSaleJob02F01NewRouteImport } from './routes/_authenticated/forms/sale-job02-f01/new'
@@ -179,11 +186,23 @@ const AuthenticatedProjectsIndexRoute =
     path: '/projects/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedMeetingsIndexRoute =
+  AuthenticatedMeetingsIndexRouteImport.update({
+    id: '/meetings/',
+    path: '/meetings/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedLeadsIndexRoute = AuthenticatedLeadsIndexRouteImport.update({
   id: '/leads/',
   path: '/leads/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedDocumentsIndexRoute =
+  AuthenticatedDocumentsIndexRouteImport.update({
+    id: '/documents/',
+    path: '/documents/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDealsIndexRoute = AuthenticatedDealsIndexRouteImport.update({
   id: '/deals/',
   path: '/deals/',
@@ -285,6 +304,12 @@ const AuthenticatedSettingsProjectsRoute =
     path: '/settings/projects',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedSettingsPdfTemplateRoute =
+  AuthenticatedSettingsPdfTemplateRouteImport.update({
+    id: '/settings/pdf-template',
+    path: '/settings/pdf-template',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedSettingsExportRoute =
   AuthenticatedSettingsExportRouteImport.update({
     id: '/settings/export',
@@ -363,6 +388,18 @@ const AuthenticatedProjectsProjectIdRoute =
     path: '/projects/$projectId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedMeetingsTemplatesRoute =
+  AuthenticatedMeetingsTemplatesRouteImport.update({
+    id: '/meetings/templates',
+    path: '/meetings/templates',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMeetingsCreateRoute =
+  AuthenticatedMeetingsCreateRouteImport.update({
+    id: '/meetings/create',
+    path: '/meetings/create',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedLeadsLeadIdRoute =
   AuthenticatedLeadsLeadIdRouteImport.update({
     id: '/leads/$leadId',
@@ -415,6 +452,12 @@ const AuthenticatedFinanceArAgingRoute =
   AuthenticatedFinanceArAgingRouteImport.update({
     id: '/finance/ar-aging',
     path: '/finance/ar-aging',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDocumentsIsoRoute =
+  AuthenticatedDocumentsIsoRouteImport.update({
+    id: '/documents/iso',
+    path: '/documents/iso',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedDealsDealIdRoute =
@@ -535,6 +578,12 @@ const AuthenticatedQuotationsQuotationIdEditRoute =
   AuthenticatedQuotationsQuotationIdEditRouteImport.update({
     id: '/quotations/$quotationId/edit',
     path: '/quotations/$quotationId/edit',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMeetingsMeetingIdEditRoute =
+  AuthenticatedMeetingsMeetingIdEditRouteImport.update({
+    id: '/meetings/$meetingId/edit',
+    path: '/meetings/$meetingId/edit',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedFormsSaleJob04F01NewRoute =
@@ -713,6 +762,7 @@ export interface FileRoutesByFullPath {
   '/contracts/expiring': typeof AuthenticatedContractsExpiringRoute
   '/customers/create': typeof AuthenticatedCustomersCreateRoute
   '/deals/$dealId': typeof AuthenticatedDealsDealIdRoute
+  '/documents/iso': typeof AuthenticatedDocumentsIsoRoute
   '/finance/ar-aging': typeof AuthenticatedFinanceArAgingRoute
   '/finance/companies': typeof AuthenticatedFinanceCompaniesRoute
   '/finance/deposits': typeof AuthenticatedFinanceDepositsRoute
@@ -722,6 +772,8 @@ export interface FileRoutesByFullPath {
   '/forms/sale-commercial-proposal': typeof AuthenticatedFormsSaleCommercialProposalRoute
   '/forms/sale-quotation': typeof AuthenticatedFormsSaleQuotationRoute
   '/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
+  '/meetings/create': typeof AuthenticatedMeetingsCreateRoute
+  '/meetings/templates': typeof AuthenticatedMeetingsTemplatesRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/projects/customer-overview': typeof AuthenticatedProjectsCustomerOverviewRoute
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
@@ -735,6 +787,7 @@ export interface FileRoutesByFullPath {
   '/settings/activity-log': typeof AuthenticatedSettingsActivityLogRoute
   '/settings/audit': typeof AuthenticatedSettingsAuditRoute
   '/settings/export': typeof AuthenticatedSettingsExportRoute
+  '/settings/pdf-template': typeof AuthenticatedSettingsPdfTemplateRoute
   '/settings/projects': typeof AuthenticatedSettingsProjectsRoute
   '/settings/roles': typeof AuthenticatedSettingsRolesRoute
   '/settings/system': typeof AuthenticatedSettingsSystemRoute
@@ -752,7 +805,9 @@ export interface FileRoutesByFullPath {
   '/contracts/': typeof AuthenticatedContractsIndexRoute
   '/customers/': typeof AuthenticatedCustomersIndexRoute
   '/deals/': typeof AuthenticatedDealsIndexRoute
+  '/documents/': typeof AuthenticatedDocumentsIndexRoute
   '/leads/': typeof AuthenticatedLeadsIndexRoute
+  '/meetings/': typeof AuthenticatedMeetingsIndexRoute
   '/projects/': typeof AuthenticatedProjectsIndexRoute
   '/quotations/': typeof AuthenticatedQuotationsIndexRoute
   '/reports/': typeof AuthenticatedReportsIndexRoute
@@ -768,6 +823,7 @@ export interface FileRoutesByFullPath {
   '/forms/sale-job02-f01/new': typeof AuthenticatedFormsSaleJob02F01NewRoute
   '/forms/sale-job03-f01/new': typeof AuthenticatedFormsSaleJob03F01NewRoute
   '/forms/sale-job04-f01/new': typeof AuthenticatedFormsSaleJob04F01NewRoute
+  '/meetings/$meetingId/edit': typeof AuthenticatedMeetingsMeetingIdEditRoute
   '/quotations/$quotationId/edit': typeof AuthenticatedQuotationsQuotationIdEditRoute
   '/quotations/$quotationId/print': typeof AuthenticatedQuotationsQuotationIdPrintRoute
   '/quotations/commercial/new': typeof AuthenticatedQuotationsCommercialNewRoute
@@ -814,6 +870,7 @@ export interface FileRoutesByTo {
   '/contracts/expiring': typeof AuthenticatedContractsExpiringRoute
   '/customers/create': typeof AuthenticatedCustomersCreateRoute
   '/deals/$dealId': typeof AuthenticatedDealsDealIdRoute
+  '/documents/iso': typeof AuthenticatedDocumentsIsoRoute
   '/finance/ar-aging': typeof AuthenticatedFinanceArAgingRoute
   '/finance/companies': typeof AuthenticatedFinanceCompaniesRoute
   '/finance/deposits': typeof AuthenticatedFinanceDepositsRoute
@@ -823,6 +880,8 @@ export interface FileRoutesByTo {
   '/forms/sale-commercial-proposal': typeof AuthenticatedFormsSaleCommercialProposalRoute
   '/forms/sale-quotation': typeof AuthenticatedFormsSaleQuotationRoute
   '/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
+  '/meetings/create': typeof AuthenticatedMeetingsCreateRoute
+  '/meetings/templates': typeof AuthenticatedMeetingsTemplatesRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/projects/customer-overview': typeof AuthenticatedProjectsCustomerOverviewRoute
   '/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
@@ -836,6 +895,7 @@ export interface FileRoutesByTo {
   '/settings/activity-log': typeof AuthenticatedSettingsActivityLogRoute
   '/settings/audit': typeof AuthenticatedSettingsAuditRoute
   '/settings/export': typeof AuthenticatedSettingsExportRoute
+  '/settings/pdf-template': typeof AuthenticatedSettingsPdfTemplateRoute
   '/settings/projects': typeof AuthenticatedSettingsProjectsRoute
   '/settings/roles': typeof AuthenticatedSettingsRolesRoute
   '/settings/system': typeof AuthenticatedSettingsSystemRoute
@@ -853,7 +913,9 @@ export interface FileRoutesByTo {
   '/contracts': typeof AuthenticatedContractsIndexRoute
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/deals': typeof AuthenticatedDealsIndexRoute
+  '/documents': typeof AuthenticatedDocumentsIndexRoute
   '/leads': typeof AuthenticatedLeadsIndexRoute
+  '/meetings': typeof AuthenticatedMeetingsIndexRoute
   '/projects': typeof AuthenticatedProjectsIndexRoute
   '/quotations': typeof AuthenticatedQuotationsIndexRoute
   '/reports': typeof AuthenticatedReportsIndexRoute
@@ -869,6 +931,7 @@ export interface FileRoutesByTo {
   '/forms/sale-job02-f01/new': typeof AuthenticatedFormsSaleJob02F01NewRoute
   '/forms/sale-job03-f01/new': typeof AuthenticatedFormsSaleJob03F01NewRoute
   '/forms/sale-job04-f01/new': typeof AuthenticatedFormsSaleJob04F01NewRoute
+  '/meetings/$meetingId/edit': typeof AuthenticatedMeetingsMeetingIdEditRoute
   '/quotations/$quotationId/edit': typeof AuthenticatedQuotationsQuotationIdEditRoute
   '/quotations/$quotationId/print': typeof AuthenticatedQuotationsQuotationIdPrintRoute
   '/quotations/commercial/new': typeof AuthenticatedQuotationsCommercialNewRoute
@@ -917,6 +980,7 @@ export interface FileRoutesById {
   '/_authenticated/contracts/expiring': typeof AuthenticatedContractsExpiringRoute
   '/_authenticated/customers/create': typeof AuthenticatedCustomersCreateRoute
   '/_authenticated/deals/$dealId': typeof AuthenticatedDealsDealIdRoute
+  '/_authenticated/documents/iso': typeof AuthenticatedDocumentsIsoRoute
   '/_authenticated/finance/ar-aging': typeof AuthenticatedFinanceArAgingRoute
   '/_authenticated/finance/companies': typeof AuthenticatedFinanceCompaniesRoute
   '/_authenticated/finance/deposits': typeof AuthenticatedFinanceDepositsRoute
@@ -926,6 +990,8 @@ export interface FileRoutesById {
   '/_authenticated/forms/sale-commercial-proposal': typeof AuthenticatedFormsSaleCommercialProposalRoute
   '/_authenticated/forms/sale-quotation': typeof AuthenticatedFormsSaleQuotationRoute
   '/_authenticated/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
+  '/_authenticated/meetings/create': typeof AuthenticatedMeetingsCreateRoute
+  '/_authenticated/meetings/templates': typeof AuthenticatedMeetingsTemplatesRoute
   '/_authenticated/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/_authenticated/projects/customer-overview': typeof AuthenticatedProjectsCustomerOverviewRoute
   '/_authenticated/projects/dashboard': typeof AuthenticatedProjectsDashboardRoute
@@ -939,6 +1005,7 @@ export interface FileRoutesById {
   '/_authenticated/settings/activity-log': typeof AuthenticatedSettingsActivityLogRoute
   '/_authenticated/settings/audit': typeof AuthenticatedSettingsAuditRoute
   '/_authenticated/settings/export': typeof AuthenticatedSettingsExportRoute
+  '/_authenticated/settings/pdf-template': typeof AuthenticatedSettingsPdfTemplateRoute
   '/_authenticated/settings/projects': typeof AuthenticatedSettingsProjectsRoute
   '/_authenticated/settings/roles': typeof AuthenticatedSettingsRolesRoute
   '/_authenticated/settings/system': typeof AuthenticatedSettingsSystemRoute
@@ -956,7 +1023,9 @@ export interface FileRoutesById {
   '/_authenticated/contracts/': typeof AuthenticatedContractsIndexRoute
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
   '/_authenticated/deals/': typeof AuthenticatedDealsIndexRoute
+  '/_authenticated/documents/': typeof AuthenticatedDocumentsIndexRoute
   '/_authenticated/leads/': typeof AuthenticatedLeadsIndexRoute
+  '/_authenticated/meetings/': typeof AuthenticatedMeetingsIndexRoute
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
   '/_authenticated/quotations/': typeof AuthenticatedQuotationsIndexRoute
   '/_authenticated/reports/': typeof AuthenticatedReportsIndexRoute
@@ -972,6 +1041,7 @@ export interface FileRoutesById {
   '/_authenticated/forms/sale-job02-f01/new': typeof AuthenticatedFormsSaleJob02F01NewRoute
   '/_authenticated/forms/sale-job03-f01/new': typeof AuthenticatedFormsSaleJob03F01NewRoute
   '/_authenticated/forms/sale-job04-f01/new': typeof AuthenticatedFormsSaleJob04F01NewRoute
+  '/_authenticated/meetings/$meetingId/edit': typeof AuthenticatedMeetingsMeetingIdEditRoute
   '/_authenticated/quotations/$quotationId/edit': typeof AuthenticatedQuotationsQuotationIdEditRoute
   '/_authenticated/quotations/$quotationId/print': typeof AuthenticatedQuotationsQuotationIdPrintRoute
   '/_authenticated/quotations/commercial/new': typeof AuthenticatedQuotationsCommercialNewRoute
@@ -1020,6 +1090,7 @@ export interface FileRouteTypes {
     | '/contracts/expiring'
     | '/customers/create'
     | '/deals/$dealId'
+    | '/documents/iso'
     | '/finance/ar-aging'
     | '/finance/companies'
     | '/finance/deposits'
@@ -1029,6 +1100,8 @@ export interface FileRouteTypes {
     | '/forms/sale-commercial-proposal'
     | '/forms/sale-quotation'
     | '/leads/$leadId'
+    | '/meetings/create'
+    | '/meetings/templates'
     | '/projects/$projectId'
     | '/projects/customer-overview'
     | '/projects/dashboard'
@@ -1042,6 +1115,7 @@ export interface FileRouteTypes {
     | '/settings/activity-log'
     | '/settings/audit'
     | '/settings/export'
+    | '/settings/pdf-template'
     | '/settings/projects'
     | '/settings/roles'
     | '/settings/system'
@@ -1059,7 +1133,9 @@ export interface FileRouteTypes {
     | '/contracts/'
     | '/customers/'
     | '/deals/'
+    | '/documents/'
     | '/leads/'
+    | '/meetings/'
     | '/projects/'
     | '/quotations/'
     | '/reports/'
@@ -1075,6 +1151,7 @@ export interface FileRouteTypes {
     | '/forms/sale-job02-f01/new'
     | '/forms/sale-job03-f01/new'
     | '/forms/sale-job04-f01/new'
+    | '/meetings/$meetingId/edit'
     | '/quotations/$quotationId/edit'
     | '/quotations/$quotationId/print'
     | '/quotations/commercial/new'
@@ -1121,6 +1198,7 @@ export interface FileRouteTypes {
     | '/contracts/expiring'
     | '/customers/create'
     | '/deals/$dealId'
+    | '/documents/iso'
     | '/finance/ar-aging'
     | '/finance/companies'
     | '/finance/deposits'
@@ -1130,6 +1208,8 @@ export interface FileRouteTypes {
     | '/forms/sale-commercial-proposal'
     | '/forms/sale-quotation'
     | '/leads/$leadId'
+    | '/meetings/create'
+    | '/meetings/templates'
     | '/projects/$projectId'
     | '/projects/customer-overview'
     | '/projects/dashboard'
@@ -1143,6 +1223,7 @@ export interface FileRouteTypes {
     | '/settings/activity-log'
     | '/settings/audit'
     | '/settings/export'
+    | '/settings/pdf-template'
     | '/settings/projects'
     | '/settings/roles'
     | '/settings/system'
@@ -1160,7 +1241,9 @@ export interface FileRouteTypes {
     | '/contracts'
     | '/customers'
     | '/deals'
+    | '/documents'
     | '/leads'
+    | '/meetings'
     | '/projects'
     | '/quotations'
     | '/reports'
@@ -1176,6 +1259,7 @@ export interface FileRouteTypes {
     | '/forms/sale-job02-f01/new'
     | '/forms/sale-job03-f01/new'
     | '/forms/sale-job04-f01/new'
+    | '/meetings/$meetingId/edit'
     | '/quotations/$quotationId/edit'
     | '/quotations/$quotationId/print'
     | '/quotations/commercial/new'
@@ -1223,6 +1307,7 @@ export interface FileRouteTypes {
     | '/_authenticated/contracts/expiring'
     | '/_authenticated/customers/create'
     | '/_authenticated/deals/$dealId'
+    | '/_authenticated/documents/iso'
     | '/_authenticated/finance/ar-aging'
     | '/_authenticated/finance/companies'
     | '/_authenticated/finance/deposits'
@@ -1232,6 +1317,8 @@ export interface FileRouteTypes {
     | '/_authenticated/forms/sale-commercial-proposal'
     | '/_authenticated/forms/sale-quotation'
     | '/_authenticated/leads/$leadId'
+    | '/_authenticated/meetings/create'
+    | '/_authenticated/meetings/templates'
     | '/_authenticated/projects/$projectId'
     | '/_authenticated/projects/customer-overview'
     | '/_authenticated/projects/dashboard'
@@ -1245,6 +1332,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/activity-log'
     | '/_authenticated/settings/audit'
     | '/_authenticated/settings/export'
+    | '/_authenticated/settings/pdf-template'
     | '/_authenticated/settings/projects'
     | '/_authenticated/settings/roles'
     | '/_authenticated/settings/system'
@@ -1262,7 +1350,9 @@ export interface FileRouteTypes {
     | '/_authenticated/contracts/'
     | '/_authenticated/customers/'
     | '/_authenticated/deals/'
+    | '/_authenticated/documents/'
     | '/_authenticated/leads/'
+    | '/_authenticated/meetings/'
     | '/_authenticated/projects/'
     | '/_authenticated/quotations/'
     | '/_authenticated/reports/'
@@ -1278,6 +1368,7 @@ export interface FileRouteTypes {
     | '/_authenticated/forms/sale-job02-f01/new'
     | '/_authenticated/forms/sale-job03-f01/new'
     | '/_authenticated/forms/sale-job04-f01/new'
+    | '/_authenticated/meetings/$meetingId/edit'
     | '/_authenticated/quotations/$quotationId/edit'
     | '/_authenticated/quotations/$quotationId/print'
     | '/_authenticated/quotations/commercial/new'
@@ -1410,11 +1501,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjectsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/meetings/': {
+      id: '/_authenticated/meetings/'
+      path: '/meetings'
+      fullPath: '/meetings/'
+      preLoaderRoute: typeof AuthenticatedMeetingsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/leads/': {
       id: '/_authenticated/leads/'
       path: '/leads'
       fullPath: '/leads/'
       preLoaderRoute: typeof AuthenticatedLeadsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/documents/': {
+      id: '/_authenticated/documents/'
+      path: '/documents'
+      fullPath: '/documents/'
+      preLoaderRoute: typeof AuthenticatedDocumentsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/deals/': {
@@ -1536,6 +1641,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsProjectsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/settings/pdf-template': {
+      id: '/_authenticated/settings/pdf-template'
+      path: '/settings/pdf-template'
+      fullPath: '/settings/pdf-template'
+      preLoaderRoute: typeof AuthenticatedSettingsPdfTemplateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/settings/export': {
       id: '/_authenticated/settings/export'
       path: '/settings/export'
@@ -1627,6 +1739,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjectsProjectIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/meetings/templates': {
+      id: '/_authenticated/meetings/templates'
+      path: '/meetings/templates'
+      fullPath: '/meetings/templates'
+      preLoaderRoute: typeof AuthenticatedMeetingsTemplatesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/meetings/create': {
+      id: '/_authenticated/meetings/create'
+      path: '/meetings/create'
+      fullPath: '/meetings/create'
+      preLoaderRoute: typeof AuthenticatedMeetingsCreateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/leads/$leadId': {
       id: '/_authenticated/leads/$leadId'
       path: '/leads/$leadId'
@@ -1688,6 +1814,13 @@ declare module '@tanstack/react-router' {
       path: '/finance/ar-aging'
       fullPath: '/finance/ar-aging'
       preLoaderRoute: typeof AuthenticatedFinanceArAgingRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/documents/iso': {
+      id: '/_authenticated/documents/iso'
+      path: '/documents/iso'
+      fullPath: '/documents/iso'
+      preLoaderRoute: typeof AuthenticatedDocumentsIsoRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/deals/$dealId': {
@@ -1828,6 +1961,13 @@ declare module '@tanstack/react-router' {
       path: '/quotations/$quotationId/edit'
       fullPath: '/quotations/$quotationId/edit'
       preLoaderRoute: typeof AuthenticatedQuotationsQuotationIdEditRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/meetings/$meetingId/edit': {
+      id: '/_authenticated/meetings/$meetingId/edit'
+      path: '/meetings/$meetingId/edit'
+      fullPath: '/meetings/$meetingId/edit'
+      preLoaderRoute: typeof AuthenticatedMeetingsMeetingIdEditRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/forms/sale-job04-f01/new': {
@@ -2034,6 +2174,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedContractsExpiringRoute: typeof AuthenticatedContractsExpiringRoute
   AuthenticatedCustomersCreateRoute: typeof AuthenticatedCustomersCreateRoute
   AuthenticatedDealsDealIdRoute: typeof AuthenticatedDealsDealIdRoute
+  AuthenticatedDocumentsIsoRoute: typeof AuthenticatedDocumentsIsoRoute
   AuthenticatedFinanceArAgingRoute: typeof AuthenticatedFinanceArAgingRoute
   AuthenticatedFinanceCompaniesRoute: typeof AuthenticatedFinanceCompaniesRoute
   AuthenticatedFinanceDepositsRoute: typeof AuthenticatedFinanceDepositsRoute
@@ -2043,6 +2184,8 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFormsSaleCommercialProposalRoute: typeof AuthenticatedFormsSaleCommercialProposalRoute
   AuthenticatedFormsSaleQuotationRoute: typeof AuthenticatedFormsSaleQuotationRoute
   AuthenticatedLeadsLeadIdRoute: typeof AuthenticatedLeadsLeadIdRoute
+  AuthenticatedMeetingsCreateRoute: typeof AuthenticatedMeetingsCreateRoute
+  AuthenticatedMeetingsTemplatesRoute: typeof AuthenticatedMeetingsTemplatesRoute
   AuthenticatedProjectsProjectIdRoute: typeof AuthenticatedProjectsProjectIdRoute
   AuthenticatedProjectsCustomerOverviewRoute: typeof AuthenticatedProjectsCustomerOverviewRoute
   AuthenticatedProjectsDashboardRoute: typeof AuthenticatedProjectsDashboardRoute
@@ -2056,6 +2199,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSettingsActivityLogRoute: typeof AuthenticatedSettingsActivityLogRoute
   AuthenticatedSettingsAuditRoute: typeof AuthenticatedSettingsAuditRoute
   AuthenticatedSettingsExportRoute: typeof AuthenticatedSettingsExportRoute
+  AuthenticatedSettingsPdfTemplateRoute: typeof AuthenticatedSettingsPdfTemplateRoute
   AuthenticatedSettingsProjectsRoute: typeof AuthenticatedSettingsProjectsRoute
   AuthenticatedSettingsRolesRoute: typeof AuthenticatedSettingsRolesRoute
   AuthenticatedSettingsSystemRoute: typeof AuthenticatedSettingsSystemRoute
@@ -2073,7 +2217,9 @@ interface AuthenticatedRouteChildren {
   AuthenticatedContractsIndexRoute: typeof AuthenticatedContractsIndexRoute
   AuthenticatedCustomersIndexRoute: typeof AuthenticatedCustomersIndexRoute
   AuthenticatedDealsIndexRoute: typeof AuthenticatedDealsIndexRoute
+  AuthenticatedDocumentsIndexRoute: typeof AuthenticatedDocumentsIndexRoute
   AuthenticatedLeadsIndexRoute: typeof AuthenticatedLeadsIndexRoute
+  AuthenticatedMeetingsIndexRoute: typeof AuthenticatedMeetingsIndexRoute
   AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
   AuthenticatedQuotationsIndexRoute: typeof AuthenticatedQuotationsIndexRoute
   AuthenticatedReportsIndexRoute: typeof AuthenticatedReportsIndexRoute
@@ -2089,6 +2235,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFormsSaleJob02F01NewRoute: typeof AuthenticatedFormsSaleJob02F01NewRoute
   AuthenticatedFormsSaleJob03F01NewRoute: typeof AuthenticatedFormsSaleJob03F01NewRoute
   AuthenticatedFormsSaleJob04F01NewRoute: typeof AuthenticatedFormsSaleJob04F01NewRoute
+  AuthenticatedMeetingsMeetingIdEditRoute: typeof AuthenticatedMeetingsMeetingIdEditRoute
   AuthenticatedQuotationsQuotationIdEditRoute: typeof AuthenticatedQuotationsQuotationIdEditRoute
   AuthenticatedQuotationsQuotationIdPrintRoute: typeof AuthenticatedQuotationsQuotationIdPrintRoute
   AuthenticatedQuotationsCommercialNewRoute: typeof AuthenticatedQuotationsCommercialNewRoute
@@ -2135,6 +2282,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedContractsExpiringRoute: AuthenticatedContractsExpiringRoute,
   AuthenticatedCustomersCreateRoute: AuthenticatedCustomersCreateRoute,
   AuthenticatedDealsDealIdRoute: AuthenticatedDealsDealIdRoute,
+  AuthenticatedDocumentsIsoRoute: AuthenticatedDocumentsIsoRoute,
   AuthenticatedFinanceArAgingRoute: AuthenticatedFinanceArAgingRoute,
   AuthenticatedFinanceCompaniesRoute: AuthenticatedFinanceCompaniesRoute,
   AuthenticatedFinanceDepositsRoute: AuthenticatedFinanceDepositsRoute,
@@ -2146,6 +2294,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedFormsSaleCommercialProposalRoute,
   AuthenticatedFormsSaleQuotationRoute: AuthenticatedFormsSaleQuotationRoute,
   AuthenticatedLeadsLeadIdRoute: AuthenticatedLeadsLeadIdRoute,
+  AuthenticatedMeetingsCreateRoute: AuthenticatedMeetingsCreateRoute,
+  AuthenticatedMeetingsTemplatesRoute: AuthenticatedMeetingsTemplatesRoute,
   AuthenticatedProjectsProjectIdRoute: AuthenticatedProjectsProjectIdRoute,
   AuthenticatedProjectsCustomerOverviewRoute:
     AuthenticatedProjectsCustomerOverviewRoute,
@@ -2160,6 +2310,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSettingsActivityLogRoute: AuthenticatedSettingsActivityLogRoute,
   AuthenticatedSettingsAuditRoute: AuthenticatedSettingsAuditRoute,
   AuthenticatedSettingsExportRoute: AuthenticatedSettingsExportRoute,
+  AuthenticatedSettingsPdfTemplateRoute: AuthenticatedSettingsPdfTemplateRoute,
   AuthenticatedSettingsProjectsRoute: AuthenticatedSettingsProjectsRoute,
   AuthenticatedSettingsRolesRoute: AuthenticatedSettingsRolesRoute,
   AuthenticatedSettingsSystemRoute: AuthenticatedSettingsSystemRoute,
@@ -2178,7 +2329,9 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedContractsIndexRoute: AuthenticatedContractsIndexRoute,
   AuthenticatedCustomersIndexRoute: AuthenticatedCustomersIndexRoute,
   AuthenticatedDealsIndexRoute: AuthenticatedDealsIndexRoute,
+  AuthenticatedDocumentsIndexRoute: AuthenticatedDocumentsIndexRoute,
   AuthenticatedLeadsIndexRoute: AuthenticatedLeadsIndexRoute,
+  AuthenticatedMeetingsIndexRoute: AuthenticatedMeetingsIndexRoute,
   AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
   AuthenticatedQuotationsIndexRoute: AuthenticatedQuotationsIndexRoute,
   AuthenticatedReportsIndexRoute: AuthenticatedReportsIndexRoute,
@@ -2202,6 +2355,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedFormsSaleJob03F01NewRoute,
   AuthenticatedFormsSaleJob04F01NewRoute:
     AuthenticatedFormsSaleJob04F01NewRoute,
+  AuthenticatedMeetingsMeetingIdEditRoute:
+    AuthenticatedMeetingsMeetingIdEditRoute,
   AuthenticatedQuotationsQuotationIdEditRoute:
     AuthenticatedQuotationsQuotationIdEditRoute,
   AuthenticatedQuotationsQuotationIdPrintRoute:
