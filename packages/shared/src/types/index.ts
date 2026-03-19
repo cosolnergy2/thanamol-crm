@@ -1751,6 +1751,6 @@ export type PDFTemplateQueryParams = {
   type?: PDFTemplateType | 'all'
 }
 
-// Aliases for backward compatibility
+// Aliases
 export type ISODocument = ISODocumentRecord
 export type PDFTemplate = PDFTemplateRecord
