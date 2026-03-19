@@ -1,9 +1,15 @@
+export const DEPARTMENTS = ['Admin', 'Sale', 'Legal', 'Account', 'Service'] as const
+export type Department = (typeof DEPARTMENTS)[number]
+
 export type AuthUser = {
   id: string
   email: string
   firstName: string
   lastName: string
   avatarUrl: string | null
+  phone: string | null
+  department: string | null
+  position: string | null
   isActive: boolean
   roles: Array<{ id: string; name: string }>
 }
@@ -13,6 +19,21 @@ export type RegisterRequest = {
   password: string
   firstName: string
   lastName: string
+}
+
+export type CreateUserRequest = {
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+  phone?: string
+  department?: string
+  position?: string
+  roleId?: string
+}
+
+export type ResetPasswordRequest = {
+  newPassword: string
 }
 
 export type LoginRequest = {

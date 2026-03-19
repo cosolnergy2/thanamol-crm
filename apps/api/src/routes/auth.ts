@@ -25,6 +25,9 @@ type UserWithRoles = {
   first_name: string
   last_name: string
   avatar_url: string | null
+  phone: string | null
+  department: string | null
+  position: string | null
   is_active: boolean
   roles: Array<{ role: { id: string; name: string } }>
 }
@@ -36,6 +39,9 @@ function buildAuthUser(user: UserWithRoles): AuthenticatedUser {
     firstName: user.first_name,
     lastName: user.last_name,
     avatarUrl: user.avatar_url,
+    phone: user.phone,
+    department: user.department,
+    position: user.position,
     isActive: user.is_active,
     roles: user.roles.map((ur) => ({ id: ur.role.id, name: ur.role.name })),
   }
@@ -74,7 +80,7 @@ export const authRoutes = new Elysia({ prefix: '/api/auth' })
   .post(
     '/register',
     async ({ jwtAccess, jwtRefresh, body, set }) => {
-      const { email, password, firstName, lastName } = body
+      const { email, password, firstName, lastName, phone, department, position, roleId } = body
 
       const existing = await prisma.user.findUnique({ where: { email } })
       if (existing) {
@@ -83,16 +89,35 @@ export const authRoutes = new Elysia({ prefix: '/api/auth' })
       }
 
       const passwordHash = await bcrypt.hash(password, 12)
-      const user = await prisma.user.create({
-        data: {
-          email,
-          password_hash: passwordHash,
-          first_name: firstName,
-          last_name: lastName,
-        },
-        include: {
-          roles: { include: { role: true } },
-        },
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const user = await prisma.$transaction(async (tx: any) => {
+        const created = await tx.user.create({
+          data: {
+            email,
+            password_hash: passwordHash,
+            first_name: firstName,
+            last_name: lastName,
+            phone: phone ?? null,
+            department: department ?? null,
+            position: position ?? null,
+          },
+          include: {
+            roles: { include: { role: true } },
+          },
+        })
+
+        if (roleId) {
+          await tx.userRole.create({
+            data: { user_id: created.id, role_id: roleId },
+          })
+          return tx.user.findUniqueOrThrow({
+            where: { id: created.id },
+            include: { roles: { include: { role: true } } },
+          })
+        }
+
+        return created
       })
 
       const { accessToken, refreshToken } = await issueTokenPair(
@@ -113,6 +138,10 @@ export const authRoutes = new Elysia({ prefix: '/api/auth' })
         password: t.String({ minLength: 6 }),
         firstName: t.String({ minLength: 1 }),
         lastName: t.String({ minLength: 1 }),
+        phone: t.Optional(t.String()),
+        department: t.Optional(t.String()),
+        position: t.Optional(t.String()),
+        roleId: t.Optional(t.String()),
       }),
     }
   )
@@ -222,7 +251,7 @@ export const authRoutes = new Elysia({ prefix: '/api/auth' })
           const users = await prisma.user.findMany({
             orderBy: { created_at: 'desc' },
             include: {
-              roles: { include: { role: { select: { id: true, name: true } } } },
+              roles: { include: { role: true } },
             },
           })
           return {
@@ -231,6 +260,9 @@ export const authRoutes = new Elysia({ prefix: '/api/auth' })
               email: u.email,
               first_name: u.first_name,
               last_name: u.last_name,
+              phone: u.phone,
+              department: u.department,
+              position: u.position,
               is_active: u.is_active,
               roles: u.roles.map((ur) => ({ id: ur.role.id, name: ur.role.name })),
               created_at: u.created_at.toISOString(),
@@ -245,17 +277,40 @@ export const authRoutes = new Elysia({ prefix: '/api/auth' })
               set.status = 404
               return { error: 'User not found' }
             }
-            const updated = await prisma.user.update({
-              where: { id: params.id },
-              data: {
-                is_active: body.isActive !== undefined ? body.isActive : user.is_active,
-                first_name: body.firstName ?? user.first_name,
-                last_name: body.lastName ?? user.last_name,
-              },
-              include: {
-                roles: { include: { role: { select: { id: true, name: true } } } },
-              },
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const updated = await prisma.$transaction(async (tx: any) => {
+              const updatedUser = await tx.user.update({
+                where: { id: params.id },
+                data: {
+                  is_active: body.isActive !== undefined ? body.isActive : user.is_active,
+                  first_name: body.firstName ?? user.first_name,
+                  last_name: body.lastName ?? user.last_name,
+                  phone: body.phone !== undefined ? body.phone : user.phone,
+                  department: body.department !== undefined ? body.department : user.department,
+                  position: body.position !== undefined ? body.position : user.position,
+                },
+                include: {
+                  roles: { include: { role: { select: { id: true, name: true } } } },
+                },
+              })
+
+              if (body.roleId !== undefined) {
+                await tx.userRole.deleteMany({ where: { user_id: params.id } })
+                if (body.roleId) {
+                  await tx.userRole.create({
+                    data: { user_id: params.id, role_id: body.roleId },
+                  })
+                }
+                return tx.user.findUniqueOrThrow({
+                  where: { id: params.id },
+                  include: { roles: { include: { role: { select: { id: true, name: true } } } } },
+                })
+              }
+
+              return updatedUser
             })
+
             return { user: buildAuthUser(updated) }
           },
           {
@@ -263,6 +318,33 @@ export const authRoutes = new Elysia({ prefix: '/api/auth' })
               isActive: t.Optional(t.Boolean()),
               firstName: t.Optional(t.String()),
               lastName: t.Optional(t.String()),
+              phone: t.Optional(t.Nullable(t.String())),
+              department: t.Optional(t.Nullable(t.String())),
+              position: t.Optional(t.Nullable(t.String())),
+              roleId: t.Optional(t.Nullable(t.String())),
+            }),
+          }
+        )
+        .post(
+          '/users/:id/reset-password',
+          async ({ params, body, set }) => {
+            const user = await prisma.user.findUnique({ where: { id: params.id } })
+            if (!user) {
+              set.status = 404
+              return { error: 'User not found' }
+            }
+
+            const passwordHash = await bcrypt.hash(body.newPassword, 12)
+            await prisma.user.update({
+              where: { id: params.id },
+              data: { password_hash: passwordHash },
+            })
+
+            return { success: true }
+          },
+          {
+            body: t.Object({
+              newPassword: t.String({ minLength: 6 }),
             }),
           }
         )

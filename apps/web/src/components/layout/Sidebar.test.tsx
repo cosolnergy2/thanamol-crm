@@ -26,6 +26,9 @@ const adminUser: AuthUser = {
   firstName: 'Admin',
   lastName: 'User',
   avatarUrl: null,
+  phone: null,
+  department: null,
+  position: null,
   isActive: true,
   roles: [{ id: 'r1', name: 'admin' }],
 }

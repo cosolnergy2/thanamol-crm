@@ -10,6 +10,9 @@ export type AuthenticatedUser = {
   firstName: string
   lastName: string
   avatarUrl: string | null
+  phone: string | null
+  department: string | null
+  position: string | null
   isActive: boolean
   roles: Array<{ id: string; name: string }>
 }
@@ -48,6 +51,9 @@ export const authPlugin = new Elysia({ name: 'auth-plugin' })
       firstName: user.first_name,
       lastName: user.last_name,
       avatarUrl: user.avatar_url,
+      phone: user.phone,
+      department: user.department,
+      position: user.position,
       isActive: user.is_active,
       roles: user.roles.map((ur: { role: { id: string; name: string } }) => ({
         id: ur.role.id,
