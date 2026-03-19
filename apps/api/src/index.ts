@@ -16,6 +16,23 @@ import { reportsRoutes } from './routes/reports'
 import { invoicesRoutes } from './routes/invoices'
 import { paymentsRoutes } from './routes/payments'
 import { contractsRoutes } from './routes/contracts'
+import { activityLogsRoutes } from './routes/activity-logs'
+import { automationRulesRoutes } from './routes/automation-rules'
+import { clientPortalRoutes } from './routes/client-portal'
+import { commentsRoutes } from './routes/comments'
+import { depositsRoutes } from './routes/deposits'
+import { handoverPhotosRoutes } from './routes/handover-photos'
+import { handoversRoutes } from './routes/handovers'
+import { leaseAgreementsRoutes } from './routes/lease-agreements'
+import { meterRecordsRoutes } from './routes/meter-records'
+import { notificationsRoutes, notificationPreferencesRoutes } from './routes/notifications'
+import { preHandoverInspectionsRoutes } from './routes/pre-handover-inspections'
+import { saleJobsRoutes } from './routes/sale-jobs'
+import { taskConfigRoutes } from './routes/task-config'
+import { taskStatusesRoutes } from './routes/task-statuses'
+import { tasksRoutes } from './routes/tasks'
+import { ticketsRoutes } from './routes/tickets'
+import { warehouseRequirementsRoutes } from './routes/warehouse-requirements'
 
 const API_PORT = Number(process.env.PORT ?? 3000)
 
@@ -39,6 +56,24 @@ const app = new Elysia()
   .use(invoicesRoutes)
   .use(paymentsRoutes)
   .use(contractsRoutes)
+  .use(activityLogsRoutes)
+  .use(automationRulesRoutes)
+  .use(clientPortalRoutes)
+  .use(commentsRoutes)
+  .use(depositsRoutes)
+  .use(handoverPhotosRoutes)
+  .use(handoversRoutes)
+  .use(leaseAgreementsRoutes)
+  .use(meterRecordsRoutes)
+  .use(notificationsRoutes)
+  .use(notificationPreferencesRoutes)
+  .use(preHandoverInspectionsRoutes)
+  .use(saleJobsRoutes)
+  .use(taskConfigRoutes)
+  .use(taskStatusesRoutes)
+  .use(tasksRoutes)
+  .use(ticketsRoutes)
+  .use(warehouseRequirementsRoutes)
   .listen(API_PORT)
 
 console.log(`API running at http://localhost:${API_PORT}`)
