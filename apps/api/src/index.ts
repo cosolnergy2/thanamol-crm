@@ -13,6 +13,9 @@ import { dealsRoutes } from './routes/deals'
 import { quotationsRoutes } from './routes/quotations'
 import { commercialQuotationsRoutes } from './routes/commercial-quotations'
 import { reportsRoutes } from './routes/reports'
+import { invoicesRoutes } from './routes/invoices'
+import { paymentsRoutes } from './routes/payments'
+import { contractsRoutes } from './routes/contracts'
 
 const API_PORT = Number(process.env.PORT ?? 3000)
 
@@ -33,6 +36,9 @@ const app = new Elysia()
   .use(quotationsRoutes)
   .use(commercialQuotationsRoutes)
   .use(reportsRoutes)
+  .use(invoicesRoutes)
+  .use(paymentsRoutes)
+  .use(contractsRoutes)
   .listen(API_PORT)
 
 console.log(`API running at http://localhost:${API_PORT}`)
