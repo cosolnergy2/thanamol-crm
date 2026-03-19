@@ -260,12 +260,12 @@ function InvoiceEditPage() {
 
                   <div className="space-y-1.5">
                     <Label className="text-[11px] text-slate-500">Contract (optional)</Label>
-                    <Select value={contractId} onValueChange={setContractId}>
+                    <Select value={contractId || "__none__"} onValueChange={(v) => setContractId(v === "__none__" ? "" : v)}>
                       <SelectTrigger>
                         <SelectValue placeholder="Link to contract" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">None</SelectItem>
+                        <SelectItem value="__none__">None</SelectItem>
                         {contracts.map((c) => (
                           <SelectItem key={c.id} value={c.id}>
                             {c.contract_number}

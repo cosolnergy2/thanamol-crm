@@ -192,12 +192,12 @@ function QuotationCreatePage() {
 
               <div className="space-y-2">
                 <Label>Unit</Label>
-                <Select value={unitId} onValueChange={setUnitId}>
+                <Select value={unitId || "__none__"} onValueChange={(v) => setUnitId(v === "__none__" ? "" : v)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select unit (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="__none__">None</SelectItem>
                     {units.map((u) => (
                       <SelectItem key={u.id} value={u.id}>
                         {u.unit_number}
