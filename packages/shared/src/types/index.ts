@@ -88,6 +88,16 @@ export type Customer = {
   type: CustomerType
   status: CustomerStatus
   notes: string | null
+  line_id: string | null
+  province: string | null
+  lead_source: string | null
+  industry: string | null
+  company_size: string | null
+  budget_range: string | null
+  deposit_conditions: string | null
+  profile_url: string | null
+  pdpa_consent: boolean
+  interested_project_id: string | null
   created_at: string
   updated_at: string
 }
@@ -109,6 +119,16 @@ export type CreateCustomerRequest = {
   type?: CustomerType
   status?: CustomerStatus
   notes?: string
+  lineId?: string
+  province?: string
+  leadSource?: string
+  industry?: string
+  companySize?: string
+  budgetRange?: string
+  depositConditions?: string
+  profileUrl?: string
+  pdpaConsent?: boolean
+  interestedProjectId?: string
 }
 
 export type UpdateCustomerRequest = Partial<CreateCustomerRequest>

@@ -298,18 +298,29 @@ model RefreshToken {
 // ─── CRM Domain ───────────────────────────────────────────────────────────────
 
 model Customer {
-  id         String         @id @default(uuid())
-  name       String
-  email      String?
-  phone      String?
-  address    String?
-  tax_id     String?
-  type       CustomerType   @default(INDIVIDUAL)
-  status     CustomerStatus @default(ACTIVE)
-  notes      String?
-  created_at DateTime       @default(now())
-  updated_at DateTime       @updatedAt
+  id                    String         @id @default(uuid())
+  name                  String
+  email                 String?
+  phone                 String?
+  address               String?
+  tax_id                String?
+  type                  CustomerType   @default(INDIVIDUAL)
+  status                CustomerStatus @default(ACTIVE)
+  notes                 String?
+  line_id               String?
+  province              String?
+  lead_source           String?
+  industry              String?
+  company_size          String?
+  budget_range          String?
+  deposit_conditions    String?
+  profile_url           String?
+  pdpa_consent          Boolean        @default(false)
+  interested_project_id String?
+  created_at            DateTime       @default(now())
+  updated_at            DateTime       @updatedAt
 
+  interested_project         Project?              @relation("CustomerInterestedProject", fields: [interested_project_id], references: [id])
   contacts                   Contact[]
   leads                      Lead[]
   deals                      Deal[]
@@ -327,6 +338,7 @@ model Customer {
   @@index([email])
   @@index([status])
   @@index([type])
+  @@index([interested_project_id])
 }
 
 model Contact {
@@ -433,6 +445,7 @@ model Project {
   created_at  DateTime      @default(now())
   updated_at  DateTime      @updatedAt
 
+  interested_customers       Customer[]             @relation("CustomerInterestedProject")
   units                      Unit[]
   quotations                 Quotation[]
   commercial_quotations      CommercialQuotation[]

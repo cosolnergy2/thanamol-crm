@@ -17,6 +17,16 @@ const createCustomerSchema = t.Object({
     t.Union([t.Literal('ACTIVE'), t.Literal('INACTIVE'), t.Literal('PROSPECT')])
   ),
   notes: t.Optional(t.String()),
+  lineId: t.Optional(t.String()),
+  province: t.Optional(t.String()),
+  leadSource: t.Optional(t.String()),
+  industry: t.Optional(t.String()),
+  companySize: t.Optional(t.String()),
+  budgetRange: t.Optional(t.String()),
+  depositConditions: t.Optional(t.String()),
+  profileUrl: t.Optional(t.String()),
+  pdpaConsent: t.Optional(t.Boolean()),
+  interestedProjectId: t.Optional(t.String()),
 })
 
 const updateCustomerSchema = t.Object({
@@ -30,6 +40,16 @@ const updateCustomerSchema = t.Object({
     t.Union([t.Literal('ACTIVE'), t.Literal('INACTIVE'), t.Literal('PROSPECT')])
   ),
   notes: t.Optional(t.String()),
+  lineId: t.Optional(t.String()),
+  province: t.Optional(t.String()),
+  leadSource: t.Optional(t.String()),
+  industry: t.Optional(t.String()),
+  companySize: t.Optional(t.String()),
+  budgetRange: t.Optional(t.String()),
+  depositConditions: t.Optional(t.String()),
+  profileUrl: t.Optional(t.String()),
+  pdpaConsent: t.Optional(t.Boolean()),
+  interestedProjectId: t.Optional(t.String()),
 })
 
 function buildPagination(page: number, limit: number, total: number) {
@@ -108,7 +128,7 @@ export const customersRoutes = new Elysia({ prefix: '/api/customers' })
         .get('/:id', async ({ params, set }) => {
           const customer = await prisma.customer.findUnique({
             where: { id: params.id },
-            include: { contacts: true },
+            include: { contacts: true, interested_project: true },
           })
           if (!customer) {
             set.status = 404
@@ -129,6 +149,16 @@ export const customersRoutes = new Elysia({ prefix: '/api/customers' })
                 type: body.type ?? 'INDIVIDUAL',
                 status: body.status ?? 'ACTIVE',
                 notes: body.notes,
+                line_id: body.lineId,
+                province: body.province,
+                lead_source: body.leadSource,
+                industry: body.industry,
+                company_size: body.companySize,
+                budget_range: body.budgetRange,
+                deposit_conditions: body.depositConditions,
+                profile_url: body.profileUrl,
+                pdpa_consent: body.pdpaConsent ?? false,
+                interested_project_id: body.interestedProjectId,
               },
             })
             logActivity({
@@ -162,6 +192,16 @@ export const customersRoutes = new Elysia({ prefix: '/api/customers' })
                 type: body.type,
                 status: body.status,
                 notes: body.notes,
+                line_id: body.lineId,
+                province: body.province,
+                lead_source: body.leadSource,
+                industry: body.industry,
+                company_size: body.companySize,
+                budget_range: body.budgetRange,
+                deposit_conditions: body.depositConditions,
+                profile_url: body.profileUrl,
+                pdpa_consent: body.pdpaConsent,
+                interested_project_id: body.interestedProjectId,
               },
             })
             logActivity({
