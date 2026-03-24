@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { Plus, Search, Package, Edit, Building2 } from 'lucide-react'
+import { FileUpload } from '@/components/FileUpload'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -420,15 +421,12 @@ function UnitFormDialog({
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="floorPlanUrl">Floor Plan URL</Label>
-                <Input
-                  id="floorPlanUrl"
-                  value={formData.floorPlanUrl ?? ''}
-                  onChange={(e) => field('floorPlanUrl', e.target.value || undefined)}
-                  placeholder="https://..."
-                />
-              </div>
+              <FileUpload
+                label="Floor Plan"
+                value={formData.floorPlanUrl}
+                onChange={(url) => field('floorPlanUrl', url)}
+                accept="image/*,.pdf"
+              />
 
               <div className="flex items-center gap-2">
                 <Checkbox

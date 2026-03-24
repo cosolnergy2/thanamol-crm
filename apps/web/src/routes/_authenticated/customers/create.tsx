@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { ArrowLeft, Save, Building2, Phone, Briefcase, FileText } from 'lucide-react'
+import { FileUpload } from '@/components/FileUpload'
 import { toast } from 'sonner'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -416,14 +417,12 @@ function CustomerCreatePage() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="profileUrl">Profile URL / Business Card</Label>
-              <Input
-                id="profileUrl"
-                {...register('profileUrl')}
-                placeholder="https://..."
-              />
-            </div>
+            <FileUpload
+              label="Profile / Business Card"
+              value={watch('profileUrl')}
+              onChange={(url) => setValue('profileUrl', url)}
+              accept="image/*,.pdf"
+            />
 
             <div className="space-y-2">
               <Label htmlFor="notes">Notes</Label>
