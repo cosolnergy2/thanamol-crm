@@ -540,3 +540,227 @@ describe('POST /api/quotations/:id/reject', () => {
     expect(res.status).toBe(401)
   })
 })
+
+// ─── POST /api/quotations — Cost & Responsibility fields ─────────────────────
+
+describe('POST /api/quotations — cost and responsibility fields', () => {
+  it('persists deposit_months and advance_rent_months', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
+    vi.mocked(prisma.quotation.count).mockResolvedValue(0)
+    vi.mocked(prisma.quotation.create).mockResolvedValue(mockQuotation as never)
+
+    const token = await signToken()
+    await request(
+      'POST',
+      '/api/quotations',
+      { customerId: 'cust-1', projectId: 'proj-1', depositMonths: 2, advanceRentMonths: 1 },
+      token
+    )
+
+    expect(vi.mocked(prisma.quotation.create)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          deposit_months: 2,
+          advance_rent_months: 1,
+        }),
+      })
+    )
+  })
+
+  it('persists electricity_rate_type and electricity_rate', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
+    vi.mocked(prisma.quotation.count).mockResolvedValue(0)
+    vi.mocked(prisma.quotation.create).mockResolvedValue(mockQuotation as never)
+
+    const token = await signToken()
+    await request(
+      'POST',
+      '/api/quotations',
+      { customerId: 'cust-1', projectId: 'proj-1', electricityRateType: 'Fixed', electricityRate: 5.5 },
+      token
+    )
+
+    expect(vi.mocked(prisma.quotation.create)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          electricity_rate_type: 'Fixed',
+          electricity_rate: 5.5,
+        }),
+      })
+    )
+  })
+
+  it('persists water_rate', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
+    vi.mocked(prisma.quotation.count).mockResolvedValue(0)
+    vi.mocked(prisma.quotation.create).mockResolvedValue(mockQuotation as never)
+
+    const token = await signToken()
+    await request(
+      'POST',
+      '/api/quotations',
+      { customerId: 'cust-1', projectId: 'proj-1', waterRate: 18 },
+      token
+    )
+
+    expect(vi.mocked(prisma.quotation.create)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ water_rate: 18 }),
+      })
+    )
+  })
+
+  it('persists responsibility fields', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
+    vi.mocked(prisma.quotation.count).mockResolvedValue(0)
+    vi.mocked(prisma.quotation.create).mockResolvedValue(mockQuotation as never)
+
+    const token = await signToken()
+    await request(
+      'POST',
+      '/api/quotations',
+      {
+        customerId: 'cust-1',
+        projectId: 'proj-1',
+        depositDecoration: 'Yes',
+        registrationFee: 'Lessor',
+        propertyTax: 'Shared 50/50',
+        buildingInsurance: 'Lessee',
+        goodsInsurance: 'N/A',
+      },
+      token
+    )
+
+    expect(vi.mocked(prisma.quotation.create)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          deposit_decoration: 'Yes',
+          registration_fee: 'Lessor',
+          property_tax: 'Shared 50/50',
+          building_insurance: 'Lessee',
+          goods_insurance: 'N/A',
+        }),
+      })
+    )
+  })
+
+  it('persists special_conditions and remarks', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
+    vi.mocked(prisma.quotation.count).mockResolvedValue(0)
+    vi.mocked(prisma.quotation.create).mockResolvedValue(mockQuotation as never)
+
+    const token = await signToken()
+    await request(
+      'POST',
+      '/api/quotations',
+      {
+        customerId: 'cust-1',
+        projectId: 'proj-1',
+        specialConditions: 'No subletting allowed',
+        remarks: 'Review annually',
+      },
+      token
+    )
+
+    expect(vi.mocked(prisma.quotation.create)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          special_conditions: 'No subletting allowed',
+          remarks: 'Review annually',
+        }),
+      })
+    )
+  })
+
+  it('defaults new nullable fields to null when not provided', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
+    vi.mocked(prisma.quotation.count).mockResolvedValue(0)
+    vi.mocked(prisma.quotation.create).mockResolvedValue(mockQuotation as never)
+
+    const token = await signToken()
+    await request(
+      'POST',
+      '/api/quotations',
+      { customerId: 'cust-1', projectId: 'proj-1' },
+      token
+    )
+
+    expect(vi.mocked(prisma.quotation.create)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          deposit_months: null,
+          advance_rent_months: null,
+          electricity_rate_type: null,
+          electricity_rate: null,
+          water_rate: null,
+          deposit_decoration: null,
+          registration_fee: null,
+          property_tax: null,
+          building_insurance: null,
+          goods_insurance: null,
+          special_conditions: null,
+          remarks: null,
+        }),
+      })
+    )
+  })
+})
+
+// ─── PUT /api/quotations/:id — Cost & Responsibility fields ──────────────────
+
+describe('PUT /api/quotations/:id — cost and responsibility fields', () => {
+  it('updates deposit_months and advance_rent_months', async () => {
+    const updated = { ...mockQuotation, deposit_months: 3, advance_rent_months: 2 }
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
+    vi.mocked(prisma.quotation.findUnique).mockResolvedValue(mockQuotation as never)
+    vi.mocked(prisma.quotation.update).mockResolvedValue(updated as never)
+
+    const token = await signToken()
+    const res = await request(
+      'PUT',
+      '/api/quotations/qt-1',
+      { depositMonths: 3, advanceRentMonths: 2 },
+      token
+    )
+
+    expect(res.status).toBe(200)
+    expect(vi.mocked(prisma.quotation.update)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          deposit_months: 3,
+          advance_rent_months: 2,
+        }),
+      })
+    )
+  })
+
+  it('updates responsibility and condition fields', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
+    vi.mocked(prisma.quotation.findUnique).mockResolvedValue(mockQuotation as never)
+    vi.mocked(prisma.quotation.update).mockResolvedValue(mockQuotation as never)
+
+    const token = await signToken()
+    await request(
+      'PUT',
+      '/api/quotations/qt-1',
+      {
+        registrationFee: 'Lessor',
+        buildingInsurance: 'Lessee',
+        specialConditions: 'Updated conditions',
+        remarks: 'Updated remarks',
+      },
+      token
+    )
+
+    expect(vi.mocked(prisma.quotation.update)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          registration_fee: 'Lessor',
+          building_insurance: 'Lessee',
+          special_conditions: 'Updated conditions',
+          remarks: 'Updated remarks',
+        }),
+      })
+    )
+  })
+})

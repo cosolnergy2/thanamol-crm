@@ -493,13 +493,25 @@ model Quotation {
   discount         Float           @default(0)
   tax              Float           @default(0)
   grand_total      Float           @default(0)
-  status           QuotationStatus @default(DRAFT)
-  valid_until      DateTime?
-  notes            String?
-  approved_by      String?
-  created_by       String
-  created_at       DateTime        @default(now())
-  updated_at       DateTime        @updatedAt
+  status                QuotationStatus @default(DRAFT)
+  valid_until           DateTime?
+  notes                 String?
+  approved_by           String?
+  created_by            String
+  created_at            DateTime        @default(now())
+  updated_at            DateTime        @updatedAt
+  deposit_months        Int?
+  advance_rent_months   Int?
+  electricity_rate_type String?
+  electricity_rate      Float?
+  water_rate            Float?
+  deposit_decoration    String?
+  registration_fee      String?
+  property_tax          String?
+  building_insurance    String?
+  goods_insurance       String?
+  special_conditions    String?
+  remarks               String?
 
   customer Customer @relation(fields: [customer_id], references: [id])
   project  Project  @relation(fields: [project_id], references: [id])
