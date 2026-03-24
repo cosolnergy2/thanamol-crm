@@ -88,6 +88,16 @@ export type Customer = {
   type: CustomerType
   status: CustomerStatus
   notes: string | null
+  line_id: string | null
+  province: string | null
+  lead_source: string | null
+  industry: string | null
+  company_size: string | null
+  budget_range: string | null
+  deposit_conditions: string | null
+  profile_url: string | null
+  pdpa_consent: boolean
+  interested_project_id: string | null
   created_at: string
   updated_at: string
 }
@@ -109,6 +119,16 @@ export type CreateCustomerRequest = {
   type?: CustomerType
   status?: CustomerStatus
   notes?: string
+  lineId?: string
+  province?: string
+  leadSource?: string
+  industry?: string
+  companySize?: string
+  budgetRange?: string
+  depositConditions?: string
+  profileUrl?: string
+  pdpaConsent?: boolean
+  interestedProjectId?: string
 }
 
 export type UpdateCustomerRequest = Partial<CreateCustomerRequest>
@@ -126,6 +146,8 @@ export type Contact = {
   phone: string | null
   position: string | null
   is_primary: boolean
+  line_id: string | null
+  is_decision_maker: boolean
   created_at: string
 }
 
@@ -141,6 +163,8 @@ export type CreateContactRequest = {
   phone?: string
   position?: string
   isPrimary?: boolean
+  lineId?: string
+  isDecisionMaker?: boolean
 }
 
 export type UpdateContactRequest = Partial<Omit<CreateContactRequest, 'customerId'>>
@@ -266,6 +290,24 @@ export type Unit = {
   price: number | null
   status: UnitStatus
   features: Record<string, unknown>
+  zone: string | null
+  location: string | null
+  office_area_sqm: number | null
+  floor_load: string | null
+  electrical_load: string | null
+  ceiling_height: number | null
+  lease_type: string | null
+  floor_plan_url: string | null
+  has_sprinkler: boolean
+  rent_per_sqm: number | null
+  common_fee: number | null
+  common_fee_waived: boolean
+  water_rate: number | null
+  water_rate_actual: boolean
+  electricity_rate: number | null
+  electricity_rate_actual: boolean
+  deposit_months: number | null
+  advance_rent_months: number | null
   created_at: string
   updated_at: string
 }
@@ -302,6 +344,24 @@ export type CreateUnitRequest = {
   price?: number
   status?: UnitStatus
   features?: Record<string, unknown>
+  zone?: string
+  location?: string
+  officeAreaSqm?: number
+  floorLoad?: string
+  electricalLoad?: string
+  ceilingHeight?: number
+  leaseType?: string
+  floorPlanUrl?: string
+  hasSprinkler?: boolean
+  rentPerSqm?: number
+  commonFee?: number
+  commonFeeWaived?: boolean
+  waterRate?: number
+  waterRateActual?: boolean
+  electricityRate?: number
+  electricityRateActual?: boolean
+  depositMonths?: number
+  advanceRentMonths?: number
 }
 
 export type UpdateUnitRequest = Partial<Omit<CreateUnitRequest, 'projectId'>>
@@ -415,6 +475,12 @@ export type QuotationItem = {
   quantity: number
   unit_price: number
   amount: number
+  projectId?: string
+  unitId?: string
+  unitType?: string
+  rateType?: string
+  duration?: number
+  durationUnit?: string
 }
 
 export type Quotation = {
@@ -435,6 +501,18 @@ export type Quotation = {
   created_by: string
   created_at: string
   updated_at: string
+  deposit_months: number | null
+  advance_rent_months: number | null
+  electricity_rate_type: string | null
+  electricity_rate: number | null
+  water_rate: number | null
+  deposit_decoration: string | null
+  registration_fee: string | null
+  property_tax: string | null
+  building_insurance: string | null
+  goods_insurance: string | null
+  special_conditions: string | null
+  remarks: string | null
 }
 
 export type QuotationWithRelations = Quotation & {
@@ -458,6 +536,18 @@ export type CreateQuotationRequest = {
   status?: QuotationStatus
   validUntil?: string
   notes?: string
+  depositMonths?: number
+  advanceRentMonths?: number
+  electricityRateType?: string
+  electricityRate?: number
+  waterRate?: number
+  depositDecoration?: string
+  registrationFee?: string
+  propertyTax?: string
+  buildingInsurance?: string
+  goodsInsurance?: string
+  specialConditions?: string
+  remarks?: string
 }
 
 export type UpdateQuotationRequest = Partial<CreateQuotationRequest>

@@ -30,6 +30,18 @@ const createQuotationSchema = t.Object({
   status: t.Optional(quotationStatusUnion),
   validUntil: t.Optional(t.String()),
   notes: t.Optional(t.String()),
+  depositMonths: t.Optional(t.Number()),
+  advanceRentMonths: t.Optional(t.Number()),
+  electricityRateType: t.Optional(t.String()),
+  electricityRate: t.Optional(t.Number()),
+  waterRate: t.Optional(t.Number()),
+  depositDecoration: t.Optional(t.String()),
+  registrationFee: t.Optional(t.String()),
+  propertyTax: t.Optional(t.String()),
+  buildingInsurance: t.Optional(t.String()),
+  goodsInsurance: t.Optional(t.String()),
+  specialConditions: t.Optional(t.String()),
+  remarks: t.Optional(t.String()),
 })
 
 const updateQuotationSchema = t.Object({
@@ -45,6 +57,18 @@ const updateQuotationSchema = t.Object({
   status: t.Optional(quotationStatusUnion),
   validUntil: t.Optional(t.String()),
   notes: t.Optional(t.String()),
+  depositMonths: t.Optional(t.Number()),
+  advanceRentMonths: t.Optional(t.Number()),
+  electricityRateType: t.Optional(t.String()),
+  electricityRate: t.Optional(t.Number()),
+  waterRate: t.Optional(t.Number()),
+  depositDecoration: t.Optional(t.String()),
+  registrationFee: t.Optional(t.String()),
+  propertyTax: t.Optional(t.String()),
+  buildingInsurance: t.Optional(t.String()),
+  goodsInsurance: t.Optional(t.String()),
+  specialConditions: t.Optional(t.String()),
+  remarks: t.Optional(t.String()),
 })
 
 const rejectQuotationSchema = t.Object({
@@ -191,6 +215,18 @@ export const quotationsRoutes = new Elysia({ prefix: '/api/quotations' })
                 valid_until: body.validUntil ? new Date(body.validUntil) : null,
                 notes: body.notes ?? null,
                 created_by: user.id,
+                deposit_months: body.depositMonths ?? null,
+                advance_rent_months: body.advanceRentMonths ?? null,
+                electricity_rate_type: body.electricityRateType ?? null,
+                electricity_rate: body.electricityRate ?? null,
+                water_rate: body.waterRate ?? null,
+                deposit_decoration: body.depositDecoration ?? null,
+                registration_fee: body.registrationFee ?? null,
+                property_tax: body.propertyTax ?? null,
+                building_insurance: body.buildingInsurance ?? null,
+                goods_insurance: body.goodsInsurance ?? null,
+                special_conditions: body.specialConditions ?? null,
+                remarks: body.remarks ?? null,
               },
             })
             logActivity({
@@ -234,6 +270,18 @@ export const quotationsRoutes = new Elysia({ prefix: '/api/quotations' })
                       : null
                     : undefined,
                 notes: body.notes,
+                deposit_months: body.depositMonths,
+                advance_rent_months: body.advanceRentMonths,
+                electricity_rate_type: body.electricityRateType,
+                electricity_rate: body.electricityRate,
+                water_rate: body.waterRate,
+                deposit_decoration: body.depositDecoration,
+                registration_fee: body.registrationFee,
+                property_tax: body.propertyTax,
+                building_insurance: body.buildingInsurance,
+                goods_insurance: body.goodsInsurance,
+                special_conditions: body.specialConditions,
+                remarks: body.remarks,
               },
             })
             logActivity({

@@ -95,6 +95,7 @@ import { Route as AuthenticatedFormsSaleJob02F01NewRouteImport } from './routes/
 import { Route as AuthenticatedFormsSaleF01NewRouteImport } from './routes/_authenticated/forms/sale-f01/new'
 import { Route as AuthenticatedFinancePaymentsReceiveRouteImport } from './routes/_authenticated/finance/payments/receive'
 import { Route as AuthenticatedFinanceInvoicesCreateRouteImport } from './routes/_authenticated/finance/invoices/create'
+import { Route as AuthenticatedCustomersCustomerIdEditRouteImport } from './routes/_authenticated/customers/$customerId/edit'
 import { Route as AuthenticatedContractsHandoverNewRouteImport } from './routes/_authenticated/contracts/handover/new'
 import { Route as AuthenticatedContractsContractIdPrintRouteImport } from './routes/_authenticated/contracts/$contractId/print'
 import { Route as AuthenticatedContractsContractIdEditRouteImport } from './routes/_authenticated/contracts/$contractId/edit'
@@ -622,6 +623,12 @@ const AuthenticatedFinanceInvoicesCreateRoute =
     path: '/finance/invoices/create',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedCustomersCustomerIdEditRoute =
+  AuthenticatedCustomersCustomerIdEditRouteImport.update({
+    id: '/customers/$customerId/edit',
+    path: '/customers/$customerId/edit',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedContractsHandoverNewRoute =
   AuthenticatedContractsHandoverNewRouteImport.update({
     id: '/contracts/handover/new',
@@ -817,6 +824,7 @@ export interface FileRoutesByFullPath {
   '/contracts/$contractId/edit': typeof AuthenticatedContractsContractIdEditRoute
   '/contracts/$contractId/print': typeof AuthenticatedContractsContractIdPrintRoute
   '/contracts/handover/new': typeof AuthenticatedContractsHandoverNewRoute
+  '/customers/$customerId/edit': typeof AuthenticatedCustomersCustomerIdEditRoute
   '/finance/invoices/create': typeof AuthenticatedFinanceInvoicesCreateRoute
   '/finance/payments/receive': typeof AuthenticatedFinancePaymentsReceiveRoute
   '/forms/sale-f01/new': typeof AuthenticatedFormsSaleF01NewRoute
@@ -925,6 +933,7 @@ export interface FileRoutesByTo {
   '/contracts/$contractId/edit': typeof AuthenticatedContractsContractIdEditRoute
   '/contracts/$contractId/print': typeof AuthenticatedContractsContractIdPrintRoute
   '/contracts/handover/new': typeof AuthenticatedContractsHandoverNewRoute
+  '/customers/$customerId/edit': typeof AuthenticatedCustomersCustomerIdEditRoute
   '/finance/invoices/create': typeof AuthenticatedFinanceInvoicesCreateRoute
   '/finance/payments/receive': typeof AuthenticatedFinancePaymentsReceiveRoute
   '/forms/sale-f01/new': typeof AuthenticatedFormsSaleF01NewRoute
@@ -1035,6 +1044,7 @@ export interface FileRoutesById {
   '/_authenticated/contracts/$contractId/edit': typeof AuthenticatedContractsContractIdEditRoute
   '/_authenticated/contracts/$contractId/print': typeof AuthenticatedContractsContractIdPrintRoute
   '/_authenticated/contracts/handover/new': typeof AuthenticatedContractsHandoverNewRoute
+  '/_authenticated/customers/$customerId/edit': typeof AuthenticatedCustomersCustomerIdEditRoute
   '/_authenticated/finance/invoices/create': typeof AuthenticatedFinanceInvoicesCreateRoute
   '/_authenticated/finance/payments/receive': typeof AuthenticatedFinancePaymentsReceiveRoute
   '/_authenticated/forms/sale-f01/new': typeof AuthenticatedFormsSaleF01NewRoute
@@ -1145,6 +1155,7 @@ export interface FileRouteTypes {
     | '/contracts/$contractId/edit'
     | '/contracts/$contractId/print'
     | '/contracts/handover/new'
+    | '/customers/$customerId/edit'
     | '/finance/invoices/create'
     | '/finance/payments/receive'
     | '/forms/sale-f01/new'
@@ -1253,6 +1264,7 @@ export interface FileRouteTypes {
     | '/contracts/$contractId/edit'
     | '/contracts/$contractId/print'
     | '/contracts/handover/new'
+    | '/customers/$customerId/edit'
     | '/finance/invoices/create'
     | '/finance/payments/receive'
     | '/forms/sale-f01/new'
@@ -1362,6 +1374,7 @@ export interface FileRouteTypes {
     | '/_authenticated/contracts/$contractId/edit'
     | '/_authenticated/contracts/$contractId/print'
     | '/_authenticated/contracts/handover/new'
+    | '/_authenticated/customers/$customerId/edit'
     | '/_authenticated/finance/invoices/create'
     | '/_authenticated/finance/payments/receive'
     | '/_authenticated/forms/sale-f01/new'
@@ -2012,6 +2025,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFinanceInvoicesCreateRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/customers/$customerId/edit': {
+      id: '/_authenticated/customers/$customerId/edit'
+      path: '/customers/$customerId/edit'
+      fullPath: '/customers/$customerId/edit'
+      preLoaderRoute: typeof AuthenticatedCustomersCustomerIdEditRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/contracts/handover/new': {
       id: '/_authenticated/contracts/handover/new'
       path: '/contracts/handover/new'
@@ -2229,6 +2249,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedContractsContractIdEditRoute: typeof AuthenticatedContractsContractIdEditRoute
   AuthenticatedContractsContractIdPrintRoute: typeof AuthenticatedContractsContractIdPrintRoute
   AuthenticatedContractsHandoverNewRoute: typeof AuthenticatedContractsHandoverNewRoute
+  AuthenticatedCustomersCustomerIdEditRoute: typeof AuthenticatedCustomersCustomerIdEditRoute
   AuthenticatedFinanceInvoicesCreateRoute: typeof AuthenticatedFinanceInvoicesCreateRoute
   AuthenticatedFinancePaymentsReceiveRoute: typeof AuthenticatedFinancePaymentsReceiveRoute
   AuthenticatedFormsSaleF01NewRoute: typeof AuthenticatedFormsSaleF01NewRoute
@@ -2344,6 +2365,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedContractsContractIdPrintRoute,
   AuthenticatedContractsHandoverNewRoute:
     AuthenticatedContractsHandoverNewRoute,
+  AuthenticatedCustomersCustomerIdEditRoute:
+    AuthenticatedCustomersCustomerIdEditRoute,
   AuthenticatedFinanceInvoicesCreateRoute:
     AuthenticatedFinanceInvoicesCreateRoute,
   AuthenticatedFinancePaymentsReceiveRoute:

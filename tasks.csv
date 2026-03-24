@@ -32,3 +32,7 @@ T-072,Invoice E2E tests,dev,Ready to Dev,tasks/T-072.md
 T-073,Register All Missing API Routes,tester,Ready to Test,tasks/T-073.md
 T-074,User Management Enhancement,tester,Ready to Test,tasks/T-074.md
 T-075,Role Management Enhancement,tester,Ready to Test,tasks/T-075.md
+T-084,Contact form — add LINE ID and Decision Maker fields,dev,Done,tasks/T-084.md
+T-085,Customer form — add 10 missing fields (LINE ID; Province; Lead Source; etc.),dev,Done,tasks/T-085.md
+T-086,Unit form — add 15+ missing fields (Zone; Location; Pricing; etc.),dev,Done,tasks/T-086.md
+T-087,Quotation form — add Cost & Responsibility section and enhanced fields,dev,Done,tasks/T-087.md

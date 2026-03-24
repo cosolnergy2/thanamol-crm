@@ -11,4 +11,6 @@ playwright-report/
 test-results/
 .playwright/
 apps/api/generated/
+apps/api/uploads/*
+!apps/api/uploads/.gitkeep
 apps/web/.tanstack/

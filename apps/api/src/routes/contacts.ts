@@ -11,6 +11,8 @@ const createContactSchema = t.Object({
   phone: t.Optional(t.String()),
   position: t.Optional(t.String()),
   isPrimary: t.Optional(t.Boolean()),
+  lineId: t.Optional(t.String()),
+  isDecisionMaker: t.Optional(t.Boolean()),
 })
 
 const updateContactSchema = t.Object({
@@ -20,6 +22,8 @@ const updateContactSchema = t.Object({
   phone: t.Optional(t.String()),
   position: t.Optional(t.String()),
   isPrimary: t.Optional(t.Boolean()),
+  lineId: t.Optional(t.String()),
+  isDecisionMaker: t.Optional(t.Boolean()),
 })
 
 function buildPagination(page: number, limit: number, total: number) {
@@ -132,6 +136,8 @@ export const contactsRoutes = new Elysia({ prefix: '/api/contacts' })
                 phone: body.phone,
                 position: body.position,
                 is_primary: body.isPrimary ?? false,
+                line_id: body.lineId,
+                is_decision_maker: body.isDecisionMaker ?? false,
               },
             })
             logActivity({
@@ -168,6 +174,8 @@ export const contactsRoutes = new Elysia({ prefix: '/api/contacts' })
                 phone: body.phone,
                 position: body.position,
                 is_primary: body.isPrimary,
+                line_id: body.lineId,
+                is_decision_maker: body.isDecisionMaker,
               },
             })
             logActivity({

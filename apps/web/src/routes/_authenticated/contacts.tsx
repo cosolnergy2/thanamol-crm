@@ -48,7 +48,9 @@ type ContactFormValues = {
   email: string
   phone: string
   position: string
+  lineId: string
   isPrimary: boolean
+  isDecisionMaker: boolean
 }
 
 const EMPTY_FORM: ContactFormValues = {
@@ -58,7 +60,9 @@ const EMPTY_FORM: ContactFormValues = {
   email: '',
   phone: '',
   position: '',
+  lineId: '',
   isPrimary: false,
+  isDecisionMaker: false,
 }
 
 function ContactListPage() {
@@ -118,7 +122,9 @@ function ContactListPage() {
       email: form.email || undefined,
       phone: form.phone || undefined,
       position: form.position || undefined,
+      lineId: form.lineId || undefined,
       isPrimary: form.isPrimary,
+      isDecisionMaker: form.isDecisionMaker,
     }
 
     try {
@@ -228,6 +234,29 @@ function ContactListPage() {
                         placeholder="contact@example.com"
                       />
                     </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="lineId">LINE ID</Label>
+                    <Input
+                      id="lineId"
+                      value={form.lineId}
+                      onChange={(e) => setForm({ ...form, lineId: e.target.value })}
+                      placeholder="@line-id"
+                    />
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="isDecisionMaker"
+                      checked={form.isDecisionMaker}
+                      onChange={(e) => setForm({ ...form, isDecisionMaker: e.target.checked })}
+                      className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500"
+                    />
+                    <Label htmlFor="isDecisionMaker" className="cursor-pointer">
+                      Decision Maker
+                    </Label>
                   </div>
 
                   <div className="flex items-center space-x-2">
@@ -398,15 +427,25 @@ function ContactListPage() {
                       </div>
                     </TableCell>
                     <TableCell className="py-3">
-                      {contact.is_primary && (
-                        <Badge
-                          variant="outline"
-                          className="bg-indigo-50 text-indigo-700 border-indigo-200 text-[9px] h-4 px-1.5 font-extralight"
-                        >
-                          <CheckCircle2 className="w-3 h-3 mr-0.5" />
-                          Primary
-                        </Badge>
-                      )}
+                      <div className="flex flex-wrap gap-1">
+                        {contact.is_primary && (
+                          <Badge
+                            variant="outline"
+                            className="bg-indigo-50 text-indigo-700 border-indigo-200 text-[9px] h-4 px-1.5 font-extralight"
+                          >
+                            <CheckCircle2 className="w-3 h-3 mr-0.5" />
+                            Primary
+                          </Badge>
+                        )}
+                        {contact.is_decision_maker && (
+                          <Badge
+                            variant="outline"
+                            className="bg-teal-50 text-teal-700 border-teal-200 text-[9px] h-4 px-1.5 font-extralight"
+                          >
+                            Decision Maker
+                          </Badge>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))

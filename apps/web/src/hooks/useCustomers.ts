@@ -34,6 +34,17 @@ export function useCustomers(params: CustomerQueryParams = {}) {
   })
 }
 
+export function useCustomer(id: string) {
+  return useQuery({
+    queryKey: ['customers', id],
+    queryFn: async () => {
+      const res = await apiGet<{ customer: Customer }>(`/customers/${id}`)
+      return res.customer
+    },
+    enabled: !!id,
+  })
+}
+
 export function useCreateCustomer() {
   const queryClient = useQueryClient()
   return useMutation({

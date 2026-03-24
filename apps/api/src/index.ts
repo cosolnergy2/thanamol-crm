@@ -1,5 +1,6 @@
 import { Elysia } from 'elysia'
 import { cors } from '@elysiajs/cors'
+import { staticPlugin } from '@elysiajs/static'
 import { authRoutes } from './routes/auth'
 import { rolesRoutes, userRoleRoutes } from './routes/roles'
 import { customersRoutes } from './routes/customers'
@@ -38,11 +39,13 @@ import { meetingTemplatesRoutes } from './routes/meeting-templates'
 import { documentsRoutes } from './routes/documents'
 import { isoDocumentsRoutes } from './routes/iso-documents'
 import { pdfTemplatesRoutes } from './routes/pdf-templates'
+import { uploadsRoutes } from './routes/uploads'
 
 const API_PORT = Number(process.env.PORT ?? 3000)
 
 const app = new Elysia()
   .use(cors())
+  .use(staticPlugin({ assets: 'uploads', prefix: '/uploads' }))
   .get('/api/health', () => ({ status: 'ok', timestamp: new Date().toISOString() }))
   .use(authRoutes)
   .use(rolesRoutes)
@@ -84,6 +87,7 @@ const app = new Elysia()
   .use(documentsRoutes)
   .use(isoDocumentsRoutes)
   .use(pdfTemplatesRoutes)
+  .use(uploadsRoutes)
   .listen(API_PORT)
 
 console.log(`API running at http://localhost:${API_PORT}`)

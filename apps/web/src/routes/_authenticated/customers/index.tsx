@@ -245,9 +245,11 @@ function CustomerListPage() {
                     </TableCell>
                     <TableCell className="text-center py-3">
                       <div className="flex items-center justify-center gap-1">
-                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0">
-                          <Pencil className="w-3.5 h-3.5" />
-                        </Button>
+                        <Link to="/customers/$customerId/edit" params={{ customerId: customer.id }}>
+                          <Button size="sm" variant="ghost" className="h-7 w-7 p-0">
+                            <Pencil className="w-3.5 h-3.5" />
+                          </Button>
+                        </Link>
                         <Button
                           size="sm"
                           variant="ghost"

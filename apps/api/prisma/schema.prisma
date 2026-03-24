@@ -298,18 +298,29 @@ model RefreshToken {
 // ─── CRM Domain ───────────────────────────────────────────────────────────────
 
 model Customer {
-  id         String         @id @default(uuid())
-  name       String
-  email      String?
-  phone      String?
-  address    String?
-  tax_id     String?
-  type       CustomerType   @default(INDIVIDUAL)
-  status     CustomerStatus @default(ACTIVE)
-  notes      String?
-  created_at DateTime       @default(now())
-  updated_at DateTime       @updatedAt
+  id                    String         @id @default(uuid())
+  name                  String
+  email                 String?
+  phone                 String?
+  address               String?
+  tax_id                String?
+  type                  CustomerType   @default(INDIVIDUAL)
+  status                CustomerStatus @default(ACTIVE)
+  notes                 String?
+  line_id               String?
+  province              String?
+  lead_source           String?
+  industry              String?
+  company_size          String?
+  budget_range          String?
+  deposit_conditions    String?
+  profile_url           String?
+  pdpa_consent          Boolean        @default(false)
+  interested_project_id String?
+  created_at            DateTime       @default(now())
+  updated_at            DateTime       @updatedAt
 
+  interested_project         Project?              @relation("CustomerInterestedProject", fields: [interested_project_id], references: [id])
   contacts                   Contact[]
   leads                      Lead[]
   deals                      Deal[]
@@ -327,6 +338,7 @@ model Customer {
   @@index([email])
   @@index([status])
   @@index([type])
+  @@index([interested_project_id])
 }
 
 model Contact {
@@ -337,8 +349,10 @@ model Contact {
   email       String?
   phone       String?
   position    String?
-  is_primary  Boolean  @default(false)
-  created_at  DateTime @default(now())
+  is_primary        Boolean  @default(false)
+  line_id           String?
+  is_decision_maker Boolean  @default(false)
+  created_at        DateTime @default(now())
 
   customer Customer @relation(fields: [customer_id], references: [id], onDelete: Cascade)
   leads    Lead[]
@@ -433,6 +447,7 @@ model Project {
   created_at  DateTime      @default(now())
   updated_at  DateTime      @updatedAt
 
+  interested_customers       Customer[]             @relation("CustomerInterestedProject")
   units                      Unit[]
   quotations                 Quotation[]
   commercial_quotations      CommercialQuotation[]
@@ -465,6 +480,24 @@ model Unit {
   price       Float?
   status      UnitStatus @default(AVAILABLE)
   features    Json       @default("{}")
+  zone                    String?
+  location                String?
+  office_area_sqm         Float?
+  floor_load              String?
+  electrical_load         String?
+  ceiling_height          Float?
+  lease_type              String?
+  floor_plan_url          String?
+  has_sprinkler           Boolean  @default(false)
+  rent_per_sqm            Float?
+  common_fee              Float?
+  common_fee_waived       Boolean  @default(false)
+  water_rate              Float?
+  water_rate_actual       Boolean  @default(false)
+  electricity_rate        Float?
+  electricity_rate_actual Boolean  @default(false)
+  deposit_months          Int?
+  advance_rent_months     Int?
   created_at  DateTime   @default(now())
   updated_at  DateTime   @updatedAt
 
@@ -493,13 +526,25 @@ model Quotation {
   discount         Float           @default(0)
   tax              Float           @default(0)
   grand_total      Float           @default(0)
-  status           QuotationStatus @default(DRAFT)
-  valid_until      DateTime?
-  notes            String?
-  approved_by      String?
-  created_by       String
-  created_at       DateTime        @default(now())
-  updated_at       DateTime        @updatedAt
+  status                QuotationStatus @default(DRAFT)
+  valid_until           DateTime?
+  notes                 String?
+  approved_by           String?
+  created_by            String
+  created_at            DateTime        @default(now())
+  updated_at            DateTime        @updatedAt
+  deposit_months        Int?
+  advance_rent_months   Int?
+  electricity_rate_type String?
+  electricity_rate      Float?
+  water_rate            Float?
+  deposit_decoration    String?
+  registration_fee      String?
+  property_tax          String?
+  building_insurance    String?
+  goods_insurance       String?
+  special_conditions    String?
+  remarks               String?
 
   customer Customer @relation(fields: [customer_id], references: [id])
   project  Project  @relation(fields: [project_id], references: [id])

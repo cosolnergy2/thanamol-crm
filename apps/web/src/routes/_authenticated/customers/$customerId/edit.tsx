@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useEffect } from 'react'
 import { ArrowLeft, Save, Building2, Phone, Briefcase, FileText } from 'lucide-react'
 import { FileUpload } from '@/components/FileUpload'
 import { toast } from 'sonner'
@@ -11,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Select,
   SelectContent,
@@ -18,9 +20,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useCreateCustomer } from '@/hooks/useCustomers'
+import { useCustomer, useUpdateCustomer } from '@/hooks/useCustomers'
 import { useProjects } from '@/hooks/useProjects'
-import type { CreateCustomerRequest, CustomerType, CustomerStatus } from '@thanamol/shared'
+import type { UpdateCustomerRequest, CustomerType, CustomerStatus } from '@thanamol/shared'
 import {
   LEAD_SOURCES,
   INDUSTRIES,
@@ -28,8 +30,8 @@ import {
   BUDGET_RANGES,
 } from '@thanamol/shared'
 
-export const Route = createFileRoute('/_authenticated/customers/create')({
-  component: CustomerCreatePage,
+export const Route = createFileRoute('/_authenticated/customers/$customerId/edit')({
+  component: CustomerEditPage,
 })
 
 const customerSchema = z.object({
@@ -55,9 +57,11 @@ const customerSchema = z.object({
 
 type CustomerFormValues = z.infer<typeof customerSchema>
 
-function CustomerCreatePage() {
+function CustomerEditPage() {
+  const { customerId } = Route.useParams()
   const navigate = useNavigate()
-  const createCustomer = useCreateCustomer()
+  const { data: customer, isLoading } = useCustomer(customerId)
+  const updateCustomer = useUpdateCustomer()
   const { data: projectsData } = useProjects({ limit: 100 })
   const projects = projectsData?.data ?? []
 
@@ -66,6 +70,7 @@ function CustomerCreatePage() {
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm<CustomerFormValues>({
     resolver: zodResolver(customerSchema),
@@ -75,6 +80,31 @@ function CustomerCreatePage() {
       pdpaConsent: false,
     },
   })
+
+  useEffect(() => {
+    if (customer) {
+      reset({
+        name: customer.name,
+        email: customer.email ?? '',
+        phone: customer.phone ?? '',
+        address: customer.address ?? '',
+        taxId: customer.tax_id ?? '',
+        type: customer.type as CustomerFormValues['type'],
+        status: customer.status as CustomerFormValues['status'],
+        notes: customer.notes ?? '',
+        lineId: customer.line_id ?? '',
+        province: customer.province ?? '',
+        leadSource: customer.lead_source ?? undefined,
+        industry: customer.industry ?? undefined,
+        companySize: customer.company_size ?? undefined,
+        budgetRange: customer.budget_range ?? undefined,
+        depositConditions: customer.deposit_conditions ?? '',
+        profileUrl: customer.profile_url ?? undefined,
+        pdpaConsent: customer.pdpa_consent ?? false,
+        interestedProjectId: customer.interested_project_id ?? undefined,
+      })
+    }
+  }, [customer, reset])
 
   const typeValue = watch('type')
   const statusValue = watch('status')
@@ -86,7 +116,7 @@ function CustomerCreatePage() {
   const pdpaConsentValue = watch('pdpaConsent')
 
   async function onSubmit(values: CustomerFormValues) {
-    const payload: CreateCustomerRequest = {
+    const payload: UpdateCustomerRequest = {
       name: values.name,
       type: values.type as CustomerType,
       status: values.status as CustomerStatus,
@@ -108,12 +138,22 @@ function CustomerCreatePage() {
     }
 
     try {
-      await createCustomer.mutateAsync(payload)
-      toast.success('Customer created successfully')
+      await updateCustomer.mutateAsync({ id: customerId, data: payload })
+      toast.success('Customer updated successfully')
       navigate({ to: '/customers' })
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to create customer')
+      toast.error(err instanceof Error ? err.message : 'Failed to update customer')
     }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="space-y-3 max-w-4xl">
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-64 w-full" />
+        <Skeleton className="h-48 w-full" />
+      </div>
+    )
   }
 
   return (
@@ -126,7 +166,7 @@ function CustomerCreatePage() {
         </Link>
         <div>
           <h1 className="text-2xl font-extralight tracking-[0.3em] text-slate-600 uppercase">
-            Add New Customer
+            Edit Customer
           </h1>
           <div className="h-px w-20 bg-gradient-to-r from-slate-300 to-transparent mt-2" />
         </div>
@@ -172,9 +212,6 @@ function CustomerCreatePage() {
                     <SelectItem value="COMPANY">Company</SelectItem>
                   </SelectContent>
                 </Select>
-                {errors.type && (
-                  <p className="text-xs text-rose-600">{errors.type.message}</p>
-                )}
               </div>
 
               <div className="space-y-2">
@@ -458,10 +495,10 @@ function CustomerCreatePage() {
           <Button
             type="submit"
             className="bg-indigo-600 hover:bg-indigo-700"
-            disabled={createCustomer.isPending}
+            disabled={updateCustomer.isPending}
           >
             <Save className="w-4 h-4 mr-2" />
-            {createCustomer.isPending ? 'Saving...' : 'Save Customer'}
+            {updateCustomer.isPending ? 'Saving...' : 'Save Changes'}
           </Button>
         </div>
       </form>
