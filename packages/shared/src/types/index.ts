@@ -126,6 +126,8 @@ export type Contact = {
   phone: string | null
   position: string | null
   is_primary: boolean
+  line_id: string | null
+  is_decision_maker: boolean
   created_at: string
 }
 
@@ -141,6 +143,8 @@ export type CreateContactRequest = {
   phone?: string
   position?: string
   isPrimary?: boolean
+  lineId?: string
+  isDecisionMaker?: boolean
 }
 
 export type UpdateContactRequest = Partial<Omit<CreateContactRequest, 'customerId'>>

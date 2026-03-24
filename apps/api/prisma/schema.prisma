@@ -337,8 +337,10 @@ model Contact {
   email       String?
   phone       String?
   position    String?
-  is_primary  Boolean  @default(false)
-  created_at  DateTime @default(now())
+  is_primary        Boolean  @default(false)
+  line_id           String?
+  is_decision_maker Boolean  @default(false)
+  created_at        DateTime @default(now())
 
   customer Customer @relation(fields: [customer_id], references: [id], onDelete: Cascade)
   leads    Lead[]

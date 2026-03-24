@@ -74,6 +74,8 @@ const mockContact = {
   phone: '0812345678',
   position: 'Manager',
   is_primary: false,
+  line_id: null,
+  is_decision_maker: false,
   created_at: new Date(),
 }
 
@@ -268,6 +270,40 @@ describe('POST /api/contacts', () => {
 
     expect(res.status).toBe(422)
   })
+
+  it('creates a contact with lineId and isDecisionMaker', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
+    vi.mocked(prisma.customer.findUnique).mockResolvedValue(mockCustomer as never)
+    vi.mocked(prisma.contact.create).mockResolvedValue({
+      ...mockContact,
+      line_id: '@john-line',
+      is_decision_maker: true,
+    } as never)
+
+    const token = await signToken()
+    const res = await request(
+      'POST',
+      '/api/contacts',
+      {
+        customerId: 'cust-1',
+        firstName: 'John',
+        lastName: 'Doe',
+        lineId: '@john-line',
+        isDecisionMaker: true,
+      },
+      token
+    )
+
+    expect(res.status).toBe(201)
+    expect(vi.mocked(prisma.contact.create)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          line_id: '@john-line',
+          is_decision_maker: true,
+        }),
+      })
+    )
+  })
 })
 
 // ─── PUT /api/contacts/:id ────────────────────────────────────────────────────
@@ -332,6 +368,31 @@ describe('PUT /api/contacts/:id', () => {
   it('returns 401 without auth token', async () => {
     const res = await request('PUT', '/api/contacts/contact-1', { firstName: 'X' })
     expect(res.status).toBe(401)
+  })
+
+  it('updates lineId and isDecisionMaker on a contact', async () => {
+    const updated = { ...mockContact, line_id: '@updated-line', is_decision_maker: true }
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockAuthUser as never)
+    vi.mocked(prisma.contact.findUnique).mockResolvedValue(mockContact as never)
+    vi.mocked(prisma.contact.update).mockResolvedValue(updated as never)
+
+    const token = await signToken()
+    const res = await request(
+      'PUT',
+      '/api/contacts/contact-1',
+      { lineId: '@updated-line', isDecisionMaker: true },
+      token
+    )
+
+    expect(res.status).toBe(200)
+    expect(vi.mocked(prisma.contact.update)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          line_id: '@updated-line',
+          is_decision_maker: true,
+        }),
+      })
+    )
   })
 })
 
