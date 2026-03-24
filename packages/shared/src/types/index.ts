@@ -475,6 +475,12 @@ export type QuotationItem = {
   quantity: number
   unit_price: number
   amount: number
+  projectId?: string
+  unitId?: string
+  unitType?: string
+  rateType?: string
+  duration?: number
+  durationUnit?: string
 }
 
 export type Quotation = {
@@ -495,6 +501,18 @@ export type Quotation = {
   created_by: string
   created_at: string
   updated_at: string
+  deposit_months: number | null
+  advance_rent_months: number | null
+  electricity_rate_type: string | null
+  electricity_rate: number | null
+  water_rate: number | null
+  deposit_decoration: string | null
+  registration_fee: string | null
+  property_tax: string | null
+  building_insurance: string | null
+  goods_insurance: string | null
+  special_conditions: string | null
+  remarks: string | null
 }
 
 export type QuotationWithRelations = Quotation & {
@@ -518,6 +536,18 @@ export type CreateQuotationRequest = {
   status?: QuotationStatus
   validUntil?: string
   notes?: string
+  depositMonths?: number
+  advanceRentMonths?: number
+  electricityRateType?: string
+  electricityRate?: number
+  waterRate?: number
+  depositDecoration?: string
+  registrationFee?: string
+  propertyTax?: string
+  buildingInsurance?: string
+  goodsInsurance?: string
+  specialConditions?: string
+  remarks?: string
 }
 
 export type UpdateQuotationRequest = Partial<CreateQuotationRequest>

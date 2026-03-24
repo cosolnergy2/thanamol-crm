@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Save, Plus, Trash2, FileText } from 'lucide-react'
+import { ArrowLeft, Save, Plus, Trash2, FileText, DollarSign, Shield } from 'lucide-react'
 import { toast } from 'sonner'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -21,6 +21,11 @@ import { useCustomers } from '@/hooks/useCustomers'
 import { useProjects } from '@/hooks/useProjects'
 import { useUnits } from '@/hooks/useUnits'
 import type { QuotationItem } from '@thanamol/shared'
+import {
+  RATE_TYPES,
+  RESPONSIBILITY_OPTIONS,
+  DEPOSIT_DECORATION_OPTIONS,
+} from '@thanamol/shared'
 
 export const Route = createFileRoute('/_authenticated/quotations/$quotationId/edit')({
   component: QuotationEditPage,
@@ -57,6 +62,26 @@ function QuotationEditPage() {
   const [items, setItems] = useState<LineItem[]>([])
   const [initialized, setInitialized] = useState(false)
 
+  // Cost & Deposit
+  const [depositMonths, setDepositMonths] = useState<string>('')
+  const [advanceRentMonths, setAdvanceRentMonths] = useState<string>('')
+
+  // Utility Rates
+  const [electricityRateType, setElectricityRateType] = useState<string>('')
+  const [electricityRate, setElectricityRate] = useState<string>('')
+  const [waterRate, setWaterRate] = useState<string>('')
+
+  // Responsibility
+  const [depositDecoration, setDepositDecoration] = useState<string>('')
+  const [registrationFee, setRegistrationFee] = useState<string>('')
+  const [propertyTax, setPropertyTax] = useState<string>('')
+  const [buildingInsurance, setBuildingInsurance] = useState<string>('')
+  const [goodsInsurance, setGoodsInsurance] = useState<string>('')
+
+  // Conditions
+  const [specialConditions, setSpecialConditions] = useState('')
+  const [remarks, setRemarks] = useState('')
+
   const { data, isLoading } = useQuotation(quotationId)
   const { data: customersData } = useCustomers({ limit: 200 })
   const { data: projectsData } = useProjects({ limit: 200 })
@@ -79,6 +104,18 @@ function QuotationEditPage() {
       setItems(
         (quotation.items ?? []).map((item) => ({ ...item, _key: nextKey() }))
       )
+      setDepositMonths(quotation.deposit_months != null ? String(quotation.deposit_months) : '')
+      setAdvanceRentMonths(quotation.advance_rent_months != null ? String(quotation.advance_rent_months) : '')
+      setElectricityRateType(quotation.electricity_rate_type ?? '')
+      setElectricityRate(quotation.electricity_rate != null ? String(quotation.electricity_rate) : '')
+      setWaterRate(quotation.water_rate != null ? String(quotation.water_rate) : '')
+      setDepositDecoration(quotation.deposit_decoration ?? '')
+      setRegistrationFee(quotation.registration_fee ?? '')
+      setPropertyTax(quotation.property_tax ?? '')
+      setBuildingInsurance(quotation.building_insurance ?? '')
+      setGoodsInsurance(quotation.goods_insurance ?? '')
+      setSpecialConditions(quotation.special_conditions ?? '')
+      setRemarks(quotation.remarks ?? '')
       setInitialized(true)
     }
   }, [quotation, initialized])
@@ -135,6 +172,18 @@ function QuotationEditPage() {
           validUntil: validUntil || undefined,
           notes: notes || undefined,
           status: 'DRAFT',
+          depositMonths: depositMonths ? Number(depositMonths) : undefined,
+          advanceRentMonths: advanceRentMonths ? Number(advanceRentMonths) : undefined,
+          electricityRateType: electricityRateType || undefined,
+          electricityRate: electricityRate ? Number(electricityRate) : undefined,
+          waterRate: waterRate ? Number(waterRate) : undefined,
+          depositDecoration: depositDecoration || undefined,
+          registrationFee: registrationFee || undefined,
+          propertyTax: propertyTax || undefined,
+          buildingInsurance: buildingInsurance || undefined,
+          goodsInsurance: goodsInsurance || undefined,
+          specialConditions: specialConditions || undefined,
+          remarks: remarks || undefined,
         },
       })
       toast.success('Quotation updated')
@@ -369,7 +418,211 @@ function QuotationEditPage() {
         </Card>
 
         <Card>
-          <CardContent className="pt-4">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center text-sm font-light tracking-wider text-slate-700">
+              <DollarSign className="w-4 h-4 mr-2 text-indigo-600" />
+              Cost & Deposit
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Deposit (Months)</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={depositMonths}
+                  onChange={(e) => setDepositMonths(e.target.value)}
+                  placeholder="e.g. 2"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Advance Rent (Months)</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={advanceRentMonths}
+                  onChange={(e) => setAdvanceRentMonths(e.target.value)}
+                  placeholder="e.g. 1"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label>Electricity Rate Type</Label>
+                <Select
+                  value={electricityRateType || '__none__'}
+                  onValueChange={(v) => setElectricityRateType(v === '__none__' ? '' : v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">—</SelectItem>
+                    {RATE_TYPES.map((t) => (
+                      <SelectItem key={t} value={t}>
+                        {t}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Electricity Rate (฿/unit)</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={electricityRate}
+                  onChange={(e) => setElectricityRate(e.target.value)}
+                  placeholder="e.g. 5.00"
+                  disabled={electricityRateType === 'Actual'}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Water Rate (฿/unit)</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={waterRate}
+                  onChange={(e) => setWaterRate(e.target.value)}
+                  placeholder="e.g. 18.00"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center text-sm font-light tracking-wider text-slate-700">
+              <Shield className="w-4 h-4 mr-2 text-indigo-600" />
+              Responsibility
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Deposit Decoration</Label>
+                <Select
+                  value={depositDecoration || '__none__'}
+                  onValueChange={(v) => setDepositDecoration(v === '__none__' ? '' : v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">—</SelectItem>
+                    {DEPOSIT_DECORATION_OPTIONS.map((opt) => (
+                      <SelectItem key={opt} value={opt}>
+                        {opt}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Registration Fee</Label>
+                <Select
+                  value={registrationFee || '__none__'}
+                  onValueChange={(v) => setRegistrationFee(v === '__none__' ? '' : v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">—</SelectItem>
+                    {RESPONSIBILITY_OPTIONS.map((opt) => (
+                      <SelectItem key={opt} value={opt}>
+                        {opt}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Property Tax / Land Tax</Label>
+                <Select
+                  value={propertyTax || '__none__'}
+                  onValueChange={(v) => setPropertyTax(v === '__none__' ? '' : v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">—</SelectItem>
+                    {RESPONSIBILITY_OPTIONS.map((opt) => (
+                      <SelectItem key={opt} value={opt}>
+                        {opt}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Building Insurance</Label>
+                <Select
+                  value={buildingInsurance || '__none__'}
+                  onValueChange={(v) => setBuildingInsurance(v === '__none__' ? '' : v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">—</SelectItem>
+                    {RESPONSIBILITY_OPTIONS.map((opt) => (
+                      <SelectItem key={opt} value={opt}>
+                        {opt}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Products / Goods Insurance</Label>
+                <Select
+                  value={goodsInsurance || '__none__'}
+                  onValueChange={(v) => setGoodsInsurance(v === '__none__' ? '' : v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">—</SelectItem>
+                    {RESPONSIBILITY_OPTIONS.map((opt) => (
+                      <SelectItem key={opt} value={opt}>
+                        {opt}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-4 space-y-4">
+            <div className="space-y-2">
+              <Label>Special Conditions</Label>
+              <Textarea
+                value={specialConditions}
+                onChange={(e) => setSpecialConditions(e.target.value)}
+                placeholder="Special conditions..."
+                rows={3}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Remarks</Label>
+              <Textarea
+                value={remarks}
+                onChange={(e) => setRemarks(e.target.value)}
+                placeholder="Remarks..."
+                rows={3}
+              />
+            </div>
             <div className="space-y-2">
               <Label>Notes</Label>
               <Textarea
