@@ -77,6 +77,24 @@ const mockUnit = {
   price: 500000,
   status: 'AVAILABLE',
   features: {},
+  zone: null,
+  location: null,
+  office_area_sqm: null,
+  floor_load: null,
+  electrical_load: null,
+  ceiling_height: null,
+  lease_type: null,
+  floor_plan_url: null,
+  has_sprinkler: false,
+  rent_per_sqm: null,
+  common_fee: null,
+  common_fee_waived: false,
+  water_rate: null,
+  water_rate_actual: false,
+  electricity_rate: null,
+  electricity_rate_actual: false,
+  deposit_months: null,
+  advance_rent_months: null,
   created_at: new Date(),
   updated_at: new Date(),
   project: { id: 'proj-1', name: 'Warehouse A', code: 'WH-001' },
@@ -312,6 +330,150 @@ describe('PUT /api/units/:id', () => {
     expect(res.status).toBe(409)
     const body = await res.json()
     expect(body.error).toBe('Unit number already exists in this project')
+  })
+})
+
+// ─── New fields — create ──────────────────────────────────────────────────────
+
+describe('POST /api/units — new physical and pricing fields', () => {
+  it('accepts and persists new technical fields', async () => {
+    const unitWithNewFields = {
+      ...mockUnit,
+      zone: 'Zone B',
+      location: 'North wing',
+      office_area_sqm: 20,
+      ceiling_height: 5.5,
+      floor_load: '1000 kg/sqm',
+      electrical_load: '30 kVA',
+      lease_type: 'Monthly',
+      floor_plan_url: 'https://example.com/plan.pdf',
+      has_sprinkler: true,
+    }
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never)
+    vi.mocked(prisma.project.findUnique).mockResolvedValue(mockProject as never)
+    vi.mocked(prisma.unit.findUnique).mockResolvedValue(null)
+    vi.mocked(prisma.unit.create).mockResolvedValue(unitWithNewFields as never)
+
+    const token = await signToken()
+    const res = await req(
+      'POST',
+      '/api/units',
+      {
+        projectId: 'proj-1',
+        unitNumber: 'A-01',
+        type: 'Standard',
+        zone: 'Zone B',
+        location: 'North wing',
+        officeAreaSqm: 20,
+        ceilingHeight: 5.5,
+        floorLoad: '1000 kg/sqm',
+        electricalLoad: '30 kVA',
+        leaseType: 'Monthly',
+        floorPlanUrl: 'https://example.com/plan.pdf',
+        hasSprinkler: true,
+      },
+      token
+    )
+
+    expect(res.status).toBe(201)
+    const body = await res.json()
+    expect(body.unit.zone).toBe('Zone B')
+    expect(body.unit.has_sprinkler).toBe(true)
+    expect(body.unit.lease_type).toBe('Monthly')
+  })
+
+  it('accepts and persists new pricing fields', async () => {
+    const unitWithPricing = {
+      ...mockUnit,
+      rent_per_sqm: 150,
+      common_fee: 2000,
+      common_fee_waived: false,
+      water_rate: 18,
+      water_rate_actual: true,
+      electricity_rate: 4.5,
+      electricity_rate_actual: false,
+      deposit_months: 2,
+      advance_rent_months: 1,
+    }
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never)
+    vi.mocked(prisma.project.findUnique).mockResolvedValue(mockProject as never)
+    vi.mocked(prisma.unit.findUnique).mockResolvedValue(null)
+    vi.mocked(prisma.unit.create).mockResolvedValue(unitWithPricing as never)
+
+    const token = await signToken()
+    const res = await req(
+      'POST',
+      '/api/units',
+      {
+        projectId: 'proj-1',
+        unitNumber: 'A-01',
+        type: 'Standard',
+        rentPerSqm: 150,
+        commonFee: 2000,
+        commonFeeWaived: false,
+        waterRate: 18,
+        waterRateActual: true,
+        electricityRate: 4.5,
+        electricityRateActual: false,
+        depositMonths: 2,
+        advanceRentMonths: 1,
+      },
+      token
+    )
+
+    expect(res.status).toBe(201)
+    const body = await res.json()
+    expect(body.unit.rent_per_sqm).toBe(150)
+    expect(body.unit.water_rate_actual).toBe(true)
+    expect(body.unit.deposit_months).toBe(2)
+    expect(body.unit.advance_rent_months).toBe(1)
+  })
+
+  it('sets boolean defaults correctly when flags are not provided', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never)
+    vi.mocked(prisma.project.findUnique).mockResolvedValue(mockProject as never)
+    vi.mocked(prisma.unit.findUnique).mockResolvedValue(null)
+    vi.mocked(prisma.unit.create).mockResolvedValue(mockUnit as never)
+
+    const token = await signToken()
+    const res = await req(
+      'POST',
+      '/api/units',
+      { projectId: 'proj-1', unitNumber: 'A-01', type: 'Standard' },
+      token
+    )
+
+    expect(res.status).toBe(201)
+    const body = await res.json()
+    expect(body.unit.has_sprinkler).toBe(false)
+    expect(body.unit.common_fee_waived).toBe(false)
+    expect(body.unit.water_rate_actual).toBe(false)
+    expect(body.unit.electricity_rate_actual).toBe(false)
+  })
+})
+
+// ─── New fields — update ──────────────────────────────────────────────────────
+
+describe('PUT /api/units/:id — new physical and pricing fields', () => {
+  it('updates new fields successfully', async () => {
+    const updated = { ...mockUnit, zone: 'Zone C', common_fee_waived: true, deposit_months: 3 }
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never)
+    vi.mocked(prisma.unit.findUnique).mockResolvedValue(mockUnit as never)
+    vi.mocked(prisma.unit.update).mockResolvedValue(updated as never)
+
+    const token = await signToken()
+    const res = await req(
+      'PUT',
+      '/api/units/unit-1',
+      { zone: 'Zone C', commonFeeWaived: true, depositMonths: 3 },
+      token
+    )
+
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.unit.zone).toBe('Zone C')
+    expect(body.unit.common_fee_waived).toBe(true)
+    expect(body.unit.deposit_months).toBe(3)
   })
 })
 

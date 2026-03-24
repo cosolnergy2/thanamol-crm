@@ -290,6 +290,24 @@ export type Unit = {
   price: number | null
   status: UnitStatus
   features: Record<string, unknown>
+  zone: string | null
+  location: string | null
+  office_area_sqm: number | null
+  floor_load: string | null
+  electrical_load: string | null
+  ceiling_height: number | null
+  lease_type: string | null
+  floor_plan_url: string | null
+  has_sprinkler: boolean
+  rent_per_sqm: number | null
+  common_fee: number | null
+  common_fee_waived: boolean
+  water_rate: number | null
+  water_rate_actual: boolean
+  electricity_rate: number | null
+  electricity_rate_actual: boolean
+  deposit_months: number | null
+  advance_rent_months: number | null
   created_at: string
   updated_at: string
 }
@@ -326,6 +344,24 @@ export type CreateUnitRequest = {
   price?: number
   status?: UnitStatus
   features?: Record<string, unknown>
+  zone?: string
+  location?: string
+  officeAreaSqm?: number
+  floorLoad?: string
+  electricalLoad?: string
+  ceilingHeight?: number
+  leaseType?: string
+  floorPlanUrl?: string
+  hasSprinkler?: boolean
+  rentPerSqm?: number
+  commonFee?: number
+  commonFeeWaived?: boolean
+  waterRate?: number
+  waterRateActual?: boolean
+  electricityRate?: number
+  electricityRateActual?: boolean
+  depositMonths?: number
+  advanceRentMonths?: number
 }
 
 export type UpdateUnitRequest = Partial<Omit<CreateUnitRequest, 'projectId'>>

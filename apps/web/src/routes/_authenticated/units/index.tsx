@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   Dialog,
@@ -24,6 +25,7 @@ import {
 } from '@/components/ui/select'
 import { useUnits, useCreateUnit, useUpdateUnit } from '@/hooks/useUnits'
 import { useProjects } from '@/hooks/useProjects'
+import { LEASE_TYPES } from '@thanamol/shared'
 import type { UnitWithProject, UnitStatus, CreateUnitRequest, UpdateUnitRequest } from '@thanamol/shared'
 
 export const Route = createFileRoute('/_authenticated/units/')({
@@ -63,6 +65,21 @@ const EMPTY_FORM: UnitFormData = {
   unitNumber: '',
   type: 'Warehouse',
   status: 'AVAILABLE',
+  hasSprinkler: false,
+  commonFeeWaived: false,
+  waterRateActual: false,
+  electricityRateActual: false,
+}
+
+function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-3">
+      <h3 className="text-xs font-medium tracking-widest text-slate-500 uppercase border-b border-slate-100 pb-1">
+        {title}
+      </h3>
+      {children}
+    </div>
+  )
 }
 
 function UnitFormDialog({
@@ -89,6 +106,24 @@ function UnitFormDialog({
           areaSqm: editingUnit.area_sqm ?? undefined,
           price: editingUnit.price ?? undefined,
           status: editingUnit.status,
+          zone: editingUnit.zone ?? undefined,
+          location: editingUnit.location ?? undefined,
+          officeAreaSqm: editingUnit.office_area_sqm ?? undefined,
+          floorLoad: editingUnit.floor_load ?? undefined,
+          electricalLoad: editingUnit.electrical_load ?? undefined,
+          ceilingHeight: editingUnit.ceiling_height ?? undefined,
+          leaseType: editingUnit.lease_type ?? undefined,
+          floorPlanUrl: editingUnit.floor_plan_url ?? undefined,
+          hasSprinkler: editingUnit.has_sprinkler,
+          rentPerSqm: editingUnit.rent_per_sqm ?? undefined,
+          commonFee: editingUnit.common_fee ?? undefined,
+          commonFeeWaived: editingUnit.common_fee_waived,
+          waterRate: editingUnit.water_rate ?? undefined,
+          waterRateActual: editingUnit.water_rate_actual,
+          electricityRate: editingUnit.electricity_rate ?? undefined,
+          electricityRateActual: editingUnit.electricity_rate_actual,
+          depositMonths: editingUnit.deposit_months ?? undefined,
+          advanceRentMonths: editingUnit.advance_rent_months ?? undefined,
         }
       : EMPTY_FORM,
   )
@@ -109,6 +144,24 @@ function UnitFormDialog({
         areaSqm: formData.areaSqm,
         price: formData.price,
         status: formData.status,
+        zone: formData.zone,
+        location: formData.location,
+        officeAreaSqm: formData.officeAreaSqm,
+        floorLoad: formData.floorLoad,
+        electricalLoad: formData.electricalLoad,
+        ceilingHeight: formData.ceilingHeight,
+        leaseType: formData.leaseType,
+        floorPlanUrl: formData.floorPlanUrl,
+        hasSprinkler: formData.hasSprinkler,
+        rentPerSqm: formData.rentPerSqm,
+        commonFee: formData.commonFee,
+        commonFeeWaived: formData.commonFeeWaived,
+        waterRate: formData.waterRate,
+        waterRateActual: formData.waterRateActual,
+        electricityRate: formData.electricityRate,
+        electricityRateActual: formData.electricityRateActual,
+        depositMonths: formData.depositMonths,
+        advanceRentMonths: formData.advanceRentMonths,
       }
       updateUnit.mutate({ id: editingUnit.id, data }, { onSuccess: () => onOpenChange(false) })
     } else {
@@ -121,6 +174,24 @@ function UnitFormDialog({
         areaSqm: formData.areaSqm,
         price: formData.price,
         status: formData.status,
+        zone: formData.zone,
+        location: formData.location,
+        officeAreaSqm: formData.officeAreaSqm,
+        floorLoad: formData.floorLoad,
+        electricalLoad: formData.electricalLoad,
+        ceilingHeight: formData.ceilingHeight,
+        leaseType: formData.leaseType,
+        floorPlanUrl: formData.floorPlanUrl,
+        hasSprinkler: formData.hasSprinkler,
+        rentPerSqm: formData.rentPerSqm,
+        commonFee: formData.commonFee,
+        commonFeeWaived: formData.commonFeeWaived,
+        waterRate: formData.waterRate,
+        waterRateActual: formData.waterRateActual,
+        electricityRate: formData.electricityRate,
+        electricityRateActual: formData.electricityRateActual,
+        depositMonths: formData.depositMonths,
+        advanceRentMonths: formData.advanceRentMonths,
       }
       createUnit.mutate(data, { onSuccess: () => onOpenChange(false) })
     }
@@ -128,6 +199,15 @@ function UnitFormDialog({
 
   function field<K extends keyof UnitFormData>(key: K, value: UnitFormData[K]) {
     setFormData((prev) => ({ ...prev, [key]: value }))
+  }
+
+  function numericField(key: keyof UnitFormData, raw: string, isInt = false) {
+    if (!raw) {
+      field(key, undefined)
+      return
+    }
+    const n = isInt ? parseInt(raw, 10) : parseFloat(raw)
+    if (!isNaN(n)) field(key, n as UnitFormData[typeof key])
   }
 
   const projectUnitsForParent = allUnits.filter(
@@ -144,128 +224,346 @@ function UnitFormDialog({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="projectId">Project *</Label>
-              <Select
-                value={formData.projectId}
-                onValueChange={(v) => field('projectId', v)}
-                disabled={Boolean(editingUnit)}
-                required
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select project" />
-                </SelectTrigger>
-                <SelectContent>
-                  {projects.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.code} - {p.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="grid gap-6 py-4">
 
-            <div className="grid grid-cols-3 gap-4">
+            <FormSection title="Basic Info">
               <div className="space-y-2">
-                <Label htmlFor="unitNumber">Unit Number *</Label>
-                <Input
-                  id="unitNumber"
-                  value={formData.unitNumber ?? ''}
-                  onChange={(e) => field('unitNumber', e.target.value)}
-                  placeholder="A-101"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="type">Type *</Label>
-                <Select value={formData.type} onValueChange={(v) => field('type', v)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {UNIT_TYPES.map((t) => (
-                      <SelectItem key={t} value={t}>
-                        {t}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
+                <Label htmlFor="projectId">Project *</Label>
                 <Select
-                  value={formData.status ?? 'AVAILABLE'}
-                  onValueChange={(v) => field('status', v as UnitStatus)}
+                  value={formData.projectId}
+                  onValueChange={(v) => field('projectId', v)}
+                  disabled={Boolean(editingUnit)}
+                  required
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Select project" />
                   </SelectTrigger>
                   <SelectContent>
-                    {UNIT_STATUSES.map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {UNIT_STATUS_LABELS[s]}
+                    {projects.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.code} - {p.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="floor">Floor</Label>
-                <Input
-                  id="floor"
-                  type="number"
-                  value={formData.floor ?? ''}
-                  onChange={(e) => field('floor', e.target.value ? Number(e.target.value) : undefined)}
-                  placeholder="1"
-                />
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="unitNumber">Unit Number *</Label>
+                  <Input
+                    id="unitNumber"
+                    value={formData.unitNumber ?? ''}
+                    onChange={(e) => field('unitNumber', e.target.value)}
+                    placeholder="A-101"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="type">Type *</Label>
+                  <Select value={formData.type} onValueChange={(v) => field('type', v)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {UNIT_TYPES.map((t) => (
+                        <SelectItem key={t} value={t}>
+                          {t}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="status">Status</Label>
+                  <Select
+                    value={formData.status ?? 'AVAILABLE'}
+                    onValueChange={(v) => field('status', v as UnitStatus)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {UNIT_STATUSES.map((s) => (
+                        <SelectItem key={s} value={s}>
+                          {UNIT_STATUS_LABELS[s]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="building">Building</Label>
-                <Input
-                  id="building"
-                  value={formData.building ?? ''}
-                  onChange={(e) => field('building', e.target.value || undefined)}
-                  placeholder="Building A"
-                />
-              </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="areaSqm">Area (sqm)</Label>
-                <Input
-                  id="areaSqm"
-                  type="number"
-                  value={formData.areaSqm ?? ''}
-                  onChange={(e) =>
-                    field('areaSqm', e.target.value ? Number(e.target.value) : undefined)
-                  }
-                  placeholder="100"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="floor">Floor</Label>
+                  <Input
+                    id="floor"
+                    type="number"
+                    value={formData.floor ?? ''}
+                    onChange={(e) => numericField('floor', e.target.value, true)}
+                    placeholder="1"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="building">Building</Label>
+                  <Input
+                    id="building"
+                    value={formData.building ?? ''}
+                    onChange={(e) => field('building', e.target.value || undefined)}
+                    placeholder="Building A"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="price">Price (THB/month)</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  value={formData.price ?? ''}
-                  onChange={(e) =>
-                    field('price', e.target.value ? Number(e.target.value) : undefined)
-                  }
-                  placeholder="50000"
-                />
-              </div>
-            </div>
 
-            {!editingUnit && formData.projectId && projectUnitsForParent.length > 0 && (
-              <p className="text-xs text-slate-400 font-extralight">
-                {projectUnitsForParent.length} existing units in this project
-              </p>
-            )}
+              {!editingUnit && formData.projectId && projectUnitsForParent.length > 0 && (
+                <p className="text-xs text-slate-400 font-extralight">
+                  {projectUnitsForParent.length} existing units in this project
+                </p>
+              )}
+            </FormSection>
+
+            <FormSection title="Location & Physical">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="zone">Zone</Label>
+                  <Input
+                    id="zone"
+                    value={formData.zone ?? ''}
+                    onChange={(e) => field('zone', e.target.value || undefined)}
+                    placeholder="Zone A"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="location">Location</Label>
+                  <Input
+                    id="location"
+                    value={formData.location ?? ''}
+                    onChange={(e) => field('location', e.target.value || undefined)}
+                    placeholder="North wing"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="areaSqm">Area (sqm)</Label>
+                  <Input
+                    id="areaSqm"
+                    type="number"
+                    value={formData.areaSqm ?? ''}
+                    onChange={(e) => numericField('areaSqm', e.target.value)}
+                    placeholder="100"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="officeAreaSqm">Office Area (sqm)</Label>
+                  <Input
+                    id="officeAreaSqm"
+                    type="number"
+                    value={formData.officeAreaSqm ?? ''}
+                    onChange={(e) => numericField('officeAreaSqm', e.target.value)}
+                    placeholder="20"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="ceilingHeight">Ceiling Height (m)</Label>
+                  <Input
+                    id="ceilingHeight"
+                    type="number"
+                    value={formData.ceilingHeight ?? ''}
+                    onChange={(e) => numericField('ceilingHeight', e.target.value)}
+                    placeholder="5.5"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="floorLoad">Floor Load</Label>
+                  <Input
+                    id="floorLoad"
+                    value={formData.floorLoad ?? ''}
+                    onChange={(e) => field('floorLoad', e.target.value || undefined)}
+                    placeholder="1,000 kg/sqm"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="electricalLoad">Electrical Load</Label>
+                  <Input
+                    id="electricalLoad"
+                    value={formData.electricalLoad ?? ''}
+                    onChange={(e) => field('electricalLoad', e.target.value || undefined)}
+                    placeholder="30 kVA"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="leaseType">Lease Type</Label>
+                  <Select
+                    value={formData.leaseType ?? ''}
+                    onValueChange={(v) => field('leaseType', v || undefined)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select lease type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {LEASE_TYPES.map((lt) => (
+                        <SelectItem key={lt} value={lt}>
+                          {lt}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="floorPlanUrl">Floor Plan URL</Label>
+                <Input
+                  id="floorPlanUrl"
+                  value={formData.floorPlanUrl ?? ''}
+                  onChange={(e) => field('floorPlanUrl', e.target.value || undefined)}
+                  placeholder="https://..."
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="hasSprinkler"
+                  checked={formData.hasSprinkler ?? false}
+                  onCheckedChange={(checked) => field('hasSprinkler', Boolean(checked))}
+                />
+                <Label htmlFor="hasSprinkler" className="cursor-pointer font-normal">
+                  Has Sprinkler
+                </Label>
+              </div>
+            </FormSection>
+
+            <FormSection title="Pricing">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="price">Price (THB/month)</Label>
+                  <Input
+                    id="price"
+                    type="number"
+                    value={formData.price ?? ''}
+                    onChange={(e) => numericField('price', e.target.value)}
+                    placeholder="50000"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="rentPerSqm">Rent per sqm (THB)</Label>
+                  <Input
+                    id="rentPerSqm"
+                    type="number"
+                    value={formData.rentPerSqm ?? ''}
+                    onChange={(e) => numericField('rentPerSqm', e.target.value)}
+                    placeholder="150"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="commonFee">Common Fee (THB/month)</Label>
+                  <Input
+                    id="commonFee"
+                    type="number"
+                    value={formData.commonFee ?? ''}
+                    onChange={(e) => numericField('commonFee', e.target.value)}
+                    placeholder="2000"
+                    disabled={formData.commonFeeWaived}
+                    className={formData.commonFeeWaived ? 'opacity-40' : ''}
+                  />
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="commonFeeWaived"
+                      checked={formData.commonFeeWaived ?? false}
+                      onCheckedChange={(checked) => field('commonFeeWaived', Boolean(checked))}
+                    />
+                    <Label htmlFor="commonFeeWaived" className="cursor-pointer font-normal text-xs text-slate-500">
+                      No charge
+                    </Label>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="waterRate">Water Rate (THB/unit)</Label>
+                  <Input
+                    id="waterRate"
+                    type="number"
+                    value={formData.waterRate ?? ''}
+                    onChange={(e) => numericField('waterRate', e.target.value)}
+                    placeholder="18"
+                    disabled={formData.waterRateActual}
+                    className={formData.waterRateActual ? 'opacity-40' : ''}
+                  />
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="waterRateActual"
+                      checked={formData.waterRateActual ?? false}
+                      onCheckedChange={(checked) => field('waterRateActual', Boolean(checked))}
+                    />
+                    <Label htmlFor="waterRateActual" className="cursor-pointer font-normal text-xs text-slate-500">
+                      Pay actual
+                    </Label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="electricityRate">Electricity Rate (THB/unit)</Label>
+                  <Input
+                    id="electricityRate"
+                    type="number"
+                    value={formData.electricityRate ?? ''}
+                    onChange={(e) => numericField('electricityRate', e.target.value)}
+                    placeholder="4.5"
+                    disabled={formData.electricityRateActual}
+                    className={formData.electricityRateActual ? 'opacity-40' : ''}
+                  />
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="electricityRateActual"
+                      checked={formData.electricityRateActual ?? false}
+                      onCheckedChange={(checked) => field('electricityRateActual', Boolean(checked))}
+                    />
+                    <Label htmlFor="electricityRateActual" className="cursor-pointer font-normal text-xs text-slate-500">
+                      Pay actual
+                    </Label>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="depositMonths">Deposit (months)</Label>
+                  <Input
+                    id="depositMonths"
+                    type="number"
+                    value={formData.depositMonths ?? ''}
+                    onChange={(e) => numericField('depositMonths', e.target.value, true)}
+                    placeholder="2"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="advanceRentMonths">Advance Rent (months)</Label>
+                  <Input
+                    id="advanceRentMonths"
+                    type="number"
+                    value={formData.advanceRentMonths ?? ''}
+                    onChange={(e) => numericField('advanceRentMonths', e.target.value, true)}
+                    placeholder="1"
+                  />
+                </div>
+              </div>
+            </FormSection>
+
           </div>
 
           <DialogFooter>
