@@ -465,6 +465,24 @@ model Unit {
   price       Float?
   status      UnitStatus @default(AVAILABLE)
   features    Json       @default("{}")
+  zone                    String?
+  location                String?
+  office_area_sqm         Float?
+  floor_load              String?
+  electrical_load         String?
+  ceiling_height          Float?
+  lease_type              String?
+  floor_plan_url          String?
+  has_sprinkler           Boolean  @default(false)
+  rent_per_sqm            Float?
+  common_fee              Float?
+  common_fee_waived       Boolean  @default(false)
+  water_rate              Float?
+  water_rate_actual       Boolean  @default(false)
+  electricity_rate        Float?
+  electricity_rate_actual Boolean  @default(false)
+  deposit_months          Int?
+  advance_rent_months     Int?
   created_at  DateTime   @default(now())
   updated_at  DateTime   @updatedAt
 
