@@ -253,6 +253,24 @@ enum GRNStatus {
   REJECTED
 }
 
+enum PRStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+  CANCELLED
+  CONVERTED
+}
+
+enum POStatus {
+  DRAFT
+  ISSUED
+  PARTIALLY_RECEIVED
+  FULLY_RECEIVED
+  CANCELLED
+  CLOSED
+}
+
 // ─── Auth Domain ──────────────────────────────────────────────────────────────
 
 model User {
@@ -308,6 +326,10 @@ model User {
   stock_issues_to        StockIssue[]            @relation("StockIssueTo")
   stock_issues_by        StockIssue[]            @relation("StockIssueBy")
   grn_received           GoodsReceivedNote[]     @relation("GRNReceiver")
+  pr_requested           PurchaseRequest[]       @relation("PRRequester")
+  pr_approved            PurchaseRequest[]       @relation("PRApprover")
+  po_created             PurchaseOrder[]         @relation("POCreator")
+  po_approved            PurchaseOrder[]         @relation("POApprover")
 
   @@index([email])
 }
@@ -534,6 +556,8 @@ model Project {
   inventory_items            InventoryItem[]
   stock_issues               StockIssue[]
   goods_received_notes       GoodsReceivedNote[]
+  purchase_requests          PurchaseRequest[]
+  purchase_orders            PurchaseOrder[]
 
   @@index([status])
   @@index([code])
@@ -1529,4 +1553,76 @@ model GoodsReceivedNote {
   updated_at       DateTime  @updatedAt
 
   @@index([project_id])
+}
+
+// ─── Procurement Domain ────────────────────────────────────────────────────────
+
+model PurchaseRequest {
+  id              String    @id @default(uuid())
+  pr_number       String    @unique
+  title           String
+  description     String?
+  project_id      String?
+  project         Project?  @relation(fields: [project_id], references: [id])
+  items           Json      @default("[]")
+  estimated_total Float?
+  priority        String    @default("MEDIUM")
+  status          PRStatus  @default(DRAFT)
+  requested_by    String
+  requester       User      @relation("PRRequester", fields: [requested_by], references: [id])
+  approved_by     String?
+  approver        User?     @relation("PRApprover", fields: [approved_by], references: [id])
+  approved_at     DateTime?
+  notes           String?
+  purchase_orders   PurchaseOrder[]
+  vendor_quotations VendorQuotation[]
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  @@index([project_id])
+  @@index([status])
+}
+
+model PurchaseOrder {
+  id               String    @id @default(uuid())
+  po_number        String    @unique
+  pr_id            String?
+  purchase_request PurchaseRequest? @relation(fields: [pr_id], references: [id])
+  vendor_name      String
+  project_id       String?
+  project          Project?  @relation(fields: [project_id], references: [id])
+  items            Json      @default("[]")
+  subtotal         Float     @default(0)
+  tax              Float     @default(0)
+  total            Float     @default(0)
+  status           POStatus  @default(DRAFT)
+  delivery_date    DateTime?
+  payment_terms    String?
+  notes            String?
+  created_by       String
+  creator          User      @relation("POCreator", fields: [created_by], references: [id])
+  approved_by      String?
+  approver         User?     @relation("POApprover", fields: [approved_by], references: [id])
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+
+  @@index([project_id])
+  @@index([pr_id])
+  @@index([status])
+}
+
+model VendorQuotation {
+  id               String    @id @default(uuid())
+  quotation_number String?
+  vendor_name      String
+  pr_id            String?
+  purchase_request PurchaseRequest? @relation(fields: [pr_id], references: [id])
+  items            Json      @default("[]")
+  total            Float     @default(0)
+  valid_until      DateTime?
+  notes            String?
+  is_selected      Boolean   @default(false)
+  created_at       DateTime  @default(now())
+
+  @@index([pr_id])
 }
