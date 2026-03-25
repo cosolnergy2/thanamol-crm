@@ -160,12 +160,12 @@ function VQCreatePage() {
 
             <div>
               <Label>Purchase Request (Optional)</Label>
-              <Select value={selectedPrId} onValueChange={setSelectedPrId}>
+              <Select value={selectedPrId || '__all__'} onValueChange={(v) => setSelectedPrId(v === '__all__' ? '' : v)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Link to PR" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No PR</SelectItem>
+                  <SelectItem value="__all__">No PR</SelectItem>
                   {allPRs.map((pr) => (
                     <SelectItem key={pr.id} value={pr.id}>
                       {pr.pr_number} — {pr.title}

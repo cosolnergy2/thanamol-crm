@@ -213,12 +213,12 @@ function ContractorsPage() {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <Select value={projectId} onValueChange={setProjectId}>
+            <Select value={projectId || '__all__'} onValueChange={(v) => setProjectId(v === '__all__' ? '' : v)}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="All Projects" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Projects</SelectItem>
+                <SelectItem value="__all__">All Projects</SelectItem>
                 {projects.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name}
@@ -226,12 +226,12 @@ function ContractorsPage() {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={clearedFilter} onValueChange={setClearedFilter}>
+            <Select value={clearedFilter || '__all__'} onValueChange={(v) => setClearedFilter(v === '__all__' ? '' : v)}>
               <SelectTrigger className="w-44">
                 <SelectValue placeholder="All Clearance" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All</SelectItem>
+                <SelectItem value="__all__">All</SelectItem>
                 <SelectItem value="true">Cleared</SelectItem>
                 <SelectItem value="false">Not Cleared</SelectItem>
               </SelectContent>

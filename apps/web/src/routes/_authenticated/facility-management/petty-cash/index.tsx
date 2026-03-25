@@ -149,12 +149,12 @@ function PettyCashPage() {
       <Card>
         <CardContent className="pt-4">
           <div className="flex flex-col md:flex-row gap-3">
-            <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+            <Select value={selectedProjectId || '__all__'} onValueChange={(v) => setSelectedProjectId(v === '__all__' ? '' : v)}>
               <SelectTrigger className="w-full md:w-64">
                 <SelectValue placeholder="All projects" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All projects</SelectItem>
+                <SelectItem value="__all__">All projects</SelectItem>
                 {projects.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name}
@@ -165,12 +165,12 @@ function PettyCashPage() {
 
             {tab === 'transactions' && (
               <>
-                <Select value={selectedFundId} onValueChange={setSelectedFundId}>
+                <Select value={selectedFundId || '__all__'} onValueChange={(v) => setSelectedFundId(v === '__all__' ? '' : v)}>
                   <SelectTrigger className="w-full md:w-52">
                     <SelectValue placeholder="All funds" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All funds</SelectItem>
+                    <SelectItem value="__all__">All funds</SelectItem>
                     {funds.map((f) => (
                       <SelectItem key={f.id} value={f.id}>
                         {f.fund_name}
@@ -179,7 +179,7 @@ function PettyCashPage() {
                   </SelectContent>
                 </Select>
 
-                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <Select value={filterStatus || '__all__'} onValueChange={(v) => setFilterStatus(v === '__all__' ? '' : v)}>
                   <SelectTrigger className="w-full md:w-44">
                     <SelectValue placeholder="All statuses" />
                   </SelectTrigger>

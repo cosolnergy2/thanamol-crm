@@ -83,14 +83,14 @@ function BudgetVarianceReportPage() {
             <div className="space-y-1">
               <Label className="text-xs text-slate-500">Fiscal Year</Label>
               <Select
-                value={fiscalYear || String(currentYear)}
-                onValueChange={(v) => setFiscalYear(v)}
+                value={fiscalYear || '__all__'}
+                onValueChange={(v) => setFiscalYear(v === '__all__' ? '' : v)}
               >
                 <SelectTrigger className="w-36 h-8 text-xs">
                   <SelectValue placeholder="Year" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="" className="text-xs">
+                  <SelectItem value="__all__" className="text-xs">
                     All years
                   </SelectItem>
                   {fiscalYearOptions.map((y) => (

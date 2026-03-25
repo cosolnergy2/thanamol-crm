@@ -148,12 +148,12 @@ function InventoryListPage() {
                 className="pl-10"
               />
             </div>
-            <Select value={projectId} onValueChange={setProjectId}>
+            <Select value={projectId || '__all__'} onValueChange={(v) => setProjectId(v === '__all__' ? '' : v)}>
               <SelectTrigger>
                 <SelectValue placeholder="All Projects" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Projects</SelectItem>
+                <SelectItem value="__all__">All Projects</SelectItem>
                 {projects.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name}

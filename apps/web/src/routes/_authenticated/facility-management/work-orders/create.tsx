@@ -213,7 +213,7 @@ function WorkOrderCreatePage() {
                     <SelectValue placeholder="Select asset" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No specific asset</SelectItem>
+                    <SelectItem value="__all__">No specific asset</SelectItem>
                     {assets.map((a) => (
                       <SelectItem key={a.id} value={a.id}>
                         {a.asset_number} — {a.name}

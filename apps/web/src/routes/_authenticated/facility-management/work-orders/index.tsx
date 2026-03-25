@@ -109,12 +109,12 @@ function WorkOrderListPage() {
                 className="pl-10"
               />
             </div>
-            <Select value={projectId} onValueChange={setProjectId}>
+            <Select value={projectId || '__all__'} onValueChange={(v) => setProjectId(v === '__all__' ? '' : v)}>
               <SelectTrigger>
                 <SelectValue placeholder="All projects" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All projects</SelectItem>
+                <SelectItem value="__all__">All projects</SelectItem>
                 {projects.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name}
@@ -122,12 +122,12 @@ function WorkOrderListPage() {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={status} onValueChange={setStatus}>
+            <Select value={status || '__all__'} onValueChange={(v) => setStatus(v === '__all__' ? '' : v)}>
               <SelectTrigger>
                 <SelectValue placeholder="All statuses" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All statuses</SelectItem>
+                <SelectItem value="__all__">All statuses</SelectItem>
                 {Object.entries(WO_STATUS_LABELS).map(([val, label]) => (
                   <SelectItem key={val} value={val}>
                     {label}
@@ -135,12 +135,12 @@ function WorkOrderListPage() {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={type} onValueChange={setType}>
+            <Select value={type || '__all__'} onValueChange={(v) => setType(v === '__all__' ? '' : v)}>
               <SelectTrigger>
                 <SelectValue placeholder="All types" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All types</SelectItem>
+                <SelectItem value="__all__">All types</SelectItem>
                 {Object.entries(WO_TYPE_LABELS).map(([val, label]) => (
                   <SelectItem key={val} value={val}>
                     {label}

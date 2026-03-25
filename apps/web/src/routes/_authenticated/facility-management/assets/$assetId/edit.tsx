@@ -190,7 +190,7 @@ function AssetEditPage() {
                     <SelectValue placeholder="No category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No category</SelectItem>
+                    <SelectItem value="__all__">No category</SelectItem>
                     {categories.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
                         {c.name}
@@ -219,7 +219,7 @@ function AssetEditPage() {
                     <SelectValue placeholder="No zone" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No zone</SelectItem>
+                    <SelectItem value="__all__">No zone</SelectItem>
                     {zones.map((z) => (
                       <SelectItem key={z.id} value={z.id}>
                         {z.code} — {z.name}
