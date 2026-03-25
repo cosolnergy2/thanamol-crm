@@ -193,6 +193,10 @@ function buildNavigation(t: ReturnType<typeof useLanguage>['t']): NavItem[] {
         { label: 'Assets', path: '/facility-management/assets', disabled: true },
         { label: 'Work Orders', path: '/facility-management/work-orders', disabled: true },
         { label: 'Inventory', path: '/facility-management/inventory', disabled: true },
+        { label: 'Inventory Items', path: '/facility-management/inventory' },
+        { label: 'Inv. Categories', path: '/facility-management/inventory/categories' },
+        { label: 'Stock Issues', path: '/facility-management/inventory/stock-issues' },
+        { label: 'Goods Received', path: '/facility-management/inventory/grn' },
       ],
     },
     {

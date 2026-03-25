@@ -26,3 +26,8 @@ export const PETTY_CASH_CATEGORIES = [
   'OTHER',
 ] as const
 export type PettyCashCategory = (typeof PETTY_CASH_CATEGORIES)[number]
+export const UNITS_OF_MEASURE = ['piece', 'kg', 'liter', 'meter', 'box', 'set', 'roll', 'can'] as const
+
+export const STOCK_MOVEMENT_TYPES = ['RECEIVED', 'ISSUED', 'RETURNED', 'ADJUSTED', 'TRANSFERRED'] as const
+
+export const GRN_STATUSES = ['DRAFT', 'RECEIVED', 'INSPECTED', 'ACCEPTED', 'REJECTED'] as const
