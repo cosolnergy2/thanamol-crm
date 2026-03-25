@@ -119,6 +119,9 @@ import { Route as AuthenticatedFacilityManagementInventoryCreateRouteImport } fr
 import { Route as AuthenticatedFacilityManagementInventoryCategoriesRouteImport } from './routes/_authenticated/facility-management/inventory/categories'
 import { Route as AuthenticatedFacilityManagementBudgetTemplatesRouteImport } from './routes/_authenticated/facility-management/budget/templates'
 import { Route as AuthenticatedFacilityManagementBudgetCreateRouteImport } from './routes/_authenticated/facility-management/budget/create'
+import { Route as AuthenticatedFacilityManagementComplianceInsuranceRouteImport } from './routes/_authenticated/facility-management/compliance/insurance'
+import { Route as AuthenticatedFacilityManagementComplianceFireEquipmentRouteImport } from './routes/_authenticated/facility-management/compliance/fire-equipment'
+import { Route as AuthenticatedFacilityManagementComplianceContractorsRouteImport } from './routes/_authenticated/facility-management/compliance/contractors'
 import { Route as AuthenticatedFacilityManagementAssetsCreateRouteImport } from './routes/_authenticated/facility-management/assets/create'
 import { Route as AuthenticatedFacilityManagementAssetsCategoriesRouteImport } from './routes/_authenticated/facility-management/assets/categories'
 import { Route as AuthenticatedFacilityManagementVisitorsCreateRouteImport } from './routes/_authenticated/facility-management/visitors/create'
@@ -144,6 +147,8 @@ import { Route as AuthenticatedFacilityManagementInventoryStockIssuesIndexRouteI
 import { Route as AuthenticatedFacilityManagementInventoryGrnIndexRouteImport } from './routes/_authenticated/facility-management/inventory/grn/index'
 import { Route as AuthenticatedFacilityManagementInventoryItemIdIndexRouteImport } from './routes/_authenticated/facility-management/inventory/$itemId/index'
 import { Route as AuthenticatedFacilityManagementBudgetBudgetIdIndexRouteImport } from './routes/_authenticated/facility-management/budget/$budgetId/index'
+import { Route as AuthenticatedFacilityManagementCompliancePermitsIndexRouteImport } from './routes/_authenticated/facility-management/compliance/permits/index'
+import { Route as AuthenticatedFacilityManagementComplianceIncidentsIndexRouteImport } from './routes/_authenticated/facility-management/compliance/incidents/index'
 import { Route as AuthenticatedFacilityManagementAssetsAssetIdIndexRouteImport } from './routes/_authenticated/facility-management/assets/$assetId/index'
 import { Route as AuthenticatedContractsHandoverIdIndexRouteImport } from './routes/_authenticated/contracts/handover/$id/index'
 import { Route as AuthenticatedQuotationsCommercialIdPrintRouteImport } from './routes/_authenticated/quotations/commercial/$id/print'
@@ -162,6 +167,8 @@ import { Route as AuthenticatedFacilityManagementProcurementOrdersCreateRouteImp
 import { Route as AuthenticatedFacilityManagementInventoryStockIssuesCreateRouteImport } from './routes/_authenticated/facility-management/inventory/stock-issues/create'
 import { Route as AuthenticatedFacilityManagementInventoryGrnCreateRouteImport } from './routes/_authenticated/facility-management/inventory/grn/create'
 import { Route as AuthenticatedFacilityManagementBudgetBudgetIdEditRouteImport } from './routes/_authenticated/facility-management/budget/$budgetId/edit'
+import { Route as AuthenticatedFacilityManagementCompliancePermitsCreateRouteImport } from './routes/_authenticated/facility-management/compliance/permits/create'
+import { Route as AuthenticatedFacilityManagementComplianceIncidentsCreateRouteImport } from './routes/_authenticated/facility-management/compliance/incidents/create'
 import { Route as AuthenticatedFacilityManagementAssetsAssetIdEditRouteImport } from './routes/_authenticated/facility-management/assets/$assetId/edit'
 import { Route as AuthenticatedFacilityManagementPettyCashTransactionsCreateRouteImport } from './routes/_authenticated/facility-management/petty-cash/transactions/create'
 import { Route as AuthenticatedFacilityManagementPettyCashFundsCreateRouteImport } from './routes/_authenticated/facility-management/petty-cash/funds/create'
@@ -810,6 +817,22 @@ const AuthenticatedFacilityManagementBudgetCreateRoute =
   AuthenticatedFacilityManagementBudgetCreateRouteImport.update({
     id: '/facility-management/budget/create',
     path: '/facility-management/budget/create',
+const AuthenticatedFacilityManagementComplianceInsuranceRoute =
+  AuthenticatedFacilityManagementComplianceInsuranceRouteImport.update({
+    id: '/facility-management/compliance/insurance',
+    path: '/facility-management/compliance/insurance',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFacilityManagementComplianceFireEquipmentRoute =
+  AuthenticatedFacilityManagementComplianceFireEquipmentRouteImport.update({
+    id: '/facility-management/compliance/fire-equipment',
+    path: '/facility-management/compliance/fire-equipment',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFacilityManagementComplianceContractorsRoute =
+  AuthenticatedFacilityManagementComplianceContractorsRouteImport.update({
+    id: '/facility-management/compliance/contractors',
+    path: '/facility-management/compliance/contractors',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedFacilityManagementAssetsCreateRoute =
@@ -944,6 +967,16 @@ const AuthenticatedFacilityManagementBudgetBudgetIdIndexRoute =
   AuthenticatedFacilityManagementBudgetBudgetIdIndexRouteImport.update({
     id: '/facility-management/budget/$budgetId/',
     path: '/facility-management/budget/$budgetId/',
+const AuthenticatedFacilityManagementCompliancePermitsIndexRoute =
+  AuthenticatedFacilityManagementCompliancePermitsIndexRouteImport.update({
+    id: '/facility-management/compliance/permits/',
+    path: '/facility-management/compliance/permits/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFacilityManagementComplianceIncidentsIndexRoute =
+  AuthenticatedFacilityManagementComplianceIncidentsIndexRouteImport.update({
+    id: '/facility-management/compliance/incidents/',
+    path: '/facility-management/compliance/incidents/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedFacilityManagementAssetsAssetIdIndexRoute =
@@ -1052,6 +1085,16 @@ const AuthenticatedFacilityManagementBudgetBudgetIdEditRoute =
   AuthenticatedFacilityManagementBudgetBudgetIdEditRouteImport.update({
     id: '/facility-management/budget/$budgetId/edit',
     path: '/facility-management/budget/$budgetId/edit',
+const AuthenticatedFacilityManagementCompliancePermitsCreateRoute =
+  AuthenticatedFacilityManagementCompliancePermitsCreateRouteImport.update({
+    id: '/facility-management/compliance/permits/create',
+    path: '/facility-management/compliance/permits/create',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFacilityManagementComplianceIncidentsCreateRoute =
+  AuthenticatedFacilityManagementComplianceIncidentsCreateRouteImport.update({
+    id: '/facility-management/compliance/incidents/create',
+    path: '/facility-management/compliance/incidents/create',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedFacilityManagementAssetsAssetIdEditRoute =
@@ -1163,6 +1206,9 @@ export interface FileRoutesByFullPath {
   '/facility-management/budget/templates': typeof AuthenticatedFacilityManagementBudgetTemplatesRoute
   '/facility-management/inventory/categories': typeof AuthenticatedFacilityManagementInventoryCategoriesRoute
   '/facility-management/inventory/create': typeof AuthenticatedFacilityManagementInventoryCreateRoute
+  '/facility-management/compliance/contractors': typeof AuthenticatedFacilityManagementComplianceContractorsRoute
+  '/facility-management/compliance/fire-equipment': typeof AuthenticatedFacilityManagementComplianceFireEquipmentRoute
+  '/facility-management/compliance/insurance': typeof AuthenticatedFacilityManagementComplianceInsuranceRoute
   '/facility-management/preventive-maintenance/create': typeof AuthenticatedFacilityManagementPreventiveMaintenanceCreateRoute
   '/facility-management/work-orders/create': typeof AuthenticatedFacilityManagementWorkOrdersCreateRoute
   '/facility-management/visitors/create': typeof AuthenticatedFacilityManagementVisitorsCreateRoute
@@ -1217,6 +1263,8 @@ export interface FileRoutesByFullPath {
   '/facility-management/procurement/quotations/create': typeof AuthenticatedFacilityManagementProcurementQuotationsCreateRoute
   '/facility-management/procurement/requests/create': typeof AuthenticatedFacilityManagementProcurementRequestsCreateRoute
   '/facility-management/vendors/$vendorId/edit': typeof AuthenticatedFacilityManagementVendorsVendorIdEditRoute
+  '/facility-management/compliance/incidents/create': typeof AuthenticatedFacilityManagementComplianceIncidentsCreateRoute
+  '/facility-management/compliance/permits/create': typeof AuthenticatedFacilityManagementCompliancePermitsCreateRoute
   '/facility-management/zones/$zoneId/edit': typeof AuthenticatedFacilityManagementZonesZoneIdEditRoute
   '/finance/invoices/$invoiceId/edit': typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
   '/forms/sale-f01/$id/edit': typeof AuthenticatedFormsSaleF01IdEditRoute
@@ -1236,6 +1284,8 @@ export interface FileRoutesByFullPath {
   '/facility-management/inventory/$itemId/': typeof AuthenticatedFacilityManagementInventoryItemIdIndexRoute
   '/facility-management/inventory/grn/': typeof AuthenticatedFacilityManagementInventoryGrnIndexRoute
   '/facility-management/inventory/stock-issues/': typeof AuthenticatedFacilityManagementInventoryStockIssuesIndexRoute
+  '/facility-management/compliance/incidents/': typeof AuthenticatedFacilityManagementComplianceIncidentsIndexRoute
+  '/facility-management/compliance/permits/': typeof AuthenticatedFacilityManagementCompliancePermitsIndexRoute
   '/facility-management/preventive-maintenance/$pmId/': typeof AuthenticatedFacilityManagementPreventiveMaintenancePmIdIndexRoute
   '/facility-management/procurement/orders/': typeof AuthenticatedFacilityManagementProcurementOrdersIndexRoute
   '/facility-management/procurement/quotations/': typeof AuthenticatedFacilityManagementProcurementQuotationsIndexRoute
@@ -1323,6 +1373,9 @@ export interface FileRoutesByTo {
   '/facility-management/budget/templates': typeof AuthenticatedFacilityManagementBudgetTemplatesRoute
   '/facility-management/inventory/categories': typeof AuthenticatedFacilityManagementInventoryCategoriesRoute
   '/facility-management/inventory/create': typeof AuthenticatedFacilityManagementInventoryCreateRoute
+  '/facility-management/compliance/contractors': typeof AuthenticatedFacilityManagementComplianceContractorsRoute
+  '/facility-management/compliance/fire-equipment': typeof AuthenticatedFacilityManagementComplianceFireEquipmentRoute
+  '/facility-management/compliance/insurance': typeof AuthenticatedFacilityManagementComplianceInsuranceRoute
   '/facility-management/preventive-maintenance/create': typeof AuthenticatedFacilityManagementPreventiveMaintenanceCreateRoute
   '/facility-management/work-orders/create': typeof AuthenticatedFacilityManagementWorkOrdersCreateRoute
   '/facility-management/visitors/create': typeof AuthenticatedFacilityManagementVisitorsCreateRoute
@@ -1377,6 +1430,8 @@ export interface FileRoutesByTo {
   '/facility-management/procurement/quotations/create': typeof AuthenticatedFacilityManagementProcurementQuotationsCreateRoute
   '/facility-management/procurement/requests/create': typeof AuthenticatedFacilityManagementProcurementRequestsCreateRoute
   '/facility-management/vendors/$vendorId/edit': typeof AuthenticatedFacilityManagementVendorsVendorIdEditRoute
+  '/facility-management/compliance/incidents/create': typeof AuthenticatedFacilityManagementComplianceIncidentsCreateRoute
+  '/facility-management/compliance/permits/create': typeof AuthenticatedFacilityManagementCompliancePermitsCreateRoute
   '/facility-management/zones/$zoneId/edit': typeof AuthenticatedFacilityManagementZonesZoneIdEditRoute
   '/finance/invoices/$invoiceId/edit': typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
   '/forms/sale-f01/$id/edit': typeof AuthenticatedFormsSaleF01IdEditRoute
@@ -1396,6 +1451,8 @@ export interface FileRoutesByTo {
   '/facility-management/inventory/$itemId': typeof AuthenticatedFacilityManagementInventoryItemIdIndexRoute
   '/facility-management/inventory/grn': typeof AuthenticatedFacilityManagementInventoryGrnIndexRoute
   '/facility-management/inventory/stock-issues': typeof AuthenticatedFacilityManagementInventoryStockIssuesIndexRoute
+  '/facility-management/compliance/incidents': typeof AuthenticatedFacilityManagementComplianceIncidentsIndexRoute
+  '/facility-management/compliance/permits': typeof AuthenticatedFacilityManagementCompliancePermitsIndexRoute
   '/facility-management/preventive-maintenance/$pmId': typeof AuthenticatedFacilityManagementPreventiveMaintenancePmIdIndexRoute
   '/facility-management/procurement/orders': typeof AuthenticatedFacilityManagementProcurementOrdersIndexRoute
   '/facility-management/procurement/quotations': typeof AuthenticatedFacilityManagementProcurementQuotationsIndexRoute
@@ -1485,6 +1542,9 @@ export interface FileRoutesById {
   '/_authenticated/facility-management/budget/templates': typeof AuthenticatedFacilityManagementBudgetTemplatesRoute
   '/_authenticated/facility-management/inventory/categories': typeof AuthenticatedFacilityManagementInventoryCategoriesRoute
   '/_authenticated/facility-management/inventory/create': typeof AuthenticatedFacilityManagementInventoryCreateRoute
+  '/_authenticated/facility-management/compliance/contractors': typeof AuthenticatedFacilityManagementComplianceContractorsRoute
+  '/_authenticated/facility-management/compliance/fire-equipment': typeof AuthenticatedFacilityManagementComplianceFireEquipmentRoute
+  '/_authenticated/facility-management/compliance/insurance': typeof AuthenticatedFacilityManagementComplianceInsuranceRoute
   '/_authenticated/facility-management/preventive-maintenance/create': typeof AuthenticatedFacilityManagementPreventiveMaintenanceCreateRoute
   '/_authenticated/facility-management/work-orders/create': typeof AuthenticatedFacilityManagementWorkOrdersCreateRoute
   '/_authenticated/facility-management/visitors/create': typeof AuthenticatedFacilityManagementVisitorsCreateRoute
@@ -1539,6 +1599,8 @@ export interface FileRoutesById {
   '/_authenticated/facility-management/procurement/quotations/create': typeof AuthenticatedFacilityManagementProcurementQuotationsCreateRoute
   '/_authenticated/facility-management/procurement/requests/create': typeof AuthenticatedFacilityManagementProcurementRequestsCreateRoute
   '/_authenticated/facility-management/vendors/$vendorId/edit': typeof AuthenticatedFacilityManagementVendorsVendorIdEditRoute
+  '/_authenticated/facility-management/compliance/incidents/create': typeof AuthenticatedFacilityManagementComplianceIncidentsCreateRoute
+  '/_authenticated/facility-management/compliance/permits/create': typeof AuthenticatedFacilityManagementCompliancePermitsCreateRoute
   '/_authenticated/facility-management/zones/$zoneId/edit': typeof AuthenticatedFacilityManagementZonesZoneIdEditRoute
   '/_authenticated/finance/invoices/$invoiceId/edit': typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
   '/_authenticated/forms/sale-f01/$id/edit': typeof AuthenticatedFormsSaleF01IdEditRoute
@@ -1558,6 +1620,8 @@ export interface FileRoutesById {
   '/_authenticated/facility-management/inventory/$itemId/': typeof AuthenticatedFacilityManagementInventoryItemIdIndexRoute
   '/_authenticated/facility-management/inventory/grn/': typeof AuthenticatedFacilityManagementInventoryGrnIndexRoute
   '/_authenticated/facility-management/inventory/stock-issues/': typeof AuthenticatedFacilityManagementInventoryStockIssuesIndexRoute
+  '/_authenticated/facility-management/compliance/incidents/': typeof AuthenticatedFacilityManagementComplianceIncidentsIndexRoute
+  '/_authenticated/facility-management/compliance/permits/': typeof AuthenticatedFacilityManagementCompliancePermitsIndexRoute
   '/_authenticated/facility-management/preventive-maintenance/$pmId/': typeof AuthenticatedFacilityManagementPreventiveMaintenancePmIdIndexRoute
   '/_authenticated/facility-management/procurement/orders/': typeof AuthenticatedFacilityManagementProcurementOrdersIndexRoute
   '/_authenticated/facility-management/procurement/quotations/': typeof AuthenticatedFacilityManagementProcurementQuotationsIndexRoute
@@ -1647,6 +1711,9 @@ export interface FileRouteTypes {
     | '/facility-management/budget/templates'
     | '/facility-management/inventory/categories'
     | '/facility-management/inventory/create'
+    | '/facility-management/compliance/contractors'
+    | '/facility-management/compliance/fire-equipment'
+    | '/facility-management/compliance/insurance'
     | '/facility-management/preventive-maintenance/create'
     | '/facility-management/work-orders/create'
     | '/facility-management/visitors/create'
@@ -1701,6 +1768,8 @@ export interface FileRouteTypes {
     | '/facility-management/procurement/quotations/create'
     | '/facility-management/procurement/requests/create'
     | '/facility-management/vendors/$vendorId/edit'
+    | '/facility-management/compliance/incidents/create'
+    | '/facility-management/compliance/permits/create'
     | '/facility-management/zones/$zoneId/edit'
     | '/finance/invoices/$invoiceId/edit'
     | '/forms/sale-f01/$id/edit'
@@ -1720,6 +1789,8 @@ export interface FileRouteTypes {
     | '/facility-management/inventory/$itemId/'
     | '/facility-management/inventory/grn/'
     | '/facility-management/inventory/stock-issues/'
+    | '/facility-management/compliance/incidents/'
+    | '/facility-management/compliance/permits/'
     | '/facility-management/preventive-maintenance/$pmId/'
     | '/facility-management/procurement/orders/'
     | '/facility-management/procurement/quotations/'
@@ -1807,6 +1878,9 @@ export interface FileRouteTypes {
     | '/facility-management/budget/templates'
     | '/facility-management/inventory/categories'
     | '/facility-management/inventory/create'
+    | '/facility-management/compliance/contractors'
+    | '/facility-management/compliance/fire-equipment'
+    | '/facility-management/compliance/insurance'
     | '/facility-management/preventive-maintenance/create'
     | '/facility-management/work-orders/create'
     | '/facility-management/visitors/create'
@@ -1861,6 +1935,8 @@ export interface FileRouteTypes {
     | '/facility-management/procurement/quotations/create'
     | '/facility-management/procurement/requests/create'
     | '/facility-management/vendors/$vendorId/edit'
+    | '/facility-management/compliance/incidents/create'
+    | '/facility-management/compliance/permits/create'
     | '/facility-management/zones/$zoneId/edit'
     | '/finance/invoices/$invoiceId/edit'
     | '/forms/sale-f01/$id/edit'
@@ -1880,6 +1956,8 @@ export interface FileRouteTypes {
     | '/facility-management/inventory/$itemId'
     | '/facility-management/inventory/grn'
     | '/facility-management/inventory/stock-issues'
+    | '/facility-management/compliance/incidents'
+    | '/facility-management/compliance/permits'
     | '/facility-management/preventive-maintenance/$pmId'
     | '/facility-management/procurement/orders'
     | '/facility-management/procurement/quotations'
@@ -1968,6 +2046,9 @@ export interface FileRouteTypes {
     | '/_authenticated/facility-management/budget/templates'
     | '/_authenticated/facility-management/inventory/categories'
     | '/_authenticated/facility-management/inventory/create'
+    | '/_authenticated/facility-management/compliance/contractors'
+    | '/_authenticated/facility-management/compliance/fire-equipment'
+    | '/_authenticated/facility-management/compliance/insurance'
     | '/_authenticated/facility-management/preventive-maintenance/create'
     | '/_authenticated/facility-management/work-orders/create'
     | '/_authenticated/facility-management/visitors/create'
@@ -2022,6 +2103,8 @@ export interface FileRouteTypes {
     | '/_authenticated/facility-management/procurement/quotations/create'
     | '/_authenticated/facility-management/procurement/requests/create'
     | '/_authenticated/facility-management/vendors/$vendorId/edit'
+    | '/_authenticated/facility-management/compliance/incidents/create'
+    | '/_authenticated/facility-management/compliance/permits/create'
     | '/_authenticated/facility-management/zones/$zoneId/edit'
     | '/_authenticated/finance/invoices/$invoiceId/edit'
     | '/_authenticated/forms/sale-f01/$id/edit'
@@ -2041,6 +2124,8 @@ export interface FileRouteTypes {
     | '/_authenticated/facility-management/inventory/$itemId/'
     | '/_authenticated/facility-management/inventory/grn/'
     | '/_authenticated/facility-management/inventory/stock-issues/'
+    | '/_authenticated/facility-management/compliance/incidents/'
+    | '/_authenticated/facility-management/compliance/permits/'
     | '/_authenticated/facility-management/preventive-maintenance/$pmId/'
     | '/_authenticated/facility-management/procurement/orders/'
     | '/_authenticated/facility-management/procurement/quotations/'
@@ -2822,6 +2907,25 @@ declare module '@tanstack/react-router' {
       path: '/facility-management/budget/create'
       fullPath: '/facility-management/budget/create'
       preLoaderRoute: typeof AuthenticatedFacilityManagementBudgetCreateRouteImport
+    '/_authenticated/facility-management/compliance/insurance': {
+      id: '/_authenticated/facility-management/compliance/insurance'
+      path: '/facility-management/compliance/insurance'
+      fullPath: '/facility-management/compliance/insurance'
+      preLoaderRoute: typeof AuthenticatedFacilityManagementComplianceInsuranceRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/facility-management/compliance/fire-equipment': {
+      id: '/_authenticated/facility-management/compliance/fire-equipment'
+      path: '/facility-management/compliance/fire-equipment'
+      fullPath: '/facility-management/compliance/fire-equipment'
+      preLoaderRoute: typeof AuthenticatedFacilityManagementComplianceFireEquipmentRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/facility-management/compliance/contractors': {
+      id: '/_authenticated/facility-management/compliance/contractors'
+      path: '/facility-management/compliance/contractors'
+      fullPath: '/facility-management/compliance/contractors'
+      preLoaderRoute: typeof AuthenticatedFacilityManagementComplianceContractorsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/facility-management/assets/create': {
@@ -2977,6 +3081,18 @@ declare module '@tanstack/react-router' {
       path: '/facility-management/budget/$budgetId'
       fullPath: '/facility-management/budget/$budgetId/'
       preLoaderRoute: typeof AuthenticatedFacilityManagementBudgetBudgetIdIndexRouteImport
+    '/_authenticated/facility-management/compliance/permits/': {
+      id: '/_authenticated/facility-management/compliance/permits/'
+      path: '/facility-management/compliance/permits'
+      fullPath: '/facility-management/compliance/permits/'
+      preLoaderRoute: typeof AuthenticatedFacilityManagementCompliancePermitsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/facility-management/compliance/incidents/': {
+      id: '/_authenticated/facility-management/compliance/incidents/'
+      path: '/facility-management/compliance/incidents'
+      fullPath: '/facility-management/compliance/incidents/'
+      preLoaderRoute: typeof AuthenticatedFacilityManagementComplianceIncidentsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/facility-management/assets/$assetId/': {
@@ -3103,6 +3219,18 @@ declare module '@tanstack/react-router' {
       path: '/facility-management/budget/$budgetId/edit'
       fullPath: '/facility-management/budget/$budgetId/edit'
       preLoaderRoute: typeof AuthenticatedFacilityManagementBudgetBudgetIdEditRouteImport
+    '/_authenticated/facility-management/compliance/permits/create': {
+      id: '/_authenticated/facility-management/compliance/permits/create'
+      path: '/facility-management/compliance/permits/create'
+      fullPath: '/facility-management/compliance/permits/create'
+      preLoaderRoute: typeof AuthenticatedFacilityManagementCompliancePermitsCreateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/facility-management/compliance/incidents/create': {
+      id: '/_authenticated/facility-management/compliance/incidents/create'
+      path: '/facility-management/compliance/incidents/create'
+      fullPath: '/facility-management/compliance/incidents/create'
+      preLoaderRoute: typeof AuthenticatedFacilityManagementComplianceIncidentsCreateRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/facility-management/assets/$assetId/edit': {
@@ -3221,6 +3349,9 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFacilityManagementBudgetTemplatesRoute: typeof AuthenticatedFacilityManagementBudgetTemplatesRoute
   AuthenticatedFacilityManagementInventoryCategoriesRoute: typeof AuthenticatedFacilityManagementInventoryCategoriesRoute
   AuthenticatedFacilityManagementInventoryCreateRoute: typeof AuthenticatedFacilityManagementInventoryCreateRoute
+  AuthenticatedFacilityManagementComplianceContractorsRoute: typeof AuthenticatedFacilityManagementComplianceContractorsRoute
+  AuthenticatedFacilityManagementComplianceFireEquipmentRoute: typeof AuthenticatedFacilityManagementComplianceFireEquipmentRoute
+  AuthenticatedFacilityManagementComplianceInsuranceRoute: typeof AuthenticatedFacilityManagementComplianceInsuranceRoute
   AuthenticatedFacilityManagementPreventiveMaintenanceCreateRoute: typeof AuthenticatedFacilityManagementPreventiveMaintenanceCreateRoute
   AuthenticatedFacilityManagementWorkOrdersCreateRoute: typeof AuthenticatedFacilityManagementWorkOrdersCreateRoute
   AuthenticatedFacilityManagementVisitorsCreateRoute: typeof AuthenticatedFacilityManagementVisitorsCreateRoute
@@ -3275,6 +3406,8 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFacilityManagementProcurementQuotationsCreateRoute: typeof AuthenticatedFacilityManagementProcurementQuotationsCreateRoute
   AuthenticatedFacilityManagementProcurementRequestsCreateRoute: typeof AuthenticatedFacilityManagementProcurementRequestsCreateRoute
   AuthenticatedFacilityManagementVendorsVendorIdEditRoute: typeof AuthenticatedFacilityManagementVendorsVendorIdEditRoute
+  AuthenticatedFacilityManagementComplianceIncidentsCreateRoute: typeof AuthenticatedFacilityManagementComplianceIncidentsCreateRoute
+  AuthenticatedFacilityManagementCompliancePermitsCreateRoute: typeof AuthenticatedFacilityManagementCompliancePermitsCreateRoute
   AuthenticatedFacilityManagementZonesZoneIdEditRoute: typeof AuthenticatedFacilityManagementZonesZoneIdEditRoute
   AuthenticatedFinanceInvoicesInvoiceIdEditRoute: typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
   AuthenticatedFormsSaleF01IdEditRoute: typeof AuthenticatedFormsSaleF01IdEditRoute
@@ -3294,6 +3427,8 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFacilityManagementInventoryItemIdIndexRoute: typeof AuthenticatedFacilityManagementInventoryItemIdIndexRoute
   AuthenticatedFacilityManagementInventoryGrnIndexRoute: typeof AuthenticatedFacilityManagementInventoryGrnIndexRoute
   AuthenticatedFacilityManagementInventoryStockIssuesIndexRoute: typeof AuthenticatedFacilityManagementInventoryStockIssuesIndexRoute
+  AuthenticatedFacilityManagementComplianceIncidentsIndexRoute: typeof AuthenticatedFacilityManagementComplianceIncidentsIndexRoute
+  AuthenticatedFacilityManagementCompliancePermitsIndexRoute: typeof AuthenticatedFacilityManagementCompliancePermitsIndexRoute
   AuthenticatedFacilityManagementPreventiveMaintenancePmIdIndexRoute: typeof AuthenticatedFacilityManagementPreventiveMaintenancePmIdIndexRoute
   AuthenticatedFacilityManagementProcurementOrdersIndexRoute: typeof AuthenticatedFacilityManagementProcurementOrdersIndexRoute
   AuthenticatedFacilityManagementProcurementQuotationsIndexRoute: typeof AuthenticatedFacilityManagementProcurementQuotationsIndexRoute
@@ -3396,6 +3531,12 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedFacilityManagementInventoryCategoriesRoute,
   AuthenticatedFacilityManagementInventoryCreateRoute:
     AuthenticatedFacilityManagementInventoryCreateRoute,
+  AuthenticatedFacilityManagementComplianceContractorsRoute:
+    AuthenticatedFacilityManagementComplianceContractorsRoute,
+  AuthenticatedFacilityManagementComplianceFireEquipmentRoute:
+    AuthenticatedFacilityManagementComplianceFireEquipmentRoute,
+  AuthenticatedFacilityManagementComplianceInsuranceRoute:
+    AuthenticatedFacilityManagementComplianceInsuranceRoute,
   AuthenticatedFacilityManagementPreventiveMaintenanceCreateRoute:
     AuthenticatedFacilityManagementPreventiveMaintenanceCreateRoute,
   AuthenticatedFacilityManagementWorkOrdersCreateRoute:
@@ -3500,6 +3641,10 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedFacilityManagementProcurementRequestsCreateRoute,
   AuthenticatedFacilityManagementVendorsVendorIdEditRoute:
     AuthenticatedFacilityManagementVendorsVendorIdEditRoute,
+  AuthenticatedFacilityManagementComplianceIncidentsCreateRoute:
+    AuthenticatedFacilityManagementComplianceIncidentsCreateRoute,
+  AuthenticatedFacilityManagementCompliancePermitsCreateRoute:
+    AuthenticatedFacilityManagementCompliancePermitsCreateRoute,
   AuthenticatedFacilityManagementZonesZoneIdEditRoute:
     AuthenticatedFacilityManagementZonesZoneIdEditRoute,
   AuthenticatedFinanceInvoicesInvoiceIdEditRoute:
@@ -3537,6 +3682,10 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedFacilityManagementInventoryGrnIndexRoute,
   AuthenticatedFacilityManagementInventoryStockIssuesIndexRoute:
     AuthenticatedFacilityManagementInventoryStockIssuesIndexRoute,
+  AuthenticatedFacilityManagementComplianceIncidentsIndexRoute:
+    AuthenticatedFacilityManagementComplianceIncidentsIndexRoute,
+  AuthenticatedFacilityManagementCompliancePermitsIndexRoute:
+    AuthenticatedFacilityManagementCompliancePermitsIndexRoute,
   AuthenticatedFacilityManagementPreventiveMaintenancePmIdIndexRoute:
     AuthenticatedFacilityManagementPreventiveMaintenancePmIdIndexRoute,
   AuthenticatedFacilityManagementProcurementOrdersIndexRoute:

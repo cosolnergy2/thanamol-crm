@@ -2859,6 +2859,36 @@ export type Vendor = {
   status: VendorStatus
   bank_details: Record<string, unknown>
   notes?: string | null
+
+// ─── FMS: Fire Equipment ───────────────────────────────────────────────────────
+
+export const FIRE_EQUIPMENT_TYPES = [
+  'Fire Extinguisher',
+  'Fire Hose',
+  'Smoke Detector',
+  'Fire Alarm',
+  'Sprinkler',
+  'Emergency Light',
+  'Exit Sign',
+  'Fire Door',
+  'Fire Pump',
+  'Other',
+] as const
+
+export type FireEquipmentType = (typeof FIRE_EQUIPMENT_TYPES)[number]
+export type FireEquipmentStatus = 'ACTIVE' | 'INACTIVE' | 'UNDER_MAINTENANCE' | 'DECOMMISSIONED'
+
+export type FireEquipment = {
+  id: string
+  equipment_number: string
+  type: string
+  project_id: string
+  zone_id: string | null
+  location_detail: string | null
+  last_inspection_date: string | null
+  next_inspection_date: string | null
+  status: string
+  notes: string | null
   created_at: string
   updated_at: string
 }
@@ -2895,6 +2925,195 @@ export type Budget = {
   notes?: string | null
   created_by: string
   approved_by?: string | null
+export type FireEquipmentWithRelations = FireEquipment & {
+  project: { id: string; name: string; code: string }
+  zone: { id: string; name: string } | null
+}
+
+export type CreateFireEquipmentRequest = {
+  equipmentNumber: string
+  type: string
+  projectId: string
+  zoneId?: string
+  locationDetail?: string
+  lastInspectionDate?: string
+  nextInspectionDate?: string
+  status?: FireEquipmentStatus
+  notes?: string
+}
+
+export type UpdateFireEquipmentRequest = Partial<Omit<CreateFireEquipmentRequest, 'projectId'>>
+
+export type FireEquipmentListResponse = PaginatedResponse<FireEquipmentWithRelations>
+
+export type FireEquipmentQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  zoneId?: string
+  status?: FireEquipmentStatus | 'all'
+  search?: string
+}
+
+// ─── FMS: Permit to Work ───────────────────────────────────────────────────────
+
+export const PERMIT_TYPES = [
+  'Hot Work',
+  'Confined Space',
+  'Work at Height',
+  'Electrical Work',
+  'Excavation',
+  'Lifting',
+  'General',
+] as const
+
+export type PermitType = (typeof PERMIT_TYPES)[number]
+export type PermitStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'ACTIVE' | 'CLOSED' | 'REJECTED'
+
+export type PermitToWork = {
+  id: string
+  permit_number: string
+  title: string
+  description: string | null
+  project_id: string
+  zone_id: string | null
+  permit_type: string | null
+  risk_assessment: unknown[]
+  start_date: string | null
+  end_date: string | null
+  status: PermitStatus
+  requested_by: string | null
+  approved_by: string | null
+  contractor_name: string | null
+  safety_measures: unknown[]
+  created_at: string
+  updated_at: string
+}
+
+export type PermitToWorkWithRelations = PermitToWork & {
+  project: { id: string; name: string; code: string }
+  zone: { id: string; name: string } | null
+  requester: { id: string; first_name: string; last_name: string } | null
+  approver: { id: string; first_name: string; last_name: string } | null
+}
+
+export type CreatePermitToWorkRequest = {
+  title: string
+  description?: string
+  projectId: string
+  zoneId?: string
+  permitType?: string
+  riskAssessment?: unknown[]
+  startDate?: string
+  endDate?: string
+  requestedBy?: string
+  contractorName?: string
+  safetyMeasures?: unknown[]
+}
+
+export type UpdatePermitToWorkRequest = Partial<Omit<CreatePermitToWorkRequest, 'projectId'>>
+
+export type PermitToWorkListResponse = PaginatedResponse<PermitToWorkWithRelations>
+
+export type PermitToWorkQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  zoneId?: string
+  status?: PermitStatus | 'all'
+  search?: string
+}
+
+// ─── FMS: Incident ─────────────────────────────────────────────────────────────
+
+export type IncidentSeverity = 'MINOR' | 'MODERATE' | 'MAJOR' | 'CRITICAL'
+export type IncidentStatus = 'REPORTED' | 'INVESTIGATING' | 'RESOLVED' | 'CLOSED'
+
+export type Incident = {
+  id: string
+  incident_number: string
+  title: string
+  description: string | null
+  project_id: string
+  zone_id: string | null
+  incident_date: string
+  severity: IncidentSeverity
+  status: IncidentStatus
+  reported_by: string | null
+  investigation_notes: string | null
+  root_cause: string | null
+  corrective_actions: unknown[]
+  work_order_id: string | null
+  photos: unknown[]
+  created_at: string
+  updated_at: string
+}
+
+export type IncidentWithRelations = Incident & {
+  project: { id: string; name: string; code: string }
+  zone: { id: string; name: string } | null
+  reporter: { id: string; first_name: string; last_name: string } | null
+}
+
+export type CreateIncidentRequest = {
+  title: string
+  description?: string
+  projectId: string
+  zoneId?: string
+  incidentDate: string
+  severity?: IncidentSeverity
+  reportedBy?: string
+  investigationNotes?: string
+  rootCause?: string
+  correctiveActions?: unknown[]
+  workOrderId?: string
+  photos?: unknown[]
+}
+
+export type UpdateIncidentRequest = Partial<Omit<CreateIncidentRequest, 'projectId'>> & {
+  status?: IncidentStatus
+}
+
+export type IncidentListResponse = PaginatedResponse<IncidentWithRelations>
+
+export type IncidentQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  zoneId?: string
+  severity?: IncidentSeverity | 'all'
+  status?: IncidentStatus | 'all'
+  search?: string
+}
+
+// ─── FMS: Insurance Policy ─────────────────────────────────────────────────────
+
+export const INSURANCE_TYPES = [
+  'Property',
+  'Liability',
+  'Fire',
+  'All Risk',
+  'Business Interruption',
+  'Equipment',
+  'Other',
+] as const
+
+export type InsuranceType = (typeof INSURANCE_TYPES)[number]
+export type InsurancePolicyStatus = 'ACTIVE' | 'EXPIRED' | 'CANCELLED' | 'PENDING_RENEWAL'
+
+export type InsurancePolicy = {
+  id: string
+  policy_number: string
+  provider: string
+  type: string
+  coverage_details: Record<string, unknown>
+  project_id: string | null
+  premium: number | null
+  start_date: string
+  end_date: string
+  status: InsurancePolicyStatus
+  document_url: string | null
+  notes: string | null
   created_at: string
   updated_at: string
 }
@@ -2946,6 +3165,48 @@ export type BudgetLine = {
   committed_amount: number
   actual_amount: number
   notes?: string | null
+export type InsurancePolicyWithRelations = InsurancePolicy & {
+  project: { id: string; name: string; code: string } | null
+}
+
+export type CreateInsurancePolicyRequest = {
+  policyNumber: string
+  provider: string
+  type: string
+  coverageDetails?: Record<string, unknown>
+  projectId?: string
+  premium?: number
+  startDate: string
+  endDate: string
+  status?: InsurancePolicyStatus
+  documentUrl?: string
+  notes?: string
+}
+
+export type UpdateInsurancePolicyRequest = Partial<CreateInsurancePolicyRequest>
+
+export type InsurancePolicyListResponse = PaginatedResponse<InsurancePolicyWithRelations>
+
+export type InsurancePolicyQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  status?: InsurancePolicyStatus | 'all'
+  type?: string
+  search?: string
+}
+
+// ─── FMS: Contractor Safety ────────────────────────────────────────────────────
+
+export type ContractorSafety = {
+  id: string
+  contractor_name: string
+  project_id: string
+  safety_induction_date: string | null
+  safety_cert_url: string | null
+  permit_ids: string[]
+  is_cleared: boolean
+  notes: string | null
   created_at: string
   updated_at: string
 }
@@ -3166,3 +3427,28 @@ export type CreateBudgetTemplateRequest = {
 }
 
 export type UpdateBudgetTemplateRequest = Partial<CreateBudgetTemplateRequest>
+export type ContractorSafetyWithRelations = ContractorSafety & {
+  project: { id: string; name: string; code: string }
+}
+
+export type CreateContractorSafetyRequest = {
+  contractorName: string
+  projectId: string
+  safetyInductionDate?: string
+  safetyCertUrl?: string
+  permitIds?: string[]
+  isCleared?: boolean
+  notes?: string
+}
+
+export type UpdateContractorSafetyRequest = Partial<Omit<CreateContractorSafetyRequest, 'projectId'>>
+
+export type ContractorSafetyListResponse = PaginatedResponse<ContractorSafetyWithRelations>
+
+export type ContractorSafetyQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  isCleared?: boolean
+  search?: string
+}

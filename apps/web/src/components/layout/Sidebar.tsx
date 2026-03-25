@@ -218,6 +218,11 @@ function buildNavigation(t: ReturnType<typeof useLanguage>['t']): NavItem[] {
         { label: 'Service Logs', path: '/facility-management/services' },
         { label: 'Budget List', path: '/facility-management/budget' },
         { label: 'Budget Templates', path: '/facility-management/budget/templates' },
+        { label: 'Fire Equipment', path: '/facility-management/compliance/fire-equipment' },
+        { label: 'Permit to Work', path: '/facility-management/compliance/permits' },
+        { label: 'Incidents', path: '/facility-management/compliance/incidents' },
+        { label: 'Insurance', path: '/facility-management/compliance/insurance' },
+        { label: 'Contractor Safety', path: '/facility-management/compliance/contractors' },
       ],
     },
     {

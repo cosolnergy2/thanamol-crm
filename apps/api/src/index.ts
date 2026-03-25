@@ -69,6 +69,11 @@ import { fmsBudgetsRoutes } from './routes/fms/budgets'
 import { fmsBudgetLinesRoutes } from './routes/fms/budget-lines'
 import { fmsBudgetTemplatesRoutes } from './routes/fms/budget-templates'
 import { fmsBudgetTransactionsRoutes } from './routes/fms/budget-transactions'
+import { fmsFireEquipmentRoutes } from './routes/fms/fire-equipment'
+import { fmsPermitsToWorkRoutes } from './routes/fms/permits-to-work'
+import { fmsIncidentsRoutes } from './routes/fms/incidents'
+import { fmsInsurancePoliciesRoutes } from './routes/fms/insurance-policies'
+import { fmsContractorSafetyRoutes } from './routes/fms/contractor-safety'
 
 const API_PORT = Number(process.env.PORT ?? 3000)
 
@@ -146,6 +151,11 @@ const app = new Elysia()
   .use(fmsBudgetLinesRoutes)
   .use(fmsBudgetTemplatesRoutes)
   .use(fmsBudgetTransactionsRoutes)
+  .use(fmsFireEquipmentRoutes)
+  .use(fmsPermitsToWorkRoutes)
+  .use(fmsIncidentsRoutes)
+  .use(fmsInsurancePoliciesRoutes)
+  .use(fmsContractorSafetyRoutes)
   .listen(API_PORT)
 
 console.log(`API running at http://localhost:${API_PORT}`)
