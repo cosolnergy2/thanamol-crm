@@ -41,6 +41,12 @@ import { isoDocumentsRoutes } from './routes/iso-documents'
 import { pdfTemplatesRoutes } from './routes/pdf-templates'
 import { uploadsRoutes } from './routes/uploads'
 import { fmsZonesRoutes } from './routes/fms/zones'
+import { fmsSecurityPatrolsRoutes } from './routes/fms/security-patrols'
+import { fmsCleaningChecklistsRoutes } from './routes/fms/cleaning-checklists'
+import { fmsVisitorsRoutes } from './routes/fms/visitors'
+import { fmsKeyRecordsRoutes } from './routes/fms/key-records'
+import { fmsParkingSlotsRoutes } from './routes/fms/parking-slots'
+import { fmsServiceLogsRoutes } from './routes/fms/service-logs'
 
 const API_PORT = Number(process.env.PORT ?? 3000)
 
@@ -90,6 +96,12 @@ const app = new Elysia()
   .use(pdfTemplatesRoutes)
   .use(uploadsRoutes)
   .use(fmsZonesRoutes)
+  .use(fmsSecurityPatrolsRoutes)
+  .use(fmsCleaningChecklistsRoutes)
+  .use(fmsVisitorsRoutes)
+  .use(fmsKeyRecordsRoutes)
+  .use(fmsParkingSlotsRoutes)
+  .use(fmsServiceLogsRoutes)
   .listen(API_PORT)
 
 console.log(`API running at http://localhost:${API_PORT}`)

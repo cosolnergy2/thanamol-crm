@@ -84,6 +84,12 @@ import { Route as AuthenticatedFormsSaleJob02F01IndexRouteImport } from './route
 import { Route as AuthenticatedFormsSaleF01IndexRouteImport } from './routes/_authenticated/forms/sale-f01/index'
 import { Route as AuthenticatedFinanceInvoicesIndexRouteImport } from './routes/_authenticated/finance/invoices/index'
 import { Route as AuthenticatedFacilityManagementZonesIndexRouteImport } from './routes/_authenticated/facility-management/zones/index'
+import { Route as AuthenticatedFacilityManagementVisitorsIndexRouteImport } from './routes/_authenticated/facility-management/visitors/index'
+import { Route as AuthenticatedFacilityManagementServicesIndexRouteImport } from './routes/_authenticated/facility-management/services/index'
+import { Route as AuthenticatedFacilityManagementSecurityIndexRouteImport } from './routes/_authenticated/facility-management/security/index'
+import { Route as AuthenticatedFacilityManagementParkingIndexRouteImport } from './routes/_authenticated/facility-management/parking/index'
+import { Route as AuthenticatedFacilityManagementKeysIndexRouteImport } from './routes/_authenticated/facility-management/keys/index'
+import { Route as AuthenticatedFacilityManagementCleaningIndexRouteImport } from './routes/_authenticated/facility-management/cleaning/index'
 import { Route as AuthenticatedContractsHandoverIndexRouteImport } from './routes/_authenticated/contracts/handover/index'
 import { Route as AuthenticatedContractsContractIdIndexRouteImport } from './routes/_authenticated/contracts/$contractId/index'
 import { Route as AuthenticatedTasksTaskIdEditRouteImport } from './routes/_authenticated/tasks/$taskId/edit'
@@ -98,6 +104,7 @@ import { Route as AuthenticatedFormsSaleF01NewRouteImport } from './routes/_auth
 import { Route as AuthenticatedFinancePaymentsReceiveRouteImport } from './routes/_authenticated/finance/payments/receive'
 import { Route as AuthenticatedFinanceInvoicesCreateRouteImport } from './routes/_authenticated/finance/invoices/create'
 import { Route as AuthenticatedFacilityManagementZonesCreateRouteImport } from './routes/_authenticated/facility-management/zones/create'
+import { Route as AuthenticatedFacilityManagementVisitorsCreateRouteImport } from './routes/_authenticated/facility-management/visitors/create'
 import { Route as AuthenticatedCustomersCustomerIdEditRouteImport } from './routes/_authenticated/customers/$customerId/edit'
 import { Route as AuthenticatedContractsHandoverNewRouteImport } from './routes/_authenticated/contracts/handover/new'
 import { Route as AuthenticatedContractsContractIdPrintRouteImport } from './routes/_authenticated/contracts/$contractId/print'
@@ -561,6 +568,42 @@ const AuthenticatedFacilityManagementZonesIndexRoute =
     path: '/facility-management/zones/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFacilityManagementVisitorsIndexRoute =
+  AuthenticatedFacilityManagementVisitorsIndexRouteImport.update({
+    id: '/facility-management/visitors/',
+    path: '/facility-management/visitors/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFacilityManagementServicesIndexRoute =
+  AuthenticatedFacilityManagementServicesIndexRouteImport.update({
+    id: '/facility-management/services/',
+    path: '/facility-management/services/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFacilityManagementSecurityIndexRoute =
+  AuthenticatedFacilityManagementSecurityIndexRouteImport.update({
+    id: '/facility-management/security/',
+    path: '/facility-management/security/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFacilityManagementParkingIndexRoute =
+  AuthenticatedFacilityManagementParkingIndexRouteImport.update({
+    id: '/facility-management/parking/',
+    path: '/facility-management/parking/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFacilityManagementKeysIndexRoute =
+  AuthenticatedFacilityManagementKeysIndexRouteImport.update({
+    id: '/facility-management/keys/',
+    path: '/facility-management/keys/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFacilityManagementCleaningIndexRoute =
+  AuthenticatedFacilityManagementCleaningIndexRouteImport.update({
+    id: '/facility-management/cleaning/',
+    path: '/facility-management/cleaning/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedContractsHandoverIndexRoute =
   AuthenticatedContractsHandoverIndexRouteImport.update({
     id: '/contracts/handover/',
@@ -643,6 +686,12 @@ const AuthenticatedFacilityManagementZonesCreateRoute =
   AuthenticatedFacilityManagementZonesCreateRouteImport.update({
     id: '/facility-management/zones/create',
     path: '/facility-management/zones/create',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFacilityManagementVisitorsCreateRoute =
+  AuthenticatedFacilityManagementVisitorsCreateRouteImport.update({
+    id: '/facility-management/visitors/create',
+    path: '/facility-management/visitors/create',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedCustomersCustomerIdEditRoute =
@@ -854,6 +903,7 @@ export interface FileRoutesByFullPath {
   '/contracts/$contractId/print': typeof AuthenticatedContractsContractIdPrintRoute
   '/contracts/handover/new': typeof AuthenticatedContractsHandoverNewRoute
   '/customers/$customerId/edit': typeof AuthenticatedCustomersCustomerIdEditRoute
+  '/facility-management/visitors/create': typeof AuthenticatedFacilityManagementVisitorsCreateRoute
   '/facility-management/zones/create': typeof AuthenticatedFacilityManagementZonesCreateRoute
   '/finance/invoices/create': typeof AuthenticatedFinanceInvoicesCreateRoute
   '/finance/payments/receive': typeof AuthenticatedFinancePaymentsReceiveRoute
@@ -868,6 +918,12 @@ export interface FileRoutesByFullPath {
   '/tasks/$taskId/edit': typeof AuthenticatedTasksTaskIdEditRoute
   '/contracts/$contractId/': typeof AuthenticatedContractsContractIdIndexRoute
   '/contracts/handover/': typeof AuthenticatedContractsHandoverIndexRoute
+  '/facility-management/cleaning/': typeof AuthenticatedFacilityManagementCleaningIndexRoute
+  '/facility-management/keys/': typeof AuthenticatedFacilityManagementKeysIndexRoute
+  '/facility-management/parking/': typeof AuthenticatedFacilityManagementParkingIndexRoute
+  '/facility-management/security/': typeof AuthenticatedFacilityManagementSecurityIndexRoute
+  '/facility-management/services/': typeof AuthenticatedFacilityManagementServicesIndexRoute
+  '/facility-management/visitors/': typeof AuthenticatedFacilityManagementVisitorsIndexRoute
   '/facility-management/zones/': typeof AuthenticatedFacilityManagementZonesIndexRoute
   '/finance/invoices/': typeof AuthenticatedFinanceInvoicesIndexRoute
   '/forms/sale-f01/': typeof AuthenticatedFormsSaleF01IndexRoute
@@ -967,6 +1023,7 @@ export interface FileRoutesByTo {
   '/contracts/$contractId/print': typeof AuthenticatedContractsContractIdPrintRoute
   '/contracts/handover/new': typeof AuthenticatedContractsHandoverNewRoute
   '/customers/$customerId/edit': typeof AuthenticatedCustomersCustomerIdEditRoute
+  '/facility-management/visitors/create': typeof AuthenticatedFacilityManagementVisitorsCreateRoute
   '/facility-management/zones/create': typeof AuthenticatedFacilityManagementZonesCreateRoute
   '/finance/invoices/create': typeof AuthenticatedFinanceInvoicesCreateRoute
   '/finance/payments/receive': typeof AuthenticatedFinancePaymentsReceiveRoute
@@ -981,6 +1038,12 @@ export interface FileRoutesByTo {
   '/tasks/$taskId/edit': typeof AuthenticatedTasksTaskIdEditRoute
   '/contracts/$contractId': typeof AuthenticatedContractsContractIdIndexRoute
   '/contracts/handover': typeof AuthenticatedContractsHandoverIndexRoute
+  '/facility-management/cleaning': typeof AuthenticatedFacilityManagementCleaningIndexRoute
+  '/facility-management/keys': typeof AuthenticatedFacilityManagementKeysIndexRoute
+  '/facility-management/parking': typeof AuthenticatedFacilityManagementParkingIndexRoute
+  '/facility-management/security': typeof AuthenticatedFacilityManagementSecurityIndexRoute
+  '/facility-management/services': typeof AuthenticatedFacilityManagementServicesIndexRoute
+  '/facility-management/visitors': typeof AuthenticatedFacilityManagementVisitorsIndexRoute
   '/facility-management/zones': typeof AuthenticatedFacilityManagementZonesIndexRoute
   '/finance/invoices': typeof AuthenticatedFinanceInvoicesIndexRoute
   '/forms/sale-f01': typeof AuthenticatedFormsSaleF01IndexRoute
@@ -1082,6 +1145,7 @@ export interface FileRoutesById {
   '/_authenticated/contracts/$contractId/print': typeof AuthenticatedContractsContractIdPrintRoute
   '/_authenticated/contracts/handover/new': typeof AuthenticatedContractsHandoverNewRoute
   '/_authenticated/customers/$customerId/edit': typeof AuthenticatedCustomersCustomerIdEditRoute
+  '/_authenticated/facility-management/visitors/create': typeof AuthenticatedFacilityManagementVisitorsCreateRoute
   '/_authenticated/facility-management/zones/create': typeof AuthenticatedFacilityManagementZonesCreateRoute
   '/_authenticated/finance/invoices/create': typeof AuthenticatedFinanceInvoicesCreateRoute
   '/_authenticated/finance/payments/receive': typeof AuthenticatedFinancePaymentsReceiveRoute
@@ -1096,6 +1160,12 @@ export interface FileRoutesById {
   '/_authenticated/tasks/$taskId/edit': typeof AuthenticatedTasksTaskIdEditRoute
   '/_authenticated/contracts/$contractId/': typeof AuthenticatedContractsContractIdIndexRoute
   '/_authenticated/contracts/handover/': typeof AuthenticatedContractsHandoverIndexRoute
+  '/_authenticated/facility-management/cleaning/': typeof AuthenticatedFacilityManagementCleaningIndexRoute
+  '/_authenticated/facility-management/keys/': typeof AuthenticatedFacilityManagementKeysIndexRoute
+  '/_authenticated/facility-management/parking/': typeof AuthenticatedFacilityManagementParkingIndexRoute
+  '/_authenticated/facility-management/security/': typeof AuthenticatedFacilityManagementSecurityIndexRoute
+  '/_authenticated/facility-management/services/': typeof AuthenticatedFacilityManagementServicesIndexRoute
+  '/_authenticated/facility-management/visitors/': typeof AuthenticatedFacilityManagementVisitorsIndexRoute
   '/_authenticated/facility-management/zones/': typeof AuthenticatedFacilityManagementZonesIndexRoute
   '/_authenticated/finance/invoices/': typeof AuthenticatedFinanceInvoicesIndexRoute
   '/_authenticated/forms/sale-f01/': typeof AuthenticatedFormsSaleF01IndexRoute
@@ -1197,6 +1267,7 @@ export interface FileRouteTypes {
     | '/contracts/$contractId/print'
     | '/contracts/handover/new'
     | '/customers/$customerId/edit'
+    | '/facility-management/visitors/create'
     | '/facility-management/zones/create'
     | '/finance/invoices/create'
     | '/finance/payments/receive'
@@ -1211,6 +1282,12 @@ export interface FileRouteTypes {
     | '/tasks/$taskId/edit'
     | '/contracts/$contractId/'
     | '/contracts/handover/'
+    | '/facility-management/cleaning/'
+    | '/facility-management/keys/'
+    | '/facility-management/parking/'
+    | '/facility-management/security/'
+    | '/facility-management/services/'
+    | '/facility-management/visitors/'
     | '/facility-management/zones/'
     | '/finance/invoices/'
     | '/forms/sale-f01/'
@@ -1310,6 +1387,7 @@ export interface FileRouteTypes {
     | '/contracts/$contractId/print'
     | '/contracts/handover/new'
     | '/customers/$customerId/edit'
+    | '/facility-management/visitors/create'
     | '/facility-management/zones/create'
     | '/finance/invoices/create'
     | '/finance/payments/receive'
@@ -1324,6 +1402,12 @@ export interface FileRouteTypes {
     | '/tasks/$taskId/edit'
     | '/contracts/$contractId'
     | '/contracts/handover'
+    | '/facility-management/cleaning'
+    | '/facility-management/keys'
+    | '/facility-management/parking'
+    | '/facility-management/security'
+    | '/facility-management/services'
+    | '/facility-management/visitors'
     | '/facility-management/zones'
     | '/finance/invoices'
     | '/forms/sale-f01'
@@ -1424,6 +1508,7 @@ export interface FileRouteTypes {
     | '/_authenticated/contracts/$contractId/print'
     | '/_authenticated/contracts/handover/new'
     | '/_authenticated/customers/$customerId/edit'
+    | '/_authenticated/facility-management/visitors/create'
     | '/_authenticated/facility-management/zones/create'
     | '/_authenticated/finance/invoices/create'
     | '/_authenticated/finance/payments/receive'
@@ -1438,6 +1523,12 @@ export interface FileRouteTypes {
     | '/_authenticated/tasks/$taskId/edit'
     | '/_authenticated/contracts/$contractId/'
     | '/_authenticated/contracts/handover/'
+    | '/_authenticated/facility-management/cleaning/'
+    | '/_authenticated/facility-management/keys/'
+    | '/_authenticated/facility-management/parking/'
+    | '/_authenticated/facility-management/security/'
+    | '/_authenticated/facility-management/services/'
+    | '/_authenticated/facility-management/visitors/'
     | '/_authenticated/facility-management/zones/'
     | '/_authenticated/finance/invoices/'
     | '/_authenticated/forms/sale-f01/'
@@ -2000,6 +2091,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFacilityManagementZonesIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/facility-management/visitors/': {
+      id: '/_authenticated/facility-management/visitors/'
+      path: '/facility-management/visitors'
+      fullPath: '/facility-management/visitors/'
+      preLoaderRoute: typeof AuthenticatedFacilityManagementVisitorsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/facility-management/services/': {
+      id: '/_authenticated/facility-management/services/'
+      path: '/facility-management/services'
+      fullPath: '/facility-management/services/'
+      preLoaderRoute: typeof AuthenticatedFacilityManagementServicesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/facility-management/security/': {
+      id: '/_authenticated/facility-management/security/'
+      path: '/facility-management/security'
+      fullPath: '/facility-management/security/'
+      preLoaderRoute: typeof AuthenticatedFacilityManagementSecurityIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/facility-management/parking/': {
+      id: '/_authenticated/facility-management/parking/'
+      path: '/facility-management/parking'
+      fullPath: '/facility-management/parking/'
+      preLoaderRoute: typeof AuthenticatedFacilityManagementParkingIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/facility-management/keys/': {
+      id: '/_authenticated/facility-management/keys/'
+      path: '/facility-management/keys'
+      fullPath: '/facility-management/keys/'
+      preLoaderRoute: typeof AuthenticatedFacilityManagementKeysIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/facility-management/cleaning/': {
+      id: '/_authenticated/facility-management/cleaning/'
+      path: '/facility-management/cleaning'
+      fullPath: '/facility-management/cleaning/'
+      preLoaderRoute: typeof AuthenticatedFacilityManagementCleaningIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/contracts/handover/': {
       id: '/_authenticated/contracts/handover/'
       path: '/contracts/handover'
@@ -2096,6 +2229,13 @@ declare module '@tanstack/react-router' {
       path: '/facility-management/zones/create'
       fullPath: '/facility-management/zones/create'
       preLoaderRoute: typeof AuthenticatedFacilityManagementZonesCreateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/facility-management/visitors/create': {
+      id: '/_authenticated/facility-management/visitors/create'
+      path: '/facility-management/visitors/create'
+      fullPath: '/facility-management/visitors/create'
+      preLoaderRoute: typeof AuthenticatedFacilityManagementVisitorsCreateRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/customers/$customerId/edit': {
@@ -2331,6 +2471,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedContractsContractIdPrintRoute: typeof AuthenticatedContractsContractIdPrintRoute
   AuthenticatedContractsHandoverNewRoute: typeof AuthenticatedContractsHandoverNewRoute
   AuthenticatedCustomersCustomerIdEditRoute: typeof AuthenticatedCustomersCustomerIdEditRoute
+  AuthenticatedFacilityManagementVisitorsCreateRoute: typeof AuthenticatedFacilityManagementVisitorsCreateRoute
   AuthenticatedFacilityManagementZonesCreateRoute: typeof AuthenticatedFacilityManagementZonesCreateRoute
   AuthenticatedFinanceInvoicesCreateRoute: typeof AuthenticatedFinanceInvoicesCreateRoute
   AuthenticatedFinancePaymentsReceiveRoute: typeof AuthenticatedFinancePaymentsReceiveRoute
@@ -2345,6 +2486,12 @@ interface AuthenticatedRouteChildren {
   AuthenticatedTasksTaskIdEditRoute: typeof AuthenticatedTasksTaskIdEditRoute
   AuthenticatedContractsContractIdIndexRoute: typeof AuthenticatedContractsContractIdIndexRoute
   AuthenticatedContractsHandoverIndexRoute: typeof AuthenticatedContractsHandoverIndexRoute
+  AuthenticatedFacilityManagementCleaningIndexRoute: typeof AuthenticatedFacilityManagementCleaningIndexRoute
+  AuthenticatedFacilityManagementKeysIndexRoute: typeof AuthenticatedFacilityManagementKeysIndexRoute
+  AuthenticatedFacilityManagementParkingIndexRoute: typeof AuthenticatedFacilityManagementParkingIndexRoute
+  AuthenticatedFacilityManagementSecurityIndexRoute: typeof AuthenticatedFacilityManagementSecurityIndexRoute
+  AuthenticatedFacilityManagementServicesIndexRoute: typeof AuthenticatedFacilityManagementServicesIndexRoute
+  AuthenticatedFacilityManagementVisitorsIndexRoute: typeof AuthenticatedFacilityManagementVisitorsIndexRoute
   AuthenticatedFacilityManagementZonesIndexRoute: typeof AuthenticatedFacilityManagementZonesIndexRoute
   AuthenticatedFinanceInvoicesIndexRoute: typeof AuthenticatedFinanceInvoicesIndexRoute
   AuthenticatedFormsSaleF01IndexRoute: typeof AuthenticatedFormsSaleF01IndexRoute
@@ -2453,6 +2600,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedContractsHandoverNewRoute,
   AuthenticatedCustomersCustomerIdEditRoute:
     AuthenticatedCustomersCustomerIdEditRoute,
+  AuthenticatedFacilityManagementVisitorsCreateRoute:
+    AuthenticatedFacilityManagementVisitorsCreateRoute,
   AuthenticatedFacilityManagementZonesCreateRoute:
     AuthenticatedFacilityManagementZonesCreateRoute,
   AuthenticatedFinanceInvoicesCreateRoute:
@@ -2479,6 +2628,18 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedContractsContractIdIndexRoute,
   AuthenticatedContractsHandoverIndexRoute:
     AuthenticatedContractsHandoverIndexRoute,
+  AuthenticatedFacilityManagementCleaningIndexRoute:
+    AuthenticatedFacilityManagementCleaningIndexRoute,
+  AuthenticatedFacilityManagementKeysIndexRoute:
+    AuthenticatedFacilityManagementKeysIndexRoute,
+  AuthenticatedFacilityManagementParkingIndexRoute:
+    AuthenticatedFacilityManagementParkingIndexRoute,
+  AuthenticatedFacilityManagementSecurityIndexRoute:
+    AuthenticatedFacilityManagementSecurityIndexRoute,
+  AuthenticatedFacilityManagementServicesIndexRoute:
+    AuthenticatedFacilityManagementServicesIndexRoute,
+  AuthenticatedFacilityManagementVisitorsIndexRoute:
+    AuthenticatedFacilityManagementVisitorsIndexRoute,
   AuthenticatedFacilityManagementZonesIndexRoute:
     AuthenticatedFacilityManagementZonesIndexRoute,
   AuthenticatedFinanceInvoicesIndexRoute:

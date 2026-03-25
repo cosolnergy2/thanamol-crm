@@ -1894,3 +1894,194 @@ export type PDFTemplateQueryParams = {
 // Aliases
 export type ISODocument = ISODocumentRecord
 export type PDFTemplate = PDFTemplateRecord
+
+// ─── FMS Service Operations ───────────────────────────────────────────────────
+
+export type PatrolStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'MISSED'
+export type VisitorStatus = 'EXPECTED' | 'CHECKED_IN' | 'CHECKED_OUT' | 'CANCELLED'
+
+export type SecurityPatrol = {
+  id: string
+  project_id: string
+  route_name: string
+  patrol_date: string
+  start_time: string | null
+  end_time: string | null
+  status: PatrolStatus
+  guard_name: string | null
+  checkpoints: unknown[]
+  notes: string | null
+  created_at: string
+}
+
+export type CreateSecurityPatrolRequest = {
+  projectId: string
+  routeName: string
+  patrolDate: string
+  startTime?: string
+  endTime?: string
+  status?: PatrolStatus
+  guardName?: string
+  checkpoints?: unknown[]
+  notes?: string
+}
+
+export type UpdateSecurityPatrolRequest = Partial<Omit<CreateSecurityPatrolRequest, 'projectId'>>
+
+export type SecurityPatrolListResponse = PaginatedResponse<SecurityPatrol>
+
+export type CleaningChecklist = {
+  id: string
+  project_id: string
+  zone_id: string | null
+  checklist_date: string
+  items: unknown[]
+  completed_by: string | null
+  status: string
+  notes: string | null
+  created_at: string
+}
+
+export type CreateCleaningChecklistRequest = {
+  projectId: string
+  zoneId?: string
+  checklistDate: string
+  items?: unknown[]
+  completedBy?: string
+  status?: string
+  notes?: string
+}
+
+export type UpdateCleaningChecklistRequest = Partial<Omit<CreateCleaningChecklistRequest, 'projectId'>>
+
+export type CleaningChecklistListResponse = PaginatedResponse<CleaningChecklist>
+
+export type Visitor = {
+  id: string
+  project_id: string
+  visitor_name: string
+  company: string | null
+  purpose: string | null
+  host_name: string | null
+  unit_id: string | null
+  expected_date: string | null
+  check_in_time: string | null
+  check_out_time: string | null
+  id_number: string | null
+  vehicle_plate: string | null
+  badge_number: string | null
+  status: VisitorStatus
+  photo_url: string | null
+  created_at: string
+}
+
+export type CreateVisitorRequest = {
+  projectId: string
+  visitorName: string
+  company?: string
+  purpose?: string
+  hostName?: string
+  unitId?: string
+  expectedDate?: string
+  idNumber?: string
+  vehiclePlate?: string
+  badgeNumber?: string
+  photoUrl?: string
+}
+
+export type UpdateVisitorRequest = Partial<Omit<CreateVisitorRequest, 'projectId'>>
+
+export type VisitorListResponse = PaginatedResponse<Visitor>
+
+export type KeyRecord = {
+  id: string
+  project_id: string
+  key_number: string
+  key_type: string | null
+  assigned_to: string | null
+  unit_id: string | null
+  zone_id: string | null
+  issued_date: string | null
+  returned_date: string | null
+  status: string
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type CreateKeyRecordRequest = {
+  projectId: string
+  keyNumber: string
+  keyType?: string
+  assignedTo?: string
+  unitId?: string
+  zoneId?: string
+  issuedDate?: string
+  returnedDate?: string
+  status?: string
+  notes?: string
+}
+
+export type UpdateKeyRecordRequest = Partial<Omit<CreateKeyRecordRequest, 'projectId'>>
+
+export type KeyRecordListResponse = PaginatedResponse<KeyRecord>
+
+export type ParkingSlot = {
+  id: string
+  project_id: string
+  slot_number: string
+  zone_id: string | null
+  slot_type: string | null
+  assigned_to_unit: string | null
+  vehicle_plate: string | null
+  status: string
+  monthly_fee: number | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type CreateParkingSlotRequest = {
+  projectId: string
+  slotNumber: string
+  zoneId?: string
+  slotType?: string
+  assignedToUnit?: string
+  vehiclePlate?: string
+  status?: string
+  monthlyFee?: number
+  notes?: string
+}
+
+export type UpdateParkingSlotRequest = Partial<Omit<CreateParkingSlotRequest, 'projectId'>>
+
+export type ParkingSlotListResponse = PaginatedResponse<ParkingSlot>
+
+export type ServiceLog = {
+  id: string
+  project_id: string
+  service_type: string
+  provider: string | null
+  service_date: string
+  next_service_date: string | null
+  checklist: unknown[]
+  cost: number | null
+  notes: string | null
+  created_by: string | null
+  created_at: string
+}
+
+export type CreateServiceLogRequest = {
+  projectId: string
+  serviceType: string
+  provider?: string
+  serviceDate: string
+  nextServiceDate?: string
+  checklist?: unknown[]
+  cost?: number
+  notes?: string
+}
+
+export type UpdateServiceLogRequest = Partial<Omit<CreateServiceLogRequest, 'projectId'>>
+
+export type ServiceLogListResponse = PaginatedResponse<ServiceLog>
