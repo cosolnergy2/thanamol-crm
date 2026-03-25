@@ -2650,3 +2650,177 @@ export type GRNQueryParams = {
   status?: GRNStatus | 'all'
   search?: string
 }
+
+// ─── FMS: Procurement ─────────────────────────────────────────────────────────
+
+export type PRStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED' | 'CANCELLED' | 'CONVERTED'
+export type POStatus =
+  | 'DRAFT'
+  | 'ISSUED'
+  | 'PARTIALLY_RECEIVED'
+  | 'FULLY_RECEIVED'
+  | 'CANCELLED'
+  | 'CLOSED'
+
+export type PRItem = {
+  item_name: string
+  description?: string
+  quantity: number
+  unit_of_measure?: string
+  estimated_unit_price?: number
+  total?: number
+}
+
+export type PurchaseRequest = {
+  id: string
+  pr_number: string
+  title: string
+  description?: string | null
+  project_id?: string | null
+  items: PRItem[]
+  estimated_total?: number | null
+  priority: string
+  status: PRStatus
+  requested_by: string
+  approved_by?: string | null
+  approved_at?: string | null
+  notes?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type PurchaseRequestWithRelations = PurchaseRequest & {
+  project: { id: string; name: string; code: string } | null
+  requester: { id: string; first_name: string; last_name: string }
+  approver: { id: string; first_name: string; last_name: string } | null
+}
+
+export type POItem = {
+  item_name: string
+  description?: string
+  quantity: number
+  unit_of_measure?: string
+  unit_price: number
+  total: number
+}
+
+export type PurchaseOrder = {
+  id: string
+  po_number: string
+  pr_id?: string | null
+  vendor_name: string
+  project_id?: string | null
+  items: POItem[]
+  subtotal: number
+  tax: number
+  total: number
+  status: POStatus
+  delivery_date?: string | null
+  payment_terms?: string | null
+  notes?: string | null
+  created_by: string
+  approved_by?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type PurchaseOrderWithRelations = PurchaseOrder & {
+  project: { id: string; name: string; code: string } | null
+  purchase_request: PurchaseRequest | null
+  creator: { id: string; first_name: string; last_name: string }
+  approver: { id: string; first_name: string; last_name: string } | null
+}
+
+export type VQItem = {
+  item_name: string
+  quantity: number
+  unit_price: number
+  total: number
+  lead_time_days?: number
+}
+
+export type VendorQuotation = {
+  id: string
+  quotation_number?: string | null
+  vendor_name: string
+  pr_id?: string | null
+  items: VQItem[]
+  total: number
+  valid_until?: string | null
+  notes?: string | null
+  is_selected: boolean
+  created_at: string
+}
+
+export type VendorQuotationWithRelations = VendorQuotation & {
+  purchase_request: PurchaseRequest | null
+}
+
+// ─── Procurement Request/Response Types ───────────────────────────────────────
+
+export type CreatePRRequest = {
+  title: string
+  description?: string
+  projectId?: string
+  items: PRItem[]
+  estimatedTotal?: number
+  priority?: string
+  requestedBy: string
+  notes?: string
+}
+
+export type UpdatePRRequest = Partial<Omit<CreatePRRequest, 'requestedBy'>>
+
+export type PRListResponse = PaginatedResponse<PurchaseRequestWithRelations>
+
+export type PRQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  status?: PRStatus | 'all'
+  search?: string
+}
+
+export type CreatePORequest = {
+  prId?: string
+  vendorName: string
+  projectId?: string
+  items: POItem[]
+  deliveryDate?: string
+  paymentTerms?: string
+  notes?: string
+  createdBy: string
+}
+
+export type UpdatePORequest = Partial<Omit<CreatePORequest, 'createdBy'>>
+
+export type POListResponse = PaginatedResponse<PurchaseOrderWithRelations>
+
+export type POQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  status?: POStatus | 'all'
+  prId?: string
+  search?: string
+}
+
+export type CreateVQRequest = {
+  quotationNumber?: string
+  vendorName: string
+  prId?: string
+  items: VQItem[]
+  validUntil?: string
+  notes?: string
+}
+
+export type UpdateVQRequest = Partial<CreateVQRequest>
+
+export type VQListResponse = PaginatedResponse<VendorQuotationWithRelations>
+
+export type VQQueryParams = {
+  page?: number
+  limit?: number
+  prId?: string
+  search?: string
+}
