@@ -115,7 +115,8 @@ describe('GET /api/fms/vendor-invoices', () => {
     await req('GET', '/api/fms/vendor-invoices?vendorId=vendor-1', undefined, token)
 
     const calls = vi.mocked(prisma.vendorInvoice.findMany).mock.calls
-    expect(calls[0][0].where).toMatchObject({ vendor_id: 'vendor-1' })
+    const firstCallArg = calls[0]?.[0]
+    expect(firstCallArg?.where).toMatchObject({ vendor_id: 'vendor-1' })
   })
 
   it('filters by paymentStatus', async () => {
@@ -125,8 +126,9 @@ describe('GET /api/fms/vendor-invoices', () => {
 
     await req('GET', '/api/fms/vendor-invoices?paymentStatus=PENDING', undefined, token)
 
-    const calls = vi.mocked(prisma.vendorInvoice.findMany).mock.calls
-    expect(calls[0][0].where).toMatchObject({ payment_status: 'PENDING' })
+    const calls2 = vi.mocked(prisma.vendorInvoice.findMany).mock.calls
+    const secondCallArg = calls2[0]?.[0]
+    expect(secondCallArg?.where).toMatchObject({ payment_status: 'PENDING' })
   })
 })
 

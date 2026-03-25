@@ -114,7 +114,8 @@ describe('GET /api/fms/vendors', () => {
     expect(res.status).toBe(200)
 
     const calls = vi.mocked(prisma.vendor.findMany).mock.calls
-    expect(calls[0][0].where).toMatchObject({ status: 'BLACKLISTED' })
+    const firstCallArg = calls[0]?.[0]
+    expect(firstCallArg?.where).toMatchObject({ status: 'BLACKLISTED' })
   })
 
   it('searches by name', async () => {
@@ -125,8 +126,9 @@ describe('GET /api/fms/vendors', () => {
     const res = await req('GET', '/api/fms/vendors?search=abc', undefined, token)
     expect(res.status).toBe(200)
 
-    const calls = vi.mocked(prisma.vendor.findMany).mock.calls
-    expect(calls[0][0].where).toHaveProperty('OR')
+    const calls2 = vi.mocked(prisma.vendor.findMany).mock.calls
+    const secondCallArg = calls2[0]?.[0]
+    expect(secondCallArg?.where).toHaveProperty('OR')
   })
 })
 

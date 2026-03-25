@@ -249,11 +249,15 @@ enum VisitorStatus {
   CHECKED_IN
   CHECKED_OUT
   CANCELLED
+}
+
 enum PettyCashStatus {
   PENDING
   APPROVED
   REJECTED
   SETTLED
+}
+
 enum StockMovementType {
   RECEIVED
   ISSUED
@@ -300,11 +304,15 @@ enum VendorContractStatus {
   ACTIVE
   EXPIRED
   TERMINATED
+}
+
 enum BudgetStatus {
   DRAFT
   APPROVED
   ACTIVE
   CLOSED
+}
+
 enum PermitStatus {
   DRAFT
   SUBMITTED
@@ -1557,6 +1565,8 @@ model CalibrationRecord {
   created_at            DateTime          @default(now())
 
   @@index([asset_id])
+}
+
 // ─── FMS Service Operations ───────────────────────────────────────────────────
 
 model SecurityPatrol {
@@ -1572,6 +1582,8 @@ model SecurityPatrol {
   checkpoints  Json         @default("[]")
   notes        String?
   created_at   DateTime     @default(now())
+}
+
 // ─── FMS: Petty Cash Domain ───────────────────────────────────────────────────
 
 model PettyCashFund {
@@ -1684,6 +1696,7 @@ model ServiceLog {
   created_by        String?
   creator           User?     @relation("ServiceLogCreator", fields: [created_by], references: [id])
   created_at        DateTime  @default(now())
+}
 
 model PettyCashTransaction {
   id                 String          @id @default(uuid())
@@ -1959,6 +1972,8 @@ model VendorInvoice {
   updated_at     DateTime  @updatedAt
 
   @@index([vendor_id])
+}
+
 // ─── Budget Domain ─────────────────────────────────────────────────────────────
 
 model Budget {

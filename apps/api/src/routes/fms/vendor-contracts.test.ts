@@ -115,7 +115,8 @@ describe('GET /api/fms/vendor-contracts', () => {
     await req('GET', '/api/fms/vendor-contracts?vendorId=vendor-1', undefined, token)
 
     const calls = vi.mocked(prisma.vendorContract.findMany).mock.calls
-    expect(calls[0][0].where).toMatchObject({ vendor_id: 'vendor-1' })
+    const firstCallArg = calls[0]?.[0]
+    expect(firstCallArg?.where).toMatchObject({ vendor_id: 'vendor-1' })
   })
 })
 

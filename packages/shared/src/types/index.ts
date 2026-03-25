@@ -1945,6 +1945,8 @@ export type Asset = {
   specifications: Record<string, unknown>
   photos: string[]
   assigned_to: string | null
+}
+
 // ─── FMS: Petty Cash ─────────────────────────────────────────────────────────
 
 export type PettyCashStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'SETTLED'
@@ -2171,6 +2173,10 @@ export type CalibrationRecord = {
   performed_by: string | null
   certificate_url: string | null
   status: CalibrationStatus
+  notes: string | null
+  created_at: string
+}
+
 // ─── FMS Service Operations ───────────────────────────────────────────────────
 
 export type PatrolStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'MISSED'
@@ -2305,6 +2311,11 @@ export type KeyRecord = {
   issued_date: string | null
   returned_date: string | null
   status: string
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
 export type PettyCashFundWithCounts = PettyCashFund & {
   _count: { transactions: number }
 }
@@ -2323,6 +2334,9 @@ export type PettyCashTransaction = {
   approved_by: string | null
   transaction_date: string
   notes: string | null
+  created_at: string
+  updated_at: string
+}
 
 // ─── FMS: Inventory & Stock Management ────────────────────────────────────────
 
@@ -2392,6 +2406,10 @@ export type ParkingSlot = {
   status: string
   monthly_fee: number | null
   notes: string | null
+  created_at: string
+  updated_at: string
+}
+
 export type InventoryItemWithRelations = InventoryItem & {
   category: InventoryCategory | null
   project: { id: string; name: string; code: string } | null
@@ -2859,6 +2877,9 @@ export type Vendor = {
   status: VendorStatus
   bank_details: Record<string, unknown>
   notes?: string | null
+  created_at: string
+  updated_at: string
+}
 
 // ─── FMS: Fire Equipment ───────────────────────────────────────────────────────
 
@@ -2906,6 +2927,10 @@ export type VendorContract = {
   status: VendorContractStatus
   document_url?: string | null
   project_id?: string | null
+  created_at: string
+  updated_at: string
+}
+
 // ─── Budget Domain ─────────────────────────────────────────────────────────────
 
 export type BudgetStatus = 'DRAFT' | 'APPROVED' | 'ACTIVE' | 'CLOSED'
@@ -2925,6 +2950,10 @@ export type Budget = {
   notes?: string | null
   created_by: string
   approved_by?: string | null
+  created_at: string
+  updated_at: string
+}
+
 export type FireEquipmentWithRelations = FireEquipment & {
   project: { id: string; name: string; code: string }
   zone: { id: string; name: string } | null
@@ -3149,6 +3178,11 @@ export type VendorInvoice = {
   due_date?: string | null
   payment_status: string
   payment_date?: string | null
+  notes?: string | null
+  created_at: string
+  updated_at: string
+}
+
 export type BudgetWithRelations = Budget & {
   project: { id: string; name: string; code: string }
   creator: { id: string; first_name: string; last_name: string }
@@ -3165,6 +3199,10 @@ export type BudgetLine = {
   committed_amount: number
   actual_amount: number
   notes?: string | null
+  created_at: string
+  updated_at: string
+}
+
 export type InsurancePolicyWithRelations = InsurancePolicy & {
   project: { id: string; name: string; code: string } | null
 }
