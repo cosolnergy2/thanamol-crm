@@ -375,7 +375,7 @@ function CreateContractDialog({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label>Vendor *</Label>
-            <Select value={vendorId} onValueChange={setVendorId}>
+            <Select value={vendorId || '__all__'} onValueChange={(v) => setVendorId(v === '__all__' ? '' : v)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select vendor" />
               </SelectTrigger>
@@ -448,12 +448,12 @@ function CreateContractDialog({
           </div>
           <div>
             <Label>Project</Label>
-            <Select value={projectId} onValueChange={setProjectId}>
+            <Select value={projectId || '__all__'} onValueChange={(v) => setProjectId(v === '__all__' ? '' : v)}>
               <SelectTrigger>
                 <SelectValue placeholder="No project" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">No project</SelectItem>
+                <SelectItem value="__all__">No project</SelectItem>
                 {projects.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name}

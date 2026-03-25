@@ -161,7 +161,7 @@ function CalibrationListPage() {
                 <SelectValue placeholder="All projects" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All projects</SelectItem>
+                <SelectItem value="__all__">All projects</SelectItem>
                 {projects.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name}
@@ -169,12 +169,12 @@ function CalibrationListPage() {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={statusFilter || '__all__'} onValueChange={(v) => setStatusFilter(v === '__all__' ? '' : v)}>
               <SelectTrigger>
                 <SelectValue placeholder="All statuses" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All statuses</SelectItem>
+                <SelectItem value="__all__">All statuses</SelectItem>
                 {CALIBRATION_STATUSES.map((s) => (
                   <SelectItem key={s.value} value={s.value}>
                     {s.label}

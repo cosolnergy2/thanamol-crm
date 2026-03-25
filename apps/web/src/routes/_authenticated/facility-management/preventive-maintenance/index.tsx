@@ -108,12 +108,12 @@ function PMListPage() {
                 className="pl-10"
               />
             </div>
-            <Select value={projectId} onValueChange={setProjectId}>
+            <Select value={projectId || '__all__'} onValueChange={(v) => setProjectId(v === '__all__' ? '' : v)}>
               <SelectTrigger>
                 <SelectValue placeholder="All projects" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All projects</SelectItem>
+                <SelectItem value="__all__">All projects</SelectItem>
                 {projects.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name}
@@ -121,12 +121,12 @@ function PMListPage() {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={isActive} onValueChange={setIsActive}>
+            <Select value={isActive || '__all__'} onValueChange={(v) => setIsActive(v === '__all__' ? '' : v)}>
               <SelectTrigger>
                 <SelectValue placeholder="All statuses" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All</SelectItem>
+                <SelectItem value="__all__">All</SelectItem>
                 <SelectItem value="true">Active</SelectItem>
                 <SelectItem value="false">Inactive</SelectItem>
               </SelectContent>

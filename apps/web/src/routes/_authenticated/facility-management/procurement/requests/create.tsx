@@ -140,12 +140,12 @@ function PRCreatePage() {
 
             <div>
               <Label>Project (Optional)</Label>
-              <Select value={projectId} onValueChange={setProjectId}>
+              <Select value={projectId || '__all__'} onValueChange={(v) => setProjectId(v === '__all__' ? '' : v)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select project" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No project</SelectItem>
+                  <SelectItem value="__all__">No project</SelectItem>
                   {projects.map((p) => (
                     <SelectItem key={p.id} value={p.id}>
                       {p.name}
@@ -157,7 +157,7 @@ function PRCreatePage() {
 
             <div>
               <Label>Priority</Label>
-              <Select value={priority} onValueChange={setPriority}>
+              <Select value={priority || '__all__'} onValueChange={(v) => setPriority(v === '__all__' ? '' : v)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

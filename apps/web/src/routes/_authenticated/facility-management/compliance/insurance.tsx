@@ -244,12 +244,12 @@ function InsurancePage() {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <Select value={projectId} onValueChange={setProjectId}>
+            <Select value={projectId || '__all__'} onValueChange={(v) => setProjectId(v === '__all__' ? '' : v)}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="All Projects" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Projects</SelectItem>
+                <SelectItem value="__all__">All Projects</SelectItem>
                 {projects.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name}
@@ -257,12 +257,12 @@ function InsurancePage() {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={statusFilter || '__all__'} onValueChange={(v) => setStatusFilter(v === '__all__' ? '' : v)}>
               <SelectTrigger className="w-44">
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Status</SelectItem>
+                <SelectItem value="__all__">All Status</SelectItem>
                 {Object.entries(STATUS_LABELS).map(([val, label]) => (
                   <SelectItem key={val} value={val}>
                     {label}
@@ -399,7 +399,7 @@ function InsurancePage() {
                   <SelectValue placeholder="All projects" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="__all__">None</SelectItem>
                   {projects.map((p) => (
                     <SelectItem key={p.id} value={p.id}>
                       {p.name}
