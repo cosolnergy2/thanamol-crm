@@ -3490,3 +3490,139 @@ export type ContractorSafetyQueryParams = {
   isCleared?: boolean
   search?: string
 }
+
+// ─── FMS Dashboard ────────────────────────────────────────────────────────────
+
+export type FMSDashboardSummary = {
+  assets: {
+    total: number
+    operational: number
+    underMaintenance: number
+    outOfService: number
+  }
+  workOrders: {
+    total: number
+    open: number
+    inProgress: number
+    completed: number
+  }
+  preventiveMaintenance: {
+    active: number
+    overdue: number
+  }
+  inventory: {
+    totalItems: number
+    lowStock: number
+  }
+  incidents: {
+    open: number
+    investigating: number
+  }
+  budgets: {
+    totalApproved: number
+    totalCommitted: number
+    totalActual: number
+  }
+  vendors: {
+    active: number
+  }
+  visitors: {
+    todayCheckedIn: number
+  }
+}
+
+export type FMSRecentActivityItem = {
+  id: string
+  type: 'work_order' | 'incident' | 'pm_log' | 'stock_movement'
+  title: string
+  status: string
+  timestamp: string
+  projectId?: string
+}
+
+export type FMSRecentActivity = {
+  workOrders: Array<{
+    id: string
+    wo_number: string
+    title: string
+    status: string
+    priority: string
+    created_at: string
+  }>
+  incidents: Array<{
+    id: string
+    incident_number: string
+    title: string
+    severity: string
+    status: string
+    created_at: string
+  }>
+  pmLogs: Array<{
+    id: string
+    scheduled_date: string
+    actual_date: string | null
+    status: string
+    pm: { id: string; title: string; pm_number: string }
+    created_at: string
+  }>
+  stockMovements: Array<{
+    id: string
+    movement_type: string
+    quantity: number
+    created_at: string
+    item: { id: string; name: string; item_code: string }
+  }>
+}
+
+// ─── FMS Reports ──────────────────────────────────────────────────────────────
+
+export type FMSMaintenanceCostRow = {
+  month: string
+  totalCost: number
+  workOrderCount: number
+}
+
+export type FMSMaintenanceCostReport = {
+  rows: FMSMaintenanceCostRow[]
+  totalCost: number
+}
+
+export type FMSAssetStatusRow = {
+  status: string
+  count: number
+}
+
+export type FMSAssetStatusReport = {
+  rows: FMSAssetStatusRow[]
+  total: number
+}
+
+export type FMSBudgetVarianceRow = {
+  id: string
+  category: string
+  description: string | null
+  approvedAmount: number
+  committedAmount: number
+  actualAmount: number
+  variance: number
+}
+
+export type FMSBudgetVarianceReport = {
+  rows: FMSBudgetVarianceRow[]
+  totalApproved: number
+  totalActual: number
+  totalVariance: number
+}
+
+export type FMSComplianceStatusReport = {
+  fireEquipmentOverdue: number
+  activePermitsToWork: number
+  openIncidentsBySeverity: Array<{ severity: string; count: number }>
+  expiringInsurance: Array<{
+    id: string
+    policy_number: string
+    provider: string
+    type: string
+    end_date: string
+  }>
+}
