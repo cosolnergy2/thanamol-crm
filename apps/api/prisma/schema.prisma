@@ -444,11 +444,14 @@ model Project {
   status      ProjectStatus @default(ACTIVE)
   total_units Int           @default(0)
   settings    Json          @default("{}")
+  is_site     Boolean       @default(false)
+  site_type   String?
   created_at  DateTime      @default(now())
   updated_at  DateTime      @updatedAt
 
   interested_customers       Customer[]             @relation("CustomerInterestedProject")
   units                      Unit[]
+  zones                      Zone[]
   quotations                 Quotation[]
   commercial_quotations      CommercialQuotation[]
   commercial_proposals       CommercialProposal[]
@@ -459,6 +462,27 @@ model Project {
 
   @@index([status])
   @@index([code])
+}
+
+model Zone {
+  id             String   @id @default(uuid())
+  project_id     String
+  project        Project  @relation(fields: [project_id], references: [id])
+  name           String
+  code           String
+  description    String?
+  floor          String?
+  building       String?
+  parent_zone_id String?
+  parent_zone    Zone?    @relation("ZoneHierarchy", fields: [parent_zone_id], references: [id])
+  children       Zone[]   @relation("ZoneHierarchy")
+  units          Unit[]
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  @@unique([project_id, code])
+  @@index([project_id])
+  @@index([parent_zone_id])
 }
 
 model ProjectTemplate {
@@ -480,7 +504,8 @@ model Unit {
   price       Float?
   status      UnitStatus @default(AVAILABLE)
   features    Json       @default("{}")
-  zone                    String?
+  zone_legacy             String?
+  zone_id                 String?
   location                String?
   office_area_sqm         Float?
   floor_load              String?
@@ -502,6 +527,7 @@ model Unit {
   updated_at  DateTime   @updatedAt
 
   project      Project       @relation(fields: [project_id], references: [id])
+  zone         Zone?         @relation(fields: [zone_id], references: [id])
   quotations   Quotation[]
   contracts    Contract[]
   meter_records MeterRecord[]
@@ -802,6 +828,7 @@ model MeterRecord {
   usage            Float
   amount           Float
   billing_period   String
+  rate_per_unit    Float?
   created_at       DateTime  @default(now())
 
   unit Unit @relation(fields: [unit_id], references: [id])
@@ -885,13 +912,16 @@ model Ticket {
   description String?
   customer_id String?
   unit_id     String?
-  category    String?
-  priority    Priority     @default(MEDIUM)
-  status      TicketStatus @default(OPEN)
-  assigned_to String?
-  resolved_at DateTime?
-  created_at  DateTime     @default(now())
-  updated_at  DateTime     @updatedAt
+  category         String?
+  priority         Priority     @default(MEDIUM)
+  status           TicketStatus @default(OPEN)
+  assigned_to      String?
+  resolved_at      DateTime?
+  work_order_id    String?
+  resolution_notes String?
+  resolution_date  DateTime?
+  created_at       DateTime     @default(now())
+  updated_at       DateTime     @updatedAt
 
   customer Customer? @relation(fields: [customer_id], references: [id])
   unit     Unit?     @relation(fields: [unit_id], references: [id])
@@ -959,6 +989,8 @@ model ISODocument {
   effective_date  DateTime?
   review_date     DateTime?
   approved_by     String?
+  is_sop          Boolean        @default(false)
+  department      String?
   created_at      DateTime       @default(now())
   updated_at      DateTime       @updatedAt
 

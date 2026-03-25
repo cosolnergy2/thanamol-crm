@@ -218,6 +218,8 @@ export type Project = {
   status: ProjectStatus
   total_units: number
   settings: Record<string, unknown>
+  is_site: boolean
+  site_type: string | null
   created_at: string
   updated_at: string
 }
@@ -251,11 +253,47 @@ export type CreateProjectRequest = {
   status?: ProjectStatus
   totalUnits?: number
   settings?: Record<string, unknown>
+  isSite?: boolean
+  siteType?: string
 }
 
 export type UpdateProjectRequest = Partial<CreateProjectRequest>
 
 export type ProjectListResponse = PaginatedResponse<ProjectWithUnitCounts>
+
+// ─── Zone ─────────────────────────────────────────────────────────────────────
+
+export type Zone = {
+  id: string
+  project_id: string
+  name: string
+  code: string
+  description: string | null
+  floor: string | null
+  building: string | null
+  parent_zone_id: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type ZoneWithChildren = Zone & {
+  children: Zone[]
+  parent_zone: Zone | null
+}
+
+export type CreateZoneRequest = {
+  projectId: string
+  name: string
+  code: string
+  description?: string
+  floor?: string
+  building?: string
+  parentZoneId?: string
+}
+
+export type UpdateZoneRequest = Partial<Omit<CreateZoneRequest, 'projectId'>>
+
+export type ZoneListResponse = PaginatedResponse<Zone>
 
 // ─── ProjectTemplate ──────────────────────────────────────────────────────────
 
@@ -290,7 +328,8 @@ export type Unit = {
   price: number | null
   status: UnitStatus
   features: Record<string, unknown>
-  zone: string | null
+  zone_legacy: string | null
+  zone_id: string | null
   location: string | null
   office_area_sqm: number | null
   floor_load: string | null
@@ -344,7 +383,8 @@ export type CreateUnitRequest = {
   price?: number
   status?: UnitStatus
   features?: Record<string, unknown>
-  zone?: string
+  zoneLegacy?: string
+  zoneId?: string
   location?: string
   officeAreaSqm?: number
   floorLoad?: string
@@ -1110,6 +1150,7 @@ export type MeterRecord = {
   usage: number
   amount: number
   billing_period: string
+  rate_per_unit: number | null
   created_at: string
 }
 
@@ -1282,6 +1323,9 @@ export type Ticket = {
   status: TicketStatus
   assigned_to: string | null
   resolved_at: string | null
+  work_order_id: string | null
+  resolution_notes: string | null
+  resolution_date: string | null
   created_at: string
   updated_at: string
 }
@@ -1777,6 +1821,8 @@ export type ISODocumentRecord = {
   effective_date: string | null
   review_date: string | null
   approved_by: string | null
+  is_sop: boolean
+  department: string | null
   created_at: string
   updated_at: string
   approver?: { id: string; first_name: string; last_name: string } | null
