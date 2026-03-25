@@ -237,6 +237,20 @@ enum CalibrationStatus {
   OVERDUE
 }
 
+enum PatrolStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  MISSED
+}
+
+enum VisitorStatus {
+  EXPECTED
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELLED
+}
+
 // ─── Auth Domain ──────────────────────────────────────────────────────────────
 
 model User {
@@ -288,6 +302,7 @@ model User {
   assigned_pms           PreventiveMaintenance[] @relation("PMAssignee")
   created_pms            PreventiveMaintenance[] @relation("PMCreator")
   completed_pm_logs      PMScheduleLog[]         @relation("PMLogCompleter")
+  created_service_logs   ServiceLog[]            @relation("ServiceLogCreator")
 
   @@index([email])
 }
@@ -511,6 +526,12 @@ model Project {
   assets                     Asset[]
   work_orders                WorkOrder[]
   preventive_maintenances    PreventiveMaintenance[]
+  security_patrols           SecurityPatrol[]
+  cleaning_checklists        CleaningChecklist[]
+  visitors                   Visitor[]
+  key_records                KeyRecord[]
+  parking_slots              ParkingSlot[]
+  service_logs               ServiceLog[]
 
   @@index([status])
   @@index([code])
@@ -532,6 +553,9 @@ model Zone {
   assets         Asset[]
   work_orders    WorkOrder[]
   preventive_maintenances PreventiveMaintenance[]
+  cleaning_checklists CleaningChecklist[]
+  key_records    KeyRecord[]
+  parking_slots  ParkingSlot[]
   created_at     DateTime @default(now())
   updated_at     DateTime @updatedAt
 
@@ -590,6 +614,9 @@ model Unit {
   sale_job04f01 SaleJob04F01[]
   assets       Asset[]
   work_orders  WorkOrder[]
+  visitors     Visitor[]     @relation("VisitorUnit")
+  key_records  KeyRecord[]   @relation("KeyRecordUnit")
+  parking_slots ParkingSlot[] @relation("ParkingUnit")
 
   @@index([project_id])
   @@index([status])
@@ -1412,4 +1439,119 @@ model CalibrationRecord {
   created_at            DateTime          @default(now())
 
   @@index([asset_id])
+// ─── FMS Service Operations ───────────────────────────────────────────────────
+
+model SecurityPatrol {
+  id           String       @id @default(uuid())
+  project_id   String
+  project      Project      @relation(fields: [project_id], references: [id])
+  route_name   String
+  patrol_date  DateTime
+  start_time   DateTime?
+  end_time     DateTime?
+  status       PatrolStatus @default(SCHEDULED)
+  guard_name   String?
+  checkpoints  Json         @default("[]")
+  notes        String?
+  created_at   DateTime     @default(now())
+
+  @@index([project_id])
+}
+
+model CleaningChecklist {
+  id             String   @id @default(uuid())
+  project_id     String
+  project        Project  @relation(fields: [project_id], references: [id])
+  zone_id        String?
+  zone           Zone?    @relation(fields: [zone_id], references: [id])
+  checklist_date DateTime
+  items          Json     @default("[]")
+  completed_by   String?
+  status         String   @default("PENDING")
+  notes          String?
+  created_at     DateTime @default(now())
+
+  @@index([project_id])
+}
+
+model Visitor {
+  id             String        @id @default(uuid())
+  project_id     String
+  project        Project       @relation(fields: [project_id], references: [id])
+  visitor_name   String
+  company        String?
+  purpose        String?
+  host_name      String?
+  unit_id        String?
+  unit           Unit?         @relation("VisitorUnit", fields: [unit_id], references: [id])
+  expected_date  DateTime?
+  check_in_time  DateTime?
+  check_out_time DateTime?
+  id_number      String?
+  vehicle_plate  String?
+  badge_number   String?
+  status         VisitorStatus @default(EXPECTED)
+  photo_url      String?
+  created_at     DateTime      @default(now())
+
+  @@index([project_id])
+}
+
+model KeyRecord {
+  id            String    @id @default(uuid())
+  project_id    String
+  project       Project   @relation(fields: [project_id], references: [id])
+  key_number    String
+  key_type      String?
+  assigned_to   String?
+  unit_id       String?
+  unit          Unit?     @relation("KeyRecordUnit", fields: [unit_id], references: [id])
+  zone_id       String?
+  zone          Zone?     @relation(fields: [zone_id], references: [id])
+  issued_date   DateTime?
+  returned_date DateTime?
+  status        String    @default("AVAILABLE")
+  notes         String?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  @@index([project_id])
+}
+
+model ParkingSlot {
+  id               String    @id @default(uuid())
+  project_id       String
+  project          Project   @relation(fields: [project_id], references: [id])
+  slot_number      String
+  zone_id          String?
+  zone             Zone?     @relation(fields: [zone_id], references: [id])
+  slot_type        String?
+  assigned_to_unit String?
+  assigned_unit    Unit?     @relation("ParkingUnit", fields: [assigned_to_unit], references: [id])
+  vehicle_plate    String?
+  status           String    @default("AVAILABLE")
+  monthly_fee      Float?
+  notes            String?
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+
+  @@index([project_id])
+}
+
+model ServiceLog {
+  id                String    @id @default(uuid())
+  project_id        String
+  project           Project   @relation(fields: [project_id], references: [id])
+  service_type      String
+  provider          String?
+  service_date      DateTime
+  next_service_date DateTime?
+  checklist         Json      @default("[]")
+  cost              Float?
+  notes             String?
+  created_by        String?
+  creator           User?     @relation("ServiceLogCreator", fields: [created_by], references: [id])
+  created_at        DateTime  @default(now())
+
+  @@index([project_id])
 }

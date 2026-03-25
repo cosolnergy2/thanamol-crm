@@ -193,6 +193,19 @@ function buildNavigation(t: ReturnType<typeof useLanguage>['t']): NavItem[] {
       ],
     },
     {
+      label: 'Service Ops',
+      icon: Wrench,
+      permission: 'dashboard',
+      submenu: [
+        { label: 'Security Patrols', path: '/facility-management/security' },
+        { label: 'Cleaning', path: '/facility-management/cleaning' },
+        { label: 'Visitors', path: '/facility-management/visitors' },
+        { label: 'Key Management', path: '/facility-management/keys' },
+        { label: 'Parking', path: '/facility-management/parking' },
+        { label: 'Service Logs', path: '/facility-management/services' },
+      ],
+    },
+    {
       label: t.notifications,
       icon: Bell,
       path: '/tasks/notifications',
