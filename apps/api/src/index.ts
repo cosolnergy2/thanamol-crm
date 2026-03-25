@@ -46,6 +46,11 @@ import { fmsAssetsRoutes } from './routes/fms/assets'
 import { fmsWorkOrdersRoutes } from './routes/fms/work-orders'
 import { fmsPMRoutes } from './routes/fms/preventive-maintenance'
 import { fmsCalibrationsRoutes } from './routes/fms/calibrations'
+import { fmsInventoryCategoriesRoutes } from './routes/fms/inventory-categories'
+import { fmsInventoryRoutes } from './routes/fms/inventory'
+import { fmsStockMovementsRoutes } from './routes/fms/stock-movements'
+import { fmsStockIssuesRoutes } from './routes/fms/stock-issues'
+import { fmsGRNRoutes } from './routes/fms/grn'
 
 const API_PORT = Number(process.env.PORT ?? 3000)
 
@@ -100,6 +105,11 @@ const app = new Elysia()
   .use(fmsWorkOrdersRoutes)
   .use(fmsPMRoutes)
   .use(fmsCalibrationsRoutes)
+  .use(fmsInventoryCategoriesRoutes)
+  .use(fmsInventoryRoutes)
+  .use(fmsStockMovementsRoutes)
+  .use(fmsStockIssuesRoutes)
+  .use(fmsGRNRoutes)
   .listen(API_PORT)
 
 console.log(`API running at http://localhost:${API_PORT}`)

@@ -5,6 +5,7 @@ import { useZones } from '@/hooks/useZones'
 import { useProjects } from '@/hooks/useProjects'
 import { useAssets } from '@/hooks/useAssets'
 import { useWorkOrders } from '@/hooks/useWorkOrders'
+import { useInventoryItems } from '@/hooks/useInventory'
 
 export const Route = createFileRoute('/_authenticated/facility-management/')({
   component: FacilityManagementDashboard,
@@ -58,10 +59,12 @@ function FacilityManagementDashboard() {
   const { data: zonesData } = useZones({ projectId: firstProjectId })
   const { data: assetsData } = useAssets({ projectId: firstProjectId || undefined })
   const { data: woData } = useWorkOrders({ projectId: firstProjectId || undefined })
+  const { data: inventoryData } = useInventoryItems({ projectId: firstProjectId || undefined })
 
   const zoneCount = zonesData?.pagination.total ?? 0
   const assetCount = assetsData?.pagination.total ?? 0
   const woCount = woData?.pagination.total ?? 0
+  const inventoryCount = inventoryData?.pagination.total ?? 0
 
   return (
     <div className="space-y-4">
@@ -71,7 +74,7 @@ function FacilityManagementDashboard() {
         </h1>
         <div className="h-px w-20 bg-gradient-to-r from-slate-300 to-transparent mt-2" />
         <p className="mt-2 text-xs text-slate-400 font-extralight">
-          Phase 1 — Asset Management & Work Orders
+          Phase 1–2 — Asset Management, Work Orders & Inventory
         </p>
       </div>
 
@@ -103,11 +106,10 @@ function FacilityManagementDashboard() {
         <FmsCard
           icon={Package}
           label="Inventory"
-          value="—"
+          value={firstProjectId ? inventoryCount : '—'}
           sub="Spare parts & supplies"
           href="/facility-management/inventory"
           gradient="from-emerald-500 to-emerald-700"
-          comingSoon
         />
       </div>
 
@@ -141,11 +143,11 @@ function FacilityManagementDashboard() {
                 </span>
               </div>
             </Link>
-            <Link to="/facility-management/preventive-maintenance">
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors cursor-pointer group">
-                <Package className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-500" />
-                <span className="text-[11px] font-light text-slate-600 group-hover:text-indigo-600">
-                  PM Schedules
+            <Link to="/facility-management/inventory">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 transition-colors cursor-pointer group">
+                <Package className="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-500" />
+                <span className="text-[11px] font-light text-slate-600 group-hover:text-emerald-600">
+                  Inventory
                 </span>
               </div>
             </Link>

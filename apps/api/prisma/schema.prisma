@@ -237,6 +237,22 @@ enum CalibrationStatus {
   OVERDUE
 }
 
+enum StockMovementType {
+  RECEIVED
+  ISSUED
+  RETURNED
+  ADJUSTED
+  TRANSFERRED
+}
+
+enum GRNStatus {
+  DRAFT
+  RECEIVED
+  INSPECTED
+  ACCEPTED
+  REJECTED
+}
+
 // ─── Auth Domain ──────────────────────────────────────────────────────────────
 
 model User {
@@ -288,6 +304,10 @@ model User {
   assigned_pms           PreventiveMaintenance[] @relation("PMAssignee")
   created_pms            PreventiveMaintenance[] @relation("PMCreator")
   completed_pm_logs      PMScheduleLog[]         @relation("PMLogCompleter")
+  stock_movements        StockMovement[]         @relation("StockMovementPerformer")
+  stock_issues_to        StockIssue[]            @relation("StockIssueTo")
+  stock_issues_by        StockIssue[]            @relation("StockIssueBy")
+  grn_received           GoodsReceivedNote[]     @relation("GRNReceiver")
 
   @@index([email])
 }
@@ -511,6 +531,9 @@ model Project {
   assets                     Asset[]
   work_orders                WorkOrder[]
   preventive_maintenances    PreventiveMaintenance[]
+  inventory_items            InventoryItem[]
+  stock_issues               StockIssue[]
+  goods_received_notes       GoodsReceivedNote[]
 
   @@index([status])
   @@index([code])
@@ -1412,4 +1435,98 @@ model CalibrationRecord {
   created_at            DateTime          @default(now())
 
   @@index([asset_id])
+}
+
+// ─── Inventory Domain ──────────────────────────────────────────────────────────
+
+model InventoryCategory {
+  id          String              @id @default(uuid())
+  name        String
+  code        String              @unique
+  description String?
+  parent_id   String?
+  parent      InventoryCategory?  @relation("InvCategoryHierarchy", fields: [parent_id], references: [id])
+  children    InventoryCategory[] @relation("InvCategoryHierarchy")
+  items       InventoryItem[]
+  created_at  DateTime            @default(now())
+}
+
+model InventoryItem {
+  id               String             @id @default(uuid())
+  item_code        String             @unique
+  name             String
+  description      String?
+  category_id      String?
+  category         InventoryCategory? @relation(fields: [category_id], references: [id])
+  unit_of_measure  String?
+  current_stock    Float              @default(0)
+  minimum_stock    Float?
+  maximum_stock    Float?
+  reorder_point    Float?
+  reorder_quantity Float?
+  unit_cost        Float?
+  storage_location String?
+  project_id       String?
+  project          Project?           @relation(fields: [project_id], references: [id])
+  is_active        Boolean            @default(true)
+  stock_movements  StockMovement[]
+  created_at       DateTime           @default(now())
+  updated_at       DateTime           @updatedAt
+
+  @@index([project_id])
+  @@index([category_id])
+}
+
+model StockMovement {
+  id             String            @id @default(uuid())
+  item_id        String
+  item           InventoryItem     @relation(fields: [item_id], references: [id])
+  movement_type  StockMovementType
+  quantity       Float
+  reference_type String?
+  reference_id   String?
+  from_location  String?
+  to_location    String?
+  notes          String?
+  performed_by   String?
+  performer      User?             @relation("StockMovementPerformer", fields: [performed_by], references: [id])
+  created_at     DateTime          @default(now())
+
+  @@index([item_id])
+}
+
+model StockIssue {
+  id            String   @id @default(uuid())
+  issue_number  String   @unique
+  work_order_id String?
+  project_id    String?
+  project       Project? @relation(fields: [project_id], references: [id])
+  items         Json     @default("[]")
+  issued_to     String?
+  issued_to_user User?   @relation("StockIssueTo", fields: [issued_to], references: [id])
+  issued_by     String?
+  issuer        User?    @relation("StockIssueBy", fields: [issued_by], references: [id])
+  issue_date    DateTime
+  notes         String?
+  created_at    DateTime @default(now())
+
+  @@index([project_id])
+}
+
+model GoodsReceivedNote {
+  id               String    @id @default(uuid())
+  grn_number       String    @unique
+  supplier_name    String
+  items            Json      @default("[]")
+  received_date    DateTime
+  received_by      String?
+  receiver         User?     @relation("GRNReceiver", fields: [received_by], references: [id])
+  status           GRNStatus @default(DRAFT)
+  inspection_notes String?
+  project_id       String?
+  project          Project?  @relation(fields: [project_id], references: [id])
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+
+  @@index([project_id])
 }

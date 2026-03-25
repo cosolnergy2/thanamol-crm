@@ -2189,3 +2189,225 @@ export type CalibrationQueryParams = {
   status?: CalibrationStatus | 'all'
   projectId?: string
 }
+
+// ─── FMS: Inventory & Stock Management ────────────────────────────────────────
+
+export type StockMovementType = 'RECEIVED' | 'ISSUED' | 'RETURNED' | 'ADJUSTED' | 'TRANSFERRED'
+export type GRNStatus = 'DRAFT' | 'RECEIVED' | 'INSPECTED' | 'ACCEPTED' | 'REJECTED'
+
+export type InventoryCategory = {
+  id: string
+  name: string
+  code: string
+  description: string | null
+  parent_id: string | null
+  created_at: string
+}
+
+export type InventoryCategoryWithChildren = InventoryCategory & {
+  children: InventoryCategory[]
+  parent: InventoryCategory | null
+  _count: { items: number }
+}
+
+export type InventoryItem = {
+  id: string
+  item_code: string
+  name: string
+  description: string | null
+  category_id: string | null
+  unit_of_measure: string | null
+  current_stock: number
+  minimum_stock: number | null
+  maximum_stock: number | null
+  reorder_point: number | null
+  reorder_quantity: number | null
+  unit_cost: number | null
+  storage_location: string | null
+  project_id: string | null
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export type InventoryItemWithRelations = InventoryItem & {
+  category: InventoryCategory | null
+  project: { id: string; name: string; code: string } | null
+}
+
+export type StockMovement = {
+  id: string
+  item_id: string
+  movement_type: StockMovementType
+  quantity: number
+  reference_type: string | null
+  reference_id: string | null
+  from_location: string | null
+  to_location: string | null
+  notes: string | null
+  performed_by: string | null
+  created_at: string
+}
+
+export type StockMovementWithRelations = StockMovement & {
+  item: { id: string; item_code: string; name: string }
+  performer: { id: string; first_name: string; last_name: string } | null
+}
+
+export type StockIssueItem = {
+  item_id: string
+  item_code: string
+  item_name: string
+  quantity: number
+  unit_cost: number | null
+  unit_of_measure: string | null
+}
+
+export type StockIssue = {
+  id: string
+  issue_number: string
+  work_order_id: string | null
+  project_id: string | null
+  items: StockIssueItem[]
+  issued_to: string | null
+  issued_by: string | null
+  issue_date: string
+  notes: string | null
+  created_at: string
+}
+
+export type StockIssueWithRelations = StockIssue & {
+  project: { id: string; name: string; code: string } | null
+  issued_to_user: { id: string; first_name: string; last_name: string } | null
+  issuer: { id: string; first_name: string; last_name: string } | null
+}
+
+export type GRNItem = {
+  item_id: string
+  item_code: string
+  item_name: string
+  quantity: number
+  unit_cost: number | null
+  unit_of_measure: string | null
+}
+
+export type GoodsReceivedNote = {
+  id: string
+  grn_number: string
+  supplier_name: string
+  items: GRNItem[]
+  received_date: string
+  received_by: string | null
+  status: GRNStatus
+  inspection_notes: string | null
+  project_id: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type GoodsReceivedNoteWithRelations = GoodsReceivedNote & {
+  project: { id: string; name: string; code: string } | null
+  receiver: { id: string; first_name: string; last_name: string } | null
+}
+
+// ─── Inventory Request/Response Types ─────────────────────────────────────────
+
+export type CreateInventoryCategoryRequest = {
+  name: string
+  code: string
+  description?: string
+  parentId?: string
+}
+
+export type UpdateInventoryCategoryRequest = Partial<CreateInventoryCategoryRequest>
+
+export type InventoryCategoryListResponse = PaginatedResponse<InventoryCategoryWithChildren>
+
+export type CreateInventoryItemRequest = {
+  name: string
+  description?: string
+  categoryId?: string
+  unitOfMeasure?: string
+  minimumStock?: number
+  maximumStock?: number
+  reorderPoint?: number
+  reorderQuantity?: number
+  unitCost?: number
+  storageLocation?: string
+  projectId?: string
+}
+
+export type UpdateInventoryItemRequest = Partial<CreateInventoryItemRequest> & {
+  isActive?: boolean
+}
+
+export type InventoryItemListResponse = PaginatedResponse<InventoryItemWithRelations>
+
+export type InventoryQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  categoryId?: string
+  lowStock?: boolean
+  search?: string
+  isActive?: boolean
+}
+
+export type CreateStockMovementRequest = {
+  itemId: string
+  movementType: StockMovementType
+  quantity: number
+  referenceType?: string
+  referenceId?: string
+  fromLocation?: string
+  toLocation?: string
+  notes?: string
+  performedBy?: string
+}
+
+export type StockMovementListResponse = PaginatedResponse<StockMovementWithRelations>
+
+export type CreateStockIssueRequest = {
+  workOrderId?: string
+  projectId?: string
+  items: StockIssueItem[]
+  issuedTo?: string
+  issuedBy?: string
+  issueDate: string
+  notes?: string
+}
+
+export type UpdateStockIssueRequest = Partial<Omit<CreateStockIssueRequest, 'items'>>
+
+export type StockIssueListResponse = PaginatedResponse<StockIssueWithRelations>
+
+export type StockIssueQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  search?: string
+}
+
+export type CreateGRNRequest = {
+  supplierName: string
+  items: GRNItem[]
+  receivedDate: string
+  receivedBy?: string
+  inspectionNotes?: string
+  projectId?: string
+}
+
+export type UpdateGRNRequest = Partial<Omit<CreateGRNRequest, 'items'>> & {
+  status?: GRNStatus
+  inspectionNotes?: string
+}
+
+export type GRNListResponse = PaginatedResponse<GoodsReceivedNoteWithRelations>
+
+export type GRNQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  status?: GRNStatus | 'all'
+  search?: string
+}
