@@ -216,6 +216,8 @@ function buildNavigation(t: ReturnType<typeof useLanguage>['t']): NavItem[] {
         { label: 'Key Management', path: '/facility-management/keys' },
         { label: 'Parking', path: '/facility-management/parking' },
         { label: 'Service Logs', path: '/facility-management/services' },
+        { label: 'Budget List', path: '/facility-management/budget' },
+        { label: 'Budget Templates', path: '/facility-management/budget/templates' },
       ],
     },
     {

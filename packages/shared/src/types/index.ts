@@ -2876,6 +2876,25 @@ export type VendorContract = {
   status: VendorContractStatus
   document_url?: string | null
   project_id?: string | null
+// ─── Budget Domain ─────────────────────────────────────────────────────────────
+
+export type BudgetStatus = 'DRAFT' | 'APPROVED' | 'ACTIVE' | 'CLOSED'
+
+export type Budget = {
+  id: string
+  budget_code: string
+  title: string
+  project_id: string
+  fiscal_year: number
+  period_start: string
+  period_end: string
+  total_approved: number
+  total_committed: number
+  total_actual: number
+  status: BudgetStatus
+  notes?: string | null
+  created_by: string
+  approved_by?: string | null
   created_at: string
   updated_at: string
 }
@@ -2911,6 +2930,21 @@ export type VendorInvoice = {
   due_date?: string | null
   payment_status: string
   payment_date?: string | null
+export type BudgetWithRelations = Budget & {
+  project: { id: string; name: string; code: string }
+  creator: { id: string; first_name: string; last_name: string }
+  approver: { id: string; first_name: string; last_name: string } | null
+  lines: BudgetLine[]
+}
+
+export type BudgetLine = {
+  id: string
+  budget_id: string
+  category: string
+  description?: string | null
+  approved_amount: number
+  committed_amount: number
+  actual_amount: number
   notes?: string | null
   created_at: string
   updated_at: string
@@ -3034,3 +3068,101 @@ export type VendorInvoiceQueryParams = {
   paymentStatus?: string
   search?: string
 }
+export type BudgetTemplate = {
+  id: string
+  name: string
+  description?: string | null
+  lines: BudgetTemplateLine[]
+  created_at: string
+}
+
+export type BudgetTemplateLine = {
+  category: string
+  description?: string
+  approved_amount: number
+}
+
+export type BudgetTransaction = {
+  id: string
+  budget_id: string
+  budget_line_id?: string | null
+  amount: number
+  transaction_type: 'COMMITMENT' | 'ACTUAL' | 'REVERSAL'
+  reference_type?: string | null
+  reference_id?: string | null
+  description?: string | null
+  created_by?: string | null
+  created_at: string
+}
+
+export type BudgetTransactionWithRelations = BudgetTransaction & {
+  budget_line: BudgetLine | null
+  creator: { id: string; first_name: string; last_name: string } | null
+}
+
+// ─── Budget Request/Response Types ────────────────────────────────────────────
+
+export type CreateBudgetLineInput = {
+  category: string
+  description?: string
+  approved_amount: number
+  notes?: string
+}
+
+export type CreateBudgetRequest = {
+  title: string
+  projectId: string
+  fiscalYear: number
+  periodStart: string
+  periodEnd: string
+  totalApproved: number
+  notes?: string
+  createdBy: string
+  lines?: CreateBudgetLineInput[]
+}
+
+export type UpdateBudgetRequest = {
+  title?: string
+  periodStart?: string
+  periodEnd?: string
+  totalApproved?: number
+  notes?: string
+}
+
+export type BudgetListResponse = PaginatedResponse<BudgetWithRelations>
+
+export type BudgetQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  fiscalYear?: number
+  status?: BudgetStatus | 'all'
+  search?: string
+}
+
+export type CreateBudgetLineRequest = {
+  category: string
+  description?: string
+  approved_amount: number
+  notes?: string
+}
+
+export type UpdateBudgetLineRequest = Partial<CreateBudgetLineRequest>
+
+export type CreateBudgetTransactionRequest = {
+  budgetLineId?: string
+  amount: number
+  transactionType: 'COMMITMENT' | 'ACTUAL' | 'REVERSAL'
+  referenceType?: string
+  referenceId?: string
+  description?: string
+  createdBy?: string
+}
+
+export type CreateBudgetTemplateRequest = {
+  name: string
+  description?: string
+  lines: BudgetTemplateLine[]
+}
+
+export type UpdateBudgetTemplateRequest = Partial<CreateBudgetTemplateRequest>
