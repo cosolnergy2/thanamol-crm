@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { Elysia } from 'elysia'
-import { fmsInventoryRoutes } from './inventory'
-import { fmsInventoryCategoriesRoutes } from './inventory-categories'
+import { jwt } from '@elysiajs/jwt'
 
 vi.mock('../../lib/prisma', () => ({
   prisma: {
+    user: { findUnique: vi.fn() },
     inventoryItem: {
       count: vi.fn(),
       findMany: vi.fn(),
@@ -24,13 +24,60 @@ vi.mock('../../lib/prisma', () => ({
   },
 }))
 
-vi.mock('../../middleware/auth', () => ({
-  authPlugin: new Elysia().derive(() => ({
-    authUser: { id: 'user-1', email: 'test@test.com' },
-  })),
-}))
-
 import { prisma } from '../../lib/prisma'
+import { fmsInventoryRoutes } from './inventory'
+import { fmsInventoryCategoriesRoutes } from './inventory-categories'
+
+const DEFAULT_JWT_SECRET = 'thanamol-jwt-secret-dev-only'
+
+const jwtSigner = new Elysia()
+  .use(jwt({ name: 'jwtAccess', secret: DEFAULT_JWT_SECRET, exp: '15m' }))
+  .get('/sign', ({ jwtAccess }) => jwtAccess.sign({ sub: 'user-1' }))
+
+const inventoryApp = new Elysia().use(fmsInventoryRoutes)
+const categoriesApp = new Elysia().use(fmsInventoryCategoriesRoutes)
+
+async function signToken(): Promise<string> {
+  const res = await jwtSigner.handle(new Request('http://localhost/sign'))
+  return res.text()
+}
+
+async function reqInventory(method: string, path: string, body?: unknown, token?: string): Promise<Response> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (token) headers['Authorization'] = `Bearer ${token}`
+  return inventoryApp.handle(
+    new Request(`http://localhost${path}`, {
+      method,
+      headers,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    })
+  )
+}
+
+async function reqCategories(method: string, path: string, body?: unknown, token?: string): Promise<Response> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (token) headers['Authorization'] = `Bearer ${token}`
+  return categoriesApp.handle(
+    new Request(`http://localhost${path}`, {
+      method,
+      headers,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    })
+  )
+}
+
+const mockUser = {
+  id: 'user-1',
+  email: 'test@test.com',
+  first_name: 'Admin',
+  last_name: 'User',
+  avatar_url: null,
+  phone: null,
+  department: null,
+  position: null,
+  is_active: true,
+  roles: [],
+}
 
 const mockItem = {
   id: 'item-1',
@@ -73,13 +120,12 @@ describe('FMS Inventory Routes', () => {
 
   describe('GET /api/fms/inventory', () => {
     it('returns paginated inventory items', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never)
       vi.mocked(prisma.inventoryItem.count).mockResolvedValue(1)
       vi.mocked(prisma.inventoryItem.findMany).mockResolvedValue([mockItem] as never)
 
-      const app = new Elysia().use(fmsInventoryRoutes)
-      const res = await app.handle(
-        new Request('http://localhost/api/fms/inventory')
-      )
+      const token = await signToken()
+      const res = await reqInventory('GET', '/api/fms/inventory', undefined, token)
       const body = await res.json()
 
       expect(res.status).toBe(200)
@@ -88,26 +134,24 @@ describe('FMS Inventory Routes', () => {
     })
 
     it('filters by projectId', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never)
       vi.mocked(prisma.inventoryItem.count).mockResolvedValue(0)
       vi.mocked(prisma.inventoryItem.findMany).mockResolvedValue([])
 
-      const app = new Elysia().use(fmsInventoryRoutes)
-      await app.handle(
-        new Request('http://localhost/api/fms/inventory?projectId=proj-1')
-      )
+      const token = await signToken()
+      await reqInventory('GET', '/api/fms/inventory?projectId=proj-1', undefined, token)
 
       const countCall = vi.mocked(prisma.inventoryItem.count).mock.calls[0][0]
       expect(countCall?.where).toMatchObject({ project_id: 'proj-1' })
     })
 
     it('filters by search term', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never)
       vi.mocked(prisma.inventoryItem.count).mockResolvedValue(0)
       vi.mocked(prisma.inventoryItem.findMany).mockResolvedValue([])
 
-      const app = new Elysia().use(fmsInventoryRoutes)
-      await app.handle(
-        new Request('http://localhost/api/fms/inventory?search=filter')
-      )
+      const token = await signToken()
+      await reqInventory('GET', '/api/fms/inventory?search=filter', undefined, token)
 
       const countCall = vi.mocked(prisma.inventoryItem.count).mock.calls[0][0]
       expect(countCall?.where).toHaveProperty('OR')
@@ -116,12 +160,11 @@ describe('FMS Inventory Routes', () => {
 
   describe('GET /api/fms/inventory/:id', () => {
     it('returns 404 for non-existent item', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never)
       vi.mocked(prisma.inventoryItem.findUnique).mockResolvedValue(null)
 
-      const app = new Elysia().use(fmsInventoryRoutes)
-      const res = await app.handle(
-        new Request('http://localhost/api/fms/inventory/nonexistent')
-      )
+      const token = await signToken()
+      const res = await reqInventory('GET', '/api/fms/inventory/nonexistent', undefined, token)
 
       expect(res.status).toBe(404)
       const body = await res.json()
@@ -129,15 +172,14 @@ describe('FMS Inventory Routes', () => {
     })
 
     it('returns item with stock movements', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never)
       vi.mocked(prisma.inventoryItem.findUnique).mockResolvedValue({
         ...mockItem,
         stock_movements: [],
       } as never)
 
-      const app = new Elysia().use(fmsInventoryRoutes)
-      const res = await app.handle(
-        new Request('http://localhost/api/fms/inventory/item-1')
-      )
+      const token = await signToken()
+      const res = await reqInventory('GET', '/api/fms/inventory/item-1', undefined, token)
 
       expect(res.status).toBe(200)
       const body = await res.json()
@@ -147,22 +189,17 @@ describe('FMS Inventory Routes', () => {
 
   describe('POST /api/fms/inventory', () => {
     it('creates a new inventory item with auto-generated code', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never)
       vi.mocked(prisma.inventoryItem.count).mockResolvedValue(0)
       vi.mocked(prisma.inventoryItem.create).mockResolvedValue(mockItem as never)
 
-      const app = new Elysia().use(fmsInventoryRoutes)
-      const res = await app.handle(
-        new Request('http://localhost/api/fms/inventory', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: 'Air Filter',
-            unitOfMeasure: 'piece',
-            reorderPoint: 5,
-            unitCost: 100,
-          }),
-        })
-      )
+      const token = await signToken()
+      const res = await reqInventory('POST', '/api/fms/inventory', {
+        name: 'Air Filter',
+        unitOfMeasure: 'piece',
+        reorderPoint: 5,
+        unitCost: 100,
+      }, token)
 
       expect(res.status).toBe(201)
       const body = await res.json()
@@ -170,14 +207,10 @@ describe('FMS Inventory Routes', () => {
     })
 
     it('returns 422 for missing required name field', async () => {
-      const app = new Elysia().use(fmsInventoryRoutes)
-      const res = await app.handle(
-        new Request('http://localhost/api/fms/inventory', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({}),
-        })
-      )
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never)
+
+      const token = await signToken()
+      const res = await reqInventory('POST', '/api/fms/inventory', {}, token)
 
       expect(res.status).toBe(422)
     })
@@ -185,35 +218,25 @@ describe('FMS Inventory Routes', () => {
 
   describe('PUT /api/fms/inventory/:id', () => {
     it('returns 404 when item not found', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never)
       vi.mocked(prisma.inventoryItem.findUnique).mockResolvedValue(null)
 
-      const app = new Elysia().use(fmsInventoryRoutes)
-      const res = await app.handle(
-        new Request('http://localhost/api/fms/inventory/nonexistent', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: 'New Name' }),
-        })
-      )
+      const token = await signToken()
+      const res = await reqInventory('PUT', '/api/fms/inventory/nonexistent', { name: 'New Name' }, token)
 
       expect(res.status).toBe(404)
     })
 
     it('updates an existing item', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never)
       vi.mocked(prisma.inventoryItem.findUnique).mockResolvedValue(mockItem as never)
       vi.mocked(prisma.inventoryItem.update).mockResolvedValue({
         ...mockItem,
         name: 'Updated Air Filter',
       } as never)
 
-      const app = new Elysia().use(fmsInventoryRoutes)
-      const res = await app.handle(
-        new Request('http://localhost/api/fms/inventory/item-1', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: 'Updated Air Filter' }),
-        })
-      )
+      const token = await signToken()
+      const res = await reqInventory('PUT', '/api/fms/inventory/item-1', { name: 'Updated Air Filter' }, token)
 
       expect(res.status).toBe(200)
     })
@@ -221,28 +244,22 @@ describe('FMS Inventory Routes', () => {
 
   describe('DELETE /api/fms/inventory/:id', () => {
     it('returns 404 when item not found', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never)
       vi.mocked(prisma.inventoryItem.findUnique).mockResolvedValue(null)
 
-      const app = new Elysia().use(fmsInventoryRoutes)
-      const res = await app.handle(
-        new Request('http://localhost/api/fms/inventory/nonexistent', {
-          method: 'DELETE',
-        })
-      )
+      const token = await signToken()
+      const res = await reqInventory('DELETE', '/api/fms/inventory/nonexistent', undefined, token)
 
       expect(res.status).toBe(404)
     })
 
     it('deletes an item successfully', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never)
       vi.mocked(prisma.inventoryItem.findUnique).mockResolvedValue(mockItem as never)
       vi.mocked(prisma.inventoryItem.delete).mockResolvedValue(mockItem as never)
 
-      const app = new Elysia().use(fmsInventoryRoutes)
-      const res = await app.handle(
-        new Request('http://localhost/api/fms/inventory/item-1', {
-          method: 'DELETE',
-        })
-      )
+      const token = await signToken()
+      const res = await reqInventory('DELETE', '/api/fms/inventory/item-1', undefined, token)
 
       expect(res.status).toBe(200)
       const body = await res.json()
@@ -258,13 +275,12 @@ describe('FMS Inventory Categories Routes', () => {
 
   describe('GET /api/fms/inventory-categories', () => {
     it('returns paginated categories', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never)
       vi.mocked(prisma.inventoryCategory.count).mockResolvedValue(1)
       vi.mocked(prisma.inventoryCategory.findMany).mockResolvedValue([mockCategory] as never)
 
-      const app = new Elysia().use(fmsInventoryCategoriesRoutes)
-      const res = await app.handle(
-        new Request('http://localhost/api/fms/inventory-categories')
-      )
+      const token = await signToken()
+      const res = await reqCategories('GET', '/api/fms/inventory-categories', undefined, token)
 
       expect(res.status).toBe(200)
       const body = await res.json()
@@ -274,32 +290,22 @@ describe('FMS Inventory Categories Routes', () => {
 
   describe('POST /api/fms/inventory-categories', () => {
     it('creates a category', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never)
       vi.mocked(prisma.inventoryCategory.findUnique).mockResolvedValue(null)
       vi.mocked(prisma.inventoryCategory.create).mockResolvedValue(mockCategory as never)
 
-      const app = new Elysia().use(fmsInventoryCategoriesRoutes)
-      const res = await app.handle(
-        new Request('http://localhost/api/fms/inventory-categories', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: 'HVAC', code: 'HVAC' }),
-        })
-      )
+      const token = await signToken()
+      const res = await reqCategories('POST', '/api/fms/inventory-categories', { name: 'HVAC', code: 'HVAC' }, token)
 
       expect(res.status).toBe(201)
     })
 
     it('returns 409 when code already exists', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never)
       vi.mocked(prisma.inventoryCategory.findUnique).mockResolvedValue(mockCategory as never)
 
-      const app = new Elysia().use(fmsInventoryCategoriesRoutes)
-      const res = await app.handle(
-        new Request('http://localhost/api/fms/inventory-categories', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: 'HVAC', code: 'HVAC' }),
-        })
-      )
+      const token = await signToken()
+      const res = await reqCategories('POST', '/api/fms/inventory-categories', { name: 'HVAC', code: 'HVAC' }, token)
 
       expect(res.status).toBe(409)
     })
@@ -307,17 +313,14 @@ describe('FMS Inventory Categories Routes', () => {
 
   describe('DELETE /api/fms/inventory-categories/:id', () => {
     it('prevents deletion with child items', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never)
       vi.mocked(prisma.inventoryCategory.findUnique).mockResolvedValue({
         ...mockCategory,
         _count: { children: 0, items: 3 },
       } as never)
 
-      const app = new Elysia().use(fmsInventoryCategoriesRoutes)
-      const res = await app.handle(
-        new Request('http://localhost/api/fms/inventory-categories/cat-1', {
-          method: 'DELETE',
-        })
-      )
+      const token = await signToken()
+      const res = await reqCategories('DELETE', '/api/fms/inventory-categories/cat-1', undefined, token)
 
       expect(res.status).toBe(409)
       const body = await res.json()

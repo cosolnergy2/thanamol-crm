@@ -1,7 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../../lib/prisma'
 import { authPlugin } from '../../middleware/auth'
-import type { StockMovementType } from '../../../generated/prisma'
+import type { StockMovementType } from '../../../generated/prisma/client'
 
 function buildPagination(page: number, limit: number, total: number) {
   return { page, limit, total, totalPages: Math.ceil(total / limit) }

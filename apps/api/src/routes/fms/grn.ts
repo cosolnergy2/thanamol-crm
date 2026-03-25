@@ -1,7 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../../lib/prisma'
 import { authPlugin } from '../../middleware/auth'
-import type { GRNStatus } from '../../../generated/prisma'
+import type { GRNStatus } from '../../../generated/prisma/client'
 
 async function generateGRNNumber(): Promise<string> {
   const now = new Date()
