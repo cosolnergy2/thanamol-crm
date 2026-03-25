@@ -1894,3 +1894,74 @@ export type PDFTemplateQueryParams = {
 // Aliases
 export type ISODocument = ISODocumentRecord
 export type PDFTemplate = PDFTemplateRecord
+
+// ─── FMS: Petty Cash ─────────────────────────────────────────────────────────
+
+export type PettyCashStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'SETTLED'
+
+export type PettyCashFund = {
+  id: string
+  project_id: string
+  fund_name: string
+  total_amount: number
+  current_balance: number
+  custodian_id: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type PettyCashFundWithCounts = PettyCashFund & {
+  _count: { transactions: number }
+}
+
+export type PettyCashTransaction = {
+  id: string
+  transaction_number: string
+  fund_id: string
+  project_id: string
+  amount: number
+  description: string
+  category: string | null
+  receipt_url: string | null
+  status: PettyCashStatus
+  requested_by: string
+  approved_by: string | null
+  transaction_date: string
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type PettyCashTransactionWithRelations = PettyCashTransaction & {
+  fund: Pick<PettyCashFund, 'id' | 'fund_name'>
+  requester: { id: string; first_name: string; last_name: string }
+  approver: { id: string; first_name: string; last_name: string } | null
+}
+
+export type CreatePettyCashFundRequest = {
+  projectId: string
+  fundName: string
+  totalAmount: number
+  custodianId?: string
+}
+
+export type UpdatePettyCashFundRequest = {
+  fundName?: string
+  totalAmount?: number
+  custodianId?: string
+}
+
+export type CreatePettyCashTransactionRequest = {
+  fundId: string
+  projectId: string
+  amount: number
+  description: string
+  category?: string
+  receiptUrl?: string
+  requestedBy: string
+  transactionDate: string
+  notes?: string
+}
+
+export type PettyCashFundListResponse = PaginatedResponse<PettyCashFundWithCounts>
+export type PettyCashTransactionListResponse = PaginatedResponse<PettyCashTransactionWithRelations>

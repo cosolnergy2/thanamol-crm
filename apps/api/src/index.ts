@@ -41,6 +41,7 @@ import { isoDocumentsRoutes } from './routes/iso-documents'
 import { pdfTemplatesRoutes } from './routes/pdf-templates'
 import { uploadsRoutes } from './routes/uploads'
 import { fmsZonesRoutes } from './routes/fms/zones'
+import { fmsPettyCashRoutes } from './routes/fms/petty-cash'
 
 const API_PORT = Number(process.env.PORT ?? 3000)
 
@@ -90,6 +91,7 @@ const app = new Elysia()
   .use(pdfTemplatesRoutes)
   .use(uploadsRoutes)
   .use(fmsZonesRoutes)
+  .use(fmsPettyCashRoutes)
   .listen(API_PORT)
 
 console.log(`API running at http://localhost:${API_PORT}`)

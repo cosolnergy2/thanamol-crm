@@ -185,6 +185,7 @@ function buildNavigation(t: ReturnType<typeof useLanguage>['t']): NavItem[] {
       submenu: [
         { label: 'Dashboard', path: '/facility-management' },
         { label: 'Zones', path: '/facility-management/zones' },
+        { label: 'Petty Cash', path: '/facility-management/petty-cash' },
         { label: 'Assets', path: '/facility-management/assets', disabled: true },
         { label: 'Work Orders', path: '/facility-management/work-orders', disabled: true },
         { label: 'Inventory', path: '/facility-management/inventory', disabled: true },
