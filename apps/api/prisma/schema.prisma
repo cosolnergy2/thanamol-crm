@@ -237,6 +237,36 @@ enum CalibrationStatus {
   OVERDUE
 }
 
+enum PermitStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  ACTIVE
+  CLOSED
+  REJECTED
+}
+
+enum IncidentSeverity {
+  MINOR
+  MODERATE
+  MAJOR
+  CRITICAL
+}
+
+enum IncidentStatus {
+  REPORTED
+  INVESTIGATING
+  RESOLVED
+  CLOSED
+}
+
+enum InsurancePolicyStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  PENDING_RENEWAL
+}
+
 // ─── Auth Domain ──────────────────────────────────────────────────────────────
 
 model User {
@@ -288,6 +318,9 @@ model User {
   assigned_pms           PreventiveMaintenance[] @relation("PMAssignee")
   created_pms            PreventiveMaintenance[] @relation("PMCreator")
   completed_pm_logs      PMScheduleLog[]         @relation("PMLogCompleter")
+  requested_permits      PermitToWork[]          @relation("PTWRequester")
+  approved_permits       PermitToWork[]          @relation("PTWApprover")
+  reported_incidents     Incident[]              @relation("IncidentReporter")
 
   @@index([email])
 }
@@ -511,6 +544,11 @@ model Project {
   assets                     Asset[]
   work_orders                WorkOrder[]
   preventive_maintenances    PreventiveMaintenance[]
+  fire_equipment             FireEquipment[]
+  permits_to_work            PermitToWork[]
+  incidents                  Incident[]
+  insurance_policies         InsurancePolicy[]
+  contractor_safety_records  ContractorSafety[]
 
   @@index([status])
   @@index([code])
@@ -532,6 +570,9 @@ model Zone {
   assets         Asset[]
   work_orders    WorkOrder[]
   preventive_maintenances PreventiveMaintenance[]
+  fire_equipment         FireEquipment[]
+  permits_to_work        PermitToWork[]
+  incidents              Incident[]
   created_at     DateTime @default(now())
   updated_at     DateTime @updatedAt
 
@@ -1412,4 +1453,112 @@ model CalibrationRecord {
   created_at            DateTime          @default(now())
 
   @@index([asset_id])
+}
+
+// ─── FMS Compliance & Safety Domain ──────────────────────────────────────────
+
+model FireEquipment {
+  id                   String    @id @default(uuid())
+  equipment_number     String
+  type                 String
+  project_id           String
+  project              Project   @relation(fields: [project_id], references: [id])
+  zone_id              String?
+  zone                 Zone?     @relation(fields: [zone_id], references: [id])
+  location_detail      String?
+  last_inspection_date DateTime?
+  next_inspection_date DateTime?
+  status               String    @default("ACTIVE")
+  notes                String?
+  created_at           DateTime  @default(now())
+  updated_at           DateTime  @updatedAt
+
+  @@index([project_id])
+}
+
+model PermitToWork {
+  id              String       @id @default(uuid())
+  permit_number   String       @unique
+  title           String
+  description     String?
+  project_id      String
+  project         Project      @relation(fields: [project_id], references: [id])
+  zone_id         String?
+  zone            Zone?        @relation(fields: [zone_id], references: [id])
+  permit_type     String?
+  risk_assessment Json         @default("[]")
+  start_date      DateTime?
+  end_date        DateTime?
+  status          PermitStatus @default(DRAFT)
+  requested_by    String?
+  requester       User?        @relation("PTWRequester", fields: [requested_by], references: [id])
+  approved_by     String?
+  approver        User?        @relation("PTWApprover", fields: [approved_by], references: [id])
+  contractor_name String?
+  safety_measures Json         @default("[]")
+  created_at      DateTime     @default(now())
+  updated_at      DateTime     @updatedAt
+
+  @@index([project_id])
+}
+
+model Incident {
+  id                  String           @id @default(uuid())
+  incident_number     String           @unique
+  title               String
+  description         String?
+  project_id          String
+  project             Project          @relation(fields: [project_id], references: [id])
+  zone_id             String?
+  zone                Zone?            @relation(fields: [zone_id], references: [id])
+  incident_date       DateTime
+  severity            IncidentSeverity @default(MINOR)
+  status              IncidentStatus   @default(REPORTED)
+  reported_by         String?
+  reporter            User?            @relation("IncidentReporter", fields: [reported_by], references: [id])
+  investigation_notes String?
+  root_cause          String?
+  corrective_actions  Json             @default("[]")
+  work_order_id       String?
+  photos              Json             @default("[]")
+  created_at          DateTime         @default(now())
+  updated_at          DateTime         @updatedAt
+
+  @@index([project_id])
+}
+
+model InsurancePolicy {
+  id               String                @id @default(uuid())
+  policy_number    String                @unique
+  provider         String
+  type             String
+  coverage_details Json                  @default("{}")
+  project_id       String?
+  project          Project?              @relation(fields: [project_id], references: [id])
+  premium          Float?
+  start_date       DateTime
+  end_date         DateTime
+  status           InsurancePolicyStatus @default(ACTIVE)
+  document_url     String?
+  notes            String?
+  created_at       DateTime              @default(now())
+  updated_at       DateTime              @updatedAt
+
+  @@index([project_id])
+}
+
+model ContractorSafety {
+  id                    String    @id @default(uuid())
+  contractor_name       String
+  project_id            String
+  project               Project   @relation(fields: [project_id], references: [id])
+  safety_induction_date DateTime?
+  safety_cert_url       String?
+  permit_ids            Json      @default("[]")
+  is_cleared            Boolean   @default(false)
+  notes                 String?
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+
+  @@index([project_id])
 }

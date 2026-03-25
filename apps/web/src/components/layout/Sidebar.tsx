@@ -190,6 +190,11 @@ function buildNavigation(t: ReturnType<typeof useLanguage>['t']): NavItem[] {
         { label: 'PM Schedules', path: '/facility-management/preventive-maintenance' },
         { label: 'Calibration', path: '/facility-management/calibrations' },
         { label: 'Inventory', path: '/facility-management/inventory', disabled: true },
+        { label: 'Fire Equipment', path: '/facility-management/compliance/fire-equipment' },
+        { label: 'Permit to Work', path: '/facility-management/compliance/permits' },
+        { label: 'Incidents', path: '/facility-management/compliance/incidents' },
+        { label: 'Insurance', path: '/facility-management/compliance/insurance' },
+        { label: 'Contractor Safety', path: '/facility-management/compliance/contractors' },
       ],
     },
     {
