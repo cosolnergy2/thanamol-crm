@@ -33,14 +33,14 @@ async function applyTransactionToLine(
   await prisma.budgetLine.update({ where: { id: lineId }, data: update })
 }
 
-async function syncBudgetTotals(budgetId: string) {
-  const lines = await prisma.budgetLine.findMany({ where: { budget_id: budgetId } })
+async function syncBudgetTotals(id: string) {
+  const lines = await prisma.budgetLine.findMany({ where: { budget_id: id } })
 
   const total_committed = lines.reduce((sum, l) => sum + l.committed_amount, 0)
   const total_actual = lines.reduce((sum, l) => sum + l.actual_amount, 0)
 
   await prisma.budget.update({
-    where: { id: budgetId },
+    where: { id: id },
     data: { total_committed, total_actual },
   })
 }
@@ -59,9 +59,9 @@ export const fmsBudgetTransactionsRoutes = new Elysia({ prefix: '/api/fms' })
     (app) =>
       app
         .get(
-          '/budgets/:budgetId/transactions',
+          '/budgets/:id/transactions',
           async ({ params, query, set }) => {
-            const budget = await prisma.budget.findUnique({ where: { id: params.budgetId } })
+            const budget = await prisma.budget.findUnique({ where: { id: params.id } })
             if (!budget) {
               set.status = 404
               return { error: 'Budget not found' }
@@ -72,9 +72,9 @@ export const fmsBudgetTransactionsRoutes = new Elysia({ prefix: '/api/fms' })
             const skip = (page - 1) * limit
 
             const [total, transactions] = await Promise.all([
-              prisma.budgetTransaction.count({ where: { budget_id: params.budgetId } }),
+              prisma.budgetTransaction.count({ where: { budget_id: params.id } }),
               prisma.budgetTransaction.findMany({
-                where: { budget_id: params.budgetId },
+                where: { budget_id: params.id },
                 include: {
                   budget_line: true,
                   creator: { select: { id: true, first_name: true, last_name: true } },
@@ -98,9 +98,9 @@ export const fmsBudgetTransactionsRoutes = new Elysia({ prefix: '/api/fms' })
           }
         )
         .post(
-          '/budgets/:budgetId/transactions',
+          '/budgets/:id/transactions',
           async ({ params, body, set }) => {
-            const budget = await prisma.budget.findUnique({ where: { id: params.budgetId } })
+            const budget = await prisma.budget.findUnique({ where: { id: params.id } })
             if (!budget) {
               set.status = 404
               return { error: 'Budget not found' }
@@ -112,7 +112,7 @@ export const fmsBudgetTransactionsRoutes = new Elysia({ prefix: '/api/fms' })
 
             if (body.budgetLineId) {
               const line = await prisma.budgetLine.findUnique({ where: { id: body.budgetLineId } })
-              if (!line || line.budget_id !== params.budgetId) {
+              if (!line || line.budget_id !== params.id) {
                 set.status = 400
                 return { error: 'Budget line does not belong to this budget' }
               }
@@ -120,7 +120,7 @@ export const fmsBudgetTransactionsRoutes = new Elysia({ prefix: '/api/fms' })
 
             const transaction = await prisma.budgetTransaction.create({
               data: {
-                budget_id: params.budgetId,
+                budget_id: params.id,
                 budget_line_id: body.budgetLineId,
                 amount: body.amount,
                 transaction_type: body.transactionType,
@@ -137,7 +137,7 @@ export const fmsBudgetTransactionsRoutes = new Elysia({ prefix: '/api/fms' })
 
             if (body.budgetLineId) {
               await applyTransactionToLine(body.budgetLineId, body.amount, body.transactionType)
-              await syncBudgetTotals(params.budgetId)
+              await syncBudgetTotals(params.id)
             }
 
             return { transaction }
