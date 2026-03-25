@@ -249,6 +249,11 @@ enum VisitorStatus {
   CHECKED_IN
   CHECKED_OUT
   CANCELLED
+enum PettyCashStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SETTLED
 }
 
 // ─── Auth Domain ──────────────────────────────────────────────────────────────
@@ -303,6 +308,9 @@ model User {
   created_pms            PreventiveMaintenance[] @relation("PMCreator")
   completed_pm_logs      PMScheduleLog[]         @relation("PMLogCompleter")
   created_service_logs   ServiceLog[]            @relation("ServiceLogCreator")
+  petty_cash_funds       PettyCashFund[]         @relation("PettyCashCustodian")
+  petty_cash_requested   PettyCashTransaction[]  @relation("PettyCashRequester")
+  petty_cash_approved    PettyCashTransaction[]  @relation("PettyCashApprover")
 
   @@index([email])
 }
@@ -532,6 +540,8 @@ model Project {
   key_records                KeyRecord[]
   parking_slots              ParkingSlot[]
   service_logs               ServiceLog[]
+  petty_cash_funds           PettyCashFund[]
+  petty_cash_transactions    PettyCashTransaction[]
 
   @@index([status])
   @@index([code])
@@ -1454,6 +1464,20 @@ model SecurityPatrol {
   checkpoints  Json         @default("[]")
   notes        String?
   created_at   DateTime     @default(now())
+// ─── FMS: Petty Cash Domain ───────────────────────────────────────────────────
+
+model PettyCashFund {
+  id              String   @id @default(uuid())
+  project_id      String
+  project         Project  @relation(fields: [project_id], references: [id])
+  fund_name       String
+  total_amount    Float    @default(0)
+  current_balance Float    @default(0)
+  custodian_id    String?
+  custodian       User?    @relation("PettyCashCustodian", fields: [custodian_id], references: [id])
+  transactions    PettyCashTransaction[]
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
 
   @@index([project_id])
 }
@@ -1553,5 +1577,27 @@ model ServiceLog {
   creator           User?     @relation("ServiceLogCreator", fields: [created_by], references: [id])
   created_at        DateTime  @default(now())
 
+model PettyCashTransaction {
+  id                 String          @id @default(uuid())
+  transaction_number String          @unique
+  fund_id            String
+  fund               PettyCashFund   @relation(fields: [fund_id], references: [id])
+  project_id         String
+  project            Project         @relation(fields: [project_id], references: [id])
+  amount             Float
+  description        String
+  category           String?
+  receipt_url        String?
+  status             PettyCashStatus @default(PENDING)
+  requested_by       String
+  requester          User            @relation("PettyCashRequester", fields: [requested_by], references: [id])
+  approved_by        String?
+  approver           User?           @relation("PettyCashApprover", fields: [approved_by], references: [id])
+  transaction_date   DateTime
+  notes              String?
+  created_at         DateTime        @default(now())
+  updated_at         DateTime        @updatedAt
+
+  @@index([fund_id])
   @@index([project_id])
 }

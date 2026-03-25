@@ -94,6 +94,7 @@ import { Route as AuthenticatedFacilityManagementSecurityIndexRouteImport } from
 import { Route as AuthenticatedFacilityManagementParkingIndexRouteImport } from './routes/_authenticated/facility-management/parking/index'
 import { Route as AuthenticatedFacilityManagementKeysIndexRouteImport } from './routes/_authenticated/facility-management/keys/index'
 import { Route as AuthenticatedFacilityManagementCleaningIndexRouteImport } from './routes/_authenticated/facility-management/cleaning/index'
+import { Route as AuthenticatedFacilityManagementPettyCashIndexRouteImport } from './routes/_authenticated/facility-management/petty-cash/index'
 import { Route as AuthenticatedContractsHandoverIndexRouteImport } from './routes/_authenticated/contracts/handover/index'
 import { Route as AuthenticatedContractsContractIdIndexRouteImport } from './routes/_authenticated/contracts/$contractId/index'
 import { Route as AuthenticatedTasksTaskIdEditRouteImport } from './routes/_authenticated/tasks/$taskId/edit'
@@ -138,6 +139,8 @@ import { Route as AuthenticatedFormsSaleF01IdEditRouteImport } from './routes/_a
 import { Route as AuthenticatedFinanceInvoicesInvoiceIdEditRouteImport } from './routes/_authenticated/finance/invoices/$invoiceId/edit'
 import { Route as AuthenticatedFacilityManagementZonesZoneIdEditRouteImport } from './routes/_authenticated/facility-management/zones/$zoneId/edit'
 import { Route as AuthenticatedFacilityManagementAssetsAssetIdEditRouteImport } from './routes/_authenticated/facility-management/assets/$assetId/edit'
+import { Route as AuthenticatedFacilityManagementPettyCashTransactionsCreateRouteImport } from './routes/_authenticated/facility-management/petty-cash/transactions/create'
+import { Route as AuthenticatedFacilityManagementPettyCashFundsCreateRouteImport } from './routes/_authenticated/facility-management/petty-cash/funds/create'
 import { Route as AuthenticatedContractsHandoverIdPrintRouteImport } from './routes/_authenticated/contracts/handover/$id/print'
 import { Route as AuthenticatedContractsHandoverIdEditRouteImport } from './routes/_authenticated/contracts/handover/$id/edit'
 
@@ -636,6 +639,10 @@ const AuthenticatedFacilityManagementCleaningIndexRoute =
   AuthenticatedFacilityManagementCleaningIndexRouteImport.update({
     id: '/facility-management/cleaning/',
     path: '/facility-management/cleaning/',
+const AuthenticatedFacilityManagementPettyCashIndexRoute =
+  AuthenticatedFacilityManagementPettyCashIndexRouteImport.update({
+    id: '/facility-management/petty-cash/',
+    path: '/facility-management/petty-cash/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedContractsHandoverIndexRoute =
@@ -900,6 +907,16 @@ const AuthenticatedFacilityManagementAssetsAssetIdEditRoute =
   AuthenticatedFacilityManagementAssetsAssetIdEditRouteImport.update({
     id: '/facility-management/assets/$assetId/edit',
     path: '/facility-management/assets/$assetId/edit',
+const AuthenticatedFacilityManagementPettyCashTransactionsCreateRoute =
+  AuthenticatedFacilityManagementPettyCashTransactionsCreateRouteImport.update({
+    id: '/facility-management/petty-cash/transactions/create',
+    path: '/facility-management/petty-cash/transactions/create',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFacilityManagementPettyCashFundsCreateRoute =
+  AuthenticatedFacilityManagementPettyCashFundsCreateRouteImport.update({
+    id: '/facility-management/petty-cash/funds/create',
+    path: '/facility-management/petty-cash/funds/create',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedContractsHandoverIdPrintRoute =
@@ -1014,6 +1031,7 @@ export interface FileRoutesByFullPath {
   '/facility-management/security/': typeof AuthenticatedFacilityManagementSecurityIndexRoute
   '/facility-management/services/': typeof AuthenticatedFacilityManagementServicesIndexRoute
   '/facility-management/visitors/': typeof AuthenticatedFacilityManagementVisitorsIndexRoute
+  '/facility-management/petty-cash/': typeof AuthenticatedFacilityManagementPettyCashIndexRoute
   '/facility-management/zones/': typeof AuthenticatedFacilityManagementZonesIndexRoute
   '/finance/invoices/': typeof AuthenticatedFinanceInvoicesIndexRoute
   '/forms/sale-f01/': typeof AuthenticatedFormsSaleF01IndexRoute
@@ -1026,6 +1044,8 @@ export interface FileRoutesByFullPath {
   '/contracts/handover/$id/edit': typeof AuthenticatedContractsHandoverIdEditRoute
   '/contracts/handover/$id/print': typeof AuthenticatedContractsHandoverIdPrintRoute
   '/facility-management/assets/$assetId/edit': typeof AuthenticatedFacilityManagementAssetsAssetIdEditRoute
+  '/facility-management/petty-cash/funds/create': typeof AuthenticatedFacilityManagementPettyCashFundsCreateRoute
+  '/facility-management/petty-cash/transactions/create': typeof AuthenticatedFacilityManagementPettyCashTransactionsCreateRoute
   '/facility-management/zones/$zoneId/edit': typeof AuthenticatedFacilityManagementZonesZoneIdEditRoute
   '/finance/invoices/$invoiceId/edit': typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
   '/forms/sale-f01/$id/edit': typeof AuthenticatedFormsSaleF01IdEditRoute
@@ -1146,6 +1166,7 @@ export interface FileRoutesByTo {
   '/facility-management/security': typeof AuthenticatedFacilityManagementSecurityIndexRoute
   '/facility-management/services': typeof AuthenticatedFacilityManagementServicesIndexRoute
   '/facility-management/visitors': typeof AuthenticatedFacilityManagementVisitorsIndexRoute
+  '/facility-management/petty-cash': typeof AuthenticatedFacilityManagementPettyCashIndexRoute
   '/facility-management/zones': typeof AuthenticatedFacilityManagementZonesIndexRoute
   '/finance/invoices': typeof AuthenticatedFinanceInvoicesIndexRoute
   '/forms/sale-f01': typeof AuthenticatedFormsSaleF01IndexRoute
@@ -1158,6 +1179,8 @@ export interface FileRoutesByTo {
   '/contracts/handover/$id/edit': typeof AuthenticatedContractsHandoverIdEditRoute
   '/contracts/handover/$id/print': typeof AuthenticatedContractsHandoverIdPrintRoute
   '/facility-management/assets/$assetId/edit': typeof AuthenticatedFacilityManagementAssetsAssetIdEditRoute
+  '/facility-management/petty-cash/funds/create': typeof AuthenticatedFacilityManagementPettyCashFundsCreateRoute
+  '/facility-management/petty-cash/transactions/create': typeof AuthenticatedFacilityManagementPettyCashTransactionsCreateRoute
   '/facility-management/zones/$zoneId/edit': typeof AuthenticatedFacilityManagementZonesZoneIdEditRoute
   '/finance/invoices/$invoiceId/edit': typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
   '/forms/sale-f01/$id/edit': typeof AuthenticatedFormsSaleF01IdEditRoute
@@ -1280,6 +1303,7 @@ export interface FileRoutesById {
   '/_authenticated/facility-management/security/': typeof AuthenticatedFacilityManagementSecurityIndexRoute
   '/_authenticated/facility-management/services/': typeof AuthenticatedFacilityManagementServicesIndexRoute
   '/_authenticated/facility-management/visitors/': typeof AuthenticatedFacilityManagementVisitorsIndexRoute
+  '/_authenticated/facility-management/petty-cash/': typeof AuthenticatedFacilityManagementPettyCashIndexRoute
   '/_authenticated/facility-management/zones/': typeof AuthenticatedFacilityManagementZonesIndexRoute
   '/_authenticated/finance/invoices/': typeof AuthenticatedFinanceInvoicesIndexRoute
   '/_authenticated/forms/sale-f01/': typeof AuthenticatedFormsSaleF01IndexRoute
@@ -1292,6 +1316,8 @@ export interface FileRoutesById {
   '/_authenticated/contracts/handover/$id/edit': typeof AuthenticatedContractsHandoverIdEditRoute
   '/_authenticated/contracts/handover/$id/print': typeof AuthenticatedContractsHandoverIdPrintRoute
   '/_authenticated/facility-management/assets/$assetId/edit': typeof AuthenticatedFacilityManagementAssetsAssetIdEditRoute
+  '/_authenticated/facility-management/petty-cash/funds/create': typeof AuthenticatedFacilityManagementPettyCashFundsCreateRoute
+  '/_authenticated/facility-management/petty-cash/transactions/create': typeof AuthenticatedFacilityManagementPettyCashTransactionsCreateRoute
   '/_authenticated/facility-management/zones/$zoneId/edit': typeof AuthenticatedFacilityManagementZonesZoneIdEditRoute
   '/_authenticated/finance/invoices/$invoiceId/edit': typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
   '/_authenticated/forms/sale-f01/$id/edit': typeof AuthenticatedFormsSaleF01IdEditRoute
@@ -1414,6 +1440,7 @@ export interface FileRouteTypes {
     | '/facility-management/security/'
     | '/facility-management/services/'
     | '/facility-management/visitors/'
+    | '/facility-management/petty-cash/'
     | '/facility-management/zones/'
     | '/finance/invoices/'
     | '/forms/sale-f01/'
@@ -1426,6 +1453,8 @@ export interface FileRouteTypes {
     | '/contracts/handover/$id/edit'
     | '/contracts/handover/$id/print'
     | '/facility-management/assets/$assetId/edit'
+    | '/facility-management/petty-cash/funds/create'
+    | '/facility-management/petty-cash/transactions/create'
     | '/facility-management/zones/$zoneId/edit'
     | '/finance/invoices/$invoiceId/edit'
     | '/forms/sale-f01/$id/edit'
@@ -1546,6 +1575,7 @@ export interface FileRouteTypes {
     | '/facility-management/security'
     | '/facility-management/services'
     | '/facility-management/visitors'
+    | '/facility-management/petty-cash'
     | '/facility-management/zones'
     | '/finance/invoices'
     | '/forms/sale-f01'
@@ -1558,6 +1588,8 @@ export interface FileRouteTypes {
     | '/contracts/handover/$id/edit'
     | '/contracts/handover/$id/print'
     | '/facility-management/assets/$assetId/edit'
+    | '/facility-management/petty-cash/funds/create'
+    | '/facility-management/petty-cash/transactions/create'
     | '/facility-management/zones/$zoneId/edit'
     | '/finance/invoices/$invoiceId/edit'
     | '/forms/sale-f01/$id/edit'
@@ -1679,6 +1711,7 @@ export interface FileRouteTypes {
     | '/_authenticated/facility-management/security/'
     | '/_authenticated/facility-management/services/'
     | '/_authenticated/facility-management/visitors/'
+    | '/_authenticated/facility-management/petty-cash/'
     | '/_authenticated/facility-management/zones/'
     | '/_authenticated/finance/invoices/'
     | '/_authenticated/forms/sale-f01/'
@@ -1691,6 +1724,8 @@ export interface FileRouteTypes {
     | '/_authenticated/contracts/handover/$id/edit'
     | '/_authenticated/contracts/handover/$id/print'
     | '/_authenticated/facility-management/assets/$assetId/edit'
+    | '/_authenticated/facility-management/petty-cash/funds/create'
+    | '/_authenticated/facility-management/petty-cash/transactions/create'
     | '/_authenticated/facility-management/zones/$zoneId/edit'
     | '/_authenticated/finance/invoices/$invoiceId/edit'
     | '/_authenticated/forms/sale-f01/$id/edit'
@@ -2311,6 +2346,11 @@ declare module '@tanstack/react-router' {
       path: '/facility-management/cleaning'
       fullPath: '/facility-management/cleaning/'
       preLoaderRoute: typeof AuthenticatedFacilityManagementCleaningIndexRouteImport
+    '/_authenticated/facility-management/petty-cash/': {
+      id: '/_authenticated/facility-management/petty-cash/'
+      path: '/facility-management/petty-cash'
+      fullPath: '/facility-management/petty-cash/'
+      preLoaderRoute: typeof AuthenticatedFacilityManagementPettyCashIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/contracts/handover/': {
@@ -2617,6 +2657,18 @@ declare module '@tanstack/react-router' {
       path: '/facility-management/assets/$assetId/edit'
       fullPath: '/facility-management/assets/$assetId/edit'
       preLoaderRoute: typeof AuthenticatedFacilityManagementAssetsAssetIdEditRouteImport
+    '/_authenticated/facility-management/petty-cash/transactions/create': {
+      id: '/_authenticated/facility-management/petty-cash/transactions/create'
+      path: '/facility-management/petty-cash/transactions/create'
+      fullPath: '/facility-management/petty-cash/transactions/create'
+      preLoaderRoute: typeof AuthenticatedFacilityManagementPettyCashTransactionsCreateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/facility-management/petty-cash/funds/create': {
+      id: '/_authenticated/facility-management/petty-cash/funds/create'
+      path: '/facility-management/petty-cash/funds/create'
+      fullPath: '/facility-management/petty-cash/funds/create'
+      preLoaderRoute: typeof AuthenticatedFacilityManagementPettyCashFundsCreateRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/contracts/handover/$id/print': {
@@ -2734,6 +2786,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFacilityManagementSecurityIndexRoute: typeof AuthenticatedFacilityManagementSecurityIndexRoute
   AuthenticatedFacilityManagementServicesIndexRoute: typeof AuthenticatedFacilityManagementServicesIndexRoute
   AuthenticatedFacilityManagementVisitorsIndexRoute: typeof AuthenticatedFacilityManagementVisitorsIndexRoute
+  AuthenticatedFacilityManagementPettyCashIndexRoute: typeof AuthenticatedFacilityManagementPettyCashIndexRoute
   AuthenticatedFacilityManagementZonesIndexRoute: typeof AuthenticatedFacilityManagementZonesIndexRoute
   AuthenticatedFinanceInvoicesIndexRoute: typeof AuthenticatedFinanceInvoicesIndexRoute
   AuthenticatedFormsSaleF01IndexRoute: typeof AuthenticatedFormsSaleF01IndexRoute
@@ -2746,6 +2799,8 @@ interface AuthenticatedRouteChildren {
   AuthenticatedContractsHandoverIdEditRoute: typeof AuthenticatedContractsHandoverIdEditRoute
   AuthenticatedContractsHandoverIdPrintRoute: typeof AuthenticatedContractsHandoverIdPrintRoute
   AuthenticatedFacilityManagementAssetsAssetIdEditRoute: typeof AuthenticatedFacilityManagementAssetsAssetIdEditRoute
+  AuthenticatedFacilityManagementPettyCashFundsCreateRoute: typeof AuthenticatedFacilityManagementPettyCashFundsCreateRoute
+  AuthenticatedFacilityManagementPettyCashTransactionsCreateRoute: typeof AuthenticatedFacilityManagementPettyCashTransactionsCreateRoute
   AuthenticatedFacilityManagementZonesZoneIdEditRoute: typeof AuthenticatedFacilityManagementZonesZoneIdEditRoute
   AuthenticatedFinanceInvoicesInvoiceIdEditRoute: typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
   AuthenticatedFormsSaleF01IdEditRoute: typeof AuthenticatedFormsSaleF01IdEditRoute
@@ -2902,6 +2957,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedFacilityManagementServicesIndexRoute,
   AuthenticatedFacilityManagementVisitorsIndexRoute:
     AuthenticatedFacilityManagementVisitorsIndexRoute,
+  AuthenticatedFacilityManagementPettyCashIndexRoute:
+    AuthenticatedFacilityManagementPettyCashIndexRoute,
   AuthenticatedFacilityManagementZonesIndexRoute:
     AuthenticatedFacilityManagementZonesIndexRoute,
   AuthenticatedFinanceInvoicesIndexRoute:
@@ -2924,6 +2981,10 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedContractsHandoverIdPrintRoute,
   AuthenticatedFacilityManagementAssetsAssetIdEditRoute:
     AuthenticatedFacilityManagementAssetsAssetIdEditRoute,
+  AuthenticatedFacilityManagementPettyCashFundsCreateRoute:
+    AuthenticatedFacilityManagementPettyCashFundsCreateRoute,
+  AuthenticatedFacilityManagementPettyCashTransactionsCreateRoute:
+    AuthenticatedFacilityManagementPettyCashTransactionsCreateRoute,
   AuthenticatedFacilityManagementZonesZoneIdEditRoute:
     AuthenticatedFacilityManagementZonesZoneIdEditRoute,
   AuthenticatedFinanceInvoicesInvoiceIdEditRoute:

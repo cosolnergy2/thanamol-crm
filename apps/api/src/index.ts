@@ -52,6 +52,7 @@ import { fmsVisitorsRoutes } from './routes/fms/visitors'
 import { fmsKeyRecordsRoutes } from './routes/fms/key-records'
 import { fmsParkingSlotsRoutes } from './routes/fms/parking-slots'
 import { fmsServiceLogsRoutes } from './routes/fms/service-logs'
+import { fmsPettyCashRoutes } from './routes/fms/petty-cash'
 
 const API_PORT = Number(process.env.PORT ?? 3000)
 
@@ -112,6 +113,7 @@ const app = new Elysia()
   .use(fmsKeyRecordsRoutes)
   .use(fmsParkingSlotsRoutes)
   .use(fmsServiceLogsRoutes)
+  .use(fmsPettyCashRoutes)
   .listen(API_PORT)
 
 console.log(`API running at http://localhost:${API_PORT}`)
