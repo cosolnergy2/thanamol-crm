@@ -194,6 +194,155 @@ enum SaleJobStatus {
   REJECTED
 }
 
+enum AssetStatus {
+  OPERATIONAL
+  UNDER_MAINTENANCE
+  OUT_OF_SERVICE
+  DISPOSED
+  IN_STORAGE
+}
+
+enum WorkOrderStatus {
+  OPEN
+  ASSIGNED
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum WorkOrderType {
+  CORRECTIVE
+  PREVENTIVE
+  EMERGENCY
+  INSPECTION
+  CALIBRATION
+}
+
+enum PMFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  SEMI_ANNUAL
+  ANNUAL
+  CUSTOM
+}
+
+enum CalibrationStatus {
+  PENDING
+  IN_PROGRESS
+  PASSED
+  FAILED
+  OVERDUE
+}
+
+enum PatrolStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  MISSED
+}
+
+enum VisitorStatus {
+  EXPECTED
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELLED
+}
+
+enum PettyCashStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SETTLED
+}
+
+enum StockMovementType {
+  RECEIVED
+  ISSUED
+  RETURNED
+  ADJUSTED
+  TRANSFERRED
+}
+
+enum GRNStatus {
+  DRAFT
+  RECEIVED
+  INSPECTED
+  ACCEPTED
+  REJECTED
+}
+
+enum PRStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+  CANCELLED
+  CONVERTED
+}
+
+enum POStatus {
+  DRAFT
+  ISSUED
+  PARTIALLY_RECEIVED
+  FULLY_RECEIVED
+  CANCELLED
+  CLOSED
+}
+
+enum VendorStatus {
+  ACTIVE
+  INACTIVE
+  BLACKLISTED
+  PENDING_APPROVAL
+}
+
+enum VendorContractStatus {
+  DRAFT
+  ACTIVE
+  EXPIRED
+  TERMINATED
+}
+
+enum BudgetStatus {
+  DRAFT
+  APPROVED
+  ACTIVE
+  CLOSED
+}
+
+enum PermitStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  ACTIVE
+  CLOSED
+  REJECTED
+}
+
+enum IncidentSeverity {
+  MINOR
+  MODERATE
+  MAJOR
+  CRITICAL
+}
+
+enum IncidentStatus {
+  REPORTED
+  INVESTIGATING
+  RESOLVED
+  CLOSED
+}
+
+enum InsurancePolicyStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  PENDING_RENEWAL
+}
+
 // ─── Auth Domain ──────────────────────────────────────────────────────────────
 
 model User {
@@ -239,6 +388,30 @@ model User {
   created_warehouse_requirements WarehouseRequirement[] @relation("WarehouseRequirementCreator")
   created_sale_job04f01  SaleJob04F01[]          @relation("SaleJobCreator")
   approved_sale_job04f01 SaleJob04F01[]          @relation("SaleJobApprover")
+  assigned_assets        Asset[]                 @relation("AssetAssignee")
+  assigned_work_orders   WorkOrder[]             @relation("WorkOrderAssignee")
+  created_work_orders    WorkOrder[]             @relation("WorkOrderCreator")
+  assigned_pms           PreventiveMaintenance[] @relation("PMAssignee")
+  created_pms            PreventiveMaintenance[] @relation("PMCreator")
+  completed_pm_logs      PMScheduleLog[]         @relation("PMLogCompleter")
+  created_service_logs   ServiceLog[]            @relation("ServiceLogCreator")
+  petty_cash_funds       PettyCashFund[]         @relation("PettyCashCustodian")
+  petty_cash_requested   PettyCashTransaction[]  @relation("PettyCashRequester")
+  petty_cash_approved    PettyCashTransaction[]  @relation("PettyCashApprover")
+  stock_movements        StockMovement[]         @relation("StockMovementPerformer")
+  stock_issues_to        StockIssue[]            @relation("StockIssueTo")
+  stock_issues_by        StockIssue[]            @relation("StockIssueBy")
+  grn_received           GoodsReceivedNote[]     @relation("GRNReceiver")
+  pr_requested           PurchaseRequest[]       @relation("PRRequester")
+  pr_approved            PurchaseRequest[]       @relation("PRApprover")
+  po_created             PurchaseOrder[]         @relation("POCreator")
+  po_approved            PurchaseOrder[]         @relation("POApprover")
+  budgets_created        Budget[]                @relation("BudgetCreator")
+  budgets_approved       Budget[]                @relation("BudgetApprover")
+  budget_transactions    BudgetTransaction[]     @relation("BudgetTransactionCreator")
+  requested_permits      PermitToWork[]          @relation("PTWRequester")
+  approved_permits       PermitToWork[]          @relation("PTWApprover")
+  reported_incidents     Incident[]              @relation("IncidentReporter")
 
   @@index([email])
 }
@@ -444,11 +617,14 @@ model Project {
   status      ProjectStatus @default(ACTIVE)
   total_units Int           @default(0)
   settings    Json          @default("{}")
+  is_site     Boolean       @default(false)
+  site_type   String?
   created_at  DateTime      @default(now())
   updated_at  DateTime      @updatedAt
 
   interested_customers       Customer[]             @relation("CustomerInterestedProject")
   units                      Unit[]
+  zones                      Zone[]
   quotations                 Quotation[]
   commercial_quotations      CommercialQuotation[]
   commercial_proposals       CommercialProposal[]
@@ -456,9 +632,62 @@ model Project {
   tasks                      Task[]
   warehouse_requirements     WarehouseRequirement[]
   sale_job04f01              SaleJob04F01[]
+  assets                     Asset[]
+  work_orders                WorkOrder[]
+  preventive_maintenances    PreventiveMaintenance[]
+  security_patrols           SecurityPatrol[]
+  cleaning_checklists        CleaningChecklist[]
+  visitors                   Visitor[]
+  key_records                KeyRecord[]
+  parking_slots              ParkingSlot[]
+  service_logs               ServiceLog[]
+  petty_cash_funds           PettyCashFund[]
+  petty_cash_transactions    PettyCashTransaction[]
+  inventory_items            InventoryItem[]
+  stock_issues               StockIssue[]
+  goods_received_notes       GoodsReceivedNote[]
+  purchase_requests          PurchaseRequest[]
+  purchase_orders            PurchaseOrder[]
+  vendor_contracts           VendorContract[]
+  budgets                    Budget[]
+  fire_equipment             FireEquipment[]
+  permits_to_work            PermitToWork[]
+  incidents                  Incident[]
+  insurance_policies         InsurancePolicy[]
+  contractor_safety_records  ContractorSafety[]
 
   @@index([status])
   @@index([code])
+}
+
+model Zone {
+  id             String   @id @default(uuid())
+  project_id     String
+  project        Project  @relation(fields: [project_id], references: [id])
+  name           String
+  code           String
+  description    String?
+  floor          String?
+  building       String?
+  parent_zone_id String?
+  parent_zone    Zone?    @relation("ZoneHierarchy", fields: [parent_zone_id], references: [id])
+  children       Zone[]   @relation("ZoneHierarchy")
+  units          Unit[]
+  assets         Asset[]
+  work_orders    WorkOrder[]
+  preventive_maintenances PreventiveMaintenance[]
+  cleaning_checklists CleaningChecklist[]
+  key_records    KeyRecord[]
+  parking_slots  ParkingSlot[]
+  fire_equipment         FireEquipment[]
+  permits_to_work        PermitToWork[]
+  incidents              Incident[]
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  @@unique([project_id, code])
+  @@index([project_id])
+  @@index([parent_zone_id])
 }
 
 model ProjectTemplate {
@@ -480,7 +709,8 @@ model Unit {
   price       Float?
   status      UnitStatus @default(AVAILABLE)
   features    Json       @default("{}")
-  zone                    String?
+  zone_legacy             String?
+  zone_id                 String?
   location                String?
   office_area_sqm         Float?
   floor_load              String?
@@ -502,11 +732,17 @@ model Unit {
   updated_at  DateTime   @updatedAt
 
   project      Project       @relation(fields: [project_id], references: [id])
+  zone         Zone?         @relation(fields: [zone_id], references: [id])
   quotations   Quotation[]
   contracts    Contract[]
   meter_records MeterRecord[]
   tickets      Ticket[]
   sale_job04f01 SaleJob04F01[]
+  assets       Asset[]
+  work_orders  WorkOrder[]
+  visitors     Visitor[]     @relation("VisitorUnit")
+  key_records  KeyRecord[]   @relation("KeyRecordUnit")
+  parking_slots ParkingSlot[] @relation("ParkingUnit")
 
   @@index([project_id])
   @@index([status])
@@ -802,6 +1038,7 @@ model MeterRecord {
   usage            Float
   amount           Float
   billing_period   String
+  rate_per_unit    Float?
   created_at       DateTime  @default(now())
 
   unit Unit @relation(fields: [unit_id], references: [id])
@@ -885,13 +1122,16 @@ model Ticket {
   description String?
   customer_id String?
   unit_id     String?
-  category    String?
-  priority    Priority     @default(MEDIUM)
-  status      TicketStatus @default(OPEN)
-  assigned_to String?
-  resolved_at DateTime?
-  created_at  DateTime     @default(now())
-  updated_at  DateTime     @updatedAt
+  category         String?
+  priority         Priority     @default(MEDIUM)
+  status           TicketStatus @default(OPEN)
+  assigned_to      String?
+  resolved_at      DateTime?
+  work_order_id    String?
+  resolution_notes String?
+  resolution_date  DateTime?
+  created_at       DateTime     @default(now())
+  updated_at       DateTime     @updatedAt
 
   customer Customer? @relation(fields: [customer_id], references: [id])
   unit     Unit?     @relation(fields: [unit_id], references: [id])
@@ -959,6 +1199,8 @@ model ISODocument {
   effective_date  DateTime?
   review_date     DateTime?
   approved_by     String?
+  is_sop          Boolean        @default(false)
+  department      String?
   created_at      DateTime       @default(now())
   updated_at      DateTime       @updatedAt
 
@@ -1172,4 +1414,743 @@ model SaleJob04F01 {
   @@index([created_by])
   @@index([approved_by])
   @@index([status])
+}
+
+// ─── FMS Domain ───────────────────────────────────────────────────────────────
+
+model AssetCategory {
+  id          String          @id @default(uuid())
+  name        String
+  code        String          @unique
+  description String?
+  parent_id   String?
+  parent      AssetCategory?  @relation("CategoryHierarchy", fields: [parent_id], references: [id])
+  children    AssetCategory[] @relation("CategoryHierarchy")
+  assets      Asset[]
+  created_at  DateTime        @default(now())
+}
+
+model Asset {
+  id              String        @id @default(uuid())
+  asset_number    String        @unique
+  name            String
+  description     String?
+  category_id     String?
+  category        AssetCategory? @relation(fields: [category_id], references: [id])
+  project_id      String
+  project         Project        @relation(fields: [project_id], references: [id])
+  zone_id         String?
+  zone            Zone?          @relation(fields: [zone_id], references: [id])
+  unit_id         String?
+  unit            Unit?          @relation(fields: [unit_id], references: [id])
+  location_detail String?
+  manufacturer    String?
+  model_name      String?
+  serial_number   String?
+  purchase_date   DateTime?
+  purchase_cost   Float?
+  warranty_expiry DateTime?
+  status          AssetStatus    @default(OPERATIONAL)
+  qr_code_url     String?
+  specifications  Json           @default("{}")
+  photos          Json           @default("[]")
+  assigned_to     String?
+  assignee        User?          @relation("AssetAssignee", fields: [assigned_to], references: [id])
+  work_orders     WorkOrder[]
+  calibrations    CalibrationRecord[]
+  pm_schedules    PreventiveMaintenance[]
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
+
+  @@index([project_id])
+  @@index([category_id])
+  @@index([status])
+}
+
+model WorkOrder {
+  id               String          @id @default(uuid())
+  wo_number        String          @unique
+  title            String
+  description      String?
+  type             WorkOrderType   @default(CORRECTIVE)
+  priority         String          @default("MEDIUM")
+  status           WorkOrderStatus @default(OPEN)
+  asset_id         String?
+  asset            Asset?          @relation(fields: [asset_id], references: [id])
+  project_id       String
+  project          Project         @relation(fields: [project_id], references: [id])
+  zone_id          String?
+  zone             Zone?           @relation(fields: [zone_id], references: [id])
+  unit_id          String?
+  unit             Unit?           @relation(fields: [unit_id], references: [id])
+  assigned_to      String?
+  assignee         User?           @relation("WorkOrderAssignee", fields: [assigned_to], references: [id])
+  estimated_hours  Float?
+  actual_hours     Float?
+  scheduled_date   DateTime?
+  started_at       DateTime?
+  completed_at     DateTime?
+  completion_notes String?
+  parts_used       Json            @default("[]")
+  cost_estimate    Float?
+  actual_cost      Float?
+  created_by       String
+  creator          User            @relation("WorkOrderCreator", fields: [created_by], references: [id])
+  pm_logs          PMScheduleLog[]
+  created_at       DateTime        @default(now())
+  updated_at       DateTime        @updatedAt
+
+  @@index([project_id])
+  @@index([asset_id])
+  @@index([status])
+  @@index([assigned_to])
+}
+
+model PreventiveMaintenance {
+  id                   String      @id @default(uuid())
+  pm_number            String      @unique
+  title                String
+  description          String?
+  asset_id             String?
+  asset                Asset?      @relation(fields: [asset_id], references: [id])
+  project_id           String
+  project              Project     @relation(fields: [project_id], references: [id])
+  zone_id              String?
+  zone                 Zone?       @relation(fields: [zone_id], references: [id])
+  frequency            PMFrequency @default(MONTHLY)
+  custom_interval_days Int?
+  checklist            Json        @default("[]")
+  assigned_to          String?
+  assignee             User?       @relation("PMAssignee", fields: [assigned_to], references: [id])
+  next_due_date        DateTime?
+  last_completed_date  DateTime?
+  is_active            Boolean     @default(true)
+  created_by           String
+  creator              User        @relation("PMCreator", fields: [created_by], references: [id])
+  logs                 PMScheduleLog[]
+  created_at           DateTime    @default(now())
+  updated_at           DateTime    @updatedAt
+
+  @@index([project_id])
+  @@index([asset_id])
+}
+
+model PMScheduleLog {
+  id             String                @id @default(uuid())
+  pm_id          String
+  pm             PreventiveMaintenance @relation(fields: [pm_id], references: [id])
+  work_order_id  String?
+  work_order     WorkOrder?            @relation(fields: [work_order_id], references: [id])
+  scheduled_date DateTime
+  actual_date    DateTime?
+  status         String                @default("PENDING")
+  notes          String?
+  completed_by   String?
+  completer      User?                 @relation("PMLogCompleter", fields: [completed_by], references: [id])
+  created_at     DateTime              @default(now())
+
+  @@index([pm_id])
+}
+
+model CalibrationRecord {
+  id                    String            @id @default(uuid())
+  asset_id              String
+  asset                 Asset             @relation(fields: [asset_id], references: [id])
+  calibration_date      DateTime
+  next_calibration_date DateTime?
+  performed_by          String?
+  certificate_url       String?
+  status                CalibrationStatus @default(PENDING)
+  notes                 String?
+  created_at            DateTime          @default(now())
+
+  @@index([asset_id])
+}
+
+// ─── FMS Service Operations ───────────────────────────────────────────────────
+
+model SecurityPatrol {
+  id           String       @id @default(uuid())
+  project_id   String
+  project      Project      @relation(fields: [project_id], references: [id])
+  route_name   String
+  patrol_date  DateTime
+  start_time   DateTime?
+  end_time     DateTime?
+  status       PatrolStatus @default(SCHEDULED)
+  guard_name   String?
+  checkpoints  Json         @default("[]")
+  notes        String?
+  created_at   DateTime     @default(now())
+}
+
+// ─── FMS: Petty Cash Domain ───────────────────────────────────────────────────
+
+model PettyCashFund {
+  id              String   @id @default(uuid())
+  project_id      String
+  project         Project  @relation(fields: [project_id], references: [id])
+  fund_name       String
+  total_amount    Float    @default(0)
+  current_balance Float    @default(0)
+  custodian_id    String?
+  custodian       User?    @relation("PettyCashCustodian", fields: [custodian_id], references: [id])
+  transactions    PettyCashTransaction[]
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@index([project_id])
+}
+
+model CleaningChecklist {
+  id             String   @id @default(uuid())
+  project_id     String
+  project        Project  @relation(fields: [project_id], references: [id])
+  zone_id        String?
+  zone           Zone?    @relation(fields: [zone_id], references: [id])
+  checklist_date DateTime
+  items          Json     @default("[]")
+  completed_by   String?
+  status         String   @default("PENDING")
+  notes          String?
+  created_at     DateTime @default(now())
+
+  @@index([project_id])
+}
+
+model Visitor {
+  id             String        @id @default(uuid())
+  project_id     String
+  project        Project       @relation(fields: [project_id], references: [id])
+  visitor_name   String
+  company        String?
+  purpose        String?
+  host_name      String?
+  unit_id        String?
+  unit           Unit?         @relation("VisitorUnit", fields: [unit_id], references: [id])
+  expected_date  DateTime?
+  check_in_time  DateTime?
+  check_out_time DateTime?
+  id_number      String?
+  vehicle_plate  String?
+  badge_number   String?
+  status         VisitorStatus @default(EXPECTED)
+  photo_url      String?
+  created_at     DateTime      @default(now())
+
+  @@index([project_id])
+}
+
+model KeyRecord {
+  id            String    @id @default(uuid())
+  project_id    String
+  project       Project   @relation(fields: [project_id], references: [id])
+  key_number    String
+  key_type      String?
+  assigned_to   String?
+  unit_id       String?
+  unit          Unit?     @relation("KeyRecordUnit", fields: [unit_id], references: [id])
+  zone_id       String?
+  zone          Zone?     @relation(fields: [zone_id], references: [id])
+  issued_date   DateTime?
+  returned_date DateTime?
+  status        String    @default("AVAILABLE")
+  notes         String?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  @@index([project_id])
+}
+
+model ParkingSlot {
+  id               String    @id @default(uuid())
+  project_id       String
+  project          Project   @relation(fields: [project_id], references: [id])
+  slot_number      String
+  zone_id          String?
+  zone             Zone?     @relation(fields: [zone_id], references: [id])
+  slot_type        String?
+  assigned_to_unit String?
+  assigned_unit    Unit?     @relation("ParkingUnit", fields: [assigned_to_unit], references: [id])
+  vehicle_plate    String?
+  status           String    @default("AVAILABLE")
+  monthly_fee      Float?
+  notes            String?
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+
+  @@index([project_id])
+}
+
+model ServiceLog {
+  id                String    @id @default(uuid())
+  project_id        String
+  project           Project   @relation(fields: [project_id], references: [id])
+  service_type      String
+  provider          String?
+  service_date      DateTime
+  next_service_date DateTime?
+  checklist         Json      @default("[]")
+  cost              Float?
+  notes             String?
+  created_by        String?
+  creator           User?     @relation("ServiceLogCreator", fields: [created_by], references: [id])
+  created_at        DateTime  @default(now())
+}
+
+model PettyCashTransaction {
+  id                 String          @id @default(uuid())
+  transaction_number String          @unique
+  fund_id            String
+  fund               PettyCashFund   @relation(fields: [fund_id], references: [id])
+  project_id         String
+  project            Project         @relation(fields: [project_id], references: [id])
+  amount             Float
+  description        String
+  category           String?
+  receipt_url        String?
+  status             PettyCashStatus @default(PENDING)
+  requested_by       String
+  requester          User            @relation("PettyCashRequester", fields: [requested_by], references: [id])
+  approved_by        String?
+  approver           User?           @relation("PettyCashApprover", fields: [approved_by], references: [id])
+  transaction_date   DateTime
+  notes              String?
+  created_at         DateTime        @default(now())
+  updated_at         DateTime        @updatedAt
+
+  @@index([fund_id])
+  @@index([project_id])
+}
+
+// ─── Inventory Domain ──────────────────────────────────────────────────────────
+
+model InventoryCategory {
+  id          String              @id @default(uuid())
+  name        String
+  code        String              @unique
+  description String?
+  parent_id   String?
+  parent      InventoryCategory?  @relation("InvCategoryHierarchy", fields: [parent_id], references: [id])
+  children    InventoryCategory[] @relation("InvCategoryHierarchy")
+  items       InventoryItem[]
+  created_at  DateTime            @default(now())
+}
+
+model InventoryItem {
+  id               String             @id @default(uuid())
+  item_code        String             @unique
+  name             String
+  description      String?
+  category_id      String?
+  category         InventoryCategory? @relation(fields: [category_id], references: [id])
+  unit_of_measure  String?
+  current_stock    Float              @default(0)
+  minimum_stock    Float?
+  maximum_stock    Float?
+  reorder_point    Float?
+  reorder_quantity Float?
+  unit_cost        Float?
+  storage_location String?
+  project_id       String?
+  project          Project?           @relation(fields: [project_id], references: [id])
+  is_active        Boolean            @default(true)
+  stock_movements  StockMovement[]
+  created_at       DateTime           @default(now())
+  updated_at       DateTime           @updatedAt
+
+  @@index([project_id])
+  @@index([category_id])
+}
+
+model StockMovement {
+  id             String            @id @default(uuid())
+  item_id        String
+  item           InventoryItem     @relation(fields: [item_id], references: [id])
+  movement_type  StockMovementType
+  quantity       Float
+  reference_type String?
+  reference_id   String?
+  from_location  String?
+  to_location    String?
+  notes          String?
+  performed_by   String?
+  performer      User?             @relation("StockMovementPerformer", fields: [performed_by], references: [id])
+  created_at     DateTime          @default(now())
+
+  @@index([item_id])
+}
+
+model StockIssue {
+  id            String   @id @default(uuid())
+  issue_number  String   @unique
+  work_order_id String?
+  project_id    String?
+  project       Project? @relation(fields: [project_id], references: [id])
+  items         Json     @default("[]")
+  issued_to     String?
+  issued_to_user User?   @relation("StockIssueTo", fields: [issued_to], references: [id])
+  issued_by     String?
+  issuer        User?    @relation("StockIssueBy", fields: [issued_by], references: [id])
+  issue_date    DateTime
+  notes         String?
+  created_at    DateTime @default(now())
+
+  @@index([project_id])
+}
+
+model GoodsReceivedNote {
+  id               String    @id @default(uuid())
+  grn_number       String    @unique
+  supplier_name    String
+  items            Json      @default("[]")
+  received_date    DateTime
+  received_by      String?
+  receiver         User?     @relation("GRNReceiver", fields: [received_by], references: [id])
+  status           GRNStatus @default(DRAFT)
+  inspection_notes String?
+  project_id       String?
+  project          Project?  @relation(fields: [project_id], references: [id])
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+
+  @@index([project_id])
+}
+
+// ─── Procurement Domain ────────────────────────────────────────────────────────
+
+model PurchaseRequest {
+  id              String    @id @default(uuid())
+  pr_number       String    @unique
+  title           String
+  description     String?
+  project_id      String?
+  project         Project?  @relation(fields: [project_id], references: [id])
+  items           Json      @default("[]")
+  estimated_total Float?
+  priority        String    @default("MEDIUM")
+  status          PRStatus  @default(DRAFT)
+  requested_by    String
+  requester       User      @relation("PRRequester", fields: [requested_by], references: [id])
+  approved_by     String?
+  approver        User?     @relation("PRApprover", fields: [approved_by], references: [id])
+  approved_at     DateTime?
+  notes           String?
+  purchase_orders   PurchaseOrder[]
+  vendor_quotations VendorQuotation[]
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  @@index([project_id])
+  @@index([status])
+}
+
+model PurchaseOrder {
+  id               String    @id @default(uuid())
+  po_number        String    @unique
+  pr_id            String?
+  purchase_request PurchaseRequest? @relation(fields: [pr_id], references: [id])
+  vendor_name      String
+  project_id       String?
+  project          Project?  @relation(fields: [project_id], references: [id])
+  items            Json      @default("[]")
+  subtotal         Float     @default(0)
+  tax              Float     @default(0)
+  total            Float     @default(0)
+  status           POStatus  @default(DRAFT)
+  delivery_date    DateTime?
+  payment_terms    String?
+  notes            String?
+  created_by       String
+  creator          User      @relation("POCreator", fields: [created_by], references: [id])
+  approved_by      String?
+  approver         User?     @relation("POApprover", fields: [approved_by], references: [id])
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+
+  @@index([project_id])
+  @@index([pr_id])
+  @@index([status])
+}
+
+model VendorQuotation {
+  id               String    @id @default(uuid())
+  quotation_number String?
+  vendor_name      String
+  pr_id            String?
+  purchase_request PurchaseRequest? @relation(fields: [pr_id], references: [id])
+  items            Json      @default("[]")
+  total            Float     @default(0)
+  valid_until      DateTime?
+  notes            String?
+  is_selected      Boolean   @default(false)
+  created_at       DateTime  @default(now())
+
+  @@index([pr_id])
+}
+
+// ─── Vendor Domain ────────────────────────────────────────────────────────────
+
+model Vendor {
+  id             String           @id @default(uuid())
+  vendor_code    String           @unique
+  name           String
+  tax_id         String?
+  address        String?
+  phone          String?
+  email          String?
+  website        String?
+  contact_person String?
+  category       String?
+  rating         Int?
+  status         VendorStatus     @default(ACTIVE)
+  bank_details   Json             @default("{}")
+  notes          String?
+  contracts      VendorContract[]
+  item_prices    VendorItemPrice[]
+  invoices       VendorInvoice[]
+  created_at     DateTime         @default(now())
+  updated_at     DateTime         @updatedAt
+
+  @@index([status])
+}
+
+model VendorContract {
+  id              String               @id @default(uuid())
+  contract_number String               @unique
+  vendor_id       String
+  vendor          Vendor               @relation(fields: [vendor_id], references: [id])
+  title           String
+  scope           String?
+  start_date      DateTime
+  end_date        DateTime
+  value           Float?
+  payment_terms   String?
+  status          VendorContractStatus @default(DRAFT)
+  document_url    String?
+  project_id      String?
+  project         Project?             @relation(fields: [project_id], references: [id])
+  created_at      DateTime             @default(now())
+  updated_at      DateTime             @updatedAt
+
+  @@index([vendor_id])
+  @@index([project_id])
+}
+
+model VendorItemPrice {
+  id          String    @id @default(uuid())
+  vendor_id   String
+  vendor      Vendor    @relation(fields: [vendor_id], references: [id])
+  item_name   String
+  item_code   String?
+  unit_price  Float
+  currency    String    @default("THB")
+  valid_from  DateTime?
+  valid_until DateTime?
+  is_active   Boolean   @default(true)
+  created_at  DateTime  @default(now())
+
+  @@index([vendor_id])
+}
+
+model VendorInvoice {
+  id             String    @id @default(uuid())
+  invoice_number String
+  vendor_id      String
+  vendor         Vendor    @relation(fields: [vendor_id], references: [id])
+  po_id          String?
+  items          Json      @default("[]")
+  subtotal       Float     @default(0)
+  tax            Float     @default(0)
+  total          Float     @default(0)
+  invoice_date   DateTime
+  due_date       DateTime?
+  payment_status String    @default("PENDING")
+  payment_date   DateTime?
+  notes          String?
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+
+  @@index([vendor_id])
+}
+
+// ─── Budget Domain ─────────────────────────────────────────────────────────────
+
+model Budget {
+  id              String       @id @default(uuid())
+  budget_code     String       @unique
+  title           String
+  project_id      String
+  project         Project      @relation(fields: [project_id], references: [id])
+  fiscal_year     Int
+  period_start    DateTime
+  period_end      DateTime
+  total_approved  Float        @default(0)
+  total_committed Float        @default(0)
+  total_actual    Float        @default(0)
+  status          BudgetStatus @default(DRAFT)
+  notes           String?
+  created_by      String
+  creator         User         @relation("BudgetCreator", fields: [created_by], references: [id])
+  approved_by     String?
+  approver        User?        @relation("BudgetApprover", fields: [approved_by], references: [id])
+  lines           BudgetLine[]
+  transactions    BudgetTransaction[]
+  created_at      DateTime     @default(now())
+  updated_at      DateTime     @updatedAt
+
+  @@index([project_id])
+  @@index([fiscal_year])
+}
+
+model BudgetLine {
+  id               String              @id @default(uuid())
+  budget_id        String
+  budget           Budget              @relation(fields: [budget_id], references: [id], onDelete: Cascade)
+  category         String
+  description      String?
+  approved_amount  Float               @default(0)
+  committed_amount Float               @default(0)
+  actual_amount    Float               @default(0)
+  notes            String?
+  transactions     BudgetTransaction[]
+  created_at       DateTime            @default(now())
+  updated_at       DateTime            @updatedAt
+
+  @@index([budget_id])
+}
+
+model BudgetTemplate {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  lines       Json     @default("[]")
+  created_at  DateTime @default(now())
+}
+
+model BudgetTransaction {
+  id               String      @id @default(uuid())
+  budget_id        String
+  budget           Budget      @relation(fields: [budget_id], references: [id])
+  budget_line_id   String?
+  budget_line      BudgetLine? @relation(fields: [budget_line_id], references: [id])
+  amount           Float
+  transaction_type String
+  reference_type   String?
+  reference_id     String?
+  description      String?
+  created_by       String?
+  creator          User?       @relation("BudgetTransactionCreator", fields: [created_by], references: [id])
+  created_at       DateTime    @default(now())
+
+  @@index([budget_id])
+  @@index([budget_line_id])
+}
+
+// ─── FMS Compliance & Safety Domain ──────────────────────────────────────────
+
+model FireEquipment {
+  id                   String    @id @default(uuid())
+  equipment_number     String
+  type                 String
+  project_id           String
+  project              Project   @relation(fields: [project_id], references: [id])
+  zone_id              String?
+  zone                 Zone?     @relation(fields: [zone_id], references: [id])
+  location_detail      String?
+  last_inspection_date DateTime?
+  next_inspection_date DateTime?
+  status               String    @default("ACTIVE")
+  notes                String?
+  created_at           DateTime  @default(now())
+  updated_at           DateTime  @updatedAt
+
+  @@index([project_id])
+}
+
+model PermitToWork {
+  id              String       @id @default(uuid())
+  permit_number   String       @unique
+  title           String
+  description     String?
+  project_id      String
+  project         Project      @relation(fields: [project_id], references: [id])
+  zone_id         String?
+  zone            Zone?        @relation(fields: [zone_id], references: [id])
+  permit_type     String?
+  risk_assessment Json         @default("[]")
+  start_date      DateTime?
+  end_date        DateTime?
+  status          PermitStatus @default(DRAFT)
+  requested_by    String?
+  requester       User?        @relation("PTWRequester", fields: [requested_by], references: [id])
+  approved_by     String?
+  approver        User?        @relation("PTWApprover", fields: [approved_by], references: [id])
+  contractor_name String?
+  safety_measures Json         @default("[]")
+  created_at      DateTime     @default(now())
+  updated_at      DateTime     @updatedAt
+
+  @@index([project_id])
+}
+
+model Incident {
+  id                  String           @id @default(uuid())
+  incident_number     String           @unique
+  title               String
+  description         String?
+  project_id          String
+  project             Project          @relation(fields: [project_id], references: [id])
+  zone_id             String?
+  zone                Zone?            @relation(fields: [zone_id], references: [id])
+  incident_date       DateTime
+  severity            IncidentSeverity @default(MINOR)
+  status              IncidentStatus   @default(REPORTED)
+  reported_by         String?
+  reporter            User?            @relation("IncidentReporter", fields: [reported_by], references: [id])
+  investigation_notes String?
+  root_cause          String?
+  corrective_actions  Json             @default("[]")
+  work_order_id       String?
+  photos              Json             @default("[]")
+  created_at          DateTime         @default(now())
+  updated_at          DateTime         @updatedAt
+
+  @@index([project_id])
+}
+
+model InsurancePolicy {
+  id               String                @id @default(uuid())
+  policy_number    String                @unique
+  provider         String
+  type             String
+  coverage_details Json                  @default("{}")
+  project_id       String?
+  project          Project?              @relation(fields: [project_id], references: [id])
+  premium          Float?
+  start_date       DateTime
+  end_date         DateTime
+  status           InsurancePolicyStatus @default(ACTIVE)
+  document_url     String?
+  notes            String?
+  created_at       DateTime              @default(now())
+  updated_at       DateTime              @updatedAt
+
+  @@index([project_id])
+}
+
+model ContractorSafety {
+  id                    String    @id @default(uuid())
+  contractor_name       String
+  project_id            String
+  project               Project   @relation(fields: [project_id], references: [id])
+  safety_induction_date DateTime?
+  safety_cert_url       String?
+  permit_ids            Json      @default("[]")
+  is_cleared            Boolean   @default(false)
+  notes                 String?
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+
+  @@index([project_id])
 }

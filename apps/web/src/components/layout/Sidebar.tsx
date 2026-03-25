@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
 import {
+  Factory,
   LayoutDashboard,
   Users,
   Package,
@@ -35,6 +36,7 @@ import type { AuthUser } from '@thanamol/shared'
 type NavSubItem = {
   label: string
   path: string
+  disabled?: boolean
 }
 
 type NavItem = {
@@ -174,6 +176,54 @@ function buildNavigation(t: ReturnType<typeof useLanguage>['t']): NavItem[] {
         { label: 'SALE-JOB04-F01: ใบแจ้งหนี้', path: '/forms/sale-job04-f01' },
         { label: 'SALE-JOB04-F02: ใบส่งมอบพื้นที่', path: '/forms/handover' },
         { label: 'SALE-JOB04-F03: ภาพส่งมอบพื้นที่', path: '/forms/handover-photos' },
+      ],
+    },
+    {
+      label: 'Facility Management',
+      icon: Factory,
+      permission: 'dashboard',
+      submenu: [
+        { label: 'Dashboard', path: '/facility-management' },
+        { label: 'Zones', path: '/facility-management/zones' },
+        { label: 'Assets', path: '/facility-management/assets' },
+        { label: 'Work Orders', path: '/facility-management/work-orders' },
+        { label: 'PM Schedules', path: '/facility-management/preventive-maintenance' },
+        { label: 'Calibration', path: '/facility-management/calibrations' },
+        { label: 'Petty Cash', path: '/facility-management/petty-cash' },
+        { label: 'Assets', path: '/facility-management/assets', disabled: true },
+        { label: 'Work Orders', path: '/facility-management/work-orders', disabled: true },
+        { label: 'Inventory', path: '/facility-management/inventory', disabled: true },
+        { label: 'Inventory Items', path: '/facility-management/inventory' },
+        { label: 'Inv. Categories', path: '/facility-management/inventory/categories' },
+        { label: 'Stock Issues', path: '/facility-management/inventory/stock-issues' },
+        { label: 'Goods Received', path: '/facility-management/inventory/grn' },
+        { label: 'Purchase Requests', path: '/facility-management/procurement' },
+        { label: 'Purchase Orders', path: '/facility-management/procurement/orders' },
+        { label: 'Vendor Quotations', path: '/facility-management/procurement/quotations' },
+        { label: 'Vendors', path: '/facility-management/vendors' },
+        { label: 'Vendor Contracts', path: '/facility-management/vendors/contracts' },
+        { label: 'Vendor Invoices', path: '/facility-management/vendors/invoices' },
+      ],
+    },
+    {
+      label: 'Service Ops',
+      icon: Wrench,
+      permission: 'dashboard',
+      submenu: [
+        { label: 'Security Patrols', path: '/facility-management/security' },
+        { label: 'Cleaning', path: '/facility-management/cleaning' },
+        { label: 'Visitors', path: '/facility-management/visitors' },
+        { label: 'Key Management', path: '/facility-management/keys' },
+        { label: 'Parking', path: '/facility-management/parking' },
+        { label: 'Service Logs', path: '/facility-management/services' },
+        { label: 'Budget List', path: '/facility-management/budget' },
+        { label: 'Budget Templates', path: '/facility-management/budget/templates' },
+        { label: 'Fire Equipment', path: '/facility-management/compliance/fire-equipment' },
+        { label: 'Permit to Work', path: '/facility-management/compliance/permits' },
+        { label: 'Incidents', path: '/facility-management/compliance/incidents' },
+        { label: 'Insurance', path: '/facility-management/compliance/insurance' },
+        { label: 'Contractor Safety', path: '/facility-management/compliance/contractors' },
+        { label: 'FMS Reports', path: '/facility-management/reports' },
       ],
     },
     {
@@ -404,6 +454,16 @@ export function Sidebar({ user, userPermissions, isOpen, isCollapsed, onClose, o
                   {isExpanded && (
                     <div className="ml-7 mt-1 space-y-0.5 pl-4 border-l border-slate-100">
                       {item.submenu.map((subItem) => {
+                        if (subItem.disabled) {
+                          return (
+                            <div
+                              key={subItem.path}
+                              className="block px-4 py-2 text-xs rounded-lg text-slate-300 cursor-not-allowed"
+                            >
+                              <span className="font-extralight tracking-wider">{subItem.label}</span>
+                            </div>
+                          )
+                        }
                         const subActive = isPathActive(subItem.path)
                         return (
                           <Link

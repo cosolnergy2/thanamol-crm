@@ -218,6 +218,8 @@ export type Project = {
   status: ProjectStatus
   total_units: number
   settings: Record<string, unknown>
+  is_site: boolean
+  site_type: string | null
   created_at: string
   updated_at: string
 }
@@ -251,11 +253,51 @@ export type CreateProjectRequest = {
   status?: ProjectStatus
   totalUnits?: number
   settings?: Record<string, unknown>
+  isSite?: boolean
+  siteType?: string
 }
 
 export type UpdateProjectRequest = Partial<CreateProjectRequest>
 
 export type ProjectListResponse = PaginatedResponse<ProjectWithUnitCounts>
+
+// ─── Zone ─────────────────────────────────────────────────────────────────────
+
+export type Zone = {
+  id: string
+  project_id: string
+  name: string
+  code: string
+  description: string | null
+  floor: string | null
+  building: string | null
+  parent_zone_id: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type ZoneWithChildren = Zone & {
+  children: Zone[]
+  parent_zone: Zone | null
+}
+
+export type CreateZoneRequest = {
+  projectId: string
+  name: string
+  code: string
+  description?: string
+  floor?: string
+  building?: string
+  parentZoneId?: string
+}
+
+export type UpdateZoneRequest = Partial<Omit<CreateZoneRequest, 'projectId'>>
+
+export type ZoneWithCount = Zone & {
+  _count: { children: number; units: number }
+}
+
+export type ZoneListResponse = PaginatedResponse<ZoneWithCount>
 
 // ─── ProjectTemplate ──────────────────────────────────────────────────────────
 
@@ -290,7 +332,8 @@ export type Unit = {
   price: number | null
   status: UnitStatus
   features: Record<string, unknown>
-  zone: string | null
+  zone_legacy: string | null
+  zone_id: string | null
   location: string | null
   office_area_sqm: number | null
   floor_load: string | null
@@ -344,7 +387,8 @@ export type CreateUnitRequest = {
   price?: number
   status?: UnitStatus
   features?: Record<string, unknown>
-  zone?: string
+  zoneLegacy?: string
+  zoneId?: string
   location?: string
   officeAreaSqm?: number
   floorLoad?: string
@@ -1110,6 +1154,7 @@ export type MeterRecord = {
   usage: number
   amount: number
   billing_period: string
+  rate_per_unit: number | null
   created_at: string
 }
 
@@ -1282,6 +1327,9 @@ export type Ticket = {
   status: TicketStatus
   assigned_to: string | null
   resolved_at: string | null
+  work_order_id: string | null
+  resolution_notes: string | null
+  resolution_date: string | null
   created_at: string
   updated_at: string
 }
@@ -1777,6 +1825,8 @@ export type ISODocumentRecord = {
   effective_date: string | null
   review_date: string | null
   approved_by: string | null
+  is_sop: boolean
+  department: string | null
   created_at: string
   updated_at: string
   approver?: { id: string; first_name: string; last_name: string } | null
@@ -1844,3 +1894,1735 @@ export type PDFTemplateQueryParams = {
 // Aliases
 export type ISODocument = ISODocumentRecord
 export type PDFTemplate = PDFTemplateRecord
+
+// ─── FMS: Asset Management ────────────────────────────────────────────────────
+
+export type AssetStatus = 'OPERATIONAL' | 'UNDER_MAINTENANCE' | 'OUT_OF_SERVICE' | 'DISPOSED' | 'IN_STORAGE'
+
+export type AssetCategory = {
+  id: string
+  name: string
+  code: string
+  description: string | null
+  parent_id: string | null
+  created_at: string
+}
+
+export type AssetCategoryWithChildren = AssetCategory & {
+  children: AssetCategory[]
+  parent: AssetCategory | null
+}
+
+export type CreateAssetCategoryRequest = {
+  name: string
+  code: string
+  description?: string
+  parentId?: string
+}
+
+export type UpdateAssetCategoryRequest = Partial<CreateAssetCategoryRequest>
+
+export type AssetCategoryListResponse = PaginatedResponse<AssetCategory>
+
+export type Asset = {
+  id: string
+  asset_number: string
+  name: string
+  description: string | null
+  category_id: string | null
+  project_id: string
+  zone_id: string | null
+  unit_id: string | null
+  location_detail: string | null
+  manufacturer: string | null
+  model_name: string | null
+  serial_number: string | null
+  purchase_date: string | null
+  purchase_cost: number | null
+  warranty_expiry: string | null
+  status: AssetStatus
+  qr_code_url: string | null
+  specifications: Record<string, unknown>
+  photos: string[]
+  assigned_to: string | null
+}
+
+// ─── FMS: Petty Cash ─────────────────────────────────────────────────────────
+
+export type PettyCashStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'SETTLED'
+
+export type PettyCashFund = {
+  id: string
+  project_id: string
+  fund_name: string
+  total_amount: number
+  current_balance: number
+  custodian_id: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type AssetWithRelations = Asset & {
+  category: AssetCategory | null
+  project: { id: string; name: string; code: string }
+  zone: { id: string; name: string; code: string } | null
+  unit: { id: string; unit_number: string } | null
+  assignee: { id: string; first_name: string; last_name: string } | null
+  _count: { work_orders: number; calibrations: number; pm_schedules: number }
+}
+
+export type CreateAssetRequest = {
+  name: string
+  description?: string
+  categoryId?: string
+  projectId: string
+  zoneId?: string
+  unitId?: string
+  locationDetail?: string
+  manufacturer?: string
+  modelName?: string
+  serialNumber?: string
+  purchaseDate?: string
+  purchaseCost?: number
+  warrantyExpiry?: string
+  status?: AssetStatus
+  specifications?: Record<string, unknown>
+  photos?: string[]
+  assignedTo?: string
+}
+
+export type UpdateAssetRequest = Partial<CreateAssetRequest>
+
+export type AssetListResponse = PaginatedResponse<AssetWithRelations>
+
+export type AssetQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  zoneId?: string
+  categoryId?: string
+  status?: AssetStatus | 'all'
+  search?: string
+}
+
+// ─── FMS: Work Orders ─────────────────────────────────────────────────────────
+
+export type WorkOrderStatus = 'OPEN' | 'ASSIGNED' | 'IN_PROGRESS' | 'ON_HOLD' | 'COMPLETED' | 'CANCELLED'
+export type WorkOrderType = 'CORRECTIVE' | 'PREVENTIVE' | 'EMERGENCY' | 'INSPECTION' | 'CALIBRATION'
+export type WorkOrderPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
+
+export type WorkOrder = {
+  id: string
+  wo_number: string
+  title: string
+  description: string | null
+  type: WorkOrderType
+  priority: string
+  status: WorkOrderStatus
+  asset_id: string | null
+  project_id: string
+  zone_id: string | null
+  unit_id: string | null
+  assigned_to: string | null
+  estimated_hours: number | null
+  actual_hours: number | null
+  scheduled_date: string | null
+  started_at: string | null
+  completed_at: string | null
+  completion_notes: string | null
+  parts_used: unknown[]
+  cost_estimate: number | null
+  actual_cost: number | null
+  created_by: string
+  created_at: string
+  updated_at: string
+}
+
+export type WorkOrderWithRelations = WorkOrder & {
+  asset: { id: string; asset_number: string; name: string } | null
+  project: { id: string; name: string; code: string }
+  zone: { id: string; name: string } | null
+  unit: { id: string; unit_number: string } | null
+  assignee: { id: string; first_name: string; last_name: string } | null
+  creator: { id: string; first_name: string; last_name: string }
+}
+
+export type CreateWorkOrderRequest = {
+  title: string
+  description?: string
+  type?: WorkOrderType
+  priority?: string
+  assetId?: string
+  projectId: string
+  zoneId?: string
+  unitId?: string
+  assignedTo?: string
+  estimatedHours?: number
+  scheduledDate?: string
+  costEstimate?: number
+  createdBy: string
+}
+
+export type UpdateWorkOrderRequest = Partial<Omit<CreateWorkOrderRequest, 'createdBy'>> & {
+  status?: WorkOrderStatus
+  actualHours?: number
+  startedAt?: string
+  completedAt?: string
+  completionNotes?: string
+  partsUsed?: unknown[]
+  actualCost?: number
+}
+
+export type WorkOrderListResponse = PaginatedResponse<WorkOrderWithRelations>
+
+export type WorkOrderQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  assetId?: string
+  status?: WorkOrderStatus | 'all'
+  type?: WorkOrderType | 'all'
+  assignedTo?: string
+  search?: string
+}
+
+// ─── FMS: Preventive Maintenance ──────────────────────────────────────────────
+
+export type PMFrequency = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'SEMI_ANNUAL' | 'ANNUAL' | 'CUSTOM'
+
+export type PreventiveMaintenance = {
+  id: string
+  pm_number: string
+  title: string
+  description: string | null
+  asset_id: string | null
+  project_id: string
+  zone_id: string | null
+  frequency: PMFrequency
+  custom_interval_days: number | null
+  checklist: unknown[]
+  assigned_to: string | null
+  next_due_date: string | null
+  last_completed_date: string | null
+  is_active: boolean
+  created_by: string
+  created_at: string
+  updated_at: string
+}
+
+export type PMWithRelations = PreventiveMaintenance & {
+  asset: { id: string; asset_number: string; name: string } | null
+  project: { id: string; name: string; code: string }
+  zone: { id: string; name: string } | null
+  assignee: { id: string; first_name: string; last_name: string } | null
+  creator: { id: string; first_name: string; last_name: string }
+  _count: { logs: number }
+}
+
+export type CreatePMRequest = {
+  title: string
+  description?: string
+  assetId?: string
+  projectId: string
+  zoneId?: string
+  frequency?: PMFrequency
+  customIntervalDays?: number
+  checklist?: unknown[]
+  assignedTo?: string
+  nextDueDate?: string
+  createdBy: string
+}
+
+export type UpdatePMRequest = Partial<Omit<CreatePMRequest, 'createdBy'>> & {
+  isActive?: boolean
+  lastCompletedDate?: string
+}
+
+export type PMListResponse = PaginatedResponse<PMWithRelations>
+
+export type PMQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  assetId?: string
+  isActive?: boolean
+  search?: string
+}
+
+export type PMScheduleLog = {
+  id: string
+  pm_id: string
+  work_order_id: string | null
+  scheduled_date: string
+  actual_date: string | null
+  status: string
+  notes: string | null
+  completed_by: string | null
+  created_at: string
+}
+
+// ─── FMS: Calibration ─────────────────────────────────────────────────────────
+
+export type CalibrationStatus = 'PENDING' | 'IN_PROGRESS' | 'PASSED' | 'FAILED' | 'OVERDUE'
+
+export type CalibrationRecord = {
+  id: string
+  asset_id: string
+  calibration_date: string
+  next_calibration_date: string | null
+  performed_by: string | null
+  certificate_url: string | null
+  status: CalibrationStatus
+  notes: string | null
+  created_at: string
+}
+
+// ─── FMS Service Operations ───────────────────────────────────────────────────
+
+export type PatrolStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'MISSED'
+export type VisitorStatus = 'EXPECTED' | 'CHECKED_IN' | 'CHECKED_OUT' | 'CANCELLED'
+
+export type SecurityPatrol = {
+  id: string
+  project_id: string
+  route_name: string
+  patrol_date: string
+  start_time: string | null
+  end_time: string | null
+  status: PatrolStatus
+  guard_name: string | null
+  checkpoints: unknown[]
+  notes: string | null
+  created_at: string
+}
+
+export type CalibrationWithAsset = CalibrationRecord & {
+  asset: { id: string; asset_number: string; name: string }
+}
+
+export type CreateCalibrationRequest = {
+  assetId: string
+  calibrationDate: string
+  nextCalibrationDate?: string
+  performedBy?: string
+  certificateUrl?: string
+  status?: CalibrationStatus
+  notes?: string
+}
+
+export type UpdateCalibrationRequest = Partial<CreateCalibrationRequest>
+
+export type CalibrationListResponse = PaginatedResponse<CalibrationWithAsset>
+
+export type CalibrationQueryParams = {
+  page?: number
+  limit?: number
+  assetId?: string
+  status?: CalibrationStatus | 'all'
+  projectId?: string
+}
+export type CreateSecurityPatrolRequest = {
+  projectId: string
+  routeName: string
+  patrolDate: string
+  startTime?: string
+  endTime?: string
+  status?: PatrolStatus
+  guardName?: string
+  checkpoints?: unknown[]
+  notes?: string
+}
+
+export type UpdateSecurityPatrolRequest = Partial<Omit<CreateSecurityPatrolRequest, 'projectId'>>
+
+export type SecurityPatrolListResponse = PaginatedResponse<SecurityPatrol>
+
+export type CleaningChecklist = {
+  id: string
+  project_id: string
+  zone_id: string | null
+  checklist_date: string
+  items: unknown[]
+  completed_by: string | null
+  status: string
+  notes: string | null
+  created_at: string
+}
+
+export type CreateCleaningChecklistRequest = {
+  projectId: string
+  zoneId?: string
+  checklistDate: string
+  items?: unknown[]
+  completedBy?: string
+  status?: string
+  notes?: string
+}
+
+export type UpdateCleaningChecklistRequest = Partial<Omit<CreateCleaningChecklistRequest, 'projectId'>>
+
+export type CleaningChecklistListResponse = PaginatedResponse<CleaningChecklist>
+
+export type Visitor = {
+  id: string
+  project_id: string
+  visitor_name: string
+  company: string | null
+  purpose: string | null
+  host_name: string | null
+  unit_id: string | null
+  expected_date: string | null
+  check_in_time: string | null
+  check_out_time: string | null
+  id_number: string | null
+  vehicle_plate: string | null
+  badge_number: string | null
+  status: VisitorStatus
+  photo_url: string | null
+  created_at: string
+}
+
+export type CreateVisitorRequest = {
+  projectId: string
+  visitorName: string
+  company?: string
+  purpose?: string
+  hostName?: string
+  unitId?: string
+  expectedDate?: string
+  idNumber?: string
+  vehiclePlate?: string
+  badgeNumber?: string
+  photoUrl?: string
+}
+
+export type UpdateVisitorRequest = Partial<Omit<CreateVisitorRequest, 'projectId'>>
+
+export type VisitorListResponse = PaginatedResponse<Visitor>
+
+export type KeyRecord = {
+  id: string
+  project_id: string
+  key_number: string
+  key_type: string | null
+  assigned_to: string | null
+  unit_id: string | null
+  zone_id: string | null
+  issued_date: string | null
+  returned_date: string | null
+  status: string
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type PettyCashFundWithCounts = PettyCashFund & {
+  _count: { transactions: number }
+}
+
+export type PettyCashTransaction = {
+  id: string
+  transaction_number: string
+  fund_id: string
+  project_id: string
+  amount: number
+  description: string
+  category: string | null
+  receipt_url: string | null
+  status: PettyCashStatus
+  requested_by: string
+  approved_by: string | null
+  transaction_date: string
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+// ─── FMS: Inventory & Stock Management ────────────────────────────────────────
+
+export type StockMovementType = 'RECEIVED' | 'ISSUED' | 'RETURNED' | 'ADJUSTED' | 'TRANSFERRED'
+export type GRNStatus = 'DRAFT' | 'RECEIVED' | 'INSPECTED' | 'ACCEPTED' | 'REJECTED'
+
+export type InventoryCategory = {
+  id: string
+  name: string
+  code: string
+  description: string | null
+  parent_id: string | null
+  created_at: string
+}
+
+export type InventoryCategoryWithChildren = InventoryCategory & {
+  children: InventoryCategory[]
+  parent: InventoryCategory | null
+  _count: { items: number }
+}
+
+export type InventoryItem = {
+  id: string
+  item_code: string
+  name: string
+  description: string | null
+  category_id: string | null
+  unit_of_measure: string | null
+  current_stock: number
+  minimum_stock: number | null
+  maximum_stock: number | null
+  reorder_point: number | null
+  reorder_quantity: number | null
+  unit_cost: number | null
+  storage_location: string | null
+  project_id: string | null
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export type CreateKeyRecordRequest = {
+  projectId: string
+  keyNumber: string
+  keyType?: string
+  assignedTo?: string
+  unitId?: string
+  zoneId?: string
+  issuedDate?: string
+  returnedDate?: string
+  status?: string
+  notes?: string
+}
+
+export type UpdateKeyRecordRequest = Partial<Omit<CreateKeyRecordRequest, 'projectId'>>
+
+export type KeyRecordListResponse = PaginatedResponse<KeyRecord>
+
+export type ParkingSlot = {
+  id: string
+  project_id: string
+  slot_number: string
+  zone_id: string | null
+  slot_type: string | null
+  assigned_to_unit: string | null
+  vehicle_plate: string | null
+  status: string
+  monthly_fee: number | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type InventoryItemWithRelations = InventoryItem & {
+  category: InventoryCategory | null
+  project: { id: string; name: string; code: string } | null
+}
+
+export type StockMovement = {
+  id: string
+  item_id: string
+  movement_type: StockMovementType
+  quantity: number
+  reference_type: string | null
+  reference_id: string | null
+  from_location: string | null
+  to_location: string | null
+  notes: string | null
+  performed_by: string | null
+  created_at: string
+}
+
+export type StockMovementWithRelations = StockMovement & {
+  item: { id: string; item_code: string; name: string }
+  performer: { id: string; first_name: string; last_name: string } | null
+}
+
+export type StockIssueItem = {
+  item_id: string
+  item_code: string
+  item_name: string
+  quantity: number
+  unit_cost: number | null
+  unit_of_measure: string | null
+}
+
+export type StockIssue = {
+  id: string
+  issue_number: string
+  work_order_id: string | null
+  project_id: string | null
+  items: StockIssueItem[]
+  issued_to: string | null
+  issued_by: string | null
+  issue_date: string
+  notes: string | null
+  created_at: string
+}
+
+export type StockIssueWithRelations = StockIssue & {
+  project: { id: string; name: string; code: string } | null
+  issued_to_user: { id: string; first_name: string; last_name: string } | null
+  issuer: { id: string; first_name: string; last_name: string } | null
+}
+
+export type GRNItem = {
+  item_id: string
+  item_code: string
+  item_name: string
+  quantity: number
+  unit_cost: number | null
+  unit_of_measure: string | null
+}
+
+export type GoodsReceivedNote = {
+  id: string
+  grn_number: string
+  supplier_name: string
+  items: GRNItem[]
+  received_date: string
+  received_by: string | null
+  status: GRNStatus
+  inspection_notes: string | null
+  project_id: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type CreateParkingSlotRequest = {
+  projectId: string
+  slotNumber: string
+  zoneId?: string
+  slotType?: string
+  assignedToUnit?: string
+  vehiclePlate?: string
+  status?: string
+  monthlyFee?: number
+  notes?: string
+}
+
+export type UpdateParkingSlotRequest = Partial<Omit<CreateParkingSlotRequest, 'projectId'>>
+
+export type ParkingSlotListResponse = PaginatedResponse<ParkingSlot>
+
+export type ServiceLog = {
+  id: string
+  project_id: string
+  service_type: string
+  provider: string | null
+  service_date: string
+  next_service_date: string | null
+  checklist: unknown[]
+  cost: number | null
+  notes: string | null
+  created_by: string | null
+  created_at: string
+}
+
+export type CreateServiceLogRequest = {
+  projectId: string
+  serviceType: string
+  provider?: string
+  serviceDate: string
+  nextServiceDate?: string
+  checklist?: unknown[]
+  cost?: number
+  notes?: string
+}
+
+export type UpdateServiceLogRequest = Partial<Omit<CreateServiceLogRequest, 'projectId'>>
+
+export type ServiceLogListResponse = PaginatedResponse<ServiceLog>
+export type PettyCashTransactionWithRelations = PettyCashTransaction & {
+  fund: Pick<PettyCashFund, 'id' | 'fund_name'>
+  requester: { id: string; first_name: string; last_name: string }
+  approver: { id: string; first_name: string; last_name: string } | null
+}
+
+export type CreatePettyCashFundRequest = {
+  projectId: string
+  fundName: string
+  totalAmount: number
+  custodianId?: string
+}
+
+export type UpdatePettyCashFundRequest = {
+  fundName?: string
+  totalAmount?: number
+  custodianId?: string
+}
+
+export type CreatePettyCashTransactionRequest = {
+  fundId: string
+  projectId: string
+  amount: number
+  description: string
+  category?: string
+  receiptUrl?: string
+  requestedBy: string
+  transactionDate: string
+  notes?: string
+}
+
+export type PettyCashFundListResponse = PaginatedResponse<PettyCashFundWithCounts>
+export type PettyCashTransactionListResponse = PaginatedResponse<PettyCashTransactionWithRelations>
+export type GoodsReceivedNoteWithRelations = GoodsReceivedNote & {
+  project: { id: string; name: string; code: string } | null
+  receiver: { id: string; first_name: string; last_name: string } | null
+}
+
+// ─── Inventory Request/Response Types ─────────────────────────────────────────
+
+export type CreateInventoryCategoryRequest = {
+  name: string
+  code: string
+  description?: string
+  parentId?: string
+}
+
+export type UpdateInventoryCategoryRequest = Partial<CreateInventoryCategoryRequest>
+
+export type InventoryCategoryListResponse = PaginatedResponse<InventoryCategoryWithChildren>
+
+export type CreateInventoryItemRequest = {
+  name: string
+  description?: string
+  categoryId?: string
+  unitOfMeasure?: string
+  minimumStock?: number
+  maximumStock?: number
+  reorderPoint?: number
+  reorderQuantity?: number
+  unitCost?: number
+  storageLocation?: string
+  projectId?: string
+}
+
+export type UpdateInventoryItemRequest = Partial<CreateInventoryItemRequest> & {
+  isActive?: boolean
+}
+
+export type InventoryItemListResponse = PaginatedResponse<InventoryItemWithRelations>
+
+export type InventoryQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  categoryId?: string
+  lowStock?: boolean
+  search?: string
+  isActive?: boolean
+}
+
+export type CreateStockMovementRequest = {
+  itemId: string
+  movementType: StockMovementType
+  quantity: number
+  referenceType?: string
+  referenceId?: string
+  fromLocation?: string
+  toLocation?: string
+  notes?: string
+  performedBy?: string
+}
+
+export type StockMovementListResponse = PaginatedResponse<StockMovementWithRelations>
+
+export type CreateStockIssueRequest = {
+  workOrderId?: string
+  projectId?: string
+  items: StockIssueItem[]
+  issuedTo?: string
+  issuedBy?: string
+  issueDate: string
+  notes?: string
+}
+
+export type UpdateStockIssueRequest = Partial<Omit<CreateStockIssueRequest, 'items'>>
+
+export type StockIssueListResponse = PaginatedResponse<StockIssueWithRelations>
+
+export type StockIssueQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  search?: string
+}
+
+export type CreateGRNRequest = {
+  supplierName: string
+  items: GRNItem[]
+  receivedDate: string
+  receivedBy?: string
+  inspectionNotes?: string
+  projectId?: string
+}
+
+export type UpdateGRNRequest = Partial<Omit<CreateGRNRequest, 'items'>> & {
+  status?: GRNStatus
+  inspectionNotes?: string
+}
+
+export type GRNListResponse = PaginatedResponse<GoodsReceivedNoteWithRelations>
+
+export type GRNQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  status?: GRNStatus | 'all'
+  search?: string
+}
+
+// ─── FMS: Procurement ─────────────────────────────────────────────────────────
+
+export type PRStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED' | 'CANCELLED' | 'CONVERTED'
+export type POStatus =
+  | 'DRAFT'
+  | 'ISSUED'
+  | 'PARTIALLY_RECEIVED'
+  | 'FULLY_RECEIVED'
+  | 'CANCELLED'
+  | 'CLOSED'
+
+export type PRItem = {
+  item_name: string
+  description?: string
+  quantity: number
+  unit_of_measure?: string
+  estimated_unit_price?: number
+  total?: number
+}
+
+export type PurchaseRequest = {
+  id: string
+  pr_number: string
+  title: string
+  description?: string | null
+  project_id?: string | null
+  items: PRItem[]
+  estimated_total?: number | null
+  priority: string
+  status: PRStatus
+  requested_by: string
+  approved_by?: string | null
+  approved_at?: string | null
+  notes?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type PurchaseRequestWithRelations = PurchaseRequest & {
+  project: { id: string; name: string; code: string } | null
+  requester: { id: string; first_name: string; last_name: string }
+  approver: { id: string; first_name: string; last_name: string } | null
+}
+
+export type POItem = {
+  item_name: string
+  description?: string
+  quantity: number
+  unit_of_measure?: string
+  unit_price: number
+  total: number
+}
+
+export type PurchaseOrder = {
+  id: string
+  po_number: string
+  pr_id?: string | null
+  vendor_name: string
+  project_id?: string | null
+  items: POItem[]
+  subtotal: number
+  tax: number
+  total: number
+  status: POStatus
+  delivery_date?: string | null
+  payment_terms?: string | null
+  notes?: string | null
+  created_by: string
+  approved_by?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type PurchaseOrderWithRelations = PurchaseOrder & {
+  project: { id: string; name: string; code: string } | null
+  purchase_request: PurchaseRequest | null
+  creator: { id: string; first_name: string; last_name: string }
+  approver: { id: string; first_name: string; last_name: string } | null
+}
+
+export type VQItem = {
+  item_name: string
+  quantity: number
+  unit_price: number
+  total: number
+  lead_time_days?: number
+}
+
+export type VendorQuotation = {
+  id: string
+  quotation_number?: string | null
+  vendor_name: string
+  pr_id?: string | null
+  items: VQItem[]
+  total: number
+  valid_until?: string | null
+  notes?: string | null
+  is_selected: boolean
+  created_at: string
+}
+
+export type VendorQuotationWithRelations = VendorQuotation & {
+  purchase_request: PurchaseRequest | null
+}
+
+// ─── Procurement Request/Response Types ───────────────────────────────────────
+
+export type CreatePRRequest = {
+  title: string
+  description?: string
+  projectId?: string
+  items: PRItem[]
+  estimatedTotal?: number
+  priority?: string
+  requestedBy: string
+  notes?: string
+}
+
+export type UpdatePRRequest = Partial<Omit<CreatePRRequest, 'requestedBy'>>
+
+export type PRListResponse = PaginatedResponse<PurchaseRequestWithRelations>
+
+export type PRQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  status?: PRStatus | 'all'
+  search?: string
+}
+
+export type CreatePORequest = {
+  prId?: string
+  vendorName: string
+  projectId?: string
+  items: POItem[]
+  deliveryDate?: string
+  paymentTerms?: string
+  notes?: string
+  createdBy: string
+}
+
+export type UpdatePORequest = Partial<Omit<CreatePORequest, 'createdBy'>>
+
+export type POListResponse = PaginatedResponse<PurchaseOrderWithRelations>
+
+export type POQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  status?: POStatus | 'all'
+  prId?: string
+  search?: string
+}
+
+export type CreateVQRequest = {
+  quotationNumber?: string
+  vendorName: string
+  prId?: string
+  items: VQItem[]
+  validUntil?: string
+  notes?: string
+}
+
+export type UpdateVQRequest = Partial<CreateVQRequest>
+
+export type VQListResponse = PaginatedResponse<VendorQuotationWithRelations>
+
+export type VQQueryParams = {
+  page?: number
+  limit?: number
+  prId?: string
+  search?: string
+}
+
+// ─── Vendor Domain ────────────────────────────────────────────────────────────
+
+export const VENDOR_CATEGORIES = [
+  'MAINTENANCE',
+  'CLEANING',
+  'SECURITY',
+  'LANDSCAPING',
+  'ELECTRICAL',
+  'PLUMBING',
+  'HVAC',
+  'IT',
+  'GENERAL',
+  'OTHER',
+] as const
+export type VendorCategory = (typeof VENDOR_CATEGORIES)[number]
+
+export type VendorStatus = 'ACTIVE' | 'INACTIVE' | 'BLACKLISTED' | 'PENDING_APPROVAL'
+export type VendorContractStatus = 'DRAFT' | 'ACTIVE' | 'EXPIRED' | 'TERMINATED'
+
+export type Vendor = {
+  id: string
+  vendor_code: string
+  name: string
+  tax_id?: string | null
+  address?: string | null
+  phone?: string | null
+  email?: string | null
+  website?: string | null
+  contact_person?: string | null
+  category?: string | null
+  rating?: number | null
+  status: VendorStatus
+  bank_details: Record<string, unknown>
+  notes?: string | null
+  created_at: string
+  updated_at: string
+}
+
+// ─── FMS: Fire Equipment ───────────────────────────────────────────────────────
+
+export const FIRE_EQUIPMENT_TYPES = [
+  'Fire Extinguisher',
+  'Fire Hose',
+  'Smoke Detector',
+  'Fire Alarm',
+  'Sprinkler',
+  'Emergency Light',
+  'Exit Sign',
+  'Fire Door',
+  'Fire Pump',
+  'Other',
+] as const
+
+export type FireEquipmentType = (typeof FIRE_EQUIPMENT_TYPES)[number]
+export type FireEquipmentStatus = 'ACTIVE' | 'INACTIVE' | 'UNDER_MAINTENANCE' | 'DECOMMISSIONED'
+
+export type FireEquipment = {
+  id: string
+  equipment_number: string
+  type: string
+  project_id: string
+  zone_id: string | null
+  location_detail: string | null
+  last_inspection_date: string | null
+  next_inspection_date: string | null
+  status: string
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type VendorContract = {
+  id: string
+  contract_number: string
+  vendor_id: string
+  title: string
+  scope?: string | null
+  start_date: string
+  end_date: string
+  value?: number | null
+  payment_terms?: string | null
+  status: VendorContractStatus
+  document_url?: string | null
+  project_id?: string | null
+  created_at: string
+  updated_at: string
+}
+
+// ─── Budget Domain ─────────────────────────────────────────────────────────────
+
+export type BudgetStatus = 'DRAFT' | 'APPROVED' | 'ACTIVE' | 'CLOSED'
+
+export type Budget = {
+  id: string
+  budget_code: string
+  title: string
+  project_id: string
+  fiscal_year: number
+  period_start: string
+  period_end: string
+  total_approved: number
+  total_committed: number
+  total_actual: number
+  status: BudgetStatus
+  notes?: string | null
+  created_by: string
+  approved_by?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type FireEquipmentWithRelations = FireEquipment & {
+  project: { id: string; name: string; code: string }
+  zone: { id: string; name: string } | null
+}
+
+export type CreateFireEquipmentRequest = {
+  equipmentNumber: string
+  type: string
+  projectId: string
+  zoneId?: string
+  locationDetail?: string
+  lastInspectionDate?: string
+  nextInspectionDate?: string
+  status?: FireEquipmentStatus
+  notes?: string
+}
+
+export type UpdateFireEquipmentRequest = Partial<Omit<CreateFireEquipmentRequest, 'projectId'>>
+
+export type FireEquipmentListResponse = PaginatedResponse<FireEquipmentWithRelations>
+
+export type FireEquipmentQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  zoneId?: string
+  status?: FireEquipmentStatus | 'all'
+  search?: string
+}
+
+// ─── FMS: Permit to Work ───────────────────────────────────────────────────────
+
+export const PERMIT_TYPES = [
+  'Hot Work',
+  'Confined Space',
+  'Work at Height',
+  'Electrical Work',
+  'Excavation',
+  'Lifting',
+  'General',
+] as const
+
+export type PermitType = (typeof PERMIT_TYPES)[number]
+export type PermitStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'ACTIVE' | 'CLOSED' | 'REJECTED'
+
+export type PermitToWork = {
+  id: string
+  permit_number: string
+  title: string
+  description: string | null
+  project_id: string
+  zone_id: string | null
+  permit_type: string | null
+  risk_assessment: unknown[]
+  start_date: string | null
+  end_date: string | null
+  status: PermitStatus
+  requested_by: string | null
+  approved_by: string | null
+  contractor_name: string | null
+  safety_measures: unknown[]
+  created_at: string
+  updated_at: string
+}
+
+export type PermitToWorkWithRelations = PermitToWork & {
+  project: { id: string; name: string; code: string }
+  zone: { id: string; name: string } | null
+  requester: { id: string; first_name: string; last_name: string } | null
+  approver: { id: string; first_name: string; last_name: string } | null
+}
+
+export type CreatePermitToWorkRequest = {
+  title: string
+  description?: string
+  projectId: string
+  zoneId?: string
+  permitType?: string
+  riskAssessment?: unknown[]
+  startDate?: string
+  endDate?: string
+  requestedBy?: string
+  contractorName?: string
+  safetyMeasures?: unknown[]
+}
+
+export type UpdatePermitToWorkRequest = Partial<Omit<CreatePermitToWorkRequest, 'projectId'>>
+
+export type PermitToWorkListResponse = PaginatedResponse<PermitToWorkWithRelations>
+
+export type PermitToWorkQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  zoneId?: string
+  status?: PermitStatus | 'all'
+  search?: string
+}
+
+// ─── FMS: Incident ─────────────────────────────────────────────────────────────
+
+export type IncidentSeverity = 'MINOR' | 'MODERATE' | 'MAJOR' | 'CRITICAL'
+export type IncidentStatus = 'REPORTED' | 'INVESTIGATING' | 'RESOLVED' | 'CLOSED'
+
+export type Incident = {
+  id: string
+  incident_number: string
+  title: string
+  description: string | null
+  project_id: string
+  zone_id: string | null
+  incident_date: string
+  severity: IncidentSeverity
+  status: IncidentStatus
+  reported_by: string | null
+  investigation_notes: string | null
+  root_cause: string | null
+  corrective_actions: unknown[]
+  work_order_id: string | null
+  photos: unknown[]
+  created_at: string
+  updated_at: string
+}
+
+export type IncidentWithRelations = Incident & {
+  project: { id: string; name: string; code: string }
+  zone: { id: string; name: string } | null
+  reporter: { id: string; first_name: string; last_name: string } | null
+}
+
+export type CreateIncidentRequest = {
+  title: string
+  description?: string
+  projectId: string
+  zoneId?: string
+  incidentDate: string
+  severity?: IncidentSeverity
+  reportedBy?: string
+  investigationNotes?: string
+  rootCause?: string
+  correctiveActions?: unknown[]
+  workOrderId?: string
+  photos?: unknown[]
+}
+
+export type UpdateIncidentRequest = Partial<Omit<CreateIncidentRequest, 'projectId'>> & {
+  status?: IncidentStatus
+}
+
+export type IncidentListResponse = PaginatedResponse<IncidentWithRelations>
+
+export type IncidentQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  zoneId?: string
+  severity?: IncidentSeverity | 'all'
+  status?: IncidentStatus | 'all'
+  search?: string
+}
+
+// ─── FMS: Insurance Policy ─────────────────────────────────────────────────────
+
+export const INSURANCE_TYPES = [
+  'Property',
+  'Liability',
+  'Fire',
+  'All Risk',
+  'Business Interruption',
+  'Equipment',
+  'Other',
+] as const
+
+export type InsuranceType = (typeof INSURANCE_TYPES)[number]
+export type InsurancePolicyStatus = 'ACTIVE' | 'EXPIRED' | 'CANCELLED' | 'PENDING_RENEWAL'
+
+export type InsurancePolicy = {
+  id: string
+  policy_number: string
+  provider: string
+  type: string
+  coverage_details: Record<string, unknown>
+  project_id: string | null
+  premium: number | null
+  start_date: string
+  end_date: string
+  status: InsurancePolicyStatus
+  document_url: string | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type VendorContractWithRelations = VendorContract & {
+  vendor: { id: string; vendor_code: string; name: string }
+  project: { id: string; name: string; code: string } | null
+}
+
+export type VendorItemPrice = {
+  id: string
+  vendor_id: string
+  item_name: string
+  item_code?: string | null
+  unit_price: number
+  currency: string
+  valid_from?: string | null
+  valid_until?: string | null
+  is_active: boolean
+  created_at: string
+}
+
+export type VendorInvoice = {
+  id: string
+  invoice_number: string
+  vendor_id: string
+  po_id?: string | null
+  items: VendorInvoiceItem[]
+  subtotal: number
+  tax: number
+  total: number
+  invoice_date: string
+  due_date?: string | null
+  payment_status: string
+  payment_date?: string | null
+  notes?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type BudgetWithRelations = Budget & {
+  project: { id: string; name: string; code: string }
+  creator: { id: string; first_name: string; last_name: string }
+  approver: { id: string; first_name: string; last_name: string } | null
+  lines: BudgetLine[]
+}
+
+export type BudgetLine = {
+  id: string
+  budget_id: string
+  category: string
+  description?: string | null
+  approved_amount: number
+  committed_amount: number
+  actual_amount: number
+  notes?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type InsurancePolicyWithRelations = InsurancePolicy & {
+  project: { id: string; name: string; code: string } | null
+}
+
+export type CreateInsurancePolicyRequest = {
+  policyNumber: string
+  provider: string
+  type: string
+  coverageDetails?: Record<string, unknown>
+  projectId?: string
+  premium?: number
+  startDate: string
+  endDate: string
+  status?: InsurancePolicyStatus
+  documentUrl?: string
+  notes?: string
+}
+
+export type UpdateInsurancePolicyRequest = Partial<CreateInsurancePolicyRequest>
+
+export type InsurancePolicyListResponse = PaginatedResponse<InsurancePolicyWithRelations>
+
+export type InsurancePolicyQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  status?: InsurancePolicyStatus | 'all'
+  type?: string
+  search?: string
+}
+
+// ─── FMS: Contractor Safety ────────────────────────────────────────────────────
+
+export type ContractorSafety = {
+  id: string
+  contractor_name: string
+  project_id: string
+  safety_induction_date: string | null
+  safety_cert_url: string | null
+  permit_ids: string[]
+  is_cleared: boolean
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type VendorInvoiceItem = {
+  description: string
+  quantity: number
+  unit_price: number
+  total: number
+}
+
+export type VendorInvoiceWithRelations = VendorInvoice & {
+  vendor: { id: string; vendor_code: string; name: string }
+}
+
+// ─── Vendor Request/Response Types ────────────────────────────────────────────
+
+export type CreateVendorRequest = {
+  name: string
+  taxId?: string
+  address?: string
+  phone?: string
+  email?: string
+  website?: string
+  contactPerson?: string
+  category?: string
+  rating?: number
+  status?: VendorStatus
+  bankDetails?: Record<string, unknown>
+  notes?: string
+}
+
+export type UpdateVendorRequest = {
+  name?: string
+  taxId?: string | null
+  address?: string | null
+  phone?: string | null
+  email?: string | null
+  website?: string | null
+  contactPerson?: string | null
+  category?: string | null
+  rating?: number | null
+  status?: VendorStatus
+  bankDetails?: Record<string, unknown>
+  notes?: string | null
+}
+
+export type VendorListResponse = PaginatedResponse<Vendor>
+
+export type VendorQueryParams = {
+  page?: number
+  limit?: number
+  status?: VendorStatus | 'all'
+  category?: string
+  search?: string
+}
+
+export type CreateVendorContractRequest = {
+  vendorId: string
+  title: string
+  scope?: string
+  startDate: string
+  endDate: string
+  value?: number
+  paymentTerms?: string
+  status?: VendorContractStatus
+  documentUrl?: string
+  projectId?: string
+}
+
+export type UpdateVendorContractRequest = Partial<Omit<CreateVendorContractRequest, 'vendorId'>>
+
+export type VendorContractListResponse = PaginatedResponse<VendorContractWithRelations>
+
+export type VendorContractQueryParams = {
+  page?: number
+  limit?: number
+  vendorId?: string
+  projectId?: string
+  status?: VendorContractStatus | 'all'
+  search?: string
+}
+
+export type CreateVendorItemPriceRequest = {
+  vendorId: string
+  itemName: string
+  itemCode?: string
+  unitPrice: number
+  currency?: string
+  validFrom?: string
+  validUntil?: string
+  isActive?: boolean
+}
+
+export type UpdateVendorItemPriceRequest = Partial<Omit<CreateVendorItemPriceRequest, 'vendorId'>>
+
+export type VendorItemPriceListResponse = PaginatedResponse<VendorItemPrice>
+
+export type CreateVendorInvoiceRequest = {
+  invoiceNumber: string
+  vendorId: string
+  poId?: string
+  items: VendorInvoiceItem[]
+  subtotal: number
+  tax: number
+  total: number
+  invoiceDate: string
+  dueDate?: string
+  notes?: string
+}
+
+export type UpdateVendorInvoiceRequest = Partial<Omit<CreateVendorInvoiceRequest, 'vendorId'>>
+
+export type VendorInvoiceListResponse = PaginatedResponse<VendorInvoiceWithRelations>
+
+export type VendorInvoiceQueryParams = {
+  page?: number
+  limit?: number
+  vendorId?: string
+  paymentStatus?: string
+  search?: string
+}
+export type BudgetTemplate = {
+  id: string
+  name: string
+  description?: string | null
+  lines: BudgetTemplateLine[]
+  created_at: string
+}
+
+export type BudgetTemplateLine = {
+  category: string
+  description?: string
+  approved_amount: number
+}
+
+export type BudgetTransaction = {
+  id: string
+  budget_id: string
+  budget_line_id?: string | null
+  amount: number
+  transaction_type: 'COMMITMENT' | 'ACTUAL' | 'REVERSAL'
+  reference_type?: string | null
+  reference_id?: string | null
+  description?: string | null
+  created_by?: string | null
+  created_at: string
+}
+
+export type BudgetTransactionWithRelations = BudgetTransaction & {
+  budget_line: BudgetLine | null
+  creator: { id: string; first_name: string; last_name: string } | null
+}
+
+// ─── Budget Request/Response Types ────────────────────────────────────────────
+
+export type CreateBudgetLineInput = {
+  category: string
+  description?: string
+  approved_amount: number
+  notes?: string
+}
+
+export type CreateBudgetRequest = {
+  title: string
+  projectId: string
+  fiscalYear: number
+  periodStart: string
+  periodEnd: string
+  totalApproved: number
+  notes?: string
+  createdBy: string
+  lines?: CreateBudgetLineInput[]
+}
+
+export type UpdateBudgetRequest = {
+  title?: string
+  periodStart?: string
+  periodEnd?: string
+  totalApproved?: number
+  notes?: string
+}
+
+export type BudgetListResponse = PaginatedResponse<BudgetWithRelations>
+
+export type BudgetQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  fiscalYear?: number
+  status?: BudgetStatus | 'all'
+  search?: string
+}
+
+export type CreateBudgetLineRequest = {
+  category: string
+  description?: string
+  approved_amount: number
+  notes?: string
+}
+
+export type UpdateBudgetLineRequest = Partial<CreateBudgetLineRequest>
+
+export type CreateBudgetTransactionRequest = {
+  budgetLineId?: string
+  amount: number
+  transactionType: 'COMMITMENT' | 'ACTUAL' | 'REVERSAL'
+  referenceType?: string
+  referenceId?: string
+  description?: string
+  createdBy?: string
+}
+
+export type CreateBudgetTemplateRequest = {
+  name: string
+  description?: string
+  lines: BudgetTemplateLine[]
+}
+
+export type UpdateBudgetTemplateRequest = Partial<CreateBudgetTemplateRequest>
+export type ContractorSafetyWithRelations = ContractorSafety & {
+  project: { id: string; name: string; code: string }
+}
+
+export type CreateContractorSafetyRequest = {
+  contractorName: string
+  projectId: string
+  safetyInductionDate?: string
+  safetyCertUrl?: string
+  permitIds?: string[]
+  isCleared?: boolean
+  notes?: string
+}
+
+export type UpdateContractorSafetyRequest = Partial<Omit<CreateContractorSafetyRequest, 'projectId'>>
+
+export type ContractorSafetyListResponse = PaginatedResponse<ContractorSafetyWithRelations>
+
+export type ContractorSafetyQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  isCleared?: boolean
+  search?: string
+}
+
+// ─── FMS Dashboard ────────────────────────────────────────────────────────────
+
+export type FMSDashboardSummary = {
+  assets: {
+    total: number
+    operational: number
+    underMaintenance: number
+    outOfService: number
+  }
+  workOrders: {
+    total: number
+    open: number
+    inProgress: number
+    completed: number
+  }
+  preventiveMaintenance: {
+    active: number
+    overdue: number
+  }
+  inventory: {
+    totalItems: number
+    lowStock: number
+  }
+  incidents: {
+    open: number
+    investigating: number
+  }
+  budgets: {
+    totalApproved: number
+    totalCommitted: number
+    totalActual: number
+  }
+  vendors: {
+    active: number
+  }
+  visitors: {
+    todayCheckedIn: number
+  }
+}
+
+export type FMSRecentActivityItem = {
+  id: string
+  type: 'work_order' | 'incident' | 'pm_log' | 'stock_movement'
+  title: string
+  status: string
+  timestamp: string
+  projectId?: string
+}
+
+export type FMSRecentActivity = {
+  workOrders: Array<{
+    id: string
+    wo_number: string
+    title: string
+    status: string
+    priority: string
+    created_at: string
+  }>
+  incidents: Array<{
+    id: string
+    incident_number: string
+    title: string
+    severity: string
+    status: string
+    created_at: string
+  }>
+  pmLogs: Array<{
+    id: string
+    scheduled_date: string
+    actual_date: string | null
+    status: string
+    pm: { id: string; title: string; pm_number: string }
+    created_at: string
+  }>
+  stockMovements: Array<{
+    id: string
+    movement_type: string
+    quantity: number
+    created_at: string
+    item: { id: string; name: string; item_code: string }
+  }>
+}
+
+// ─── FMS Reports ──────────────────────────────────────────────────────────────
+
+export type FMSMaintenanceCostRow = {
+  month: string
+  totalCost: number
+  workOrderCount: number
+}
+
+export type FMSMaintenanceCostReport = {
+  rows: FMSMaintenanceCostRow[]
+  totalCost: number
+}
+
+export type FMSAssetStatusRow = {
+  status: string
+  count: number
+}
+
+export type FMSAssetStatusReport = {
+  rows: FMSAssetStatusRow[]
+  total: number
+}
+
+export type FMSBudgetVarianceRow = {
+  id: string
+  category: string
+  description: string | null
+  approvedAmount: number
+  committedAmount: number
+  actualAmount: number
+  variance: number
+}
+
+export type FMSBudgetVarianceReport = {
+  rows: FMSBudgetVarianceRow[]
+  totalApproved: number
+  totalActual: number
+  totalVariance: number
+}
+
+export type FMSComplianceStatusReport = {
+  fireEquipmentOverdue: number
+  activePermitsToWork: number
+  openIncidentsBySeverity: Array<{ severity: string; count: number }>
+  expiringInsurance: Array<{
+    id: string
+    policy_number: string
+    provider: string
+    type: string
+    end_date: string
+  }>
+}

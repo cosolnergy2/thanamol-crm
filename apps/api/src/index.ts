@@ -40,6 +40,42 @@ import { documentsRoutes } from './routes/documents'
 import { isoDocumentsRoutes } from './routes/iso-documents'
 import { pdfTemplatesRoutes } from './routes/pdf-templates'
 import { uploadsRoutes } from './routes/uploads'
+import { fmsZonesRoutes } from './routes/fms/zones'
+import { fmsAssetCategoriesRoutes } from './routes/fms/asset-categories'
+import { fmsAssetsRoutes } from './routes/fms/assets'
+import { fmsWorkOrdersRoutes } from './routes/fms/work-orders'
+import { fmsPMRoutes } from './routes/fms/preventive-maintenance'
+import { fmsCalibrationsRoutes } from './routes/fms/calibrations'
+import { fmsSecurityPatrolsRoutes } from './routes/fms/security-patrols'
+import { fmsCleaningChecklistsRoutes } from './routes/fms/cleaning-checklists'
+import { fmsVisitorsRoutes } from './routes/fms/visitors'
+import { fmsKeyRecordsRoutes } from './routes/fms/key-records'
+import { fmsParkingSlotsRoutes } from './routes/fms/parking-slots'
+import { fmsServiceLogsRoutes } from './routes/fms/service-logs'
+import { fmsPettyCashRoutes } from './routes/fms/petty-cash'
+import { fmsInventoryCategoriesRoutes } from './routes/fms/inventory-categories'
+import { fmsInventoryRoutes } from './routes/fms/inventory'
+import { fmsStockMovementsRoutes } from './routes/fms/stock-movements'
+import { fmsStockIssuesRoutes } from './routes/fms/stock-issues'
+import { fmsGRNRoutes } from './routes/fms/grn'
+import { fmsPurchaseRequestsRoutes } from './routes/fms/purchase-requests'
+import { fmsPurchaseOrdersRoutes } from './routes/fms/purchase-orders'
+import { fmsVendorQuotationsRoutes } from './routes/fms/vendor-quotations'
+import { fmsVendorsRoutes } from './routes/fms/vendors'
+import { fmsVendorContractsRoutes } from './routes/fms/vendor-contracts'
+import { fmsVendorItemPricesRoutes } from './routes/fms/vendor-item-prices'
+import { fmsVendorInvoicesRoutes } from './routes/fms/vendor-invoices'
+import { fmsBudgetsRoutes } from './routes/fms/budgets'
+import { fmsBudgetLinesRoutes } from './routes/fms/budget-lines'
+import { fmsBudgetTemplatesRoutes } from './routes/fms/budget-templates'
+import { fmsBudgetTransactionsRoutes } from './routes/fms/budget-transactions'
+import { fmsFireEquipmentRoutes } from './routes/fms/fire-equipment'
+import { fmsPermitsToWorkRoutes } from './routes/fms/permits-to-work'
+import { fmsIncidentsRoutes } from './routes/fms/incidents'
+import { fmsInsurancePoliciesRoutes } from './routes/fms/insurance-policies'
+import { fmsContractorSafetyRoutes } from './routes/fms/contractor-safety'
+import { fmsDashboardRoutes } from './routes/fms/dashboard'
+import { fmsReportsRoutes } from './routes/fms/reports'
 
 const API_PORT = Number(process.env.PORT ?? 3000)
 
@@ -88,6 +124,42 @@ const app = new Elysia()
   .use(isoDocumentsRoutes)
   .use(pdfTemplatesRoutes)
   .use(uploadsRoutes)
+  .use(fmsZonesRoutes)
+  .use(fmsAssetCategoriesRoutes)
+  .use(fmsAssetsRoutes)
+  .use(fmsWorkOrdersRoutes)
+  .use(fmsPMRoutes)
+  .use(fmsCalibrationsRoutes)
+  .use(fmsSecurityPatrolsRoutes)
+  .use(fmsCleaningChecklistsRoutes)
+  .use(fmsVisitorsRoutes)
+  .use(fmsKeyRecordsRoutes)
+  .use(fmsParkingSlotsRoutes)
+  .use(fmsServiceLogsRoutes)
+  .use(fmsPettyCashRoutes)
+  .use(fmsInventoryCategoriesRoutes)
+  .use(fmsInventoryRoutes)
+  .use(fmsStockMovementsRoutes)
+  .use(fmsStockIssuesRoutes)
+  .use(fmsGRNRoutes)
+  .use(fmsPurchaseRequestsRoutes)
+  .use(fmsPurchaseOrdersRoutes)
+  .use(fmsVendorQuotationsRoutes)
+  .use(fmsVendorsRoutes)
+  .use(fmsVendorContractsRoutes)
+  .use(fmsVendorItemPricesRoutes)
+  .use(fmsVendorInvoicesRoutes)
+  .use(fmsBudgetsRoutes)
+  .use(fmsBudgetLinesRoutes)
+  .use(fmsBudgetTemplatesRoutes)
+  .use(fmsBudgetTransactionsRoutes)
+  .use(fmsFireEquipmentRoutes)
+  .use(fmsPermitsToWorkRoutes)
+  .use(fmsIncidentsRoutes)
+  .use(fmsInsurancePoliciesRoutes)
+  .use(fmsContractorSafetyRoutes)
+  .use(fmsDashboardRoutes)
+  .use(fmsReportsRoutes)
   .listen(API_PORT)
 
 console.log(`API running at http://localhost:${API_PORT}`)

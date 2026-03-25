@@ -13,7 +13,7 @@ describe("seed.ts structure", () => {
   });
 
   it("imports PrismaClient from generated prisma", () => {
-    expect(seedSource).toContain("from \"../generated/prisma\"");
+    expect(seedSource).toMatch(/from "\.\.\/generated\/prisma(\/client)?"/);
   });
 
   it("imports bcryptjs for password hashing", () => {

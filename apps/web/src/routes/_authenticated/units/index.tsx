@@ -107,7 +107,7 @@ function UnitFormDialog({
           areaSqm: editingUnit.area_sqm ?? undefined,
           price: editingUnit.price ?? undefined,
           status: editingUnit.status,
-          zone: editingUnit.zone ?? undefined,
+          zoneLegacy: editingUnit.zone_legacy ?? undefined,
           location: editingUnit.location ?? undefined,
           officeAreaSqm: editingUnit.office_area_sqm ?? undefined,
           floorLoad: editingUnit.floor_load ?? undefined,
@@ -145,7 +145,7 @@ function UnitFormDialog({
         areaSqm: formData.areaSqm,
         price: formData.price,
         status: formData.status,
-        zone: formData.zone,
+        zoneLegacy: formData.zoneLegacy,
         location: formData.location,
         officeAreaSqm: formData.officeAreaSqm,
         floorLoad: formData.floorLoad,
@@ -175,7 +175,7 @@ function UnitFormDialog({
         areaSqm: formData.areaSqm,
         price: formData.price,
         status: formData.status,
-        zone: formData.zone,
+        zoneLegacy: formData.zoneLegacy,
         location: formData.location,
         officeAreaSqm: formData.officeAreaSqm,
         floorLoad: formData.floorLoad,
@@ -327,11 +327,11 @@ function UnitFormDialog({
             <FormSection title="Location & Physical">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="zone">Zone</Label>
+                  <Label htmlFor="zoneLegacy">Zone</Label>
                   <Input
-                    id="zone"
-                    value={formData.zone ?? ''}
-                    onChange={(e) => field('zone', e.target.value || undefined)}
+                    id="zoneLegacy"
+                    value={formData.zoneLegacy ?? ''}
+                    onChange={(e) => field('zoneLegacy', e.target.value || undefined)}
                     placeholder="Zone A"
                   />
                 </div>
