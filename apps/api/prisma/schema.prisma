@@ -288,6 +288,20 @@ enum POStatus {
   CLOSED
 }
 
+enum VendorStatus {
+  ACTIVE
+  INACTIVE
+  BLACKLISTED
+  PENDING_APPROVAL
+}
+
+enum VendorContractStatus {
+  DRAFT
+  ACTIVE
+  EXPIRED
+  TERMINATED
+}
+
 // ─── Auth Domain ──────────────────────────────────────────────────────────────
 
 model User {
@@ -587,6 +601,7 @@ model Project {
   goods_received_notes       GoodsReceivedNote[]
   purchase_requests          PurchaseRequest[]
   purchase_orders            PurchaseOrder[]
+  vendor_contracts           VendorContract[]
 
   @@index([status])
   @@index([code])
@@ -1811,4 +1826,89 @@ model VendorQuotation {
   created_at       DateTime  @default(now())
 
   @@index([pr_id])
+}
+
+// ─── Vendor Domain ────────────────────────────────────────────────────────────
+
+model Vendor {
+  id             String           @id @default(uuid())
+  vendor_code    String           @unique
+  name           String
+  tax_id         String?
+  address        String?
+  phone          String?
+  email          String?
+  website        String?
+  contact_person String?
+  category       String?
+  rating         Int?
+  status         VendorStatus     @default(ACTIVE)
+  bank_details   Json             @default("{}")
+  notes          String?
+  contracts      VendorContract[]
+  item_prices    VendorItemPrice[]
+  invoices       VendorInvoice[]
+  created_at     DateTime         @default(now())
+  updated_at     DateTime         @updatedAt
+
+  @@index([status])
+}
+
+model VendorContract {
+  id              String               @id @default(uuid())
+  contract_number String               @unique
+  vendor_id       String
+  vendor          Vendor               @relation(fields: [vendor_id], references: [id])
+  title           String
+  scope           String?
+  start_date      DateTime
+  end_date        DateTime
+  value           Float?
+  payment_terms   String?
+  status          VendorContractStatus @default(DRAFT)
+  document_url    String?
+  project_id      String?
+  project         Project?             @relation(fields: [project_id], references: [id])
+  created_at      DateTime             @default(now())
+  updated_at      DateTime             @updatedAt
+
+  @@index([vendor_id])
+  @@index([project_id])
+}
+
+model VendorItemPrice {
+  id          String    @id @default(uuid())
+  vendor_id   String
+  vendor      Vendor    @relation(fields: [vendor_id], references: [id])
+  item_name   String
+  item_code   String?
+  unit_price  Float
+  currency    String    @default("THB")
+  valid_from  DateTime?
+  valid_until DateTime?
+  is_active   Boolean   @default(true)
+  created_at  DateTime  @default(now())
+
+  @@index([vendor_id])
+}
+
+model VendorInvoice {
+  id             String    @id @default(uuid())
+  invoice_number String
+  vendor_id      String
+  vendor         Vendor    @relation(fields: [vendor_id], references: [id])
+  po_id          String?
+  items          Json      @default("[]")
+  subtotal       Float     @default(0)
+  tax            Float     @default(0)
+  total          Float     @default(0)
+  invoice_date   DateTime
+  due_date       DateTime?
+  payment_status String    @default("PENDING")
+  payment_date   DateTime?
+  notes          String?
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+
+  @@index([vendor_id])
 }
