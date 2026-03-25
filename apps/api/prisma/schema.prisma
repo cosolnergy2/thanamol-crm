@@ -271,6 +271,13 @@ enum POStatus {
   CLOSED
 }
 
+enum BudgetStatus {
+  DRAFT
+  APPROVED
+  ACTIVE
+  CLOSED
+}
+
 // ─── Auth Domain ──────────────────────────────────────────────────────────────
 
 model User {
@@ -330,6 +337,9 @@ model User {
   pr_approved            PurchaseRequest[]       @relation("PRApprover")
   po_created             PurchaseOrder[]         @relation("POCreator")
   po_approved            PurchaseOrder[]         @relation("POApprover")
+  budgets_created        Budget[]                @relation("BudgetCreator")
+  budgets_approved       Budget[]                @relation("BudgetApprover")
+  budget_transactions    BudgetTransaction[]     @relation("BudgetTransactionCreator")
 
   @@index([email])
 }
@@ -558,6 +568,7 @@ model Project {
   goods_received_notes       GoodsReceivedNote[]
   purchase_requests          PurchaseRequest[]
   purchase_orders            PurchaseOrder[]
+  budgets                    Budget[]
 
   @@index([status])
   @@index([code])
@@ -1625,4 +1636,77 @@ model VendorQuotation {
   created_at       DateTime  @default(now())
 
   @@index([pr_id])
+}
+
+// ─── Budget Domain ─────────────────────────────────────────────────────────────
+
+model Budget {
+  id              String       @id @default(uuid())
+  budget_code     String       @unique
+  title           String
+  project_id      String
+  project         Project      @relation(fields: [project_id], references: [id])
+  fiscal_year     Int
+  period_start    DateTime
+  period_end      DateTime
+  total_approved  Float        @default(0)
+  total_committed Float        @default(0)
+  total_actual    Float        @default(0)
+  status          BudgetStatus @default(DRAFT)
+  notes           String?
+  created_by      String
+  creator         User         @relation("BudgetCreator", fields: [created_by], references: [id])
+  approved_by     String?
+  approver        User?        @relation("BudgetApprover", fields: [approved_by], references: [id])
+  lines           BudgetLine[]
+  transactions    BudgetTransaction[]
+  created_at      DateTime     @default(now())
+  updated_at      DateTime     @updatedAt
+
+  @@index([project_id])
+  @@index([fiscal_year])
+}
+
+model BudgetLine {
+  id               String              @id @default(uuid())
+  budget_id        String
+  budget           Budget              @relation(fields: [budget_id], references: [id], onDelete: Cascade)
+  category         String
+  description      String?
+  approved_amount  Float               @default(0)
+  committed_amount Float               @default(0)
+  actual_amount    Float               @default(0)
+  notes            String?
+  transactions     BudgetTransaction[]
+  created_at       DateTime            @default(now())
+  updated_at       DateTime            @updatedAt
+
+  @@index([budget_id])
+}
+
+model BudgetTemplate {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  lines       Json     @default("[]")
+  created_at  DateTime @default(now())
+}
+
+model BudgetTransaction {
+  id               String      @id @default(uuid())
+  budget_id        String
+  budget           Budget      @relation(fields: [budget_id], references: [id])
+  budget_line_id   String?
+  budget_line      BudgetLine? @relation(fields: [budget_line_id], references: [id])
+  amount           Float
+  transaction_type String
+  reference_type   String?
+  reference_id     String?
+  description      String?
+  created_by       String?
+  creator          User?       @relation("BudgetTransactionCreator", fields: [created_by], references: [id])
+  created_at       DateTime    @default(now())
+
+  @@index([budget_id])
+  @@index([budget_line_id])
 }
