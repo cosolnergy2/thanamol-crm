@@ -293,7 +293,11 @@ export type CreateZoneRequest = {
 
 export type UpdateZoneRequest = Partial<Omit<CreateZoneRequest, 'projectId'>>
 
-export type ZoneListResponse = PaginatedResponse<Zone>
+export type ZoneWithCount = Zone & {
+  _count: { children: number; units: number }
+}
+
+export type ZoneListResponse = PaginatedResponse<ZoneWithCount>
 
 // ─── ProjectTemplate ──────────────────────────────────────────────────────────
 
