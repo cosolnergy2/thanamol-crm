@@ -2585,3 +2585,213 @@ export type VQQueryParams = {
   prId?: string
   search?: string
 }
+
+// ─── Vendor Domain ────────────────────────────────────────────────────────────
+
+export const VENDOR_CATEGORIES = [
+  'MAINTENANCE',
+  'CLEANING',
+  'SECURITY',
+  'LANDSCAPING',
+  'ELECTRICAL',
+  'PLUMBING',
+  'HVAC',
+  'IT',
+  'GENERAL',
+  'OTHER',
+] as const
+export type VendorCategory = (typeof VENDOR_CATEGORIES)[number]
+
+export type VendorStatus = 'ACTIVE' | 'INACTIVE' | 'BLACKLISTED' | 'PENDING_APPROVAL'
+export type VendorContractStatus = 'DRAFT' | 'ACTIVE' | 'EXPIRED' | 'TERMINATED'
+
+export type Vendor = {
+  id: string
+  vendor_code: string
+  name: string
+  tax_id?: string | null
+  address?: string | null
+  phone?: string | null
+  email?: string | null
+  website?: string | null
+  contact_person?: string | null
+  category?: string | null
+  rating?: number | null
+  status: VendorStatus
+  bank_details: Record<string, unknown>
+  notes?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type VendorContract = {
+  id: string
+  contract_number: string
+  vendor_id: string
+  title: string
+  scope?: string | null
+  start_date: string
+  end_date: string
+  value?: number | null
+  payment_terms?: string | null
+  status: VendorContractStatus
+  document_url?: string | null
+  project_id?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type VendorContractWithRelations = VendorContract & {
+  vendor: { id: string; vendor_code: string; name: string }
+  project: { id: string; name: string; code: string } | null
+}
+
+export type VendorItemPrice = {
+  id: string
+  vendor_id: string
+  item_name: string
+  item_code?: string | null
+  unit_price: number
+  currency: string
+  valid_from?: string | null
+  valid_until?: string | null
+  is_active: boolean
+  created_at: string
+}
+
+export type VendorInvoice = {
+  id: string
+  invoice_number: string
+  vendor_id: string
+  po_id?: string | null
+  items: VendorInvoiceItem[]
+  subtotal: number
+  tax: number
+  total: number
+  invoice_date: string
+  due_date?: string | null
+  payment_status: string
+  payment_date?: string | null
+  notes?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type VendorInvoiceItem = {
+  description: string
+  quantity: number
+  unit_price: number
+  total: number
+}
+
+export type VendorInvoiceWithRelations = VendorInvoice & {
+  vendor: { id: string; vendor_code: string; name: string }
+}
+
+// ─── Vendor Request/Response Types ────────────────────────────────────────────
+
+export type CreateVendorRequest = {
+  name: string
+  taxId?: string
+  address?: string
+  phone?: string
+  email?: string
+  website?: string
+  contactPerson?: string
+  category?: string
+  rating?: number
+  status?: VendorStatus
+  bankDetails?: Record<string, unknown>
+  notes?: string
+}
+
+export type UpdateVendorRequest = {
+  name?: string
+  taxId?: string | null
+  address?: string | null
+  phone?: string | null
+  email?: string | null
+  website?: string | null
+  contactPerson?: string | null
+  category?: string | null
+  rating?: number | null
+  status?: VendorStatus
+  bankDetails?: Record<string, unknown>
+  notes?: string | null
+}
+
+export type VendorListResponse = PaginatedResponse<Vendor>
+
+export type VendorQueryParams = {
+  page?: number
+  limit?: number
+  status?: VendorStatus | 'all'
+  category?: string
+  search?: string
+}
+
+export type CreateVendorContractRequest = {
+  vendorId: string
+  title: string
+  scope?: string
+  startDate: string
+  endDate: string
+  value?: number
+  paymentTerms?: string
+  status?: VendorContractStatus
+  documentUrl?: string
+  projectId?: string
+}
+
+export type UpdateVendorContractRequest = Partial<Omit<CreateVendorContractRequest, 'vendorId'>>
+
+export type VendorContractListResponse = PaginatedResponse<VendorContractWithRelations>
+
+export type VendorContractQueryParams = {
+  page?: number
+  limit?: number
+  vendorId?: string
+  projectId?: string
+  status?: VendorContractStatus | 'all'
+  search?: string
+}
+
+export type CreateVendorItemPriceRequest = {
+  vendorId: string
+  itemName: string
+  itemCode?: string
+  unitPrice: number
+  currency?: string
+  validFrom?: string
+  validUntil?: string
+  isActive?: boolean
+}
+
+export type UpdateVendorItemPriceRequest = Partial<Omit<CreateVendorItemPriceRequest, 'vendorId'>>
+
+export type VendorItemPriceListResponse = PaginatedResponse<VendorItemPrice>
+
+export type CreateVendorInvoiceRequest = {
+  invoiceNumber: string
+  vendorId: string
+  poId?: string
+  items: VendorInvoiceItem[]
+  subtotal: number
+  tax: number
+  total: number
+  invoiceDate: string
+  dueDate?: string
+  notes?: string
+}
+
+export type UpdateVendorInvoiceRequest = Partial<Omit<CreateVendorInvoiceRequest, 'vendorId'>>
+
+export type VendorInvoiceListResponse = PaginatedResponse<VendorInvoiceWithRelations>
+
+export type VendorInvoiceQueryParams = {
+  page?: number
+  limit?: number
+  vendorId?: string
+  paymentStatus?: string
+  search?: string
+}

@@ -54,6 +54,10 @@ import { fmsGRNRoutes } from './routes/fms/grn'
 import { fmsPurchaseRequestsRoutes } from './routes/fms/purchase-requests'
 import { fmsPurchaseOrdersRoutes } from './routes/fms/purchase-orders'
 import { fmsVendorQuotationsRoutes } from './routes/fms/vendor-quotations'
+import { fmsVendorsRoutes } from './routes/fms/vendors'
+import { fmsVendorContractsRoutes } from './routes/fms/vendor-contracts'
+import { fmsVendorItemPricesRoutes } from './routes/fms/vendor-item-prices'
+import { fmsVendorInvoicesRoutes } from './routes/fms/vendor-invoices'
 
 const API_PORT = Number(process.env.PORT ?? 3000)
 
@@ -116,6 +120,10 @@ const app = new Elysia()
   .use(fmsPurchaseRequestsRoutes)
   .use(fmsPurchaseOrdersRoutes)
   .use(fmsVendorQuotationsRoutes)
+  .use(fmsVendorsRoutes)
+  .use(fmsVendorContractsRoutes)
+  .use(fmsVendorItemPricesRoutes)
+  .use(fmsVendorInvoicesRoutes)
   .listen(API_PORT)
 
 console.log(`API running at http://localhost:${API_PORT}`)
