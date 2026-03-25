@@ -3,6 +3,8 @@ import { Factory, MapPin, Wrench, Package } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { useZones } from '@/hooks/useZones'
 import { useProjects } from '@/hooks/useProjects'
+import { useAssets } from '@/hooks/useAssets'
+import { useWorkOrders } from '@/hooks/useWorkOrders'
 
 export const Route = createFileRoute('/_authenticated/facility-management/')({
   component: FacilityManagementDashboard,
@@ -54,8 +56,12 @@ function FacilityManagementDashboard() {
   const { data: projectsData } = useProjects({ limit: 1 })
   const firstProjectId = projectsData?.data?.[0]?.id ?? ''
   const { data: zonesData } = useZones({ projectId: firstProjectId })
+  const { data: assetsData } = useAssets({ projectId: firstProjectId || undefined })
+  const { data: woData } = useWorkOrders({ projectId: firstProjectId || undefined })
 
   const zoneCount = zonesData?.pagination.total ?? 0
+  const assetCount = assetsData?.pagination.total ?? 0
+  const woCount = woData?.pagination.total ?? 0
 
   return (
     <div className="space-y-4">
@@ -65,7 +71,7 @@ function FacilityManagementDashboard() {
         </h1>
         <div className="h-px w-20 bg-gradient-to-r from-slate-300 to-transparent mt-2" />
         <p className="mt-2 text-xs text-slate-400 font-extralight">
-          Phase 0 — Zone management is available. Assets, Work Orders, and Inventory are coming in future phases.
+          Phase 1 — Asset Management & Work Orders
         </p>
       </div>
 
@@ -81,20 +87,18 @@ function FacilityManagementDashboard() {
         <FmsCard
           icon={Factory}
           label="Assets"
-          value="—"
+          value={firstProjectId ? assetCount : '—'}
           sub="Track equipment & assets"
           href="/facility-management/assets"
           gradient="from-teal-500 to-teal-700"
-          comingSoon
         />
         <FmsCard
           icon={Wrench}
           label="Work Orders"
-          value="—"
+          value={firstProjectId ? woCount : '—'}
           sub="Maintenance requests"
           href="/facility-management/work-orders"
           gradient="from-amber-500 to-amber-700"
-          comingSoon
         />
         <FmsCard
           icon={Package}
@@ -118,6 +122,30 @@ function FacilityManagementDashboard() {
                 <MapPin className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-500" />
                 <span className="text-[11px] font-light text-slate-600 group-hover:text-indigo-600">
                   Manage Zones
+                </span>
+              </div>
+            </Link>
+            <Link to="/facility-management/assets">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 hover:border-teal-300 hover:bg-teal-50 transition-colors cursor-pointer group">
+                <Factory className="w-3.5 h-3.5 text-slate-400 group-hover:text-teal-500" />
+                <span className="text-[11px] font-light text-slate-600 group-hover:text-teal-600">
+                  Assets
+                </span>
+              </div>
+            </Link>
+            <Link to="/facility-management/work-orders">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 hover:border-amber-300 hover:bg-amber-50 transition-colors cursor-pointer group">
+                <Wrench className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-500" />
+                <span className="text-[11px] font-light text-slate-600 group-hover:text-amber-600">
+                  Work Orders
+                </span>
+              </div>
+            </Link>
+            <Link to="/facility-management/preventive-maintenance">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors cursor-pointer group">
+                <Package className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-500" />
+                <span className="text-[11px] font-light text-slate-600 group-hover:text-indigo-600">
+                  PM Schedules
                 </span>
               </div>
             </Link>

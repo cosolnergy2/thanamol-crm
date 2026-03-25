@@ -194,6 +194,49 @@ enum SaleJobStatus {
   REJECTED
 }
 
+enum AssetStatus {
+  OPERATIONAL
+  UNDER_MAINTENANCE
+  OUT_OF_SERVICE
+  DISPOSED
+  IN_STORAGE
+}
+
+enum WorkOrderStatus {
+  OPEN
+  ASSIGNED
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum WorkOrderType {
+  CORRECTIVE
+  PREVENTIVE
+  EMERGENCY
+  INSPECTION
+  CALIBRATION
+}
+
+enum PMFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  SEMI_ANNUAL
+  ANNUAL
+  CUSTOM
+}
+
+enum CalibrationStatus {
+  PENDING
+  IN_PROGRESS
+  PASSED
+  FAILED
+  OVERDUE
+}
+
 // ─── Auth Domain ──────────────────────────────────────────────────────────────
 
 model User {
@@ -239,6 +282,12 @@ model User {
   created_warehouse_requirements WarehouseRequirement[] @relation("WarehouseRequirementCreator")
   created_sale_job04f01  SaleJob04F01[]          @relation("SaleJobCreator")
   approved_sale_job04f01 SaleJob04F01[]          @relation("SaleJobApprover")
+  assigned_assets        Asset[]                 @relation("AssetAssignee")
+  assigned_work_orders   WorkOrder[]             @relation("WorkOrderAssignee")
+  created_work_orders    WorkOrder[]             @relation("WorkOrderCreator")
+  assigned_pms           PreventiveMaintenance[] @relation("PMAssignee")
+  created_pms            PreventiveMaintenance[] @relation("PMCreator")
+  completed_pm_logs      PMScheduleLog[]         @relation("PMLogCompleter")
 
   @@index([email])
 }
@@ -459,6 +508,9 @@ model Project {
   tasks                      Task[]
   warehouse_requirements     WarehouseRequirement[]
   sale_job04f01              SaleJob04F01[]
+  assets                     Asset[]
+  work_orders                WorkOrder[]
+  preventive_maintenances    PreventiveMaintenance[]
 
   @@index([status])
   @@index([code])
@@ -477,6 +529,9 @@ model Zone {
   parent_zone    Zone?    @relation("ZoneHierarchy", fields: [parent_zone_id], references: [id])
   children       Zone[]   @relation("ZoneHierarchy")
   units          Unit[]
+  assets         Asset[]
+  work_orders    WorkOrder[]
+  preventive_maintenances PreventiveMaintenance[]
   created_at     DateTime @default(now())
   updated_at     DateTime @updatedAt
 
@@ -533,6 +588,8 @@ model Unit {
   meter_records MeterRecord[]
   tickets      Ticket[]
   sale_job04f01 SaleJob04F01[]
+  assets       Asset[]
+  work_orders  WorkOrder[]
 
   @@index([project_id])
   @@index([status])
@@ -1204,4 +1261,155 @@ model SaleJob04F01 {
   @@index([created_by])
   @@index([approved_by])
   @@index([status])
+}
+
+// ─── FMS Domain ───────────────────────────────────────────────────────────────
+
+model AssetCategory {
+  id          String          @id @default(uuid())
+  name        String
+  code        String          @unique
+  description String?
+  parent_id   String?
+  parent      AssetCategory?  @relation("CategoryHierarchy", fields: [parent_id], references: [id])
+  children    AssetCategory[] @relation("CategoryHierarchy")
+  assets      Asset[]
+  created_at  DateTime        @default(now())
+}
+
+model Asset {
+  id              String        @id @default(uuid())
+  asset_number    String        @unique
+  name            String
+  description     String?
+  category_id     String?
+  category        AssetCategory? @relation(fields: [category_id], references: [id])
+  project_id      String
+  project         Project        @relation(fields: [project_id], references: [id])
+  zone_id         String?
+  zone            Zone?          @relation(fields: [zone_id], references: [id])
+  unit_id         String?
+  unit            Unit?          @relation(fields: [unit_id], references: [id])
+  location_detail String?
+  manufacturer    String?
+  model_name      String?
+  serial_number   String?
+  purchase_date   DateTime?
+  purchase_cost   Float?
+  warranty_expiry DateTime?
+  status          AssetStatus    @default(OPERATIONAL)
+  qr_code_url     String?
+  specifications  Json           @default("{}")
+  photos          Json           @default("[]")
+  assigned_to     String?
+  assignee        User?          @relation("AssetAssignee", fields: [assigned_to], references: [id])
+  work_orders     WorkOrder[]
+  calibrations    CalibrationRecord[]
+  pm_schedules    PreventiveMaintenance[]
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
+
+  @@index([project_id])
+  @@index([category_id])
+  @@index([status])
+}
+
+model WorkOrder {
+  id               String          @id @default(uuid())
+  wo_number        String          @unique
+  title            String
+  description      String?
+  type             WorkOrderType   @default(CORRECTIVE)
+  priority         String          @default("MEDIUM")
+  status           WorkOrderStatus @default(OPEN)
+  asset_id         String?
+  asset            Asset?          @relation(fields: [asset_id], references: [id])
+  project_id       String
+  project          Project         @relation(fields: [project_id], references: [id])
+  zone_id          String?
+  zone             Zone?           @relation(fields: [zone_id], references: [id])
+  unit_id          String?
+  unit             Unit?           @relation(fields: [unit_id], references: [id])
+  assigned_to      String?
+  assignee         User?           @relation("WorkOrderAssignee", fields: [assigned_to], references: [id])
+  estimated_hours  Float?
+  actual_hours     Float?
+  scheduled_date   DateTime?
+  started_at       DateTime?
+  completed_at     DateTime?
+  completion_notes String?
+  parts_used       Json            @default("[]")
+  cost_estimate    Float?
+  actual_cost      Float?
+  created_by       String
+  creator          User            @relation("WorkOrderCreator", fields: [created_by], references: [id])
+  pm_logs          PMScheduleLog[]
+  created_at       DateTime        @default(now())
+  updated_at       DateTime        @updatedAt
+
+  @@index([project_id])
+  @@index([asset_id])
+  @@index([status])
+  @@index([assigned_to])
+}
+
+model PreventiveMaintenance {
+  id                   String      @id @default(uuid())
+  pm_number            String      @unique
+  title                String
+  description          String?
+  asset_id             String?
+  asset                Asset?      @relation(fields: [asset_id], references: [id])
+  project_id           String
+  project              Project     @relation(fields: [project_id], references: [id])
+  zone_id              String?
+  zone                 Zone?       @relation(fields: [zone_id], references: [id])
+  frequency            PMFrequency @default(MONTHLY)
+  custom_interval_days Int?
+  checklist            Json        @default("[]")
+  assigned_to          String?
+  assignee             User?       @relation("PMAssignee", fields: [assigned_to], references: [id])
+  next_due_date        DateTime?
+  last_completed_date  DateTime?
+  is_active            Boolean     @default(true)
+  created_by           String
+  creator              User        @relation("PMCreator", fields: [created_by], references: [id])
+  logs                 PMScheduleLog[]
+  created_at           DateTime    @default(now())
+  updated_at           DateTime    @updatedAt
+
+  @@index([project_id])
+  @@index([asset_id])
+}
+
+model PMScheduleLog {
+  id             String                @id @default(uuid())
+  pm_id          String
+  pm             PreventiveMaintenance @relation(fields: [pm_id], references: [id])
+  work_order_id  String?
+  work_order     WorkOrder?            @relation(fields: [work_order_id], references: [id])
+  scheduled_date DateTime
+  actual_date    DateTime?
+  status         String                @default("PENDING")
+  notes          String?
+  completed_by   String?
+  completer      User?                 @relation("PMLogCompleter", fields: [completed_by], references: [id])
+  created_at     DateTime              @default(now())
+
+  @@index([pm_id])
+}
+
+model CalibrationRecord {
+  id                    String            @id @default(uuid())
+  asset_id              String
+  asset                 Asset             @relation(fields: [asset_id], references: [id])
+  calibration_date      DateTime
+  next_calibration_date DateTime?
+  performed_by          String?
+  certificate_url       String?
+  status                CalibrationStatus @default(PENDING)
+  notes                 String?
+  created_at            DateTime          @default(now())
+
+  @@index([asset_id])
 }

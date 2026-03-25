@@ -185,8 +185,10 @@ function buildNavigation(t: ReturnType<typeof useLanguage>['t']): NavItem[] {
       submenu: [
         { label: 'Dashboard', path: '/facility-management' },
         { label: 'Zones', path: '/facility-management/zones' },
-        { label: 'Assets', path: '/facility-management/assets', disabled: true },
-        { label: 'Work Orders', path: '/facility-management/work-orders', disabled: true },
+        { label: 'Assets', path: '/facility-management/assets' },
+        { label: 'Work Orders', path: '/facility-management/work-orders' },
+        { label: 'PM Schedules', path: '/facility-management/preventive-maintenance' },
+        { label: 'Calibration', path: '/facility-management/calibrations' },
         { label: 'Inventory', path: '/facility-management/inventory', disabled: true },
       ],
     },

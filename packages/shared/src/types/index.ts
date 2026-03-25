@@ -1894,3 +1894,298 @@ export type PDFTemplateQueryParams = {
 // Aliases
 export type ISODocument = ISODocumentRecord
 export type PDFTemplate = PDFTemplateRecord
+
+// ─── FMS: Asset Management ────────────────────────────────────────────────────
+
+export type AssetStatus = 'OPERATIONAL' | 'UNDER_MAINTENANCE' | 'OUT_OF_SERVICE' | 'DISPOSED' | 'IN_STORAGE'
+
+export type AssetCategory = {
+  id: string
+  name: string
+  code: string
+  description: string | null
+  parent_id: string | null
+  created_at: string
+}
+
+export type AssetCategoryWithChildren = AssetCategory & {
+  children: AssetCategory[]
+  parent: AssetCategory | null
+}
+
+export type CreateAssetCategoryRequest = {
+  name: string
+  code: string
+  description?: string
+  parentId?: string
+}
+
+export type UpdateAssetCategoryRequest = Partial<CreateAssetCategoryRequest>
+
+export type AssetCategoryListResponse = PaginatedResponse<AssetCategory>
+
+export type Asset = {
+  id: string
+  asset_number: string
+  name: string
+  description: string | null
+  category_id: string | null
+  project_id: string
+  zone_id: string | null
+  unit_id: string | null
+  location_detail: string | null
+  manufacturer: string | null
+  model_name: string | null
+  serial_number: string | null
+  purchase_date: string | null
+  purchase_cost: number | null
+  warranty_expiry: string | null
+  status: AssetStatus
+  qr_code_url: string | null
+  specifications: Record<string, unknown>
+  photos: string[]
+  assigned_to: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type AssetWithRelations = Asset & {
+  category: AssetCategory | null
+  project: { id: string; name: string; code: string }
+  zone: { id: string; name: string; code: string } | null
+  unit: { id: string; unit_number: string } | null
+  assignee: { id: string; first_name: string; last_name: string } | null
+  _count: { work_orders: number; calibrations: number; pm_schedules: number }
+}
+
+export type CreateAssetRequest = {
+  name: string
+  description?: string
+  categoryId?: string
+  projectId: string
+  zoneId?: string
+  unitId?: string
+  locationDetail?: string
+  manufacturer?: string
+  modelName?: string
+  serialNumber?: string
+  purchaseDate?: string
+  purchaseCost?: number
+  warrantyExpiry?: string
+  status?: AssetStatus
+  specifications?: Record<string, unknown>
+  photos?: string[]
+  assignedTo?: string
+}
+
+export type UpdateAssetRequest = Partial<CreateAssetRequest>
+
+export type AssetListResponse = PaginatedResponse<AssetWithRelations>
+
+export type AssetQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  zoneId?: string
+  categoryId?: string
+  status?: AssetStatus | 'all'
+  search?: string
+}
+
+// ─── FMS: Work Orders ─────────────────────────────────────────────────────────
+
+export type WorkOrderStatus = 'OPEN' | 'ASSIGNED' | 'IN_PROGRESS' | 'ON_HOLD' | 'COMPLETED' | 'CANCELLED'
+export type WorkOrderType = 'CORRECTIVE' | 'PREVENTIVE' | 'EMERGENCY' | 'INSPECTION' | 'CALIBRATION'
+export type WorkOrderPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
+
+export type WorkOrder = {
+  id: string
+  wo_number: string
+  title: string
+  description: string | null
+  type: WorkOrderType
+  priority: string
+  status: WorkOrderStatus
+  asset_id: string | null
+  project_id: string
+  zone_id: string | null
+  unit_id: string | null
+  assigned_to: string | null
+  estimated_hours: number | null
+  actual_hours: number | null
+  scheduled_date: string | null
+  started_at: string | null
+  completed_at: string | null
+  completion_notes: string | null
+  parts_used: unknown[]
+  cost_estimate: number | null
+  actual_cost: number | null
+  created_by: string
+  created_at: string
+  updated_at: string
+}
+
+export type WorkOrderWithRelations = WorkOrder & {
+  asset: { id: string; asset_number: string; name: string } | null
+  project: { id: string; name: string; code: string }
+  zone: { id: string; name: string } | null
+  unit: { id: string; unit_number: string } | null
+  assignee: { id: string; first_name: string; last_name: string } | null
+  creator: { id: string; first_name: string; last_name: string }
+}
+
+export type CreateWorkOrderRequest = {
+  title: string
+  description?: string
+  type?: WorkOrderType
+  priority?: string
+  assetId?: string
+  projectId: string
+  zoneId?: string
+  unitId?: string
+  assignedTo?: string
+  estimatedHours?: number
+  scheduledDate?: string
+  costEstimate?: number
+  createdBy: string
+}
+
+export type UpdateWorkOrderRequest = Partial<Omit<CreateWorkOrderRequest, 'createdBy'>> & {
+  status?: WorkOrderStatus
+  actualHours?: number
+  startedAt?: string
+  completedAt?: string
+  completionNotes?: string
+  partsUsed?: unknown[]
+  actualCost?: number
+}
+
+export type WorkOrderListResponse = PaginatedResponse<WorkOrderWithRelations>
+
+export type WorkOrderQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  assetId?: string
+  status?: WorkOrderStatus | 'all'
+  type?: WorkOrderType | 'all'
+  assignedTo?: string
+  search?: string
+}
+
+// ─── FMS: Preventive Maintenance ──────────────────────────────────────────────
+
+export type PMFrequency = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'SEMI_ANNUAL' | 'ANNUAL' | 'CUSTOM'
+
+export type PreventiveMaintenance = {
+  id: string
+  pm_number: string
+  title: string
+  description: string | null
+  asset_id: string | null
+  project_id: string
+  zone_id: string | null
+  frequency: PMFrequency
+  custom_interval_days: number | null
+  checklist: unknown[]
+  assigned_to: string | null
+  next_due_date: string | null
+  last_completed_date: string | null
+  is_active: boolean
+  created_by: string
+  created_at: string
+  updated_at: string
+}
+
+export type PMWithRelations = PreventiveMaintenance & {
+  asset: { id: string; asset_number: string; name: string } | null
+  project: { id: string; name: string; code: string }
+  zone: { id: string; name: string } | null
+  assignee: { id: string; first_name: string; last_name: string } | null
+  creator: { id: string; first_name: string; last_name: string }
+  _count: { logs: number }
+}
+
+export type CreatePMRequest = {
+  title: string
+  description?: string
+  assetId?: string
+  projectId: string
+  zoneId?: string
+  frequency?: PMFrequency
+  customIntervalDays?: number
+  checklist?: unknown[]
+  assignedTo?: string
+  nextDueDate?: string
+  createdBy: string
+}
+
+export type UpdatePMRequest = Partial<Omit<CreatePMRequest, 'createdBy'>> & {
+  isActive?: boolean
+  lastCompletedDate?: string
+}
+
+export type PMListResponse = PaginatedResponse<PMWithRelations>
+
+export type PMQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  assetId?: string
+  isActive?: boolean
+  search?: string
+}
+
+export type PMScheduleLog = {
+  id: string
+  pm_id: string
+  work_order_id: string | null
+  scheduled_date: string
+  actual_date: string | null
+  status: string
+  notes: string | null
+  completed_by: string | null
+  created_at: string
+}
+
+// ─── FMS: Calibration ─────────────────────────────────────────────────────────
+
+export type CalibrationStatus = 'PENDING' | 'IN_PROGRESS' | 'PASSED' | 'FAILED' | 'OVERDUE'
+
+export type CalibrationRecord = {
+  id: string
+  asset_id: string
+  calibration_date: string
+  next_calibration_date: string | null
+  performed_by: string | null
+  certificate_url: string | null
+  status: CalibrationStatus
+  notes: string | null
+  created_at: string
+}
+
+export type CalibrationWithAsset = CalibrationRecord & {
+  asset: { id: string; asset_number: string; name: string }
+}
+
+export type CreateCalibrationRequest = {
+  assetId: string
+  calibrationDate: string
+  nextCalibrationDate?: string
+  performedBy?: string
+  certificateUrl?: string
+  status?: CalibrationStatus
+  notes?: string
+}
+
+export type UpdateCalibrationRequest = Partial<CreateCalibrationRequest>
+
+export type CalibrationListResponse = PaginatedResponse<CalibrationWithAsset>
+
+export type CalibrationQueryParams = {
+  page?: number
+  limit?: number
+  assetId?: string
+  status?: CalibrationStatus | 'all'
+  projectId?: string
+}
