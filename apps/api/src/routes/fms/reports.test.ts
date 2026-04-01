@@ -15,6 +15,7 @@ vi.mock('../../lib/prisma', () => ({
     preventiveMaintenance: { findMany: vi.fn() },
     vendor: { findMany: vi.fn() },
     calibrationRecord: { findMany: vi.fn() },
+    inventoryItem: { findMany: vi.fn() },
   },
 }))
 
@@ -594,5 +595,122 @@ describe('GET /api/fms/reports/predictive-maintenance', () => {
     if (highIdx !== -1 && mediumIdx !== -1) {
       expect(highIdx).toBeLessThan(mediumIdx)
     }
+  })
+})
+
+describe('GET /api/fms/reports/inventory-analysis', () => {
+  let token: string
+  beforeEach(async () => {
+    vi.resetAllMocks()
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(MOCK_USER as never)
+    token = await signToken()
+  })
+
+  const now = new Date()
+  const recentDate = new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000)
+  const oldDate = new Date(now.getTime() - 120 * 24 * 60 * 60 * 1000)
+
+  const MOCK_ITEMS = [
+    {
+      id: 'item-1',
+      item_code: 'IT-001',
+      name: 'Filter A',
+      unit_cost: 500,
+      current_stock: 10,
+      minimum_stock: 2,
+      reorder_point: 3,
+      lead_time_days: 14,
+      is_active: true,
+      stock_movements: [
+        { id: 'sm-1', created_at: recentDate, quantity: 5, movement_type: 'OUT' },
+        { id: 'sm-2', created_at: recentDate, quantity: 3, movement_type: 'OUT' },
+      ],
+    },
+    {
+      id: 'item-2',
+      item_code: 'IT-002',
+      name: 'Dead Part',
+      unit_cost: 200,
+      current_stock: 5,
+      minimum_stock: 1,
+      reorder_point: null,
+      lead_time_days: null,
+      is_active: true,
+      stock_movements: [
+        { id: 'sm-3', created_at: oldDate, quantity: 2, movement_type: 'OUT' },
+      ],
+    },
+  ]
+
+  it('returns 401 without token', async () => {
+    const res = await req('GET', '/api/fms/reports/inventory-analysis')
+    expect(res.status).toBe(401)
+  })
+
+  it('returns inventory analysis report', async () => {
+    vi.mocked(prisma.inventoryItem.findMany).mockResolvedValue(MOCK_ITEMS as never)
+    const res = await req('GET', '/api/fms/reports/inventory-analysis', token)
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.report).toBeDefined()
+    expect(body.report.abcAnalysis).toBeDefined()
+    expect(body.report.deadStock).toBeDefined()
+    expect(body.report.consumptionTrends).toBeDefined()
+    expect(body.report.reorderSuggestions).toBeDefined()
+    expect(body.report.summary).toBeDefined()
+  })
+
+  it('identifies dead stock items — no movement in 90+ days', async () => {
+    vi.mocked(prisma.inventoryItem.findMany).mockResolvedValue(MOCK_ITEMS as never)
+    const res = await req('GET', '/api/fms/reports/inventory-analysis', token)
+    const body = await res.json()
+    const deadStockIds = body.report.deadStock.map((d: { itemId: string }) => d.itemId)
+    expect(deadStockIds).toContain('item-2')
+    expect(deadStockIds).not.toContain('item-1')
+  })
+
+  it('returns abc analysis with valid categories', async () => {
+    vi.mocked(prisma.inventoryItem.findMany).mockResolvedValue(MOCK_ITEMS as never)
+    const res = await req('GET', '/api/fms/reports/inventory-analysis', token)
+    const body = await res.json()
+    const categories = body.report.abcAnalysis.map((i: { category: string }) => i.category)
+    expect(categories.every((c: string) => ['A', 'B', 'C'].includes(c))).toBe(true)
+  })
+
+  it('returns consumption trends only for items with recent movements', async () => {
+    vi.mocked(prisma.inventoryItem.findMany).mockResolvedValue(MOCK_ITEMS as never)
+    const res = await req('GET', '/api/fms/reports/inventory-analysis', token)
+    const body = await res.json()
+    const trendIds = body.report.consumptionTrends.map((t: { itemId: string }) => t.itemId)
+    expect(trendIds).toContain('item-1')
+  })
+
+  it('passes projectId filter to database query', async () => {
+    vi.mocked(prisma.inventoryItem.findMany).mockResolvedValue([] as never)
+    const res = await req('GET', '/api/fms/reports/inventory-analysis?projectId=proj-1', token)
+    expect(res.status).toBe(200)
+    expect(prisma.inventoryItem.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ project_id: 'proj-1' }),
+      })
+    )
+  })
+
+  it('returns summary with correct item counts', async () => {
+    vi.mocked(prisma.inventoryItem.findMany).mockResolvedValue(MOCK_ITEMS as never)
+    const res = await req('GET', '/api/fms/reports/inventory-analysis', token)
+    const body = await res.json()
+    expect(body.report.summary.totalItems).toBe(2)
+    expect(body.report.summary.totalDeadStockItems).toBe(1)
+  })
+
+  it('returns empty report for no items', async () => {
+    vi.mocked(prisma.inventoryItem.findMany).mockResolvedValue([] as never)
+    const res = await req('GET', '/api/fms/reports/inventory-analysis', token)
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.report.abcAnalysis).toHaveLength(0)
+    expect(body.report.deadStock).toHaveLength(0)
+    expect(body.report.summary.totalItems).toBe(0)
   })
 })
