@@ -2747,6 +2747,53 @@ export type GRNQueryParams = {
   search?: string
 }
 
+// ─── FMS: Stock Transfers ─────────────────────────────────────────────────────
+
+export type StockTransferItem = {
+  item_id: string
+  item_code?: string
+  item_name?: string
+  quantity: number
+  unit_of_measure?: string | null
+}
+
+export type StockTransfer = {
+  id: string
+  transfer_number: string
+  source_project_id: string | null
+  destination_project_id: string | null
+  transfer_date: string
+  notes: string | null
+  transferred_by: string | null
+  items: StockTransferItem[]
+  created_at: string
+}
+
+export type StockTransferWithRelations = StockTransfer & {
+  source_project: { id: string; name: string; code: string } | null
+  destination_project: { id: string; name: string; code: string } | null
+  transferred_by_user: { id: string; first_name: string; last_name: string } | null
+}
+
+export type CreateStockTransferRequest = {
+  sourceProjectId?: string
+  destinationProjectId?: string
+  items: { itemId: string; quantity: number }[]
+  transferDate: string
+  notes?: string
+  transferredBy?: string
+}
+
+export type StockTransferListResponse = PaginatedResponse<StockTransferWithRelations>
+
+export type StockTransferQueryParams = {
+  page?: number
+  limit?: number
+  sourceProjectId?: string
+  destinationProjectId?: string
+  search?: string
+}
+
 // ─── FMS: Procurement ─────────────────────────────────────────────────────────
 
 export type PRStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED' | 'CANCELLED' | 'CONVERTED'

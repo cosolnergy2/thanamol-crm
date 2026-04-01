@@ -401,6 +401,7 @@ model User {
   stock_movements        StockMovement[]         @relation("StockMovementPerformer")
   stock_issues_to        StockIssue[]            @relation("StockIssueTo")
   stock_issues_by        StockIssue[]            @relation("StockIssueBy")
+  stock_transfers_by     StockTransfer[]         @relation("StockTransferBy")
   grn_received           GoodsReceivedNote[]     @relation("GRNReceiver")
   pr_requested           PurchaseRequest[]       @relation("PRRequester")
   pr_approved            PurchaseRequest[]       @relation("PRApprover")
@@ -645,6 +646,8 @@ model Project {
   petty_cash_transactions    PettyCashTransaction[]
   inventory_items            InventoryItem[]
   stock_issues               StockIssue[]
+  stock_transfers_source     StockTransfer[]     @relation("StockTransferSource")
+  stock_transfers_destination StockTransfer[]    @relation("StockTransferDestination")
   goods_received_notes       GoodsReceivedNote[]
   purchase_requests          PurchaseRequest[]
   purchase_orders            PurchaseOrder[]
@@ -1833,6 +1836,24 @@ model StockIssue {
   created_at    DateTime @default(now())
 
   @@index([project_id])
+}
+
+model StockTransfer {
+  id                     String   @id @default(uuid())
+  transfer_number        String   @unique
+  source_project_id      String?
+  source_project         Project? @relation("StockTransferSource", fields: [source_project_id], references: [id])
+  destination_project_id String?
+  destination_project    Project? @relation("StockTransferDestination", fields: [destination_project_id], references: [id])
+  items                  Json     @default("[]")
+  transfer_date          DateTime
+  notes                  String?
+  transferred_by         String?
+  transferred_by_user    User?    @relation("StockTransferBy", fields: [transferred_by], references: [id])
+  created_at             DateTime @default(now())
+
+  @@index([source_project_id])
+  @@index([destination_project_id])
 }
 
 model GoodsReceivedNote {
