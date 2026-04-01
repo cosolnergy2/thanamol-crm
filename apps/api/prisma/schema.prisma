@@ -343,6 +343,12 @@ enum InsurancePolicyStatus {
   PENDING_RENEWAL
 }
 
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 // ─── Auth Domain ──────────────────────────────────────────────────────────────
 
 model User {
@@ -377,6 +383,7 @@ model User {
   created_tasks          Task[]                  @relation("TaskCreator")
   task_comments          TaskComment[]
   assigned_tickets       Ticket[]                @relation("TicketAssignee")
+  requested_tickets      Ticket[]                @relation("TicketRequester")
   uploaded_documents     Document[]              @relation("DocumentUploader")
   approved_iso_documents ISODocument[]           @relation("ISODocumentApprover")
   created_meeting_minutes MeetingMinute[]        @relation("MeetingMinuteCreator")
@@ -413,6 +420,7 @@ model User {
   requested_permits      PermitToWork[]          @relation("PTWRequester")
   approved_permits       PermitToWork[]          @relation("PTWApprover")
   reported_incidents     Incident[]              @relation("IncidentReporter")
+  approval_requests      ApprovalRequest[]       @relation("ApprovalRequester")
 
   @@index([email])
 }
@@ -658,6 +666,7 @@ model Project {
   incidents                  Incident[]
   insurance_policies         InsurancePolicy[]
   contractor_safety_records  ContractorSafety[]
+  tickets                    Ticket[]
 
   @@index([status])
   @@index([code])
@@ -1125,6 +1134,9 @@ model Ticket {
   description String?
   customer_id String?
   unit_id     String?
+  project_id       String?
+  site             String?
+  requester_id     String?
   category         String?
   priority         Priority     @default(MEDIUM)
   status           TicketStatus @default(OPEN)
@@ -1136,12 +1148,15 @@ model Ticket {
   created_at       DateTime     @default(now())
   updated_at       DateTime     @updatedAt
 
-  customer Customer? @relation(fields: [customer_id], references: [id])
-  unit     Unit?     @relation(fields: [unit_id], references: [id])
-  assignee User?     @relation("TicketAssignee", fields: [assigned_to], references: [id])
+  customer  Customer? @relation(fields: [customer_id], references: [id])
+  unit      Unit?     @relation(fields: [unit_id], references: [id])
+  project   Project?  @relation(fields: [project_id], references: [id])
+  requester User?     @relation("TicketRequester", fields: [requester_id], references: [id])
+  assignee  User?     @relation("TicketAssignee", fields: [assigned_to], references: [id])
 
   @@index([customer_id])
   @@index([unit_id])
+  @@index([project_id])
   @@index([assigned_to])
   @@index([status])
 }
@@ -2262,4 +2277,40 @@ model ContractorSafety {
   updated_at            DateTime  @updatedAt
 
   @@index([project_id])
+}
+
+// ─── Approval Center ──────────────────────────────────────────────────────────
+
+model ApprovalWorkflow {
+  id          String            @id @default(uuid())
+  entity_type String
+  name        String
+  steps       Json              @default("[]")
+  is_active   Boolean           @default(true)
+  created_at  DateTime          @default(now())
+  updated_at  DateTime          @updatedAt
+  requests    ApprovalRequest[]
+
+  @@index([entity_type])
+}
+
+model ApprovalRequest {
+  id           String           @id @default(uuid())
+  entity_type  String
+  entity_id    String
+  workflow_id  String
+  workflow     ApprovalWorkflow @relation(fields: [workflow_id], references: [id])
+  current_step Int              @default(0)
+  status       ApprovalStatus   @default(PENDING)
+  history      Json             @default("[]")
+  requested_by String
+  requester    User             @relation("ApprovalRequester", fields: [requested_by], references: [id])
+  notes        String?
+  created_at   DateTime         @default(now())
+  updated_at   DateTime         @updatedAt
+
+  @@index([entity_type, entity_id])
+  @@index([workflow_id])
+  @@index([requested_by])
+  @@index([status])
 }

@@ -1322,6 +1322,9 @@ export type Ticket = {
   description: string | null
   customer_id: string | null
   unit_id: string | null
+  project_id: string | null
+  site: string | null
+  requester_id: string | null
   category: string | null
   priority: TicketPriority
   status: TicketStatus
@@ -1337,6 +1340,12 @@ export type Ticket = {
 export type TicketWithRelations = Ticket & {
   customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'> | null
   unit: Pick<Unit, 'id' | 'unit_number' | 'floor' | 'building'> | null
+  assignee: { id: string; first_name: string; last_name: string } | null
+}
+
+export type HelpdeskTicket = Ticket & {
+  project: { id: string; name: string; code: string } | null
+  requester: { id: string; first_name: string; last_name: string } | null
   assignee: { id: string; first_name: string; last_name: string } | null
 }
 
@@ -1362,6 +1371,44 @@ export type TicketQueryParams = {
   priority?: TicketPriority | 'all'
   customerId?: string
   assignedTo?: string
+}
+
+// ─── Helpdesk ─────────────────────────────────────────────────────────────────
+
+export type HelpdeskListResponse = PaginatedResponse<HelpdeskTicket>
+
+export type CreateHelpdeskTicketRequest = {
+  title: string
+  description?: string
+  projectId?: string
+  site?: string
+  requesterId?: string
+  category?: string
+  priority?: TicketPriority
+  assignedTo?: string
+}
+
+export type UpdateHelpdeskTicketRequest = Partial<CreateHelpdeskTicketRequest> & {
+  status?: TicketStatus
+  resolutionNotes?: string
+}
+
+export type HelpdeskQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  status?: TicketStatus | 'all'
+  priority?: TicketPriority | 'all'
+  site?: string
+}
+
+export type CreateWorkOrderFromTicketRequest = {
+  projectId: string
+  createdBy: string
+  title?: string
+  description?: string
+  assignedTo?: string
+  priority?: string
 }
 
 // ─── Notification ─────────────────────────────────────────────────────────────
@@ -3669,6 +3716,89 @@ export type VendorInvoiceQueryParams = {
   paymentStatus?: string
   search?: string
 }
+
+// ─── Vendor Performance & Reports ─────────────────────────────────────────────
+
+export type VendorPerformance = {
+  vendorId: string
+  vendorCode: string
+  vendorName: string
+  deliveryScore: number
+  qualityScore: number
+  pricingScore: number
+  overallScore: number
+  stats: {
+    totalPOs: number
+    deliveredPOs: number
+    totalGRNs: number
+    acceptedGRNs: number
+    totalInvoices: number
+    totalSpend: number
+    vendorAvgPrice: number
+  }
+}
+
+export type VendorPriceTrendItem = {
+  itemName: string
+  latestPrice: number
+  currency: string
+  priceHistory: Array<{
+    date: string
+    unitPrice: number
+    currency: string
+    isActive: boolean
+  }>
+}
+
+export type VendorPriceTrend = {
+  vendorId: string
+  items: VendorPriceTrendItem[]
+}
+
+export type VendorSummaryRow = {
+  vendorId: string
+  vendorCode: string
+  vendorName: string
+  status: string
+  activeContractsCount: number
+  totalInvoices: number
+  totalSpend: number
+  invoiceStatusSummary: Record<string, number>
+}
+
+export type VendorSummaryReport = {
+  rows: VendorSummaryRow[]
+  totals: {
+    totalVendors: number
+    activeVendors: number
+    totalActiveContracts: number
+    totalSpend: number
+  }
+}
+
+export type ThreeWayMatchRow = {
+  description: string
+  invoiceQty: number
+  poQty: number | null
+  grnQty: number | null
+  invoiceUnitPrice: number
+  poUnitPrice: number | null
+  invoiceTotal: number
+  quantityMatch: boolean | null
+  priceMatch: boolean | null
+}
+
+export type ThreeWayMatch = {
+  invoiceId: string
+  invoiceNumber: string
+  vendor: { id: string; vendor_code: string; name: string }
+  poLinked: boolean
+  rows: ThreeWayMatchRow[]
+  allMatched: boolean
+  invoiceTotal: number
+  poTotal: number
+}
+
 export type BudgetTemplate = {
   id: string
   name: string
@@ -3987,4 +4117,89 @@ export type AutoReorderResponse = {
     created_at: string
   }
   itemCount: number
+}
+
+// ─── Approval Center ──────────────────────────────────────────────────────────
+
+export type ApprovalStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
+
+export type ApprovalWorkflowStep = {
+  step: number
+  role: string
+  threshold?: number
+}
+
+export type ApprovalHistoryEntry = {
+  step: number
+  action: 'APPROVED' | 'REJECTED'
+  user: string
+  date: string
+  notes?: string
+}
+
+export type ApprovalWorkflow = {
+  id: string
+  entity_type: string
+  name: string
+  steps: ApprovalWorkflowStep[]
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export type ApprovalRequest = {
+  id: string
+  entity_type: string
+  entity_id: string
+  workflow_id: string
+  workflow?: Pick<ApprovalWorkflow, 'id' | 'name' | 'entity_type' | 'steps'>
+  current_step: number
+  status: ApprovalStatus
+  history: ApprovalHistoryEntry[]
+  requested_by: string
+  requester?: { id: string; first_name: string; last_name: string }
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type CreateApprovalWorkflowRequest = {
+  entityType: string
+  name: string
+  steps: ApprovalWorkflowStep[]
+  isActive?: boolean
+}
+
+export type UpdateApprovalWorkflowRequest = {
+  name?: string
+  steps?: ApprovalWorkflowStep[]
+  isActive?: boolean
+}
+
+export type CreateApprovalRequestRequest = {
+  entityType: string
+  entityId: string
+  workflowId: string
+  requestedBy: string
+  notes?: string
+}
+
+export type ApproveRequestBody = {
+  userId: string
+  notes?: string
+}
+
+export type RejectRequestBody = {
+  userId: string
+  reason: string
+}
+
+export type ApprovalWorkflowListResponse = {
+  data: ApprovalWorkflow[]
+  pagination: Pagination
+}
+
+export type ApprovalRequestListResponse = {
+  data: ApprovalRequest[]
+  pagination: Pagination
 }
