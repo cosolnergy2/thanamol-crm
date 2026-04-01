@@ -2197,6 +2197,42 @@ export type PMScheduleLog = {
   created_at: string
 }
 
+export type PMInspection = {
+  id: string
+  pm_id: string
+  inspection_date: string
+  inspector_name: string
+  checklist_results: unknown[]
+  passed: boolean
+  notes: string | null
+  created_at: string
+}
+
+export type CreatePMInspectionRequest = {
+  inspectionDate: string
+  inspectorName: string
+  checklistResults?: Array<{ item: string; passed: boolean; notes?: string }>
+  passed: boolean
+  notes?: string
+}
+
+export type PMInspectionListResponse = PaginatedResponse<PMInspection>
+
+export type PMComplianceReport = {
+  total: number
+  onTimeCount: number
+  overdueCount: number
+  missedCount: number
+  compliancePercentage: number
+  overdueList: Array<{
+    id: string
+    pm_number: string
+    title: string
+    next_due_date: string
+    days_overdue: number
+  }>
+}
+
 // ─── FMS: Calibration ─────────────────────────────────────────────────────────
 
 export type CalibrationStatus = 'PENDING' | 'IN_PROGRESS' | 'PASSED' | 'FAILED' | 'OVERDUE'
@@ -2744,6 +2780,53 @@ export type GRNQueryParams = {
   limit?: number
   projectId?: string
   status?: GRNStatus | 'all'
+  search?: string
+}
+
+// ─── FMS: Stock Transfers ─────────────────────────────────────────────────────
+
+export type StockTransferItem = {
+  item_id: string
+  item_code?: string
+  item_name?: string
+  quantity: number
+  unit_of_measure?: string | null
+}
+
+export type StockTransfer = {
+  id: string
+  transfer_number: string
+  source_project_id: string | null
+  destination_project_id: string | null
+  transfer_date: string
+  notes: string | null
+  transferred_by: string | null
+  items: StockTransferItem[]
+  created_at: string
+}
+
+export type StockTransferWithRelations = StockTransfer & {
+  source_project: { id: string; name: string; code: string } | null
+  destination_project: { id: string; name: string; code: string } | null
+  transferred_by_user: { id: string; first_name: string; last_name: string } | null
+}
+
+export type CreateStockTransferRequest = {
+  sourceProjectId?: string
+  destinationProjectId?: string
+  items: { itemId: string; quantity: number }[]
+  transferDate: string
+  notes?: string
+  transferredBy?: string
+}
+
+export type StockTransferListResponse = PaginatedResponse<StockTransferWithRelations>
+
+export type StockTransferQueryParams = {
+  page?: number
+  limit?: number
+  sourceProjectId?: string
+  destinationProjectId?: string
   search?: string
 }
 
@@ -3844,4 +3927,64 @@ export type FMSComplianceStatusReport = {
     type: string
     end_date: string
   }>
+}
+
+export type FMSBudgetOverviewReport = {
+  totalBudgets: number
+  totalApprovedAmount: number
+  totalSpent: number
+  totalRemaining: number
+  byStatus: Record<string, number>
+}
+
+export type FMSBudgetVsActualRow = {
+  id: string
+  budgetCode: string
+  title: string
+  fiscalYear: number
+  status: string
+  project: { id: string; name: string; code: string } | null
+  totalApproved: number
+  totalActual: number
+  totalCommitted: number
+  variance: number
+  utilizationPct: number
+}
+
+export type FMSBudgetVsActualReport = {
+  rows: FMSBudgetVsActualRow[]
+  totals: {
+    totalApproved: number
+    totalActual: number
+    totalVariance: number
+  }
+}
+
+export type FMSCostReportRow = {
+  category: string
+  approved: number
+  actual: number
+  committed: number
+}
+
+export type FMSCostReport = {
+  rows: FMSCostReportRow[]
+  totalActual: number
+}
+
+export type AutoReorderRequest = {
+  projectId?: string
+  title?: string
+}
+
+export type AutoReorderResponse = {
+  pr: {
+    id: string
+    pr_number: string
+    title: string
+    status: string
+    estimated_total: number | null
+    created_at: string
+  }
+  itemCount: number
 }

@@ -4,6 +4,10 @@ import type {
   FMSAssetStatusReport,
   FMSBudgetVarianceReport,
   FMSComplianceStatusReport,
+  FMSBudgetOverviewReport,
+  FMSBudgetVsActualReport,
+  FMSCostReport,
+  PMComplianceReport,
 } from '@thanamol/shared'
 import { apiGet } from '@/lib/api-client'
 
@@ -15,6 +19,10 @@ export const FMS_REPORTS_QUERY_KEYS = {
     ['fms-reports', 'budget-variance', params] as const,
   complianceStatus: (projectId: string) =>
     ['fms-reports', 'compliance-status', projectId] as const,
+  budgetOverview: (fiscalYear?: number) => ['fms-reports', 'budget-overview', fiscalYear] as const,
+  budgetVsActual: (fiscalYear?: number) => ['fms-reports', 'budget-vs-actual', fiscalYear] as const,
+  costReport: (fiscalYear?: number) => ['fms-reports', 'cost-report', fiscalYear] as const,
+  pmCompliance: (projectId: string) => ['fms-reports', 'pm-compliance', projectId] as const,
 }
 
 export type MaintenanceCostParams = {
@@ -80,6 +88,51 @@ export function useFMSComplianceStatusReport(projectId: string) {
     queryFn: () =>
       apiGet<{ report: FMSComplianceStatusReport }>(
         `/fms/reports/compliance-status${buildQueryString({ projectId })}`
+      ),
+    enabled: Boolean(projectId),
+    staleTime: 60 * 1000,
+  })
+}
+
+export function useFMSBudgetOverviewReport(fiscalYear?: number) {
+  return useQuery({
+    queryKey: FMS_REPORTS_QUERY_KEYS.budgetOverview(fiscalYear),
+    queryFn: () =>
+      apiGet<{ report: FMSBudgetOverviewReport }>(
+        `/fms/reports/budget-overview${buildQueryString(fiscalYear ? { fiscalYear } : {})}`
+      ),
+    staleTime: 60 * 1000,
+  })
+}
+
+export function useFMSBudgetVsActualReport(fiscalYear?: number) {
+  return useQuery({
+    queryKey: FMS_REPORTS_QUERY_KEYS.budgetVsActual(fiscalYear),
+    queryFn: () =>
+      apiGet<{ report: FMSBudgetVsActualReport }>(
+        `/fms/reports/budget-vs-actual${buildQueryString(fiscalYear ? { fiscalYear } : {})}`
+      ),
+    staleTime: 60 * 1000,
+  })
+}
+
+export function useFMSCostReport(fiscalYear?: number) {
+  return useQuery({
+    queryKey: FMS_REPORTS_QUERY_KEYS.costReport(fiscalYear),
+    queryFn: () =>
+      apiGet<{ report: FMSCostReport }>(
+        `/fms/reports/cost-report${buildQueryString(fiscalYear ? { fiscalYear } : {})}`
+      ),
+    staleTime: 60 * 1000,
+  })
+}
+
+export function usePMComplianceReport(projectId: string) {
+  return useQuery({
+    queryKey: FMS_REPORTS_QUERY_KEYS.pmCompliance(projectId),
+    queryFn: () =>
+      apiGet<{ report: PMComplianceReport }>(
+        `/fms/reports/pm-compliance${buildQueryString({ projectId })}`
       ),
     enabled: Boolean(projectId),
     staleTime: 60 * 1000,

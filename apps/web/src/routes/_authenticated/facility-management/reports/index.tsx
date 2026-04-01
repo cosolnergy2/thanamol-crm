@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Wrench, BarChart3, ShieldCheck, DollarSign, ArrowRight } from 'lucide-react'
+import { Wrench, BarChart3, ShieldCheck, DollarSign, ClipboardList, ArrowRight } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/PageHeader'
 
@@ -35,6 +35,13 @@ const REPORT_CARDS = [
     icon: ShieldCheck,
     href: '/facility-management/reports/compliance-status',
     accent: 'from-teal-500 to-teal-700',
+  },
+  {
+    title: 'PM Compliance',
+    description: 'Preventive maintenance schedule compliance rate, overdue and missed PMs',
+    icon: ClipboardList,
+    href: '/facility-management/reports/pm-compliance',
+    accent: 'from-rose-500 to-rose-700',
   },
 ] as const
 

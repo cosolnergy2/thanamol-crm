@@ -290,4 +290,73 @@ export const fmsPMRoutes = new Elysia({ prefix: '/api/fms/preventive-maintenance
           await prisma.preventiveMaintenance.delete({ where: { id: params.id } })
           return { success: true }
         })
+        .post(
+          '/:id/inspect',
+          async ({ params, body, set }) => {
+            const pm = await prisma.preventiveMaintenance.findUnique({
+              where: { id: params.id },
+            })
+            if (!pm) {
+              set.status = 404
+              return { error: 'PM schedule not found' }
+            }
+
+            const inspection = await prisma.pMInspection.create({
+              data: {
+                pm_id: params.id,
+                inspection_date: new Date(body.inspectionDate),
+                inspector_name: body.inspectorName,
+                checklist_results: (body.checklistResults as object[]) ?? [],
+                passed: body.passed,
+                notes: body.notes ?? null,
+              },
+            })
+
+            set.status = 201
+            return { inspection }
+          },
+          {
+            body: t.Object({
+              inspectionDate: t.String({ minLength: 1 }),
+              inspectorName: t.String({ minLength: 1 }),
+              checklistResults: t.Optional(t.Array(t.Unknown())),
+              passed: t.Boolean(),
+              notes: t.Optional(t.String()),
+            }),
+          }
+        )
+        .get(
+          '/:id/inspections',
+          async ({ params, query, set }) => {
+            const pm = await prisma.preventiveMaintenance.findUnique({
+              where: { id: params.id },
+            })
+            if (!pm) {
+              set.status = 404
+              return { error: 'PM schedule not found' }
+            }
+
+            const page = Math.max(1, Number(query.page ?? 1))
+            const limit = Math.min(100, Math.max(1, Number(query.limit ?? 20)))
+            const skip = (page - 1) * limit
+
+            const [total, inspections] = await Promise.all([
+              prisma.pMInspection.count({ where: { pm_id: params.id } }),
+              prisma.pMInspection.findMany({
+                where: { pm_id: params.id },
+                skip,
+                take: limit,
+                orderBy: { inspection_date: 'desc' },
+              }),
+            ])
+
+            return { data: inspections, pagination: buildPagination(page, limit, total) }
+          },
+          {
+            query: t.Object({
+              page: t.Optional(t.String()),
+              limit: t.Optional(t.String()),
+            }),
+          }
+        )
   )

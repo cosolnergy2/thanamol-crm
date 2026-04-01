@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { ClipboardList, Plus } from 'lucide-react'
+import { ClipboardList, ClipboardCheck, Plus, CheckCircle, XCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -20,6 +20,7 @@ import {
   usePreventiveMaintenance,
   useUpdatePM,
   useGeneratePMWorkOrder,
+  usePMInspections,
 } from '@/hooks/usePreventiveMaintenance'
 import type { PMFrequency } from '@thanamol/shared'
 
@@ -67,6 +68,8 @@ function PMDetailPage() {
 
   const updatePM = useUpdatePM(pmId)
   const generateWO = useGeneratePMWorkOrder(pmId)
+  const { data: inspectionsData } = usePMInspections(pmId)
+  const inspections = inspectionsData?.data ?? []
 
   const [showGenerateDialog, setShowGenerateDialog] = useState(false)
   const [scheduledDate, setScheduledDate] = useState('')
@@ -134,6 +137,15 @@ function PMDetailPage() {
             >
               {pm.is_active ? 'Deactivate' : 'Activate'}
             </Button>
+            <Link
+              to="/facility-management/preventive-maintenance/$pmId/inspect"
+              params={{ pmId }}
+            >
+              <Button variant="outline" size="sm">
+                <ClipboardCheck className="w-3.5 h-3.5 mr-1.5" />
+                Record Inspection
+              </Button>
+            </Link>
             {pm.is_active && (
               <Button
                 size="sm"
@@ -321,6 +333,65 @@ function PMDetailPage() {
             </CardContent>
           </Card>
         )}
+
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-light text-slate-600 flex items-center gap-2">
+                <ClipboardCheck className="w-4 h-4 text-slate-400" />
+                Inspection History
+              </CardTitle>
+              <Link
+                to="/facility-management/preventive-maintenance/$pmId/inspect"
+                params={{ pmId }}
+              >
+                <Button variant="outline" size="sm" className="h-7 text-xs">
+                  <Plus className="w-3 h-3 mr-1" />
+                  New Inspection
+                </Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {inspections.length === 0 ? (
+              <p className="text-xs text-slate-400 text-center py-8">No inspections recorded yet</p>
+            ) : (
+              <div className="space-y-2">
+                {inspections.map((inspection) => {
+                  const insp = inspection as Record<string, unknown>
+                  return (
+                    <div
+                      key={insp.id as string}
+                      className="flex items-center justify-between text-xs border-b border-slate-50 pb-2 last:border-0"
+                    >
+                      <div className="flex items-center gap-2">
+                        {insp.passed ? (
+                          <CheckCircle className="w-3.5 h-3.5 text-teal-500" />
+                        ) : (
+                          <XCircle className="w-3.5 h-3.5 text-rose-500" />
+                        )}
+                        <span className="text-slate-600">
+                          {new Date(insp.inspection_date as string).toLocaleDateString()}
+                        </span>
+                        <span className="text-slate-400">— {insp.inspector_name as string}</span>
+                      </div>
+                      <Badge
+                        variant="outline"
+                        className={`text-[9px] ${
+                          insp.passed
+                            ? 'bg-teal-50 text-teal-700 border-teal-200'
+                            : 'bg-rose-50 text-rose-700 border-rose-200'
+                        }`}
+                      >
+                        {insp.passed ? 'PASS' : 'FAIL'}
+                      </Badge>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       <Dialog open={showGenerateDialog} onOpenChange={setShowGenerateDialog}>

@@ -401,6 +401,7 @@ model User {
   stock_movements        StockMovement[]         @relation("StockMovementPerformer")
   stock_issues_to        StockIssue[]            @relation("StockIssueTo")
   stock_issues_by        StockIssue[]            @relation("StockIssueBy")
+  stock_transfers_by     StockTransfer[]         @relation("StockTransferBy")
   grn_received           GoodsReceivedNote[]     @relation("GRNReceiver")
   pr_requested           PurchaseRequest[]       @relation("PRRequester")
   pr_approved            PurchaseRequest[]       @relation("PRApprover")
@@ -645,6 +646,8 @@ model Project {
   petty_cash_transactions    PettyCashTransaction[]
   inventory_items            InventoryItem[]
   stock_issues               StockIssue[]
+  stock_transfers_source     StockTransfer[]     @relation("StockTransferSource")
+  stock_transfers_destination StockTransfer[]    @relation("StockTransferDestination")
   goods_received_notes       GoodsReceivedNote[]
   purchase_requests          PurchaseRequest[]
   purchase_orders            PurchaseOrder[]
@@ -1545,6 +1548,7 @@ model PreventiveMaintenance {
   auto_create_wo       Boolean     @default(false)
   auto_wo_days_before  Int?
   logs                 PMScheduleLog[]
+  inspections          PMInspection[]
   created_at           DateTime    @default(now())
   updated_at           DateTime    @updatedAt
 
@@ -1565,6 +1569,20 @@ model PMScheduleLog {
   completed_by   String?
   completer      User?                 @relation("PMLogCompleter", fields: [completed_by], references: [id])
   created_at     DateTime              @default(now())
+
+  @@index([pm_id])
+}
+
+model PMInspection {
+  id              String                @id @default(uuid())
+  pm_id           String
+  pm              PreventiveMaintenance @relation(fields: [pm_id], references: [id])
+  inspection_date DateTime
+  inspector_name  String
+  checklist_results Json               @default("[]")
+  passed          Boolean
+  notes           String?
+  created_at      DateTime              @default(now())
 
   @@index([pm_id])
 }
@@ -1833,6 +1851,24 @@ model StockIssue {
   created_at    DateTime @default(now())
 
   @@index([project_id])
+}
+
+model StockTransfer {
+  id                     String   @id @default(uuid())
+  transfer_number        String   @unique
+  source_project_id      String?
+  source_project         Project? @relation("StockTransferSource", fields: [source_project_id], references: [id])
+  destination_project_id String?
+  destination_project    Project? @relation("StockTransferDestination", fields: [destination_project_id], references: [id])
+  items                  Json     @default("[]")
+  transfer_date          DateTime
+  notes                  String?
+  transferred_by         String?
+  transferred_by_user    User?    @relation("StockTransferBy", fields: [transferred_by], references: [id])
+  created_at             DateTime @default(now())
+
+  @@index([source_project_id])
+  @@index([destination_project_id])
 }
 
 model GoodsReceivedNote {
