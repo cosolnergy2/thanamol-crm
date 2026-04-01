@@ -2765,6 +2765,13 @@ export type PRItem = {
   unit_of_measure?: string
   estimated_unit_price?: number
   total?: number
+  item_type?: string
+  mode?: 'buy' | 'rent'
+  budget_code?: string
+  supplier?: string
+  specification?: string
+  category?: string
+  asset_id?: string
 }
 
 export type PurchaseRequest = {
@@ -2806,6 +2813,27 @@ export type POItem = {
   unit_of_measure?: string
   unit_price: number
   total: number
+  item_type?: string
+  buy_or_rent?: 'buy' | 'rent'
+  budget_code?: string
+  supplier?: string
+  specification?: string
+  category?: string
+  asset_id?: string
+}
+
+export type POConditions = {
+  payment_installments?: Array<{ label: string; amount: number; due_date?: string }>
+  wht_enabled?: boolean
+  wht_rate?: number
+  vat_enabled?: boolean
+  retention_enabled?: boolean
+  retention_rate?: number
+  warranty?: string
+  credit_terms?: string
+  timeline?: string
+  late_penalty?: string
+  insurance?: string
 }
 
 export type PurchaseOrder = {
