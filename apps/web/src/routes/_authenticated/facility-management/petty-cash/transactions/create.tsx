@@ -17,6 +17,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { useCreatePettyCashTransaction } from '@/hooks/usePettyCash'
 import { usePettyCashFunds } from '@/hooks/usePettyCash'
 import { useProjects } from '@/hooks/useProjects'
+import { useUsers } from '@/hooks/useUsers'
 import { useAuth } from '@/providers/AuthProvider'
 import { PETTY_CASH_CATEGORIES } from '@thanamol/shared'
 
@@ -32,6 +33,9 @@ function CreatePettyCashTransactionPage() {
 
   const [projectId, setProjectId] = useState('')
   const [fundId, setFundId] = useState('')
+  const [siteId, setSiteId] = useState('')
+  const [budgetCode, setBudgetCode] = useState('')
+  const [responsiblePersonId, setResponsiblePersonId] = useState('')
   const [amount, setAmount] = useState('')
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState('')
@@ -42,6 +46,9 @@ function CreatePettyCashTransactionPage() {
 
   const { data: projectsData } = useProjects({ limit: 100 })
   const projects = projectsData?.data ?? []
+
+  const { data: usersData } = useUsers()
+  const activeUsers = (usersData?.users ?? []).filter((u) => u.is_active)
 
   const { data: fundsData } = usePettyCashFunds({
     projectId: projectId || undefined,
@@ -78,6 +85,9 @@ function CreatePettyCashTransactionPage() {
         category: category || undefined,
         requestedBy: user.id,
         transactionDate,
+        siteId: siteId || undefined,
+        budgetCode: budgetCode || undefined,
+        responsiblePersonId: responsiblePersonId || undefined,
         notes: notes || undefined,
       })
       toast.success('Transaction created and pending approval')
@@ -139,6 +149,49 @@ function CreatePettyCashTransactionPage() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label>Site</Label>
+                <Select value={siteId} onValueChange={setSiteId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select site (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {projects.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label>Responsible Person</Label>
+                <Select value={responsiblePersonId} onValueChange={setResponsiblePersonId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select person (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {activeUsers.map((u) => (
+                      <SelectItem key={u.id} value={u.id}>
+                        {u.first_name} {u.last_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Budget Code</Label>
+              <Input
+                value={budgetCode}
+                onChange={(e) => setBudgetCode(e.target.value)}
+                placeholder="e.g. OPEX-2024-001 (optional)"
+              />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

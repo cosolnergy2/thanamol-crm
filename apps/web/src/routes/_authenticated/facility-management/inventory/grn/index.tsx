@@ -91,6 +91,7 @@ function GRNListPage() {
                 <TableHead>Received Date</TableHead>
                 <TableHead>Project</TableHead>
                 <TableHead>Items</TableHead>
+                <TableHead>QC Status</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -98,13 +99,13 @@ function GRNListPage() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-slate-400 py-8">
+                  <TableCell colSpan={8} className="text-center text-slate-400 py-8">
                     Loading...
                   </TableCell>
                 </TableRow>
               ) : grns.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-12">
+                  <TableCell colSpan={8} className="text-center py-12">
                     <Package className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                     <p className="text-slate-500">No goods received notes found</p>
                   </TableCell>
@@ -114,9 +115,15 @@ function GRNListPage() {
                   const items = grn.items as Array<unknown>
                   const config = STATUS_CONFIG[grn.status]
                   return (
-                    <TableRow key={grn.id}>
+                    <TableRow key={grn.id} className="cursor-pointer hover:bg-slate-50">
                       <TableCell className="font-mono text-sm font-medium">
-                        {grn.grn_number}
+                        <Link
+                          to="/facility-management/inventory/grn/$grnId"
+                          params={{ grnId: grn.id }}
+                          className="text-indigo-600 hover:underline"
+                        >
+                          {grn.grn_number}
+                        </Link>
                       </TableCell>
                       <TableCell className="text-sm">{grn.supplier_name}</TableCell>
                       <TableCell className="text-sm text-slate-600">
@@ -125,6 +132,9 @@ function GRNListPage() {
                       <TableCell className="text-sm">{grn.project?.name ?? '—'}</TableCell>
                       <TableCell className="text-sm">
                         {items.length} item{items.length !== 1 ? 's' : ''}
+                      </TableCell>
+                      <TableCell className="text-sm text-slate-600">
+                        {grn.qc_status ?? '—'}
                       </TableCell>
                       <TableCell>
                         <Badge className={config.className}>{config.label}</Badge>

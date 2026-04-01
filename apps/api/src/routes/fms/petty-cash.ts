@@ -49,6 +49,9 @@ const createTransactionSchema = t.Object({
   receiptUrl: t.Optional(t.String()),
   requestedBy: t.String({ minLength: 1 }),
   transactionDate: t.String({ minLength: 1 }),
+  siteId: t.Optional(t.String()),
+  budgetCode: t.Optional(t.String()),
+  responsiblePersonId: t.Optional(t.String()),
   notes: t.Optional(t.String()),
 })
 
@@ -230,6 +233,9 @@ export const fmsPettyCashRoutes = new Elysia({ prefix: '/api/fms/petty-cash' })
                 status: 'PENDING',
                 requested_by: body.requestedBy,
                 transaction_date: new Date(body.transactionDate),
+                site_id: body.siteId ?? null,
+                budget_code: body.budgetCode ?? null,
+                responsible_person_id: body.responsiblePersonId ?? null,
                 notes: body.notes ?? null,
               },
               include: {

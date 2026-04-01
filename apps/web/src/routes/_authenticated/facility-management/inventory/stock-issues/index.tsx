@@ -48,7 +48,8 @@ function StockIssueListPage() {
               <TableRow>
                 <TableHead>Issue Number</TableHead>
                 <TableHead>Issue Date</TableHead>
-                <TableHead>Project</TableHead>
+                <TableHead>Site / Project</TableHead>
+                <TableHead>Purpose</TableHead>
                 <TableHead>Issued To</TableHead>
                 <TableHead>Items</TableHead>
                 <TableHead>Notes</TableHead>
@@ -57,13 +58,13 @@ function StockIssueListPage() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-slate-400 py-8">
+                  <TableCell colSpan={7} className="text-center text-slate-400 py-8">
                     Loading...
                   </TableCell>
                 </TableRow>
               ) : issues.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-12">
+                  <TableCell colSpan={7} className="text-center py-12">
                     <Package className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                     <p className="text-slate-500">No stock issues found</p>
                   </TableCell>
@@ -72,15 +73,24 @@ function StockIssueListPage() {
                 issues.map((issue) => {
                   const items = issue.items as Array<{ item_name: string }>
                   return (
-                    <TableRow key={issue.id}>
+                    <TableRow key={issue.id} className="cursor-pointer hover:bg-slate-50">
                       <TableCell className="font-mono text-sm font-medium">
-                        {issue.issue_number}
+                        <Link
+                          to="/facility-management/inventory/stock-issues/$issueId"
+                          params={{ issueId: issue.id }}
+                          className="text-indigo-600 hover:underline"
+                        >
+                          {issue.issue_number}
+                        </Link>
                       </TableCell>
                       <TableCell className="text-sm text-slate-600">
                         {new Date(issue.issue_date).toLocaleDateString()}
                       </TableCell>
                       <TableCell className="text-sm">
                         {issue.project?.name ?? '—'}
+                      </TableCell>
+                      <TableCell className="text-sm text-slate-600">
+                        {issue.purpose ?? '—'}
                       </TableCell>
                       <TableCell className="text-sm">
                         {issue.issued_to_user
