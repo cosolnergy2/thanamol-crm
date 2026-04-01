@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Wrench, BarChart3, ShieldCheck, DollarSign, ClipboardList, ArrowRight, Activity, Package } from 'lucide-react'
+import { Wrench, BarChart3, ShieldCheck, DollarSign, ClipboardList, ArrowRight, Package } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/PageHeader'
 
@@ -42,13 +42,6 @@ const REPORT_CARDS = [
     icon: ClipboardList,
     href: '/facility-management/reports/pm-compliance',
     accent: 'from-rose-500 to-rose-700',
-  },
-  {
-    title: 'Predictive Maintenance',
-    description: 'Rule-based asset risk recommendations: high WO frequency, expired warranty without PM, and calibration failures',
-    icon: Activity,
-    href: '/facility-management/reports/predictive-maintenance',
-    accent: 'from-cyan-500 to-cyan-700',
   },
   {
     title: 'Inventory Analysis',
