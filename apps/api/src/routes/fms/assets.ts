@@ -47,6 +47,13 @@ const createAssetSchema = t.Object({
   specifications: t.Optional(t.Record(t.String(), t.Unknown())),
   photos: t.Optional(t.Array(t.String())),
   assignedTo: t.Optional(t.String()),
+  scopeType: t.Optional(t.String()),
+  brand: t.Optional(t.String()),
+  supplierId: t.Optional(t.String()),
+  installDate: t.Optional(t.String()),
+  criticality: t.Optional(t.String()),
+  conditionScore: t.Optional(t.Number()),
+  lifecycleStatus: t.Optional(t.String()),
 })
 
 const updateAssetSchema = t.Object({
@@ -66,6 +73,13 @@ const updateAssetSchema = t.Object({
   specifications: t.Optional(t.Record(t.String(), t.Unknown())),
   photos: t.Optional(t.Array(t.String())),
   assignedTo: t.Optional(t.String()),
+  scopeType: t.Optional(t.String()),
+  brand: t.Optional(t.String()),
+  supplierId: t.Optional(t.String()),
+  installDate: t.Optional(t.String()),
+  criticality: t.Optional(t.String()),
+  conditionScore: t.Optional(t.Number()),
+  lifecycleStatus: t.Optional(t.String()),
 })
 
 export const fmsAssetsRoutes = new Elysia({ prefix: '/api/fms/assets' })
@@ -183,6 +197,13 @@ export const fmsAssetsRoutes = new Elysia({ prefix: '/api/fms/assets' })
                 specifications: (body.specifications as object) ?? {},
                 photos: body.photos ?? [],
                 assigned_to: body.assignedTo ?? null,
+                scope_type: body.scopeType ?? null,
+                brand: body.brand ?? null,
+                supplier_id: body.supplierId ?? null,
+                install_date: body.installDate ? new Date(body.installDate) : null,
+                criticality: body.criticality ?? null,
+                condition_score: body.conditionScore ?? null,
+                lifecycle_status: body.lifecycleStatus ?? null,
               },
               include: assetInclude,
             })
@@ -219,6 +240,13 @@ export const fmsAssetsRoutes = new Elysia({ prefix: '/api/fms/assets' })
                 specifications: body.specifications as object | undefined,
                 photos: body.photos,
                 assigned_to: body.assignedTo,
+                scope_type: body.scopeType,
+                brand: body.brand,
+                supplier_id: body.supplierId,
+                install_date: body.installDate ? new Date(body.installDate) : undefined,
+                criticality: body.criticality,
+                condition_score: body.conditionScore,
+                lifecycle_status: body.lifecycleStatus,
               },
               include: assetInclude,
             })
