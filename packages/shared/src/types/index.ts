@@ -1945,6 +1945,15 @@ export type Asset = {
   specifications: Record<string, unknown>
   photos: string[]
   assigned_to: string | null
+  scope_type?: string | null
+  brand?: string | null
+  supplier_id?: string | null
+  install_date?: string | null
+  criticality?: string | null
+  condition_score?: number | null
+  lifecycle_status?: string | null
+  created_at: string
+  updated_at: string
 }
 
 // ─── FMS: Petty Cash ─────────────────────────────────────────────────────────
@@ -1989,6 +1998,13 @@ export type CreateAssetRequest = {
   specifications?: Record<string, unknown>
   photos?: string[]
   assignedTo?: string
+  scopeType?: string
+  brand?: string
+  supplierId?: string
+  installDate?: string
+  criticality?: string
+  conditionScore?: number
+  lifecycleStatus?: string
 }
 
 export type UpdateAssetRequest = Partial<CreateAssetRequest>
@@ -2034,6 +2050,10 @@ export type WorkOrder = {
   cost_estimate: number | null
   actual_cost: number | null
   created_by: string
+  budget_code?: string | null
+  scheduled_start?: string | null
+  scheduled_end?: string | null
+  vendor_id?: string | null
   created_at: string
   updated_at: string
 }
@@ -2060,6 +2080,10 @@ export type CreateWorkOrderRequest = {
   estimatedHours?: number
   scheduledDate?: string
   costEstimate?: number
+  budgetCode?: string
+  scheduledStart?: string
+  scheduledEnd?: string
+  vendorId?: string
   createdBy: string
 }
 
@@ -2106,6 +2130,12 @@ export type PreventiveMaintenance = {
   last_completed_date: string | null
   is_active: boolean
   created_by: string
+  scope_type?: string | null
+  trigger_type?: string | null
+  estimated_duration?: number | null
+  spare_parts?: unknown | null
+  auto_create_wo: boolean
+  auto_wo_days_before?: number | null
   created_at: string
   updated_at: string
 }
@@ -2130,6 +2160,12 @@ export type CreatePMRequest = {
   checklist?: unknown[]
   assignedTo?: string
   nextDueDate?: string
+  scopeType?: string
+  triggerType?: string
+  estimatedDuration?: number
+  spareParts?: unknown[]
+  autoCreateWo?: boolean
+  autoWoDaysBefore?: number
   createdBy: string
 }
 
@@ -2174,6 +2210,13 @@ export type CalibrationRecord = {
   certificate_url: string | null
   status: CalibrationStatus
   notes: string | null
+  calibration_number?: string | null
+  frequency_days?: number | null
+  calibration_type?: string | null
+  calibration_standard?: string | null
+  certificate_number?: string | null
+  cost?: number | null
+  results?: unknown | null
   created_at: string
 }
 
@@ -2208,6 +2251,13 @@ export type CreateCalibrationRequest = {
   certificateUrl?: string
   status?: CalibrationStatus
   notes?: string
+  calibrationNumber?: string
+  frequencyDays?: number
+  calibrationType?: string
+  calibrationStandard?: string
+  certificateNumber?: string
+  cost?: number
+  results?: unknown
 }
 
 export type UpdateCalibrationRequest = Partial<CreateCalibrationRequest>
@@ -2333,6 +2383,9 @@ export type PettyCashTransaction = {
   requested_by: string
   approved_by: string | null
   transaction_date: string
+  site_id?: string | null
+  budget_code?: string | null
+  responsible_person_id?: string | null
   notes: string | null
   created_at: string
   updated_at: string
@@ -2374,6 +2427,14 @@ export type InventoryItem = {
   storage_location: string | null
   project_id: string | null
   is_active: boolean
+  item_type?: string | null
+  barcode?: string | null
+  company_id?: string | null
+  site_id?: string | null
+  specifications?: unknown | null
+  vendor_id?: string | null
+  lead_time_days?: number | null
+  photos?: unknown | null
   created_at: string
   updated_at: string
 }
@@ -2452,6 +2513,7 @@ export type StockIssue = {
   issued_to: string | null
   issued_by: string | null
   issue_date: string
+  purpose?: string | null
   notes: string | null
   created_at: string
 }
@@ -2481,6 +2543,8 @@ export type GoodsReceivedNote = {
   status: GRNStatus
   inspection_notes: string | null
   project_id: string | null
+  po_id?: string | null
+  qc_status?: string | null
   created_at: string
   updated_at: string
 }
@@ -2557,6 +2621,9 @@ export type CreatePettyCashTransactionRequest = {
   receiptUrl?: string
   requestedBy: string
   transactionDate: string
+  siteId?: string
+  budgetCode?: string
+  responsiblePersonId?: string
   notes?: string
 }
 
@@ -2592,6 +2659,14 @@ export type CreateInventoryItemRequest = {
   unitCost?: number
   storageLocation?: string
   projectId?: string
+  itemType?: string
+  barcode?: string
+  companyId?: string
+  siteId?: string
+  specifications?: unknown
+  vendorId?: string
+  leadTimeDays?: number
+  photos?: unknown
 }
 
 export type UpdateInventoryItemRequest = Partial<CreateInventoryItemRequest> & {
@@ -2631,6 +2706,7 @@ export type CreateStockIssueRequest = {
   issuedTo?: string
   issuedBy?: string
   issueDate: string
+  purpose?: string
   notes?: string
 }
 
@@ -2652,6 +2728,8 @@ export type CreateGRNRequest = {
   receivedBy?: string
   inspectionNotes?: string
   projectId?: string
+  poId?: string
+  qcStatus?: string
 }
 
 export type UpdateGRNRequest = Partial<Omit<CreateGRNRequest, 'items'>> & {
@@ -2703,6 +2781,14 @@ export type PurchaseRequest = {
   approved_by?: string | null
   approved_at?: string | null
   notes?: string | null
+  company_id?: string | null
+  site_id?: string | null
+  unit_id?: string | null
+  required_date?: string | null
+  purpose?: string | null
+  pm_schedule_id?: string | null
+  documents?: unknown | null
+  conditions?: unknown | null
   created_at: string
   updated_at: string
 }
@@ -2738,6 +2824,15 @@ export type PurchaseOrder = {
   notes?: string | null
   created_by: string
   approved_by?: string | null
+  company_id?: string | null
+  site_id?: string | null
+  unit_id?: string | null
+  po_date?: string | null
+  payment_due_date?: string | null
+  po_type?: string | null
+  delivery_address?: string | null
+  documents?: unknown | null
+  conditions?: unknown | null
   created_at: string
   updated_at: string
 }
@@ -2785,6 +2880,14 @@ export type CreatePRRequest = {
   priority?: string
   requestedBy: string
   notes?: string
+  companyId?: string
+  siteId?: string
+  unitId?: string
+  requiredDate?: string
+  purpose?: string
+  pmScheduleId?: string
+  documents?: unknown
+  conditions?: unknown
 }
 
 export type UpdatePRRequest = Partial<Omit<CreatePRRequest, 'requestedBy'>>
@@ -2808,6 +2911,15 @@ export type CreatePORequest = {
   paymentTerms?: string
   notes?: string
   createdBy: string
+  companyId?: string
+  siteId?: string
+  unitId?: string
+  poDate?: string
+  paymentDueDate?: string
+  poType?: string
+  deliveryAddress?: string
+  documents?: unknown
+  conditions?: unknown
 }
 
 export type UpdatePORequest = Partial<Omit<CreatePORequest, 'createdBy'>>
@@ -2877,6 +2989,16 @@ export type Vendor = {
   status: VendorStatus
   bank_details: Record<string, unknown>
   notes?: string | null
+  legal_name?: string | null
+  display_name?: string | null
+  vendor_type?: string | null
+  company_registration?: string | null
+  additional_contacts?: unknown | null
+  service_tags?: unknown | null
+  supplier_type?: string | null
+  payment_terms?: string | null
+  credit_limit?: number | null
+  default_conditions?: unknown | null
   created_at: string
   updated_at: string
 }
@@ -2927,6 +3049,12 @@ export type VendorContract = {
   status: VendorContractStatus
   document_url?: string | null
   project_id?: string | null
+  contract_type?: string | null
+  service_category?: string | null
+  sla?: unknown | null
+  rate_card?: unknown | null
+  alert_days_before_expiry?: number | null
+  auto_renew: boolean
   created_at: string
   updated_at: string
 }
@@ -3179,6 +3307,8 @@ export type VendorInvoice = {
   payment_status: string
   payment_date?: string | null
   notes?: string | null
+  pdf_url?: string | null
+  submission_history?: unknown | null
   created_at: string
   updated_at: string
 }
@@ -3275,6 +3405,16 @@ export type CreateVendorRequest = {
   status?: VendorStatus
   bankDetails?: Record<string, unknown>
   notes?: string
+  legalName?: string
+  displayName?: string
+  vendorType?: string
+  companyRegistration?: string
+  additionalContacts?: unknown
+  serviceTags?: unknown
+  supplierType?: string
+  paymentTerms?: string
+  creditLimit?: number
+  defaultConditions?: unknown
 }
 
 export type UpdateVendorRequest = {
@@ -3290,6 +3430,16 @@ export type UpdateVendorRequest = {
   status?: VendorStatus
   bankDetails?: Record<string, unknown>
   notes?: string | null
+  legalName?: string | null
+  displayName?: string | null
+  vendorType?: string | null
+  companyRegistration?: string | null
+  additionalContacts?: unknown | null
+  serviceTags?: unknown | null
+  supplierType?: string | null
+  paymentTerms?: string | null
+  creditLimit?: number | null
+  defaultConditions?: unknown | null
 }
 
 export type VendorListResponse = PaginatedResponse<Vendor>
@@ -3313,6 +3463,12 @@ export type CreateVendorContractRequest = {
   status?: VendorContractStatus
   documentUrl?: string
   projectId?: string
+  contractType?: string
+  serviceCategory?: string
+  sla?: unknown
+  rateCard?: unknown
+  alertDaysBeforeExpiry?: number
+  autoRenew?: boolean
 }
 
 export type UpdateVendorContractRequest = Partial<Omit<CreateVendorContractRequest, 'vendorId'>>
@@ -3354,6 +3510,8 @@ export type CreateVendorInvoiceRequest = {
   invoiceDate: string
   dueDate?: string
   notes?: string
+  pdfUrl?: string
+  submissionHistory?: unknown
 }
 
 export type UpdateVendorInvoiceRequest = Partial<Omit<CreateVendorInvoiceRequest, 'vendorId'>>
