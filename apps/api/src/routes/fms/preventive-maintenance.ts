@@ -52,6 +52,12 @@ const createPMSchema = t.Object({
   checklist: t.Optional(t.Array(t.Unknown())),
   assignedTo: t.Optional(t.String()),
   nextDueDate: t.Optional(t.String()),
+  scopeType: t.Optional(t.String()),
+  triggerType: t.Optional(t.String()),
+  estimatedDuration: t.Optional(t.Number()),
+  spareParts: t.Optional(t.Array(t.Unknown())),
+  autoCreateWo: t.Optional(t.Boolean()),
+  autoWoDaysBefore: t.Optional(t.Number()),
   createdBy: t.String({ minLength: 1 }),
 })
 
@@ -67,6 +73,12 @@ const updatePMSchema = t.Object({
   nextDueDate: t.Optional(t.String()),
   isActive: t.Optional(t.Boolean()),
   lastCompletedDate: t.Optional(t.String()),
+  scopeType: t.Optional(t.String()),
+  triggerType: t.Optional(t.String()),
+  estimatedDuration: t.Optional(t.Number()),
+  spareParts: t.Optional(t.Array(t.Unknown())),
+  autoCreateWo: t.Optional(t.Boolean()),
+  autoWoDaysBefore: t.Optional(t.Number()),
 })
 
 export const fmsPMRoutes = new Elysia({ prefix: '/api/fms/preventive-maintenance' })
@@ -164,6 +176,12 @@ export const fmsPMRoutes = new Elysia({ prefix: '/api/fms/preventive-maintenance
                 checklist: (body.checklist as object[]) ?? [],
                 assigned_to: body.assignedTo ?? null,
                 next_due_date: body.nextDueDate ? new Date(body.nextDueDate) : null,
+                scope_type: body.scopeType ?? null,
+                trigger_type: body.triggerType ?? null,
+                estimated_duration: body.estimatedDuration ?? null,
+                spare_parts: (body.spareParts as object[]) ?? [],
+                auto_create_wo: body.autoCreateWo ?? false,
+                auto_wo_days_before: body.autoWoDaysBefore ?? null,
                 created_by: body.createdBy,
               },
               include: pmInclude,
@@ -200,6 +218,12 @@ export const fmsPMRoutes = new Elysia({ prefix: '/api/fms/preventive-maintenance
                 last_completed_date: body.lastCompletedDate
                   ? new Date(body.lastCompletedDate)
                   : undefined,
+                scope_type: body.scopeType,
+                trigger_type: body.triggerType,
+                estimated_duration: body.estimatedDuration,
+                spare_parts: body.spareParts as object[] | undefined,
+                auto_create_wo: body.autoCreateWo,
+                auto_wo_days_before: body.autoWoDaysBefore,
               },
               include: pmInclude,
             })
