@@ -90,6 +90,7 @@ function InventoryCreatePage() {
         description: form.description || undefined,
         categoryId: form.categoryId && form.categoryId !== '__none__' ? form.categoryId : undefined,
         unitOfMeasure: form.unitOfMeasure || undefined,
+        currentStock: form.currentStock ? Number(form.currentStock) : undefined,
         minimumStock: form.minimumStock ? Number(form.minimumStock) : undefined,
         maximumStock: form.maximumStock ? Number(form.maximumStock) : undefined,
         reorderPoint: form.reorderPoint ? Number(form.reorderPoint) : undefined,
@@ -100,7 +101,7 @@ function InventoryCreatePage() {
         itemType: form.itemType || undefined,
         barcode: form.barcode || undefined,
         companyId: form.companyId && form.companyId !== '__none__' ? form.companyId : undefined,
-        siteId: form.siteId || undefined,
+        siteId: form.siteId && form.siteId !== '__none__' ? form.siteId : undefined,
         specifications: specs,
         vendorId: form.vendorId && form.vendorId !== '__none__' ? form.vendorId : undefined,
         leadTimeDays: form.leadTimeDays ? Number(form.leadTimeDays) : undefined,
@@ -275,12 +276,22 @@ function InventoryCreatePage() {
             </div>
             <div>
               <Label htmlFor="siteId">Site</Label>
-              <Input
-                id="siteId"
+              <Select
                 value={form.siteId}
-                onChange={(e) => setForm({ ...form, siteId: e.target.value })}
-                placeholder="Site ID or name"
-              />
+                onValueChange={(v) => setForm({ ...form, siteId: v })}
+              >
+                <SelectTrigger id="siteId">
+                  <SelectValue placeholder="Select site (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">No site</SelectItem>
+                  {projects.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label htmlFor="storageLocation">Storage Location</Label>
@@ -299,6 +310,18 @@ function InventoryCreatePage() {
             <CardTitle className="text-base font-medium">Stock และราคา / Stock & Pricing</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <Label htmlFor="currentStock">Current Stock</Label>
+              <Input
+                id="currentStock"
+                type="number"
+                min="0"
+                step="0.001"
+                value={form.currentStock}
+                onChange={(e) => setForm({ ...form, currentStock: e.target.value })}
+                placeholder="0"
+              />
+            </div>
             <div>
               <Label htmlFor="reorderPoint">Reorder Point</Label>
               <Input

@@ -18,6 +18,7 @@ import { useCreatePettyCashTransaction } from '@/hooks/usePettyCash'
 import { usePettyCashFunds } from '@/hooks/usePettyCash'
 import { useProjects } from '@/hooks/useProjects'
 import { useUsers } from '@/hooks/useUsers'
+import { useBudgets } from '@/hooks/useBudgets'
 import { useAuth } from '@/providers/AuthProvider'
 import { PETTY_CASH_CATEGORIES } from '@thanamol/shared'
 
@@ -55,6 +56,11 @@ function CreatePettyCashTransactionPage() {
   })
   const funds = fundsData?.data ?? []
 
+  const { data: budgetsData } = useBudgets({
+    projectId: projectId || undefined,
+  })
+  const budgets = budgetsData?.data ?? []
+
   const createTransaction = useCreatePettyCashTransaction()
 
   async function handleSubmit(e: React.FormEvent) {
@@ -86,7 +92,7 @@ function CreatePettyCashTransactionPage() {
         requestedBy: user.id,
         transactionDate,
         siteId: siteId || undefined,
-        budgetCode: budgetCode || undefined,
+        budgetCode: budgetCode && budgetCode !== '__none__' ? budgetCode : undefined,
         responsiblePersonId: responsiblePersonId || undefined,
         notes: notes || undefined,
       })
@@ -117,6 +123,7 @@ function CreatePettyCashTransactionPage() {
                   onValueChange={(v) => {
                     setProjectId(v)
                     setFundId('')
+                    setBudgetCode('')
                   }}
                 >
                   <SelectTrigger>
@@ -187,11 +194,19 @@ function CreatePettyCashTransactionPage() {
 
             <div className="space-y-1.5">
               <Label>Budget Code</Label>
-              <Input
-                value={budgetCode}
-                onChange={(e) => setBudgetCode(e.target.value)}
-                placeholder="e.g. OPEX-2024-001 (optional)"
-              />
+              <Select value={budgetCode} onValueChange={setBudgetCode}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select budget (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">No budget</SelectItem>
+                  {budgets.map((b) => (
+                    <SelectItem key={b.id} value={b.budget_code}>
+                      {b.budget_code} — {b.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

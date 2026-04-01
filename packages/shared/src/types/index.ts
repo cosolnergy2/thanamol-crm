@@ -2735,6 +2735,7 @@ export type CreateInventoryItemRequest = {
   description?: string
   categoryId?: string
   unitOfMeasure?: string
+  currentStock?: number
   minimumStock?: number
   maximumStock?: number
   reorderPoint?: number

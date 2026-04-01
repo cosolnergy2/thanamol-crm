@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/select'
 import { useCreateStockIssue } from '@/hooks/useStockIssues'
 import { useInventoryItems } from '@/hooks/useInventory'
+import { useProjects } from '@/hooks/useProjects'
 import { useAuth } from '@/providers/AuthProvider'
 import { STOCK_ISSUE_PURPOSES } from '@thanamol/shared'
 import type { StockIssueItem } from '@thanamol/shared'
@@ -30,19 +31,26 @@ type FormItem = StockIssueItem & { _key: string }
 function StockIssueCreatePage() {
   const navigate = useNavigate()
   const createIssue = useCreateStockIssue()
-  const { data: inventoryData } = useInventoryItems({ isActive: true })
+  const { data: projectsData } = useProjects({ limit: 100 })
   const { currentUser } = useAuth()
 
   const [form, setForm] = useState({
     issueDate: new Date().toISOString().split('T')[0],
     purpose: '',
+    siteId: '',
     notes: '',
+  })
+
+  const { data: inventoryData } = useInventoryItems({
+    isActive: true,
+    projectId: form.siteId && form.siteId !== '__all__' ? form.siteId : undefined,
   })
   const [items, setItems] = useState<FormItem[]>([
     { _key: crypto.randomUUID(), item_id: '', item_code: '', item_name: '', quantity: 1, unit_cost: null, unit_of_measure: null },
   ])
 
   const inventoryItems = inventoryData?.data ?? []
+  const projects = projectsData?.data ?? []
 
   function addItem() {
     setItems((prev) => [
@@ -158,6 +166,28 @@ function StockIssueCreatePage() {
                   {STOCK_ISSUE_PURPOSES.map((p) => (
                     <SelectItem key={p} value={p}>
                       {p}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="siteId">Site / Project</Label>
+              <Select
+                value={form.siteId}
+                onValueChange={(v) => {
+                  setForm({ ...form, siteId: v })
+                  setItems([{ _key: crypto.randomUUID(), item_id: '', item_code: '', item_name: '', quantity: 1, unit_cost: null, unit_of_measure: null }])
+                }}
+              >
+                <SelectTrigger id="siteId">
+                  <SelectValue placeholder="All sites (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__all__">All sites</SelectItem>
+                  {projects.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
