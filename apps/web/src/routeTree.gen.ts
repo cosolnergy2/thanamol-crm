@@ -172,6 +172,7 @@ import { Route as AuthenticatedFacilityManagementVendorsContractsCreateRouteImpo
 import { Route as AuthenticatedFacilityManagementVendorsVendorIdEditRouteImport } from './routes/_authenticated/facility-management/vendors/$vendorId/edit'
 import { Route as AuthenticatedFacilityManagementProcurementRequestsCreateRouteImport } from './routes/_authenticated/facility-management/procurement/requests/create'
 import { Route as AuthenticatedFacilityManagementProcurementQuotationsCreateRouteImport } from './routes/_authenticated/facility-management/procurement/quotations/create'
+import { Route as AuthenticatedFacilityManagementProcurementQuotationsCompareRouteImport } from './routes/_authenticated/facility-management/procurement/quotations/compare'
 import { Route as AuthenticatedFacilityManagementProcurementOrdersCreateRouteImport } from './routes/_authenticated/facility-management/procurement/orders/create'
 import { Route as AuthenticatedFacilityManagementPettyCashTransactionsCreateRouteImport } from './routes/_authenticated/facility-management/petty-cash/transactions/create'
 import { Route as AuthenticatedFacilityManagementPettyCashFundsCreateRouteImport } from './routes/_authenticated/facility-management/petty-cash/funds/create'
@@ -1165,6 +1166,14 @@ const AuthenticatedFacilityManagementProcurementQuotationsCreateRoute =
     path: '/facility-management/procurement/quotations/create',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFacilityManagementProcurementQuotationsCompareRoute =
+  AuthenticatedFacilityManagementProcurementQuotationsCompareRouteImport.update(
+    {
+      id: '/facility-management/procurement/quotations/compare',
+      path: '/facility-management/procurement/quotations/compare',
+      getParentRoute: () => AuthenticatedRoute,
+    } as any,
+  )
 const AuthenticatedFacilityManagementProcurementOrdersCreateRoute =
   AuthenticatedFacilityManagementProcurementOrdersCreateRouteImport.update({
     id: '/facility-management/procurement/orders/create',
@@ -1442,6 +1451,7 @@ export interface FileRoutesByFullPath {
   '/facility-management/petty-cash/funds/create': typeof AuthenticatedFacilityManagementPettyCashFundsCreateRoute
   '/facility-management/petty-cash/transactions/create': typeof AuthenticatedFacilityManagementPettyCashTransactionsCreateRoute
   '/facility-management/procurement/orders/create': typeof AuthenticatedFacilityManagementProcurementOrdersCreateRoute
+  '/facility-management/procurement/quotations/compare': typeof AuthenticatedFacilityManagementProcurementQuotationsCompareRoute
   '/facility-management/procurement/quotations/create': typeof AuthenticatedFacilityManagementProcurementQuotationsCreateRoute
   '/facility-management/procurement/requests/create': typeof AuthenticatedFacilityManagementProcurementRequestsCreateRoute
   '/facility-management/vendors/$vendorId/edit': typeof AuthenticatedFacilityManagementVendorsVendorIdEditRoute
@@ -1627,6 +1637,7 @@ export interface FileRoutesByTo {
   '/facility-management/petty-cash/funds/create': typeof AuthenticatedFacilityManagementPettyCashFundsCreateRoute
   '/facility-management/petty-cash/transactions/create': typeof AuthenticatedFacilityManagementPettyCashTransactionsCreateRoute
   '/facility-management/procurement/orders/create': typeof AuthenticatedFacilityManagementProcurementOrdersCreateRoute
+  '/facility-management/procurement/quotations/compare': typeof AuthenticatedFacilityManagementProcurementQuotationsCompareRoute
   '/facility-management/procurement/quotations/create': typeof AuthenticatedFacilityManagementProcurementQuotationsCreateRoute
   '/facility-management/procurement/requests/create': typeof AuthenticatedFacilityManagementProcurementRequestsCreateRoute
   '/facility-management/vendors/$vendorId/edit': typeof AuthenticatedFacilityManagementVendorsVendorIdEditRoute
@@ -1814,6 +1825,7 @@ export interface FileRoutesById {
   '/_authenticated/facility-management/petty-cash/funds/create': typeof AuthenticatedFacilityManagementPettyCashFundsCreateRoute
   '/_authenticated/facility-management/petty-cash/transactions/create': typeof AuthenticatedFacilityManagementPettyCashTransactionsCreateRoute
   '/_authenticated/facility-management/procurement/orders/create': typeof AuthenticatedFacilityManagementProcurementOrdersCreateRoute
+  '/_authenticated/facility-management/procurement/quotations/compare': typeof AuthenticatedFacilityManagementProcurementQuotationsCompareRoute
   '/_authenticated/facility-management/procurement/quotations/create': typeof AuthenticatedFacilityManagementProcurementQuotationsCreateRoute
   '/_authenticated/facility-management/procurement/requests/create': typeof AuthenticatedFacilityManagementProcurementRequestsCreateRoute
   '/_authenticated/facility-management/vendors/$vendorId/edit': typeof AuthenticatedFacilityManagementVendorsVendorIdEditRoute
@@ -2001,6 +2013,7 @@ export interface FileRouteTypes {
     | '/facility-management/petty-cash/funds/create'
     | '/facility-management/petty-cash/transactions/create'
     | '/facility-management/procurement/orders/create'
+    | '/facility-management/procurement/quotations/compare'
     | '/facility-management/procurement/quotations/create'
     | '/facility-management/procurement/requests/create'
     | '/facility-management/vendors/$vendorId/edit'
@@ -2186,6 +2199,7 @@ export interface FileRouteTypes {
     | '/facility-management/petty-cash/funds/create'
     | '/facility-management/petty-cash/transactions/create'
     | '/facility-management/procurement/orders/create'
+    | '/facility-management/procurement/quotations/compare'
     | '/facility-management/procurement/quotations/create'
     | '/facility-management/procurement/requests/create'
     | '/facility-management/vendors/$vendorId/edit'
@@ -2372,6 +2386,7 @@ export interface FileRouteTypes {
     | '/_authenticated/facility-management/petty-cash/funds/create'
     | '/_authenticated/facility-management/petty-cash/transactions/create'
     | '/_authenticated/facility-management/procurement/orders/create'
+    | '/_authenticated/facility-management/procurement/quotations/compare'
     | '/_authenticated/facility-management/procurement/quotations/create'
     | '/_authenticated/facility-management/procurement/requests/create'
     | '/_authenticated/facility-management/vendors/$vendorId/edit'
@@ -3566,6 +3581,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFacilityManagementProcurementQuotationsCreateRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/facility-management/procurement/quotations/compare': {
+      id: '/_authenticated/facility-management/procurement/quotations/compare'
+      path: '/facility-management/procurement/quotations/compare'
+      fullPath: '/facility-management/procurement/quotations/compare'
+      preLoaderRoute: typeof AuthenticatedFacilityManagementProcurementQuotationsCompareRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/facility-management/procurement/orders/create': {
       id: '/_authenticated/facility-management/procurement/orders/create'
       path: '/facility-management/procurement/orders/create'
@@ -3855,6 +3877,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFacilityManagementPettyCashFundsCreateRoute: typeof AuthenticatedFacilityManagementPettyCashFundsCreateRoute
   AuthenticatedFacilityManagementPettyCashTransactionsCreateRoute: typeof AuthenticatedFacilityManagementPettyCashTransactionsCreateRoute
   AuthenticatedFacilityManagementProcurementOrdersCreateRoute: typeof AuthenticatedFacilityManagementProcurementOrdersCreateRoute
+  AuthenticatedFacilityManagementProcurementQuotationsCompareRoute: typeof AuthenticatedFacilityManagementProcurementQuotationsCompareRoute
   AuthenticatedFacilityManagementProcurementQuotationsCreateRoute: typeof AuthenticatedFacilityManagementProcurementQuotationsCreateRoute
   AuthenticatedFacilityManagementProcurementRequestsCreateRoute: typeof AuthenticatedFacilityManagementProcurementRequestsCreateRoute
   AuthenticatedFacilityManagementVendorsVendorIdEditRoute: typeof AuthenticatedFacilityManagementVendorsVendorIdEditRoute
@@ -4115,6 +4138,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedFacilityManagementPettyCashTransactionsCreateRoute,
   AuthenticatedFacilityManagementProcurementOrdersCreateRoute:
     AuthenticatedFacilityManagementProcurementOrdersCreateRoute,
+  AuthenticatedFacilityManagementProcurementQuotationsCompareRoute:
+    AuthenticatedFacilityManagementProcurementQuotationsCompareRoute,
   AuthenticatedFacilityManagementProcurementQuotationsCreateRoute:
     AuthenticatedFacilityManagementProcurementQuotationsCreateRoute,
   AuthenticatedFacilityManagementProcurementRequestsCreateRoute:
