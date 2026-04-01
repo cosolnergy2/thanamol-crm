@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, Package, TrendingUp, TrendingDown, ArrowRightLeft, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, Package, TrendingUp, TrendingDown, ArrowRightLeft, AlertTriangle, Edit } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -70,6 +70,8 @@ function InventoryDetailPage() {
 
   const isLowStock = item.reorder_point !== null && item.current_stock <= item.reorder_point
 
+  const specs = item.specifications as Record<string, string> | null | undefined
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -80,7 +82,7 @@ function InventoryDetailPage() {
         >
           <ArrowLeft className="w-4 h-4" />
         </Button>
-        <div>
+        <div className="flex-1">
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-extralight tracking-[0.3em] text-slate-600 uppercase">
               {item.name}
@@ -91,9 +93,21 @@ function InventoryDetailPage() {
                 Low Stock
               </Badge>
             )}
+            {!item.is_active && (
+              <Badge className="bg-slate-100 text-slate-500">Inactive</Badge>
+            )}
           </div>
           <p className="text-sm text-slate-500 mt-1 font-mono">{item.item_code}</p>
         </div>
+        <Link
+          to="/facility-management/inventory/$itemId/edit"
+          params={{ itemId }}
+        >
+          <Button variant="outline" className="gap-2">
+            <Edit className="w-4 h-4" />
+            Edit
+          </Button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -139,45 +153,95 @@ function InventoryDetailPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base font-medium">Item Details</CardTitle>
+            <CardTitle className="text-base font-medium">ข้อมูลพื้นฐาน / Basic Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
+            <DetailRow label="Type" value={item.item_type ?? '—'} />
             <DetailRow label="Category" value={item.category?.name ?? '—'} />
-            <DetailRow label="Project" value={item.project?.name ?? '—'} />
-            <DetailRow label="Storage Location" value={item.storage_location ?? '—'} />
-            <DetailRow label="Min Stock" value={item.minimum_stock?.toString() ?? '—'} />
-            <DetailRow label="Max Stock" value={item.maximum_stock?.toString() ?? '—'} />
-            <DetailRow label="Reorder Qty" value={item.reorder_quantity?.toString() ?? '—'} />
+            <DetailRow label="Unit of Measure" value={item.unit_of_measure ?? '—'} />
+            <DetailRow label="Barcode" value={item.barcode ?? '—'} />
             <DetailRow label="Status" value={item.is_active ? 'Active' : 'Inactive'} />
-            {item.description && (
-              <div>
-                <p className="text-xs text-slate-400 font-extralight">Description</p>
-                <p className="text-sm text-slate-700 mt-0.5">{item.description}</p>
-              </div>
-            )}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base font-medium">Quick Links</CardTitle>
+            <CardTitle className="text-base font-medium">ความเป็นเจ้าของและที่เก็บ / Ownership & Storage</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <Link to="/facility-management/inventory/stock-issues/create">
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <TrendingDown className="w-4 h-4 text-red-500" />
-                Create Stock Issue
-              </Button>
-            </Link>
-            <Link to="/facility-management/inventory/grn/create">
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <TrendingUp className="w-4 h-4 text-emerald-500" />
-                Receive Goods (GRN)
-              </Button>
-            </Link>
+          <CardContent className="space-y-3">
+            <DetailRow label="Company" value={item.company_id ?? '—'} />
+            <DetailRow label="Project" value={item.project?.name ?? '—'} />
+            <DetailRow label="Site" value={item.site_id ?? '—'} />
+            <DetailRow label="Storage Location" value={item.storage_location ?? '—'} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-medium">Stock และราคา / Stock & Pricing</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <DetailRow label="Min Stock" value={item.minimum_stock?.toString() ?? '—'} />
+            <DetailRow label="Max Stock" value={item.maximum_stock?.toString() ?? '—'} />
+            <DetailRow label="Reorder Qty" value={item.reorder_quantity?.toString() ?? '—'} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-medium">Vendor & Lead Time</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <DetailRow label="Primary Vendor ID" value={item.vendor_id ?? '—'} />
+            <DetailRow label="Vendor Item Code" value={specs?.vendorItemCode ?? '—'} />
+            <DetailRow label="Lead Time (days)" value={item.lead_time_days?.toString() ?? '—'} />
+            <DetailRow label="Backup Vendor ID" value={specs?.backupVendorId ?? '—'} />
+            <DetailRow label="Backup Vendor Item Code" value={specs?.backupVendorItemCode ?? '—'} />
           </CardContent>
         </Card>
       </div>
+
+      {(item.description || specs?.notes) && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-medium">รายละเอียดเพิ่มเติม / Additional</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {specs?.notes && (
+              <div>
+                <p className="text-xs text-slate-400 font-extralight">Specifications</p>
+                <p className="text-sm text-slate-700 mt-0.5 whitespace-pre-wrap">{specs.notes}</p>
+              </div>
+            )}
+            {item.description && (
+              <div>
+                <p className="text-xs text-slate-400 font-extralight">Notes</p>
+                <p className="text-sm text-slate-700 mt-0.5">{item.description}</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base font-medium">Quick Links</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <Link to="/facility-management/inventory/stock-issues/create">
+            <Button variant="outline" className="w-full justify-start gap-2">
+              <TrendingDown className="w-4 h-4 text-red-500" />
+              Create Stock Issue
+            </Button>
+          </Link>
+          <Link to="/facility-management/inventory/grn/create">
+            <Button variant="outline" className="w-full justify-start gap-2">
+              <TrendingUp className="w-4 h-4 text-emerald-500" />
+              Receive Goods (GRN)
+            </Button>
+          </Link>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

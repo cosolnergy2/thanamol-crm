@@ -1,4 +1,5 @@
 import { Elysia, t } from 'elysia'
+import { Prisma } from '../../../generated/prisma/client'
 import { prisma } from '../../lib/prisma'
 import { authPlugin } from '../../middleware/auth'
 
@@ -35,6 +36,14 @@ const createItemSchema = t.Object({
   unitCost: t.Optional(t.Number()),
   storageLocation: t.Optional(t.String()),
   projectId: t.Optional(t.String()),
+  itemType: t.Optional(t.String()),
+  barcode: t.Optional(t.String()),
+  companyId: t.Optional(t.String()),
+  siteId: t.Optional(t.String()),
+  specifications: t.Optional(t.Unknown()),
+  vendorId: t.Optional(t.String()),
+  leadTimeDays: t.Optional(t.Number()),
+  photos: t.Optional(t.Unknown()),
 })
 
 const updateItemSchema = t.Object({
@@ -50,6 +59,14 @@ const updateItemSchema = t.Object({
   storageLocation: t.Optional(t.String()),
   projectId: t.Optional(t.String()),
   isActive: t.Optional(t.Boolean()),
+  itemType: t.Optional(t.String()),
+  barcode: t.Optional(t.String()),
+  companyId: t.Optional(t.String()),
+  siteId: t.Optional(t.String()),
+  specifications: t.Optional(t.Unknown()),
+  vendorId: t.Optional(t.String()),
+  leadTimeDays: t.Optional(t.Number()),
+  photos: t.Optional(t.Unknown()),
 })
 
 export const fmsInventoryRoutes = new Elysia({ prefix: '/api/fms/inventory' })
@@ -151,6 +168,18 @@ export const fmsInventoryRoutes = new Elysia({ prefix: '/api/fms/inventory' })
                 unit_cost: body.unitCost ?? null,
                 storage_location: body.storageLocation ?? null,
                 project_id: body.projectId ?? null,
+                item_type: body.itemType ?? null,
+                barcode: body.barcode ?? null,
+                company_id: body.companyId ?? null,
+                site_id: body.siteId ?? null,
+                specifications: body.specifications !== undefined
+                  ? (body.specifications as Prisma.InputJsonValue)
+                  : Prisma.DbNull,
+                vendor_id: body.vendorId ?? null,
+                lead_time_days: body.leadTimeDays ?? null,
+                photos: body.photos !== undefined
+                  ? (body.photos as Prisma.InputJsonValue)
+                  : Prisma.DbNull,
               },
               include: inventoryInclude,
             })
@@ -185,6 +214,18 @@ export const fmsInventoryRoutes = new Elysia({ prefix: '/api/fms/inventory' })
                 storage_location: body.storageLocation,
                 project_id: body.projectId,
                 is_active: body.isActive,
+                item_type: body.itemType,
+                barcode: body.barcode,
+                company_id: body.companyId,
+                site_id: body.siteId,
+                specifications: body.specifications !== undefined
+                  ? (body.specifications as Prisma.InputJsonValue)
+                  : undefined,
+                vendor_id: body.vendorId,
+                lead_time_days: body.leadTimeDays,
+                photos: body.photos !== undefined
+                  ? (body.photos as Prisma.InputJsonValue)
+                  : undefined,
               },
               include: inventoryInclude,
             })

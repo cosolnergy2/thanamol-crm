@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ArrowLeft, Save } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -13,16 +13,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useCreateInventoryItem, useInventoryCategories } from '@/hooks/useInventory'
+import { useInventoryItem, useUpdateInventoryItem, useInventoryCategories } from '@/hooks/useInventory'
 import { useProjects } from '@/hooks/useProjects'
 import { useCompanies } from '@/hooks/useCompanies'
 import { useVendors } from '@/hooks/useVendors'
 import { UNITS_OF_MEASURE, INVENTORY_ITEM_TYPES } from '@thanamol/shared'
 
 export const Route = createFileRoute(
-  '/_authenticated/facility-management/inventory/create'
+  '/_authenticated/facility-management/inventory/$itemId/edit'
 )({
-  component: InventoryCreatePage,
+  component: InventoryEditPage,
 })
 
 const ITEM_STATUS_OPTIONS = [
@@ -30,9 +30,11 @@ const ITEM_STATUS_OPTIONS = [
   { value: 'false', label: 'Inactive' },
 ]
 
-function InventoryCreatePage() {
+function InventoryEditPage() {
+  const { itemId } = Route.useParams()
   const navigate = useNavigate()
-  const createItem = useCreateInventoryItem()
+  const { data, isLoading } = useInventoryItem(itemId)
+  const updateItem = useUpdateInventoryItem(itemId)
   const { data: categoriesData } = useInventoryCategories()
   const { data: projectsData } = useProjects({ limit: 100 })
   const { data: companiesData } = useCompanies({ limit: 100 })
@@ -48,7 +50,6 @@ function InventoryCreatePage() {
     projectId: '',
     siteId: '',
     storageLocation: '',
-    currentStock: '',
     reorderPoint: '',
     minimumStock: '',
     maximumStock: '',
@@ -65,6 +66,43 @@ function InventoryCreatePage() {
     isActive: 'true',
   })
 
+  const [initialized, setInitialized] = useState(false)
+
+  useEffect(() => {
+    if (data?.item && !initialized) {
+      const item = data.item
+      const specs = item.specifications as Record<string, string> | null | undefined
+      const photos = item.photos as Array<{ url: string }> | null | undefined
+
+      setForm({
+        name: item.name ?? '',
+        itemType: item.item_type ?? '',
+        categoryId: item.category_id ?? '',
+        unitOfMeasure: item.unit_of_measure ?? '',
+        barcode: item.barcode ?? '',
+        companyId: item.company_id ?? '',
+        projectId: item.project_id ?? '',
+        siteId: item.site_id ?? '',
+        storageLocation: item.storage_location ?? '',
+        reorderPoint: item.reorder_point?.toString() ?? '',
+        minimumStock: item.minimum_stock?.toString() ?? '',
+        maximumStock: item.maximum_stock?.toString() ?? '',
+        reorderQuantity: item.reorder_quantity?.toString() ?? '',
+        unitCost: item.unit_cost?.toString() ?? '',
+        vendorId: item.vendor_id ?? '',
+        vendorItemCode: specs?.vendorItemCode ?? '',
+        leadTimeDays: item.lead_time_days?.toString() ?? '',
+        backupVendorId: specs?.backupVendorId ?? '',
+        backupVendorItemCode: specs?.backupVendorItemCode ?? '',
+        specifications: specs?.notes ?? '',
+        description: item.description ?? '',
+        photoUrl: photos?.[0]?.url ?? '',
+        isActive: item.is_active ? 'true' : 'false',
+      })
+      setInitialized(true)
+    }
+  }, [data, initialized])
+
   const categories = categoriesData?.data ?? []
   const projects = projectsData?.data ?? []
   const companies = companiesData?.data ?? []
@@ -73,7 +111,7 @@ function InventoryCreatePage() {
   function buildSpecifications() {
     const base: Record<string, string> = {}
     if (form.vendorItemCode) base.vendorItemCode = form.vendorItemCode
-    if (form.backupVendorId) base.backupVendorId = form.backupVendorId
+    if (form.backupVendorId && form.backupVendorId !== '__none__') base.backupVendorId = form.backupVendorId
     if (form.backupVendorItemCode) base.backupVendorItemCode = form.backupVendorItemCode
     if (form.specifications) base.notes = form.specifications
     return Object.keys(base).length > 0 ? base : undefined
@@ -84,7 +122,7 @@ function InventoryCreatePage() {
     const specs = buildSpecifications()
     const photos = form.photoUrl ? [{ url: form.photoUrl }] : undefined
 
-    createItem.mutate(
+    updateItem.mutate(
       {
         name: form.name,
         description: form.description || undefined,
@@ -97,6 +135,7 @@ function InventoryCreatePage() {
         unitCost: form.unitCost ? Number(form.unitCost) : undefined,
         storageLocation: form.storageLocation || undefined,
         projectId: form.projectId && form.projectId !== '__none__' ? form.projectId : undefined,
+        isActive: form.isActive === 'true',
         itemType: form.itemType || undefined,
         barcode: form.barcode || undefined,
         companyId: form.companyId && form.companyId !== '__none__' ? form.companyId : undefined,
@@ -107,13 +146,32 @@ function InventoryCreatePage() {
         photos,
       },
       {
-        onSuccess: (data) => {
+        onSuccess: () => {
           navigate({
             to: '/facility-management/inventory/$itemId',
-            params: { itemId: data.item.id },
+            params: { itemId },
           })
         },
       }
+    )
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-slate-400 font-extralight">Loading...</p>
+      </div>
+    )
+  }
+
+  if (!data?.item) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-slate-500">Item not found</p>
+        <Button variant="outline" onClick={() => navigate({ to: '/facility-management/inventory' })}>
+          Back to Inventory
+        </Button>
+      </div>
     )
   }
 
@@ -123,17 +181,20 @@ function InventoryCreatePage() {
         <Button
           variant="outline"
           size="icon"
-          onClick={() => navigate({ to: '/facility-management/inventory' })}
+          onClick={() =>
+            navigate({
+              to: '/facility-management/inventory/$itemId',
+              params: { itemId },
+            })
+          }
         >
           <ArrowLeft className="w-4 h-4" />
         </Button>
         <div>
           <h1 className="text-2xl font-extralight tracking-[0.3em] text-slate-600 uppercase">
-            Add Inventory Item
+            Edit Inventory Item
           </h1>
-          <p className="text-sm text-slate-500 mt-1 font-extralight">
-            Register a new spare part, consumable, tool, or equipment
-          </p>
+          <p className="text-sm text-slate-500 mt-1 font-mono">{data.item.item_code}</p>
         </div>
       </div>
 
@@ -144,10 +205,10 @@ function InventoryCreatePage() {
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="itemCode">Item Code (Auto-generated)</Label>
+              <Label htmlFor="itemCode">Item Code</Label>
               <Input
                 id="itemCode"
-                value="Auto-generated on save"
+                value={data.item.item_code}
                 readOnly
                 disabled
                 className="bg-slate-50 text-slate-400 font-mono"
@@ -496,17 +557,22 @@ function InventoryCreatePage() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => navigate({ to: '/facility-management/inventory' })}
+            onClick={() =>
+              navigate({
+                to: '/facility-management/inventory/$itemId',
+                params: { itemId },
+              })
+            }
           >
             Cancel
           </Button>
           <Button
             type="submit"
-            disabled={createItem.isPending}
+            disabled={updateItem.isPending}
             className="bg-indigo-600 hover:bg-indigo-700 gap-2"
           >
             <Save className="w-4 h-4" />
-            Save Item
+            Save Changes
           </Button>
         </div>
       </form>
