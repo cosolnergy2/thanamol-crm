@@ -171,6 +171,75 @@ describe('POST /api/fms/purchase-requests', () => {
     const res = await req('POST', '/api/fms/purchase-requests', { title: '' }, token)
     expect(res.status).toBe(422)
   })
+
+  it('creates a PR with new fields: purpose, requiredDate, companyId, conditions, documents', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.purchaseRequest.count).mockResolvedValue(0)
+    vi.mocked(prisma.purchaseRequest.create).mockResolvedValue({
+      ...mockPR,
+      purpose: 'Stock Replenishment',
+      company_id: 'co-1',
+      conditions: { vat: true, withholding_tax: false },
+    } as never)
+
+    const res = await req(
+      'POST',
+      '/api/fms/purchase-requests',
+      {
+        title: 'Stock Order',
+        items: [{ item_name: 'Filter', quantity: 5, estimated_unit_price: 200, item_type: 'วัสดุ', mode: 'buy' }],
+        requestedBy: 'user-1',
+        purpose: 'Stock Replenishment',
+        companyId: 'co-1',
+        requiredDate: '2026-05-01',
+        pmScheduleId: 'pm-1',
+        documents: [{ url: 'https://example.com/doc.pdf' }],
+        conditions: { vat: true, withholding_tax: false, installments: [] },
+      },
+      token
+    )
+    expect(res.status).toBe(201)
+    expect(vi.mocked(prisma.purchaseRequest.create)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          purpose: 'Stock Replenishment',
+          company_id: 'co-1',
+          pm_schedule_id: 'pm-1',
+        }),
+      })
+    )
+  })
+
+  it('creates a PR with item fields: mode, budget_code, specification, category, asset_id', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.purchaseRequest.count).mockResolvedValue(0)
+    vi.mocked(prisma.purchaseRequest.create).mockResolvedValue(mockPR as never)
+
+    const res = await req(
+      'POST',
+      '/api/fms/purchase-requests',
+      {
+        title: 'Equipment Rental',
+        items: [
+          {
+            item_name: 'Scaffold',
+            quantity: 1,
+            estimated_unit_price: 5000,
+            item_type: 'งานเหมา',
+            mode: 'rent',
+            budget_code: 'BUD-001',
+            supplier: 'ABC Co.',
+            specification: 'Steel scaffold 10m',
+            category: 'วัสดุ',
+            asset_id: 'asset-1',
+          },
+        ],
+        requestedBy: 'user-1',
+      },
+      token
+    )
+    expect(res.status).toBe(201)
+  })
 })
 
 describe('PUT /api/fms/purchase-requests/:id', () => {
@@ -195,6 +264,30 @@ describe('PUT /api/fms/purchase-requests/:id', () => {
 
     const res = await req('PUT', '/api/fms/purchase-requests/pr-1', { title: 'New' }, token)
     expect(res.status).toBe(400)
+  })
+
+  it('updates a draft PR with new conditions and purpose fields', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.purchaseRequest.findUnique).mockResolvedValue(mockPR as never)
+    vi.mocked(prisma.purchaseRequest.update).mockResolvedValue({
+      ...mockPR,
+      purpose: 'Emergency',
+      conditions: { vat: true },
+    } as never)
+
+    const res = await req(
+      'PUT',
+      '/api/fms/purchase-requests/pr-1',
+      {
+        purpose: 'Emergency',
+        requiredDate: '2026-06-01',
+        conditions: { vat: true, withholding_tax: true, installments: [] },
+        siteId: 'project-1',
+        unitId: 'unit-1',
+      },
+      token
+    )
+    expect(res.status).toBe(200)
   })
 })
 
