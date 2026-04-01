@@ -125,8 +125,10 @@ import { Route as AuthenticatedFacilityManagementVendorsReportsRouteImport } fro
 import { Route as AuthenticatedFacilityManagementVendorsPriceTrendRouteImport } from './routes/_authenticated/facility-management/vendors/price-trend'
 import { Route as AuthenticatedFacilityManagementVendorsPerformanceRouteImport } from './routes/_authenticated/facility-management/vendors/performance'
 import { Route as AuthenticatedFacilityManagementVendorsCreateRouteImport } from './routes/_authenticated/facility-management/vendors/create'
+import { Route as AuthenticatedFacilityManagementReportsPredictiveMaintenanceRouteImport } from './routes/_authenticated/facility-management/reports/predictive-maintenance'
 import { Route as AuthenticatedFacilityManagementReportsPmComplianceRouteImport } from './routes/_authenticated/facility-management/reports/pm-compliance'
 import { Route as AuthenticatedFacilityManagementReportsMaintenanceCostRouteImport } from './routes/_authenticated/facility-management/reports/maintenance-cost'
+import { Route as AuthenticatedFacilityManagementReportsInventoryAnalysisRouteImport } from './routes/_authenticated/facility-management/reports/inventory-analysis'
 import { Route as AuthenticatedFacilityManagementReportsComplianceStatusRouteImport } from './routes/_authenticated/facility-management/reports/compliance-status'
 import { Route as AuthenticatedFacilityManagementReportsBudgetVarianceRouteImport } from './routes/_authenticated/facility-management/reports/budget-variance'
 import { Route as AuthenticatedFacilityManagementReportsAssetStatusRouteImport } from './routes/_authenticated/facility-management/reports/asset-status'
@@ -910,6 +912,14 @@ const AuthenticatedFacilityManagementVendorsCreateRoute =
     path: '/facility-management/vendors/create',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFacilityManagementReportsPredictiveMaintenanceRoute =
+  AuthenticatedFacilityManagementReportsPredictiveMaintenanceRouteImport.update(
+    {
+      id: '/facility-management/reports/predictive-maintenance',
+      path: '/facility-management/reports/predictive-maintenance',
+      getParentRoute: () => AuthenticatedRoute,
+    } as any,
+  )
 const AuthenticatedFacilityManagementReportsPmComplianceRoute =
   AuthenticatedFacilityManagementReportsPmComplianceRouteImport.update({
     id: '/facility-management/reports/pm-compliance',
@@ -920,6 +930,12 @@ const AuthenticatedFacilityManagementReportsMaintenanceCostRoute =
   AuthenticatedFacilityManagementReportsMaintenanceCostRouteImport.update({
     id: '/facility-management/reports/maintenance-cost',
     path: '/facility-management/reports/maintenance-cost',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFacilityManagementReportsInventoryAnalysisRoute =
+  AuthenticatedFacilityManagementReportsInventoryAnalysisRouteImport.update({
+    id: '/facility-management/reports/inventory-analysis',
+    path: '/facility-management/reports/inventory-analysis',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedFacilityManagementReportsComplianceStatusRoute =
@@ -1615,8 +1631,10 @@ export interface FileRoutesByFullPath {
   '/facility-management/reports/asset-status': typeof AuthenticatedFacilityManagementReportsAssetStatusRoute
   '/facility-management/reports/budget-variance': typeof AuthenticatedFacilityManagementReportsBudgetVarianceRoute
   '/facility-management/reports/compliance-status': typeof AuthenticatedFacilityManagementReportsComplianceStatusRoute
+  '/facility-management/reports/inventory-analysis': typeof AuthenticatedFacilityManagementReportsInventoryAnalysisRoute
   '/facility-management/reports/maintenance-cost': typeof AuthenticatedFacilityManagementReportsMaintenanceCostRoute
   '/facility-management/reports/pm-compliance': typeof AuthenticatedFacilityManagementReportsPmComplianceRoute
+  '/facility-management/reports/predictive-maintenance': typeof AuthenticatedFacilityManagementReportsPredictiveMaintenanceRoute
   '/facility-management/vendors/create': typeof AuthenticatedFacilityManagementVendorsCreateRoute
   '/facility-management/vendors/performance': typeof AuthenticatedFacilityManagementVendorsPerformanceRoute
   '/facility-management/vendors/price-trend': typeof AuthenticatedFacilityManagementVendorsPriceTrendRoute
@@ -1831,8 +1849,10 @@ export interface FileRoutesByTo {
   '/facility-management/reports/asset-status': typeof AuthenticatedFacilityManagementReportsAssetStatusRoute
   '/facility-management/reports/budget-variance': typeof AuthenticatedFacilityManagementReportsBudgetVarianceRoute
   '/facility-management/reports/compliance-status': typeof AuthenticatedFacilityManagementReportsComplianceStatusRoute
+  '/facility-management/reports/inventory-analysis': typeof AuthenticatedFacilityManagementReportsInventoryAnalysisRoute
   '/facility-management/reports/maintenance-cost': typeof AuthenticatedFacilityManagementReportsMaintenanceCostRoute
   '/facility-management/reports/pm-compliance': typeof AuthenticatedFacilityManagementReportsPmComplianceRoute
+  '/facility-management/reports/predictive-maintenance': typeof AuthenticatedFacilityManagementReportsPredictiveMaintenanceRoute
   '/facility-management/vendors/create': typeof AuthenticatedFacilityManagementVendorsCreateRoute
   '/facility-management/vendors/performance': typeof AuthenticatedFacilityManagementVendorsPerformanceRoute
   '/facility-management/vendors/price-trend': typeof AuthenticatedFacilityManagementVendorsPriceTrendRoute
@@ -2049,8 +2069,10 @@ export interface FileRoutesById {
   '/_authenticated/facility-management/reports/asset-status': typeof AuthenticatedFacilityManagementReportsAssetStatusRoute
   '/_authenticated/facility-management/reports/budget-variance': typeof AuthenticatedFacilityManagementReportsBudgetVarianceRoute
   '/_authenticated/facility-management/reports/compliance-status': typeof AuthenticatedFacilityManagementReportsComplianceStatusRoute
+  '/_authenticated/facility-management/reports/inventory-analysis': typeof AuthenticatedFacilityManagementReportsInventoryAnalysisRoute
   '/_authenticated/facility-management/reports/maintenance-cost': typeof AuthenticatedFacilityManagementReportsMaintenanceCostRoute
   '/_authenticated/facility-management/reports/pm-compliance': typeof AuthenticatedFacilityManagementReportsPmComplianceRoute
+  '/_authenticated/facility-management/reports/predictive-maintenance': typeof AuthenticatedFacilityManagementReportsPredictiveMaintenanceRoute
   '/_authenticated/facility-management/vendors/create': typeof AuthenticatedFacilityManagementVendorsCreateRoute
   '/_authenticated/facility-management/vendors/performance': typeof AuthenticatedFacilityManagementVendorsPerformanceRoute
   '/_authenticated/facility-management/vendors/price-trend': typeof AuthenticatedFacilityManagementVendorsPriceTrendRoute
@@ -2267,8 +2289,10 @@ export interface FileRouteTypes {
     | '/facility-management/reports/asset-status'
     | '/facility-management/reports/budget-variance'
     | '/facility-management/reports/compliance-status'
+    | '/facility-management/reports/inventory-analysis'
     | '/facility-management/reports/maintenance-cost'
     | '/facility-management/reports/pm-compliance'
+    | '/facility-management/reports/predictive-maintenance'
     | '/facility-management/vendors/create'
     | '/facility-management/vendors/performance'
     | '/facility-management/vendors/price-trend'
@@ -2483,8 +2507,10 @@ export interface FileRouteTypes {
     | '/facility-management/reports/asset-status'
     | '/facility-management/reports/budget-variance'
     | '/facility-management/reports/compliance-status'
+    | '/facility-management/reports/inventory-analysis'
     | '/facility-management/reports/maintenance-cost'
     | '/facility-management/reports/pm-compliance'
+    | '/facility-management/reports/predictive-maintenance'
     | '/facility-management/vendors/create'
     | '/facility-management/vendors/performance'
     | '/facility-management/vendors/price-trend'
@@ -2700,8 +2726,10 @@ export interface FileRouteTypes {
     | '/_authenticated/facility-management/reports/asset-status'
     | '/_authenticated/facility-management/reports/budget-variance'
     | '/_authenticated/facility-management/reports/compliance-status'
+    | '/_authenticated/facility-management/reports/inventory-analysis'
     | '/_authenticated/facility-management/reports/maintenance-cost'
     | '/_authenticated/facility-management/reports/pm-compliance'
+    | '/_authenticated/facility-management/reports/predictive-maintenance'
     | '/_authenticated/facility-management/vendors/create'
     | '/_authenticated/facility-management/vendors/performance'
     | '/_authenticated/facility-management/vendors/price-trend'
@@ -3644,6 +3672,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFacilityManagementVendorsCreateRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/facility-management/reports/predictive-maintenance': {
+      id: '/_authenticated/facility-management/reports/predictive-maintenance'
+      path: '/facility-management/reports/predictive-maintenance'
+      fullPath: '/facility-management/reports/predictive-maintenance'
+      preLoaderRoute: typeof AuthenticatedFacilityManagementReportsPredictiveMaintenanceRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/facility-management/reports/pm-compliance': {
       id: '/_authenticated/facility-management/reports/pm-compliance'
       path: '/facility-management/reports/pm-compliance'
@@ -3656,6 +3691,13 @@ declare module '@tanstack/react-router' {
       path: '/facility-management/reports/maintenance-cost'
       fullPath: '/facility-management/reports/maintenance-cost'
       preLoaderRoute: typeof AuthenticatedFacilityManagementReportsMaintenanceCostRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/facility-management/reports/inventory-analysis': {
+      id: '/_authenticated/facility-management/reports/inventory-analysis'
+      path: '/facility-management/reports/inventory-analysis'
+      fullPath: '/facility-management/reports/inventory-analysis'
+      preLoaderRoute: typeof AuthenticatedFacilityManagementReportsInventoryAnalysisRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/facility-management/reports/compliance-status': {
@@ -4431,8 +4473,10 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFacilityManagementReportsAssetStatusRoute: typeof AuthenticatedFacilityManagementReportsAssetStatusRoute
   AuthenticatedFacilityManagementReportsBudgetVarianceRoute: typeof AuthenticatedFacilityManagementReportsBudgetVarianceRoute
   AuthenticatedFacilityManagementReportsComplianceStatusRoute: typeof AuthenticatedFacilityManagementReportsComplianceStatusRoute
+  AuthenticatedFacilityManagementReportsInventoryAnalysisRoute: typeof AuthenticatedFacilityManagementReportsInventoryAnalysisRoute
   AuthenticatedFacilityManagementReportsMaintenanceCostRoute: typeof AuthenticatedFacilityManagementReportsMaintenanceCostRoute
   AuthenticatedFacilityManagementReportsPmComplianceRoute: typeof AuthenticatedFacilityManagementReportsPmComplianceRoute
+  AuthenticatedFacilityManagementReportsPredictiveMaintenanceRoute: typeof AuthenticatedFacilityManagementReportsPredictiveMaintenanceRoute
   AuthenticatedFacilityManagementVendorsCreateRoute: typeof AuthenticatedFacilityManagementVendorsCreateRoute
   AuthenticatedFacilityManagementVendorsPerformanceRoute: typeof AuthenticatedFacilityManagementVendorsPerformanceRoute
   AuthenticatedFacilityManagementVendorsPriceTrendRoute: typeof AuthenticatedFacilityManagementVendorsPriceTrendRoute
@@ -4678,10 +4722,14 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedFacilityManagementReportsBudgetVarianceRoute,
   AuthenticatedFacilityManagementReportsComplianceStatusRoute:
     AuthenticatedFacilityManagementReportsComplianceStatusRoute,
+  AuthenticatedFacilityManagementReportsInventoryAnalysisRoute:
+    AuthenticatedFacilityManagementReportsInventoryAnalysisRoute,
   AuthenticatedFacilityManagementReportsMaintenanceCostRoute:
     AuthenticatedFacilityManagementReportsMaintenanceCostRoute,
   AuthenticatedFacilityManagementReportsPmComplianceRoute:
     AuthenticatedFacilityManagementReportsPmComplianceRoute,
+  AuthenticatedFacilityManagementReportsPredictiveMaintenanceRoute:
+    AuthenticatedFacilityManagementReportsPredictiveMaintenanceRoute,
   AuthenticatedFacilityManagementVendorsCreateRoute:
     AuthenticatedFacilityManagementVendorsCreateRoute,
   AuthenticatedFacilityManagementVendorsPerformanceRoute:

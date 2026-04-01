@@ -6,7 +6,7 @@ vi.mock('../../lib/prisma', () => ({
   prisma: {
     user: { findUnique: vi.fn() },
     workOrder: { findMany: vi.fn() },
-    asset: { groupBy: vi.fn() },
+    asset: { groupBy: vi.fn(), findMany: vi.fn() },
     budget: { findMany: vi.fn() },
     fireEquipment: { count: vi.fn() },
     permitToWork: { count: vi.fn() },
@@ -14,6 +14,7 @@ vi.mock('../../lib/prisma', () => ({
     insurancePolicy: { findMany: vi.fn() },
     preventiveMaintenance: { findMany: vi.fn() },
     vendor: { findMany: vi.fn() },
+    calibrationRecord: { findMany: vi.fn() },
   },
 }))
 
@@ -412,5 +413,186 @@ describe('GET /api/fms/reports/vendor-summary', () => {
     const body = await res.json()
     expect(body.report.rows).toHaveLength(0)
     expect(body.report.totals.totalVendors).toBe(0)
+  })
+})
+
+describe('GET /api/fms/reports/predictive-maintenance', () => {
+  const MOCK_ASSETS = [
+    { id: 'asset-1', name: 'HVAC Unit A', warranty_expiry: new Date('2020-01-01') },
+    { id: 'asset-2', name: 'Generator B', warranty_expiry: null },
+    { id: 'asset-3', name: 'Elevator C', warranty_expiry: new Date('2030-12-31') },
+  ]
+
+  const MOCK_WORK_ORDERS_ASSET_1 = Array.from({ length: 4 }, (_, i) => ({
+    asset_id: 'asset-1',
+  }))
+
+  function setupMocks(
+    assets = MOCK_ASSETS,
+    workOrders = [] as { asset_id: string }[],
+    pmSchedules = [] as { asset_id: string | null }[],
+    calibrations = [] as { asset_id: string; status: string; calibration_date: Date }[]
+  ) {
+    vi.mocked(prisma.asset.findMany).mockResolvedValue(assets as never)
+    vi.mocked(prisma.workOrder.findMany).mockResolvedValue(workOrders as never)
+    vi.mocked(prisma.preventiveMaintenance.findMany).mockResolvedValue(pmSchedules as never)
+    vi.mocked(prisma.calibrationRecord.findMany).mockResolvedValue(calibrations as never)
+  }
+
+  it('returns 401 when not authenticated', async () => {
+    const res = await req('GET', '/api/fms/reports/predictive-maintenance?projectId=proj-1')
+    expect(res.status).toBe(401)
+  })
+
+  it('returns 400 when projectId missing', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(MOCK_USER as never)
+    const res = await req('GET', '/api/fms/reports/predictive-maintenance', token)
+    expect(res.status).toBe(400)
+  })
+
+  it('returns empty recommendations when no assets match rules', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(MOCK_USER as never)
+    setupMocks([], [], [], [])
+
+    const res = await req(
+      'GET',
+      '/api/fms/reports/predictive-maintenance?projectId=proj-1',
+      token
+    )
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.report.items).toHaveLength(0)
+    expect(body.report.summary.total).toBe(0)
+    expect(body.report.summary.high).toBe(0)
+    expect(body.report.summary.medium).toBe(0)
+    expect(body.report.summary.low).toBe(0)
+  })
+
+  it('flags HIGH risk for asset with more than 3 work orders in 90 days', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(MOCK_USER as never)
+    setupMocks(MOCK_ASSETS, MOCK_WORK_ORDERS_ASSET_1, [], [])
+
+    const res = await req(
+      'GET',
+      '/api/fms/reports/predictive-maintenance?projectId=proj-1',
+      token
+    )
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    const highRiskItem = body.report.items.find(
+      (i: { assetId: string }) => i.assetId === 'asset-1'
+    )
+    expect(highRiskItem).toBeDefined()
+    expect(highRiskItem.riskLevel).toBe('HIGH')
+    expect(body.report.summary.high).toBeGreaterThan(0)
+  })
+
+  it('flags MEDIUM risk for asset with expired warranty and no PM schedule', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(MOCK_USER as never)
+    setupMocks(MOCK_ASSETS, [], [], [])
+
+    const res = await req(
+      'GET',
+      '/api/fms/reports/predictive-maintenance?projectId=proj-1',
+      token
+    )
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    const mediumItem = body.report.items.find(
+      (i: { assetId: string }) => i.assetId === 'asset-1'
+    )
+    expect(mediumItem).toBeDefined()
+    expect(mediumItem.riskLevel).toBe('MEDIUM')
+  })
+
+  it('does not flag expired warranty asset that has a PM schedule', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(MOCK_USER as never)
+    setupMocks(MOCK_ASSETS, [], [{ asset_id: 'asset-1' }], [])
+
+    const res = await req(
+      'GET',
+      '/api/fms/reports/predictive-maintenance?projectId=proj-1',
+      token
+    )
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    const asset1Item = body.report.items.find(
+      (i: { assetId: string }) => i.assetId === 'asset-1'
+    )
+    expect(asset1Item).toBeUndefined()
+  })
+
+  it('flags HIGH risk for asset with FAILED calibration', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(MOCK_USER as never)
+    const calibrations = [
+      {
+        asset_id: 'asset-2',
+        status: 'FAILED',
+        calibration_date: new Date('2025-01-01'),
+      },
+    ]
+    setupMocks(MOCK_ASSETS, [], [], calibrations)
+
+    const res = await req(
+      'GET',
+      '/api/fms/reports/predictive-maintenance?projectId=proj-1',
+      token
+    )
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    const item = body.report.items.find((i: { assetId: string }) => i.assetId === 'asset-2')
+    expect(item).toBeDefined()
+    expect(item.riskLevel).toBe('HIGH')
+  })
+
+  it('flags MEDIUM risk for increasing deviation trend (2 of last 3 calibrations failed/overdue)', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(MOCK_USER as never)
+    const calibrations = [
+      { asset_id: 'asset-2', status: 'PASSED', calibration_date: new Date('2024-06-01') },
+      { asset_id: 'asset-2', status: 'OVERDUE', calibration_date: new Date('2024-09-01') },
+      { asset_id: 'asset-2', status: 'OVERDUE', calibration_date: new Date('2025-01-01') },
+    ]
+    setupMocks(MOCK_ASSETS, [], [], calibrations)
+
+    const res = await req(
+      'GET',
+      '/api/fms/reports/predictive-maintenance?projectId=proj-1',
+      token
+    )
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    const item = body.report.items.find((i: { assetId: string }) => i.assetId === 'asset-2')
+    expect(item).toBeDefined()
+    expect(item.riskLevel).toBe('MEDIUM')
+  })
+
+  it('returns items sorted with HIGH risk first', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(MOCK_USER as never)
+    const calibrations = [
+      { asset_id: 'asset-2', status: 'FAILED', calibration_date: new Date('2025-01-01') },
+    ]
+    setupMocks(MOCK_ASSETS, [], [], calibrations)
+
+    const res = await req(
+      'GET',
+      '/api/fms/reports/predictive-maintenance?projectId=proj-1',
+      token
+    )
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    const riskLevels = body.report.items.map((i: { riskLevel: string }) => i.riskLevel)
+    const highIdx = riskLevels.indexOf('HIGH')
+    const mediumIdx = riskLevels.indexOf('MEDIUM')
+    if (highIdx !== -1 && mediumIdx !== -1) {
+      expect(highIdx).toBeLessThan(mediumIdx)
+    }
   })
 })

@@ -8,6 +8,8 @@ import type {
   FMSBudgetVsActualReport,
   FMSCostReport,
   PMComplianceReport,
+  PredictiveMaintenanceReport,
+  InventoryAnalysisReport,
 } from '@thanamol/shared'
 import { apiGet } from '@/lib/api-client'
 
@@ -23,6 +25,10 @@ export const FMS_REPORTS_QUERY_KEYS = {
   budgetVsActual: (fiscalYear?: number) => ['fms-reports', 'budget-vs-actual', fiscalYear] as const,
   costReport: (fiscalYear?: number) => ['fms-reports', 'cost-report', fiscalYear] as const,
   pmCompliance: (projectId: string) => ['fms-reports', 'pm-compliance', projectId] as const,
+  predictiveMaintenance: (projectId: string) =>
+    ['fms-reports', 'predictive-maintenance', projectId] as const,
+  inventoryAnalysis: (projectId?: string) =>
+    ['fms-reports', 'inventory-analysis', projectId] as const,
 }
 
 export type MaintenanceCostParams = {
@@ -135,6 +141,29 @@ export function usePMComplianceReport(projectId: string) {
         `/fms/reports/pm-compliance${buildQueryString({ projectId })}`
       ),
     enabled: Boolean(projectId),
+    staleTime: 60 * 1000,
+  })
+}
+
+export function usePredictiveMaintenanceReport(projectId: string) {
+  return useQuery({
+    queryKey: FMS_REPORTS_QUERY_KEYS.predictiveMaintenance(projectId),
+    queryFn: () =>
+      apiGet<{ report: PredictiveMaintenanceReport }>(
+        `/fms/reports/predictive-maintenance${buildQueryString({ projectId })}`
+      ),
+    enabled: Boolean(projectId),
+    staleTime: 60 * 1000,
+  })
+}
+
+export function useInventoryAnalysisReport(projectId?: string) {
+  return useQuery({
+    queryKey: FMS_REPORTS_QUERY_KEYS.inventoryAnalysis(projectId),
+    queryFn: () =>
+      apiGet<{ report: InventoryAnalysisReport }>(
+        `/fms/reports/inventory-analysis${buildQueryString(projectId ? { projectId } : {})}`
+      ),
     staleTime: 60 * 1000,
   })
 }

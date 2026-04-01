@@ -16,6 +16,7 @@ import {
   useFMSBudgetOverviewReport,
   useFMSBudgetVsActualReport,
   useFMSCostReport,
+  useInventoryAnalysisReport,
   FMS_REPORTS_QUERY_KEYS,
 } from './useFMSReports'
 
@@ -215,5 +216,71 @@ describe('useFMSCostReport', () => {
     const { result } = renderHook(() => useFMSCostReport(2025), { wrapper: createWrapper() })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
     expect(apiGet).toHaveBeenCalledWith(expect.stringContaining('fiscalYear=2025'))
+  })
+})
+
+const mockInventoryAnalysis = {
+  abcAnalysis: [
+    { itemId: 'i1', itemCode: 'IT-001', itemName: 'Filter A', category: 'A', annualSpend: 50000, percentOfTotalSpend: 80 },
+    { itemId: 'i2', itemCode: 'IT-002', itemName: 'Gasket B', category: 'C', annualSpend: 2000, percentOfTotalSpend: 3 },
+  ],
+  deadStock: [
+    { itemId: 'i3', itemCode: 'IT-003', itemName: 'Old Part', lastMovementDate: '2024-01-01T00:00:00.000Z', daysSinceMovement: 365, currentStock: 5, stockValue: 2500 },
+  ],
+  consumptionTrends: [
+    { itemId: 'i1', itemCode: 'IT-001', itemName: 'Filter A', totalConsumed: 100, movementCount: 12, avgMonthlyConsumption: 8.33 },
+  ],
+  reorderSuggestions: [
+    { itemId: 'i1', itemCode: 'IT-001', itemName: 'Filter A', currentStock: 10, currentReorderPoint: 5, suggestedReorderPoint: 8, avgDailyConsumption: 0.27, leadTimeDays: 30, reason: 'Current reorder point too low.' },
+  ],
+  summary: { totalItems: 3, totalDeadStockItems: 1, totalDeadStockValue: 2500, aItemCount: 1, bItemCount: 0, cItemCount: 1 },
+}
+
+describe('useInventoryAnalysisReport', () => {
+  beforeEach(() => vi.resetAllMocks())
+
+  it('fetches inventory analysis without project filter', async () => {
+    vi.mocked(apiGet).mockResolvedValue({ report: mockInventoryAnalysis })
+    const { result } = renderHook(() => useInventoryAnalysisReport(), { wrapper: createWrapper() })
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(apiGet).toHaveBeenCalledWith('/fms/reports/inventory-analysis')
+    expect(result.current.data?.report.summary.totalItems).toBe(3)
+  })
+
+  it('includes projectId in URL when provided', async () => {
+    vi.mocked(apiGet).mockResolvedValue({ report: mockInventoryAnalysis })
+    const { result } = renderHook(() => useInventoryAnalysisReport('proj-1'), { wrapper: createWrapper() })
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(apiGet).toHaveBeenCalledWith(expect.stringContaining('projectId=proj-1'))
+  })
+
+  it('returns abc analysis with correct category', async () => {
+    vi.mocked(apiGet).mockResolvedValue({ report: mockInventoryAnalysis })
+    const { result } = renderHook(() => useInventoryAnalysisReport(), { wrapper: createWrapper() })
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    const abcItems = result.current.data?.report.abcAnalysis ?? []
+    expect(abcItems[0].category).toBe('A')
+    expect(abcItems[1].category).toBe('C')
+  })
+
+  it('returns dead stock items', async () => {
+    vi.mocked(apiGet).mockResolvedValue({ report: mockInventoryAnalysis })
+    const { result } = renderHook(() => useInventoryAnalysisReport(), { wrapper: createWrapper() })
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(result.current.data?.report.deadStock).toHaveLength(1)
+    expect(result.current.data?.report.deadStock[0].daysSinceMovement).toBe(365)
+  })
+
+  it('returns reorder suggestions', async () => {
+    vi.mocked(apiGet).mockResolvedValue({ report: mockInventoryAnalysis })
+    const { result } = renderHook(() => useInventoryAnalysisReport(), { wrapper: createWrapper() })
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    const suggestions = result.current.data?.report.reorderSuggestions ?? []
+    expect(suggestions[0].suggestedReorderPoint).toBe(8)
+  })
+
+  it('generates stable query keys', () => {
+    expect(FMS_REPORTS_QUERY_KEYS.inventoryAnalysis('proj-1')).toEqual(['fms-reports', 'inventory-analysis', 'proj-1'])
+    expect(FMS_REPORTS_QUERY_KEYS.inventoryAnalysis()).toEqual(['fms-reports', 'inventory-analysis', undefined])
   })
 })

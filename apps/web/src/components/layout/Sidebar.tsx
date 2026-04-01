@@ -237,6 +237,8 @@ function buildNavigation(t: ReturnType<typeof useLanguage>['t']): NavItem[] {
         { label: 'Energy Dashboard', path: '/facility-management/meters/dashboard' },
         { label: 'FMS Reports', path: '/facility-management/reports' },
         { label: 'PM Compliance', path: '/facility-management/reports/pm-compliance' },
+        { label: 'Predictive Maintenance', path: '/facility-management/reports/predictive-maintenance' },
+        { label: 'Inventory Analysis', path: '/facility-management/reports/inventory-analysis' },
       ],
     },
     {

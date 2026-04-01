@@ -4102,6 +4102,26 @@ export type FMSCostReport = {
   totalActual: number
 }
 
+export type PredictiveMaintenanceRiskLevel = 'HIGH' | 'MEDIUM' | 'LOW'
+
+export type PredictiveMaintenanceItem = {
+  assetId: string
+  assetName: string
+  riskLevel: PredictiveMaintenanceRiskLevel
+  reason: string
+  recommendation: string
+}
+
+export type PredictiveMaintenanceReport = {
+  items: PredictiveMaintenanceItem[]
+  summary: {
+    total: number
+    high: number
+    medium: number
+    low: number
+  }
+}
+
 export type AutoReorderRequest = {
   projectId?: string
   title?: string
@@ -4478,4 +4498,63 @@ export type EnergyReportQueryParams = {
   startDate?: string
   endDate?: string
   periodType?: 'month' | 'week'
+}
+
+// ─── Inventory Analysis ───────────────────────────────────────────────────────
+
+export type ABCCategory = 'A' | 'B' | 'C'
+
+export type ABCAnalysisItem = {
+  itemId: string
+  itemCode: string
+  itemName: string
+  category: ABCCategory
+  annualSpend: number
+  percentOfTotalSpend: number
+}
+
+export type DeadStockItem = {
+  itemId: string
+  itemCode: string
+  itemName: string
+  lastMovementDate: string | null
+  daysSinceMovement: number
+  currentStock: number
+  stockValue: number
+}
+
+export type ConsumptionTrendItem = {
+  itemId: string
+  itemCode: string
+  itemName: string
+  totalConsumed: number
+  movementCount: number
+  avgMonthlyConsumption: number
+}
+
+export type ReorderSuggestion = {
+  itemId: string
+  itemCode: string
+  itemName: string
+  currentStock: number
+  currentReorderPoint: number | null
+  suggestedReorderPoint: number
+  avgDailyConsumption: number
+  leadTimeDays: number
+  reason: string
+}
+
+export type InventoryAnalysisReport = {
+  abcAnalysis: ABCAnalysisItem[]
+  deadStock: DeadStockItem[]
+  consumptionTrends: ConsumptionTrendItem[]
+  reorderSuggestions: ReorderSuggestion[]
+  summary: {
+    totalItems: number
+    totalDeadStockItems: number
+    totalDeadStockValue: number
+    aItemCount: number
+    bItemCount: number
+    cItemCount: number
+  }
 }
