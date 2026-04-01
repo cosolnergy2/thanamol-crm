@@ -84,36 +84,36 @@ function renderPage() {
 
 describe('VendorDetailPage', () => {
   beforeEach(() => {
-    mockUseVendorContracts.mockReturnValue({ data: { data: [] } } as ReturnType<typeof useVendorContracts>)
-    mockUseVendorInvoices.mockReturnValue({ data: { data: [] } } as ReturnType<typeof useVendorInvoices>)
+    mockUseVendorContracts.mockReturnValue({ data: { data: [] } } as unknown as ReturnType<typeof useVendorContracts>)
+    mockUseVendorInvoices.mockReturnValue({ data: { data: [] } } as unknown as ReturnType<typeof useVendorInvoices>)
   })
 
   it('shows loading state', () => {
-    mockUseVendor.mockReturnValue({ data: undefined, isLoading: true } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: undefined, isLoading: true } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     expect(screen.getByText('Loading...')).toBeTruthy()
   })
 
   it('shows vendor not found when no vendor data', () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: null }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: null }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     expect(screen.getByText('Vendor not found')).toBeTruthy()
   })
 
   it('renders vendor code in header', () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     expect(screen.getByText('VEN-001')).toBeTruthy()
   })
 
   it('defaults to Info tab showing company info section', () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     expect(screen.getByText('ข้อมูลบริษัท')).toBeTruthy()
   })
 
   it('renders all 4 tabs: Info, Contracts, Item Prices, Invoices', () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     expect(screen.getByRole('button', { name: /^info$/i })).toBeTruthy()
     expect(screen.getByRole('button', { name: /contracts/i })).toBeTruthy()
@@ -122,59 +122,59 @@ describe('VendorDetailPage', () => {
   })
 
   it('Info tab displays legal name', () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     expect(screen.getByText('Test Vendor Company Ltd.')).toBeTruthy()
   })
 
   it('Info tab displays tax ID', () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     expect(screen.getByText('1234567890123')).toBeTruthy()
   })
 
   it('Info tab displays service tags', () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     expect(screen.getByText('HVAC')).toBeTruthy()
     expect(screen.getByText('Electrical')).toBeTruthy()
   })
 
   it('Info tab displays additional contacts', () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     expect(screen.getByText('Jane Smith')).toBeTruthy()
     expect(screen.getByText('Manager')).toBeTruthy()
   })
 
   it('Info tab displays payment terms', () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     expect(screen.getByText('30 Days')).toBeTruthy()
   })
 
   it('Info tab displays default conditions warranty', () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     expect(screen.getByText('1 year')).toBeTruthy()
   })
 
   it('switches to Contracts tab', () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     fireEvent.click(screen.getByRole('button', { name: /contracts/i }))
     expect(screen.getByText('No contracts')).toBeTruthy()
   })
 
   it('switches to Invoices tab', () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     fireEvent.click(screen.getByRole('button', { name: /invoices/i }))
     expect(screen.getByText('No invoices')).toBeTruthy()
   })
 
   it('switches to Item Prices tab', () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     fireEvent.click(screen.getByRole('button', { name: /item prices/i }))
     expect(screen.getByText('No item prices')).toBeTruthy()

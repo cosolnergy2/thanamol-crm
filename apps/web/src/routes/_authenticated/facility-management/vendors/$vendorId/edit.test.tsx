@@ -70,25 +70,25 @@ describe('VendorEditPage', () => {
   })
 
   it('shows loading state', () => {
-    mockUseVendor.mockReturnValue({ data: undefined, isLoading: true } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: undefined, isLoading: true } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     expect(screen.getByText('Loading...')).toBeTruthy()
   })
 
   it('shows vendor not found when no vendor', () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: null }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: null }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     expect(screen.getByText('Vendor not found')).toBeTruthy()
   })
 
   it('renders Edit Vendor heading', () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     expect(screen.getByText('Edit Vendor')).toBeTruthy()
   })
 
   it('pre-fills legal name from vendor data', async () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     await waitFor(() => {
       const input = screen.getByPlaceholderText('ชื่อบริษัทตามทะเบียน') as HTMLInputElement
@@ -97,7 +97,7 @@ describe('VendorEditPage', () => {
   })
 
   it('pre-fills tax ID from vendor data', async () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     await waitFor(() => {
       const input = screen.getByPlaceholderText('0000000000000 (13 หลัก)') as HTMLInputElement
@@ -106,7 +106,7 @@ describe('VendorEditPage', () => {
   })
 
   it('pre-fills address from vendor data', async () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     await waitFor(() => {
       const textarea = screen.getByPlaceholderText('ที่อยู่บริษัท') as HTMLTextAreaElement
@@ -115,13 +115,13 @@ describe('VendorEditPage', () => {
   })
 
   it('renders additional contacts section', () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     expect(screen.getByText('ผู้ติดต่อสำรอง (Additional Contacts)')).toBeTruthy()
   })
 
   it('adds a new additional contact row when add button clicked', async () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     const addButtons = screen.getAllByRole('button', { name: /เพิ่ม$/i })
     fireEvent.click(addButtons[0])
@@ -132,14 +132,14 @@ describe('VendorEditPage', () => {
   })
 
   it('renders service tags checkboxes', () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     expect(screen.getByText('Service Tags')).toBeTruthy()
     expect(screen.getByText('HVAC')).toBeTruthy()
   })
 
   it('pre-fills notes from vendor data', async () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     await waitFor(() => {
       const textarea = screen.getByPlaceholderText('หมายเหตุเพิ่มเติม...') as HTMLTextAreaElement
@@ -148,13 +148,13 @@ describe('VendorEditPage', () => {
   })
 
   it('Save Changes button is rendered', () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     expect(screen.getByRole('button', { name: /save changes/i })).toBeTruthy()
   })
 
   it('calls updateVendor.mutate on form submit with legalName', async () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     await waitFor(() => {
       const input = screen.getByPlaceholderText('ชื่อบริษัทตามทะเบียน') as HTMLInputElement
@@ -171,7 +171,7 @@ describe('VendorEditPage', () => {
   })
 
   it('renders Default Conditions section', () => {
-    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as ReturnType<typeof useVendor>)
+    mockUseVendor.mockReturnValue({ data: { vendor: baseVendor }, isLoading: false } as unknown as ReturnType<typeof useVendor>)
     renderPage()
     expect(screen.getByText('เงื่อนไขมาตรฐานของ Vendor (Default Conditions)')).toBeTruthy()
   })
