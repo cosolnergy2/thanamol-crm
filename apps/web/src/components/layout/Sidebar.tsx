@@ -203,6 +203,8 @@ function buildNavigation(t: ReturnType<typeof useLanguage>['t']): NavItem[] {
         { label: 'Vendors', path: '/facility-management/vendors' },
         { label: 'Vendor Contracts', path: '/facility-management/vendors/contracts' },
         { label: 'Vendor Invoices', path: '/facility-management/vendors/invoices' },
+        { label: 'Approval Center', path: '/facility-management/approvals' },
+        { label: 'Approval Workflows', path: '/facility-management/approvals/workflows' },
       ],
     },
     {
@@ -225,6 +227,7 @@ function buildNavigation(t: ReturnType<typeof useLanguage>['t']): NavItem[] {
         { label: 'Incidents', path: '/facility-management/compliance/incidents' },
         { label: 'Insurance', path: '/facility-management/compliance/insurance' },
         { label: 'Contractor Safety', path: '/facility-management/compliance/contractors' },
+        { label: 'Helpdesk', path: '/facility-management/helpdesk' },
         { label: 'FMS Reports', path: '/facility-management/reports' },
         { label: 'PM Compliance', path: '/facility-management/reports/pm-compliance' },
       ],
