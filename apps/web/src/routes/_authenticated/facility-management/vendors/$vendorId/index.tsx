@@ -12,6 +12,9 @@ import {
   FileText,
   DollarSign,
   Receipt,
+  Tag,
+  Building2,
+  CreditCard,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -19,11 +22,45 @@ import { Badge } from '@/components/ui/badge'
 import { useVendor } from '@/hooks/useVendors'
 import { useVendorContracts } from '@/hooks/useVendorContracts'
 import { useVendorInvoices } from '@/hooks/useVendorInvoices'
-import type { VendorStatus, VendorContractStatus, VendorContractWithRelations, VendorInvoiceWithRelations } from '@thanamol/shared'
+import type {
+  VendorStatus,
+  VendorContractStatus,
+  VendorContractWithRelations,
+  VendorInvoiceWithRelations,
+  VendorAdditionalContact,
+  VendorDefaultConditions,
+} from '@thanamol/shared'
 
 export const Route = createFileRoute('/_authenticated/facility-management/vendors/$vendorId/')({
   component: VendorDetailPage,
 })
+
+export type VendorWithExtras = {
+  id: string
+  vendor_code: string
+  name: string
+  legal_name?: string | null
+  display_name?: string | null
+  vendor_type?: string | null
+  tax_id?: string | null
+  phone?: string | null
+  email?: string | null
+  website?: string | null
+  address?: string | null
+  contact_person?: string | null
+  category?: string | null
+  rating?: number | null
+  status: string
+  supplier_type?: string | null
+  payment_terms?: string | null
+  credit_limit?: number | null
+  notes?: string | null
+  service_tags?: unknown
+  additional_contacts?: unknown
+  default_conditions?: unknown
+  item_prices: unknown[]
+  [key: string]: unknown
+}
 
 const VENDOR_STATUS_COLORS: Record<VendorStatus, string> = {
   ACTIVE: 'bg-emerald-100 text-emerald-700',
@@ -39,12 +76,12 @@ const CONTRACT_STATUS_COLORS: Record<VendorContractStatus, string> = {
   TERMINATED: 'bg-red-100 text-red-700',
 }
 
-type TabKey = 'contracts' | 'prices' | 'invoices'
+type TabKey = 'info' | 'contracts' | 'prices' | 'invoices'
 
-function VendorDetailPage() {
+export function VendorDetailPage() {
   const { vendorId } = Route.useParams()
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState<TabKey>('contracts')
+  const [activeTab, setActiveTab] = useState<TabKey>('info')
 
   const { data: vendorData, isLoading } = useVendor(vendorId)
   const { data: contractsData } = useVendorContracts({ vendorId, limit: 100 })
@@ -64,12 +101,13 @@ function VendorDetailPage() {
     )
   }
 
-  const vendor = vendorData.vendor
+  const vendor = vendorData.vendor as VendorWithExtras
   const contracts = contractsData?.data ?? []
   const invoices = invoicesData?.data ?? []
   const itemPrices = (vendor.item_prices as { id: string; item_name: string; unit_price: number; currency: string; is_active: boolean }[]) ?? []
 
-  const tabs: { key: TabKey; label: string; count: number }[] = [
+  const tabs: { key: TabKey; label: string; count?: number }[] = [
+    { key: 'info', label: 'Info' },
     { key: 'contracts', label: 'Contracts', count: contracts.length },
     { key: 'prices', label: 'Item Prices', count: itemPrices.length },
     { key: 'invoices', label: 'Invoices', count: invoices.length },
@@ -89,7 +127,7 @@ function VendorDetailPage() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-extralight tracking-[0.3em] text-slate-600 uppercase">
-                {vendor.name}
+                {vendor.display_name || vendor.legal_name || vendor.name}
               </h1>
               <Badge
                 className={`text-xs font-normal ${VENDOR_STATUS_COLORS[vendor.status as VendorStatus]}`}
@@ -111,88 +149,6 @@ function VendorDetailPage() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-light flex items-center gap-2">
-              <Briefcase className="w-4 h-4 text-indigo-500" />
-              Vendor Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            {vendor.category && (
-              <div className="flex justify-between">
-                <span className="text-slate-500">Category</span>
-                <Badge variant="outline">{vendor.category}</Badge>
-              </div>
-            )}
-            {vendor.tax_id && (
-              <div className="flex justify-between">
-                <span className="text-slate-500">Tax ID</span>
-                <span className="font-mono">{vendor.tax_id}</span>
-              </div>
-            )}
-            {vendor.rating && (
-              <div className="flex justify-between items-center">
-                <span className="text-slate-500">Rating</span>
-                <div className="flex items-center gap-1">
-                  <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                  <span>{vendor.rating}/5</span>
-                </div>
-              </div>
-            )}
-            {vendor.address && (
-              <div className="flex justify-between">
-                <span className="text-slate-500">Address</span>
-                <span className="text-right max-w-xs text-xs">{vendor.address}</span>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-light flex items-center gap-2">
-              <User className="w-4 h-4 text-teal-500" />
-              Contact
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            {vendor.contact_person && (
-              <div className="flex items-center gap-2">
-                <User className="w-3.5 h-3.5 text-slate-400" />
-                <span>{vendor.contact_person}</span>
-              </div>
-            )}
-            {vendor.phone && (
-              <div className="flex items-center gap-2">
-                <Phone className="w-3.5 h-3.5 text-slate-400" />
-                <span>{vendor.phone}</span>
-              </div>
-            )}
-            {vendor.email && (
-              <div className="flex items-center gap-2">
-                <Mail className="w-3.5 h-3.5 text-slate-400" />
-                <span>{vendor.email}</span>
-              </div>
-            )}
-            {vendor.website && (
-              <div className="flex items-center gap-2">
-                <Globe className="w-3.5 h-3.5 text-slate-400" />
-                <a
-                  href={vendor.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-indigo-600 hover:underline"
-                >
-                  {vendor.website}
-                </a>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
       <Card>
         <CardHeader>
           <div className="flex gap-1 border-b pb-3">
@@ -207,7 +163,7 @@ function VendorDetailPage() {
                 }`}
               >
                 {tab.label}
-                {tab.count > 0 && (
+                {tab.count !== undefined && tab.count > 0 && (
                   <span className="ml-1.5 text-xs bg-slate-200 text-slate-600 rounded-full px-1.5 py-0.5">
                     {tab.count}
                   </span>
@@ -217,6 +173,7 @@ function VendorDetailPage() {
           </div>
         </CardHeader>
         <CardContent>
+          {activeTab === 'info' && <InfoTab vendor={vendor} />}
           {activeTab === 'contracts' && (
             <ContractsTab contracts={contracts as VendorContractWithRelations[]} vendorId={vendor.id} />
           )}
@@ -228,6 +185,269 @@ function VendorDetailPage() {
           )}
         </CardContent>
       </Card>
+    </div>
+  )
+}
+
+function InfoTab({ vendor }: { vendor: VendorWithExtras }) {
+  const additionalContacts = (vendor.additional_contacts as VendorAdditionalContact[] | null) ?? []
+  const serviceTags = (vendor.service_tags as string[] | null) ?? []
+  const conditions = (vendor.default_conditions as VendorDefaultConditions | null) ?? {}
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-sm font-medium text-slate-500 mb-3 flex items-center gap-2">
+          <Building2 className="w-4 h-4 text-indigo-500" />
+          ข้อมูลบริษัท
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+          {vendor.legal_name && (
+            <div className="flex justify-between">
+              <span className="text-slate-500">ชื่อตามกฎหมาย</span>
+              <span className="font-medium">{vendor.legal_name}</span>
+            </div>
+          )}
+          {vendor.display_name && (
+            <div className="flex justify-between">
+              <span className="text-slate-500">ชื่อแสดง</span>
+              <span>{vendor.display_name}</span>
+            </div>
+          )}
+          {vendor.vendor_type && (
+            <div className="flex justify-between">
+              <span className="text-slate-500">ประเภท Vendor</span>
+              <Badge variant="outline">{vendor.vendor_type}</Badge>
+            </div>
+          )}
+          {vendor.category && (
+            <div className="flex justify-between">
+              <span className="text-slate-500">Category</span>
+              <Badge variant="outline">{vendor.category}</Badge>
+            </div>
+          )}
+          {vendor.tax_id && (
+            <div className="flex justify-between">
+              <span className="text-slate-500">Tax ID</span>
+              <span className="font-mono">{vendor.tax_id}</span>
+            </div>
+          )}
+          {vendor.rating && (
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500">Rating</span>
+              <div className="flex items-center gap-1">
+                <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                <span>{vendor.rating}/5</span>
+              </div>
+            </div>
+          )}
+          {vendor.address && (
+            <div className="flex justify-between md:col-span-2">
+              <span className="text-slate-500">ที่อยู่</span>
+              <span className="text-right max-w-xs text-xs">{vendor.address}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-sm font-medium text-slate-500 mb-3 flex items-center gap-2">
+          <User className="w-4 h-4 text-teal-500" />
+          ผู้ติดต่อหลัก
+        </h3>
+        <div className="space-y-2 text-sm">
+          {vendor.contact_person && (
+            <div className="flex items-center gap-2">
+              <User className="w-3.5 h-3.5 text-slate-400" />
+              <span>{vendor.contact_person}</span>
+            </div>
+          )}
+          {vendor.phone && (
+            <div className="flex items-center gap-2">
+              <Phone className="w-3.5 h-3.5 text-slate-400" />
+              <span>{vendor.phone}</span>
+            </div>
+          )}
+          {vendor.email && (
+            <div className="flex items-center gap-2">
+              <Mail className="w-3.5 h-3.5 text-slate-400" />
+              <span>{vendor.email}</span>
+            </div>
+          )}
+          {vendor.website && (
+            <div className="flex items-center gap-2">
+              <Globe className="w-3.5 h-3.5 text-slate-400" />
+              <a
+                href={vendor.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-indigo-600 hover:underline"
+              >
+                {vendor.website}
+              </a>
+            </div>
+          )}
+          {!vendor.contact_person && !vendor.phone && !vendor.email && !vendor.website && (
+            <p className="text-slate-400 text-xs">ไม่มีข้อมูลผู้ติดต่อ</p>
+          )}
+        </div>
+      </div>
+
+      {additionalContacts.length > 0 && (
+        <div>
+          <h3 className="text-sm font-medium text-slate-500 mb-3 flex items-center gap-2">
+            <User className="w-4 h-4 text-slate-400" />
+            ผู้ติดต่อสำรอง
+          </h3>
+          <div className="space-y-2">
+            {additionalContacts.map((c, idx) => (
+              <div key={idx} className="p-3 border rounded-lg bg-slate-50 text-sm">
+                <p className="font-medium">{c.name}</p>
+                <div className="flex flex-wrap gap-3 mt-1 text-slate-500 text-xs">
+                  {c.position && <span>{c.position}</span>}
+                  {c.phone && (
+                    <span className="flex items-center gap-1">
+                      <Phone className="w-3 h-3" />
+                      {c.phone}
+                    </span>
+                  )}
+                  {c.email && (
+                    <span className="flex items-center gap-1">
+                      <Mail className="w-3 h-3" />
+                      {c.email}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {serviceTags.length > 0 && (
+        <div>
+          <h3 className="text-sm font-medium text-slate-500 mb-3 flex items-center gap-2">
+            <Tag className="w-4 h-4 text-indigo-400" />
+            Service Tags
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            {serviceTags.map((tag) => (
+              <Badge key={tag} variant="outline" className="text-xs">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {vendor.supplier_type && (
+        <div>
+          <h3 className="text-sm font-medium text-slate-500 mb-3 flex items-center gap-2">
+            <Briefcase className="w-4 h-4 text-slate-400" />
+            การจัดหมู่ Supplier
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+            <div className="flex justify-between">
+              <span className="text-slate-500">Supplier Type</span>
+              <Badge variant="outline">{vendor.supplier_type}</Badge>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {(vendor.payment_terms || vendor.credit_limit) && (
+        <div>
+          <h3 className="text-sm font-medium text-slate-500 mb-3 flex items-center gap-2">
+            <CreditCard className="w-4 h-4 text-teal-500" />
+            เงื่อนไขการชำระเงิน
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+            {vendor.payment_terms && (
+              <div className="flex justify-between">
+                <span className="text-slate-500">Payment Terms</span>
+                <Badge variant="outline">{vendor.payment_terms}</Badge>
+              </div>
+            )}
+            {vendor.credit_limit && (
+              <div className="flex justify-between">
+                <span className="text-slate-500">Credit Limit</span>
+                <span>{vendor.credit_limit.toLocaleString()} บาท</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {Object.keys(conditions).length > 0 && (
+        <div>
+          <h3 className="text-sm font-medium text-slate-500 mb-3">Default Conditions</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+            {conditions.vat_enabled !== undefined && (
+              <div className="flex justify-between">
+                <span className="text-slate-500">VAT 7%</span>
+                <span>{conditions.vat_enabled ? 'เปิดใช้งาน' : 'ปิด'}</span>
+              </div>
+            )}
+            {conditions.wht_enabled !== undefined && (
+              <div className="flex justify-between">
+                <span className="text-slate-500">WHT</span>
+                <span>
+                  {conditions.wht_enabled
+                    ? `${conditions.wht_rate ?? 3}%`
+                    : 'ปิด'}
+                </span>
+              </div>
+            )}
+            {conditions.retention_enabled !== undefined && (
+              <div className="flex justify-between">
+                <span className="text-slate-500">Retention</span>
+                <span>
+                  {conditions.retention_enabled
+                    ? `${conditions.retention_rate ?? 5}%`
+                    : 'ปิด'}
+                </span>
+              </div>
+            )}
+            {conditions.warranty && (
+              <div className="flex justify-between">
+                <span className="text-slate-500">Warranty</span>
+                <span>{conditions.warranty}</span>
+              </div>
+            )}
+            {conditions.credit_terms && (
+              <div className="flex justify-between">
+                <span className="text-slate-500">Credit Terms</span>
+                <span>{conditions.credit_terms}</span>
+              </div>
+            )}
+            {conditions.standard_lead_time && (
+              <div className="flex justify-between">
+                <span className="text-slate-500">Lead Time</span>
+                <span>{conditions.standard_lead_time}</span>
+              </div>
+            )}
+            {conditions.late_penalty && (
+              <div className="flex justify-between">
+                <span className="text-slate-500">Late Penalty</span>
+                <span>{conditions.late_penalty}</span>
+              </div>
+            )}
+            {conditions.insurance && (
+              <div className="flex justify-between">
+                <span className="text-slate-500">Insurance</span>
+                <span>{conditions.insurance}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {vendor.notes && (
+        <div>
+          <h3 className="text-sm font-medium text-slate-500 mb-2">หมายเหตุ</h3>
+          <p className="text-sm text-slate-600 bg-slate-50 p-3 rounded-lg">{vendor.notes}</p>
+        </div>
+      )}
     </div>
   )
 }
