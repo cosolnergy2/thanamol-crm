@@ -1,12 +1,18 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { Package, Pencil, Wrench, Gauge, ClipboardList, MapPin } from 'lucide-react'
+import { Package, Pencil, Wrench, Gauge, ClipboardList, MapPin, Info, ShoppingCart, Tag } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PageHeader } from '@/components/PageHeader'
 import { useAsset } from '@/hooks/useAssets'
+import { useVendor } from '@/hooks/useVendors'
 import type { AssetStatus, WorkOrderStatus } from '@thanamol/shared'
+import {
+  ASSET_CRITICALITIES,
+  ASSET_LIFECYCLE_STATUSES,
+  ASSET_CONDITION_SCORES,
+} from '@thanamol/shared'
 
 export const Route = createFileRoute('/_authenticated/facility-management/assets/$assetId/')({
   component: AssetDetailPage,
@@ -29,6 +35,50 @@ const WO_STATUS_COLORS: Record<WorkOrderStatus, string> = {
   CANCELLED: 'bg-rose-50 text-rose-700 border-rose-200',
 }
 
+const CRITICALITY_COLORS: Record<string, string> = {
+  Critical: 'bg-rose-50 text-rose-700 border-rose-200',
+  High: 'bg-amber-50 text-amber-700 border-amber-200',
+  Normal: 'bg-teal-50 text-teal-700 border-teal-200',
+  Low: 'bg-slate-50 text-slate-600 border-slate-200',
+}
+
+const LIFECYCLE_COLORS: Record<string, string> = {
+  Operational: 'bg-teal-50 text-teal-700 border-teal-200',
+  'Under Maintenance': 'bg-amber-50 text-amber-700 border-amber-200',
+  'Out of Service': 'bg-rose-50 text-rose-700 border-rose-200',
+  Decommissioned: 'bg-slate-50 text-slate-600 border-slate-200',
+}
+
+function conditionScoreLabel(score: number | null | undefined): string {
+  if (score == null) return '—'
+  const found = ASSET_CONDITION_SCORES.find((s) => s.value === score)
+  return found ? found.label : String(score)
+}
+
+function formatDate(value: string | null | undefined): string {
+  if (!value) return '—'
+  return new Date(value).toLocaleDateString()
+}
+
+function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex justify-between items-start gap-4">
+      <span className="text-xs text-slate-400 font-extralight shrink-0">{label}</span>
+      <span className="text-xs text-slate-700 font-light text-right">{value ?? '—'}</span>
+    </div>
+  )
+}
+
+function SupplierName({ supplierId }: { supplierId: string | null | undefined }) {
+  const { data } = useVendor(supplierId ?? '')
+  if (!supplierId) return <span className="text-xs text-slate-700 font-light">—</span>
+  return (
+    <span className="text-xs text-slate-700 font-light text-right">
+      {data?.vendor?.name ?? supplierId}
+    </span>
+  )
+}
+
 function AssetDetailPage() {
   const { assetId } = Route.useParams()
   const navigate = useNavigate()
@@ -40,6 +90,8 @@ function AssetDetailPage() {
       <div className="space-y-4">
         <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <Skeleton className="h-48 w-full" />
+          <Skeleton className="h-48 w-full" />
           <Skeleton className="h-48 w-full" />
           <Skeleton className="h-48 w-full" />
         </div>
@@ -65,6 +117,14 @@ function AssetDetailPage() {
   const calibrations = (asset.calibrations as Array<Record<string, unknown>>) ?? []
   const pmSchedules = (asset.pm_schedules as Array<Record<string, unknown>>) ?? []
 
+  const specificationsNotes =
+    asset.specifications && typeof asset.specifications === 'object'
+      ? (asset.specifications as Record<string, unknown>).notes as string | undefined
+      : undefined
+
+  const imageUrl =
+    Array.isArray(asset.photos) && asset.photos.length > 0 ? asset.photos[0] : null
+
   return (
     <div className="space-y-4">
       <PageHeader
@@ -86,85 +146,181 @@ function AssetDetailPage() {
           variant="outline"
           className={`text-[10px] ${ASSET_STATUS_COLORS[asset.status as AssetStatus] ?? ''}`}
         >
-          {asset.status.replace('_', ' ')}
+          {asset.status.replace(/_/g, ' ')}
         </Badge>
+        {asset.criticality && (
+          <Badge
+            variant="outline"
+            className={`text-[10px] ${CRITICALITY_COLORS[asset.criticality] ?? ''}`}
+          >
+            {asset.criticality}
+          </Badge>
+        )}
+        {asset.lifecycle_status && (
+          <Badge
+            variant="outline"
+            className={`text-[10px] ${LIFECYCLE_COLORS[asset.lifecycle_status] ?? ''}`}
+          >
+            {asset.lifecycle_status}
+          </Badge>
+        )}
       </div>
 
+      {imageUrl && (
+        <div className="w-full max-w-sm">
+          <img
+            src={imageUrl}
+            alt={asset.name}
+            className="rounded-lg border border-slate-200 object-cover w-full h-48"
+          />
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Basic Information */}
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-light text-slate-600 flex items-center gap-2">
               <Package className="w-4 h-4 text-slate-400" />
-              Asset Information
+              Basic Information
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {[
-              { label: 'Category', value: asset.category?.name },
-              { label: 'Manufacturer', value: asset.manufacturer },
-              { label: 'Model', value: asset.model_name },
-              { label: 'Serial Number', value: asset.serial_number },
-              {
-                label: 'Purchase Date',
-                value: asset.purchase_date
-                  ? new Date(asset.purchase_date).toLocaleDateString()
-                  : null,
-              },
-              {
-                label: 'Purchase Cost',
-                value: asset.purchase_cost != null
-                  ? `฿${asset.purchase_cost.toLocaleString()}`
-                  : null,
-              },
-              {
-                label: 'Warranty Expiry',
-                value: asset.warranty_expiry
-                  ? new Date(asset.warranty_expiry).toLocaleDateString()
-                  : null,
-              },
-            ].map(({ label, value }) => (
-              <div key={label} className="flex justify-between items-start">
-                <span className="text-xs text-slate-400 font-extralight">{label}</span>
-                <span className="text-xs text-slate-700 font-light text-right">
-                  {value ?? '—'}
-                </span>
+            <DetailRow label="Category" value={asset.category?.name} />
+            <DetailRow
+              label="Criticality"
+              value={
+                asset.criticality ? (
+                  <Badge
+                    variant="outline"
+                    className={`text-[9px] ${CRITICALITY_COLORS[asset.criticality] ?? ''}`}
+                  >
+                    {asset.criticality}
+                  </Badge>
+                ) : null
+              }
+            />
+            <DetailRow label="Condition Score" value={conditionScoreLabel(asset.condition_score)} />
+            <DetailRow
+              label="Lifecycle Status"
+              value={
+                asset.lifecycle_status ? (
+                  <Badge
+                    variant="outline"
+                    className={`text-[9px] ${LIFECYCLE_COLORS[asset.lifecycle_status] ?? ''}`}
+                  >
+                    {asset.lifecycle_status}
+                  </Badge>
+                ) : null
+              }
+            />
+            {asset.description && (
+              <div className="pt-1">
+                <p className="text-[10px] font-extralight text-slate-400 uppercase tracking-widest mb-1">
+                  Description
+                </p>
+                <p className="text-xs text-slate-600 font-light">{asset.description}</p>
               </div>
-            ))}
+            )}
           </CardContent>
         </Card>
 
+        {/* Ownership & Location */}
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-light text-slate-600 flex items-center gap-2">
               <MapPin className="w-4 h-4 text-slate-400" />
-              Location
+              Ownership &amp; Location
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {[
-              { label: 'Project', value: asset.project.name },
-              { label: 'Zone', value: asset.zone?.name },
-              { label: 'Unit', value: asset.unit?.unit_number },
-              { label: 'Location Detail', value: asset.location_detail },
-              { label: 'Assigned To', value: asset.assignee ? `${asset.assignee.first_name} ${asset.assignee.last_name}` : null },
-            ].map(({ label, value }) => (
-              <div key={label} className="flex justify-between items-start">
-                <span className="text-xs text-slate-400 font-extralight">{label}</span>
-                <span className="text-xs text-slate-700 font-light text-right">
-                  {value ?? '—'}
-                </span>
-              </div>
-            ))}
+            <DetailRow label="Scope Type" value={asset.scope_type} />
+            <DetailRow label="Project" value={asset.project.name} />
+            <DetailRow label="Zone" value={asset.zone?.name} />
+            <DetailRow label="Unit" value={asset.unit?.unit_number} />
+            <DetailRow label="Location Detail" value={asset.location_detail} />
+            <DetailRow
+              label="Assigned To"
+              value={
+                asset.assignee
+                  ? `${asset.assignee.first_name} ${asset.assignee.last_name}`
+                  : null
+              }
+            />
           </CardContent>
         </Card>
 
-        {asset.description && (
+        {/* Technical Details */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-light text-slate-600 flex items-center gap-2">
+              <Tag className="w-4 h-4 text-slate-400" />
+              Technical Details
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <DetailRow label="Brand" value={asset.brand} />
+            <DetailRow label="Manufacturer" value={asset.manufacturer} />
+            <DetailRow label="Model" value={asset.model_name} />
+            <DetailRow label="Serial Number" value={asset.serial_number} />
+            <div className="flex justify-between items-start gap-4">
+              <span className="text-xs text-slate-400 font-extralight shrink-0">Supplier</span>
+              <SupplierName supplierId={asset.supplier_id} />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Purchase & Warranty */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-light text-slate-600 flex items-center gap-2">
+              <ShoppingCart className="w-4 h-4 text-slate-400" />
+              Purchase &amp; Warranty
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <DetailRow
+              label="Purchase Price"
+              value={
+                asset.purchase_cost != null
+                  ? `฿${asset.purchase_cost.toLocaleString()}`
+                  : null
+              }
+            />
+            <DetailRow label="Purchase Date" value={formatDate(asset.purchase_date)} />
+            <DetailRow label="Install Date" value={formatDate(asset.install_date)} />
+            <DetailRow label="Warranty End" value={formatDate(asset.warranty_expiry)} />
+          </CardContent>
+        </Card>
+
+        {/* Additional Information */}
+        {(specificationsNotes ||
+          (asset.specifications && Object.keys(asset.specifications).length > 0)) && (
           <Card className="lg:col-span-2">
-            <CardContent className="pt-4">
-              <p className="text-[10px] font-extralight text-slate-400 uppercase tracking-widest mb-2">
-                Description
-              </p>
-              <p className="text-sm text-slate-600 font-light">{asset.description}</p>
+            <CardHeader>
+              <CardTitle className="text-sm font-light text-slate-600 flex items-center gap-2">
+                <Info className="w-4 h-4 text-slate-400" />
+                Additional Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {asset.specifications &&
+                typeof asset.specifications === 'object' &&
+                Object.entries(asset.specifications as Record<string, unknown>)
+                  .filter(([key]) => key !== 'notes')
+                  .map(([key, val]) => (
+                    <DetailRow key={key} label={key} value={String(val ?? '—')} />
+                  ))}
+              {specificationsNotes && (
+                <div>
+                  <p className="text-[10px] font-extralight text-slate-400 uppercase tracking-widest mb-1">
+                    Notes
+                  </p>
+                  <p className="text-xs text-slate-600 font-light whitespace-pre-wrap">
+                    {specificationsNotes}
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
@@ -204,7 +360,7 @@ function AssetDetailPage() {
                       variant="outline"
                       className={`text-[9px] ${WO_STATUS_COLORS[wo.status as WorkOrderStatus] ?? ''}`}
                     >
-                      {(wo.status as string).replace('_', ' ')}
+                      {(wo.status as string).replace(/_/g, ' ')}
                     </Badge>
                   </div>
                 ))}
