@@ -17,6 +17,11 @@ const invoiceItemSchema = t.Object({
   total: t.Number({ minimum: 0 }),
 })
 
+const submissionEventSchema = t.Object({
+  submittedAt: t.String(),
+  notes: t.Optional(t.String()),
+})
+
 const createInvoiceSchema = t.Object({
   invoiceNumber: t.String({ minLength: 1 }),
   vendorId: t.String({ minLength: 1 }),
@@ -28,6 +33,8 @@ const createInvoiceSchema = t.Object({
   invoiceDate: t.String({ minLength: 1 }),
   dueDate: t.Optional(t.String()),
   notes: t.Optional(t.String()),
+  pdfUrl: t.Optional(t.String()),
+  submissionHistory: t.Optional(t.Array(submissionEventSchema)),
 })
 
 const updateInvoiceSchema = t.Object({
@@ -40,6 +47,7 @@ const updateInvoiceSchema = t.Object({
   invoiceDate: t.Optional(t.String()),
   dueDate: t.Optional(t.Nullable(t.String())),
   notes: t.Optional(t.Nullable(t.String())),
+  pdfUrl: t.Optional(t.Nullable(t.String())),
 })
 
 export const fmsVendorInvoicesRoutes = new Elysia({ prefix: '/api/fms/vendor-invoices' })
@@ -133,6 +141,10 @@ export const fmsVendorInvoicesRoutes = new Elysia({ prefix: '/api/fms/vendor-inv
                 due_date: body.dueDate ? new Date(body.dueDate) : null,
                 payment_status: 'PENDING',
                 notes: body.notes,
+                pdf_url: body.pdfUrl ?? null,
+                submission_history: body.submissionHistory
+                  ? (body.submissionHistory as object[])
+                  : [],
               },
               include: invoiceInclude,
             })
@@ -165,6 +177,7 @@ export const fmsVendorInvoicesRoutes = new Elysia({ prefix: '/api/fms/vendor-inv
                   due_date: body.dueDate ? new Date(body.dueDate) : null,
                 }),
                 ...(body.notes !== undefined && { notes: body.notes }),
+                ...(body.pdfUrl !== undefined && { pdf_url: body.pdfUrl }),
               },
               include: invoiceInclude,
             })
@@ -200,6 +213,41 @@ export const fmsVendorInvoicesRoutes = new Elysia({ prefix: '/api/fms/vendor-inv
             params: t.Object({ id: t.String() }),
             body: t.Object({
               paymentDate: t.Optional(t.String()),
+            }),
+          }
+        )
+        .post(
+          '/:id/submit',
+          async ({ params, body, set }) => {
+            const existing = await prisma.vendorInvoice.findUnique({ where: { id: params.id } })
+            if (!existing) {
+              set.status = 404
+              return { error: 'Invoice not found' }
+            }
+
+            const currentHistory = Array.isArray(existing.submission_history)
+              ? (existing.submission_history as object[])
+              : []
+
+            const newEvent = {
+              submittedAt: new Date().toISOString(),
+              notes: body.notes ?? null,
+            }
+
+            const invoice = await prisma.vendorInvoice.update({
+              where: { id: params.id },
+              data: {
+                submission_history: [...currentHistory, newEvent],
+              },
+              include: invoiceInclude,
+            })
+
+            return { invoice }
+          },
+          {
+            params: t.Object({ id: t.String() }),
+            body: t.Object({
+              notes: t.Optional(t.String()),
             }),
           }
         )
