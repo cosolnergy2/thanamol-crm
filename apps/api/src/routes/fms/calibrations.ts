@@ -12,6 +12,19 @@ const calibrationInclude = {
   asset: { select: { id: true, asset_number: true, name: true, project_id: true } },
 }
 
+async function generateCalibrationNumber(): Promise<string> {
+  const latest = await prisma.calibrationRecord.findFirst({
+    where: { calibration_number: { startsWith: 'CAL-' } },
+    orderBy: { calibration_number: 'desc' },
+    select: { calibration_number: true },
+  })
+
+  if (!latest?.calibration_number) return 'CAL-00001'
+
+  const seq = parseInt(latest.calibration_number.replace('CAL-', ''), 10)
+  return `CAL-${String(seq + 1).padStart(5, '0')}`
+}
+
 const createCalibrationSchema = t.Object({
   assetId: t.String({ minLength: 1 }),
   calibrationDate: t.String({ minLength: 1 }),
@@ -20,6 +33,13 @@ const createCalibrationSchema = t.Object({
   certificateUrl: t.Optional(t.String()),
   status: t.Optional(t.String()),
   notes: t.Optional(t.String()),
+  calibrationNumber: t.Optional(t.String()),
+  frequencyDays: t.Optional(t.Number()),
+  calibrationType: t.Optional(t.String()),
+  calibrationStandard: t.Optional(t.String()),
+  certificateNumber: t.Optional(t.String()),
+  cost: t.Optional(t.Number()),
+  results: t.Optional(t.Any()),
 })
 
 const updateCalibrationSchema = t.Object({
@@ -29,6 +49,13 @@ const updateCalibrationSchema = t.Object({
   certificateUrl: t.Optional(t.String()),
   status: t.Optional(t.String()),
   notes: t.Optional(t.String()),
+  calibrationNumber: t.Optional(t.String()),
+  frequencyDays: t.Optional(t.Number()),
+  calibrationType: t.Optional(t.String()),
+  calibrationStandard: t.Optional(t.String()),
+  certificateNumber: t.Optional(t.String()),
+  cost: t.Optional(t.Number()),
+  results: t.Optional(t.Any()),
 })
 
 export const fmsCalibrationsRoutes = new Elysia({ prefix: '/api/fms/calibrations' })
@@ -102,6 +129,8 @@ export const fmsCalibrationsRoutes = new Elysia({ prefix: '/api/fms/calibrations
               return { error: 'Asset not found' }
             }
 
+            const calibrationNumber = body.calibrationNumber ?? (await generateCalibrationNumber())
+
             const calibration = await prisma.calibrationRecord.create({
               data: {
                 asset_id: body.assetId,
@@ -113,6 +142,13 @@ export const fmsCalibrationsRoutes = new Elysia({ prefix: '/api/fms/calibrations
                 certificate_url: body.certificateUrl ?? null,
                 status: (body.status as typeof CALIBRATION_STATUSES[number]) ?? 'PENDING',
                 notes: body.notes ?? null,
+                calibration_number: calibrationNumber,
+                frequency_days: body.frequencyDays ?? null,
+                calibration_type: body.calibrationType ?? null,
+                calibration_standard: body.calibrationStandard ?? null,
+                certificate_number: body.certificateNumber ?? null,
+                cost: body.cost ?? null,
+                results: body.results ?? [],
               },
               include: calibrationInclude,
             })
@@ -145,6 +181,12 @@ export const fmsCalibrationsRoutes = new Elysia({ prefix: '/api/fms/calibrations
                 certificate_url: body.certificateUrl,
                 status: body.status as typeof CALIBRATION_STATUSES[number] | undefined,
                 notes: body.notes,
+                frequency_days: body.frequencyDays,
+                calibration_type: body.calibrationType,
+                calibration_standard: body.calibrationStandard,
+                certificate_number: body.certificateNumber,
+                cost: body.cost,
+                results: body.results,
               },
               include: calibrationInclude,
             })

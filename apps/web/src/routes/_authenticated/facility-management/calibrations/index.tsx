@@ -1,6 +1,6 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
-import { Plus, Gauge, Trash2 } from 'lucide-react'
+import { Plus, Gauge, Trash2, Eye } from 'lucide-react'
 import { toast } from 'sonner'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -143,10 +143,18 @@ function CalibrationListPage() {
       <PageHeader
         title="Calibration Records"
         actions={
-          <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setShowForm(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Calibration
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setShowForm(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Quick Add
+            </Button>
+            <Link to="/facility-management/calibrations/create">
+              <Button className="bg-indigo-600 hover:bg-indigo-700">
+                <Plus className="w-4 h-4 mr-2" />
+                Create Calibration
+              </Button>
+            </Link>
+          </div>
         }
       />
 
@@ -267,7 +275,20 @@ function CalibrationListPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center justify-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <Link
+                          to="/facility-management/calibrations/$calibrationId"
+                          params={{ calibrationId: cal.id }}
+                        >
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-slate-400 hover:text-indigo-600"
+                            aria-label="View calibration record"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                          </Button>
+                        </Link>
                         <Button
                           variant="ghost"
                           size="icon"
