@@ -3845,3 +3845,63 @@ export type FMSComplianceStatusReport = {
     end_date: string
   }>
 }
+
+export type FMSBudgetOverviewReport = {
+  totalBudgets: number
+  totalApprovedAmount: number
+  totalSpent: number
+  totalRemaining: number
+  byStatus: Record<string, number>
+}
+
+export type FMSBudgetVsActualRow = {
+  id: string
+  budgetCode: string
+  title: string
+  fiscalYear: number
+  status: string
+  project: string | null
+  totalApproved: number
+  totalActual: number
+  totalCommitted: number
+  variance: number
+  utilizationPct: number
+}
+
+export type FMSBudgetVsActualReport = {
+  rows: FMSBudgetVsActualRow[]
+  totals: {
+    totalApproved: number
+    totalActual: number
+    totalVariance: number
+  }
+}
+
+export type FMSCostReportRow = {
+  category: string
+  approved: number
+  actual: number
+  committed: number
+}
+
+export type FMSCostReport = {
+  rows: FMSCostReportRow[]
+  totalActual: number
+}
+
+export type AutoReorderRequest = {
+  projectId?: string
+  title?: string
+}
+
+export type AutoReorderResponse = {
+  pr: {
+    id: string
+    pr_number: string
+    title: string
+    status: string
+    estimated_total: number | null
+    created_at: string
+  }
+  itemCount: number
+}

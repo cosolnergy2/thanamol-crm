@@ -147,6 +147,103 @@ async function buildComplianceStatusReport(projectId: string) {
   }
 }
 
+async function buildBudgetOverviewReport(fiscalYear?: number) {
+  const where: Record<string, unknown> = {}
+  if (fiscalYear) where.fiscal_year = fiscalYear
+
+  const budgets = await prisma.budget.findMany({
+    where,
+    include: { lines: true },
+  })
+
+  const totalBudgets = budgets.length
+  const totalApprovedAmount = budgets.reduce((sum, b) => sum + b.total_approved, 0)
+  const totalSpent = budgets.reduce(
+    (sum, b) => sum + b.lines.reduce((ls, l) => ls + l.actual_amount, 0),
+    0
+  )
+  const totalRemaining = totalApprovedAmount - totalSpent
+
+  const byStatus: Record<string, number> = {}
+  for (const b of budgets) {
+    byStatus[b.status] = (byStatus[b.status] ?? 0) + 1
+  }
+
+  return { totalBudgets, totalApprovedAmount, totalSpent, totalRemaining, byStatus }
+}
+
+async function buildBudgetVsActualReport(fiscalYear?: number) {
+  const where: Record<string, unknown> = {}
+  if (fiscalYear) where.fiscal_year = fiscalYear
+
+  const budgets = await prisma.budget.findMany({
+    where,
+    include: { lines: true, project: { select: { name: true } } },
+  })
+
+  const rows = budgets.map((b) => {
+    const totalApproved = b.lines.reduce((s, l) => s + l.approved_amount, 0)
+    const totalActual = b.lines.reduce((s, l) => s + l.actual_amount, 0)
+    const totalCommitted = b.lines.reduce((s, l) => s + l.committed_amount, 0)
+    const variance = totalApproved - totalActual
+    const utilizationPct =
+      totalApproved > 0 ? Math.round((totalActual / totalApproved) * 1000) / 10 : 0
+    return {
+      id: b.id,
+      budgetCode: b.budget_code,
+      title: b.title,
+      fiscalYear: b.fiscal_year,
+      status: b.status,
+      project: b.project?.name ?? null,
+      totalApproved,
+      totalActual,
+      totalCommitted,
+      variance,
+      utilizationPct,
+    }
+  })
+
+  const totals = {
+    totalApproved: rows.reduce((s, r) => s + r.totalApproved, 0),
+    totalActual: rows.reduce((s, r) => s + r.totalActual, 0),
+    totalVariance: rows.reduce((s, r) => s + r.variance, 0),
+  }
+
+  return { rows, totals }
+}
+
+async function buildCostReport(fiscalYear?: number) {
+  const where: Record<string, unknown> = {}
+  if (fiscalYear) where.fiscal_year = fiscalYear
+
+  const budgets = await prisma.budget.findMany({
+    where,
+    include: { lines: true },
+  })
+
+  const categoryMap = new Map<string, { approved: number; actual: number; committed: number }>()
+
+  for (const b of budgets) {
+    for (const line of b.lines) {
+      const cat = line.category
+      const existing = categoryMap.get(cat) ?? { approved: 0, actual: 0, committed: 0 }
+      categoryMap.set(cat, {
+        approved: existing.approved + line.approved_amount,
+        actual: existing.actual + line.actual_amount,
+        committed: existing.committed + line.committed_amount,
+      })
+    }
+  }
+
+  const rows = Array.from(categoryMap.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([category, data]) => ({ category, ...data }))
+
+  const totalActual = rows.reduce((s, r) => s + r.actual, 0)
+
+  return { rows, totalActual }
+}
+
 export const fmsReportsRoutes = new Elysia({ prefix: '/api/fms/reports' })
   .use(authPlugin)
   .guard(
@@ -231,6 +328,48 @@ export const fmsReportsRoutes = new Elysia({ prefix: '/api/fms/reports' })
           {
             query: t.Object({
               projectId: t.Optional(t.String()),
+            }),
+          }
+        )
+        .get(
+          '/budget-overview',
+          async ({ query }) => {
+            const report = await buildBudgetOverviewReport(
+              query.fiscalYear ? Number(query.fiscalYear) : undefined
+            )
+            return { report }
+          },
+          {
+            query: t.Object({
+              fiscalYear: t.Optional(t.String()),
+            }),
+          }
+        )
+        .get(
+          '/budget-vs-actual',
+          async ({ query }) => {
+            const report = await buildBudgetVsActualReport(
+              query.fiscalYear ? Number(query.fiscalYear) : undefined
+            )
+            return { report }
+          },
+          {
+            query: t.Object({
+              fiscalYear: t.Optional(t.String()),
+            }),
+          }
+        )
+        .get(
+          '/cost-report',
+          async ({ query }) => {
+            const report = await buildCostReport(
+              query.fiscalYear ? Number(query.fiscalYear) : undefined
+            )
+            return { report }
+          },
+          {
+            query: t.Object({
+              fiscalYear: t.Optional(t.String()),
             }),
           }
         )

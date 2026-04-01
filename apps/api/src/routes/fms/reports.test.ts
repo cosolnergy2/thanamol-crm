@@ -12,6 +12,7 @@ vi.mock('../../lib/prisma', () => ({
     permitToWork: { count: vi.fn() },
     incident: { groupBy: vi.fn() },
     insurancePolicy: { findMany: vi.fn() },
+    preventiveMaintenance: { findMany: vi.fn() },
   },
 }))
 
@@ -204,5 +205,134 @@ describe('GET /api/fms/reports/compliance-status', () => {
     expect(body.report.activePermitsToWork).toBe(5)
     expect(body.report.openIncidentsBySeverity).toHaveLength(2)
     expect(body.report.expiringInsurance).toHaveLength(1)
+  })
+})
+
+const MOCK_BUDGETS_WITH_LINES = [
+  {
+    id: 'budget-1',
+    budget_code: 'BUD-2025-001',
+    title: 'FY2025 Maintenance Budget',
+    fiscal_year: 2025,
+    status: 'ACTIVE',
+    total_approved: 100000,
+    project: { name: 'Tower A' },
+    lines: [
+      {
+        id: 'line-1',
+        category: 'HVAC',
+        description: 'HVAC maintenance',
+        approved_amount: 60000,
+        committed_amount: 10000,
+        actual_amount: 45000,
+      },
+      {
+        id: 'line-2',
+        category: 'Electrical',
+        description: 'Electrical work',
+        approved_amount: 40000,
+        committed_amount: 5000,
+        actual_amount: 30000,
+      },
+    ],
+  },
+]
+
+describe('GET /api/fms/reports/budget-overview', () => {
+  it('returns 401 when not authenticated', async () => {
+    const res = await req('GET', '/api/fms/reports/budget-overview')
+    expect(res.status).toBe(401)
+  })
+
+  it('returns budget overview summary', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(MOCK_USER as never)
+    vi.mocked(prisma.budget.findMany).mockResolvedValue(MOCK_BUDGETS_WITH_LINES as never)
+
+    const res = await req('GET', '/api/fms/reports/budget-overview', token)
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.report.totalBudgets).toBe(1)
+    expect(body.report.totalApprovedAmount).toBe(100000)
+    expect(body.report.totalSpent).toBe(75000)
+    expect(body.report.totalRemaining).toBe(25000)
+    expect(body.report.byStatus).toEqual({ ACTIVE: 1 })
+  })
+
+  it('filters by fiscal year when provided', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(MOCK_USER as never)
+    vi.mocked(prisma.budget.findMany).mockResolvedValue(MOCK_BUDGETS_WITH_LINES as never)
+
+    vi.mocked(prisma.budget.findMany).mockClear()
+    await req('GET', '/api/fms/reports/budget-overview?fiscalYear=2025', token)
+
+    const call = vi.mocked(prisma.budget.findMany).mock.calls[0]?.[0]
+    expect(call?.where).toEqual({ fiscal_year: 2025 })
+  })
+})
+
+describe('GET /api/fms/reports/budget-vs-actual', () => {
+  it('returns 401 when not authenticated', async () => {
+    const res = await req('GET', '/api/fms/reports/budget-vs-actual')
+    expect(res.status).toBe(401)
+  })
+
+  it('returns rows with computed variance and utilization', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(MOCK_USER as never)
+    vi.mocked(prisma.budget.findMany).mockResolvedValue(MOCK_BUDGETS_WITH_LINES as never)
+
+    const res = await req('GET', '/api/fms/reports/budget-vs-actual', token)
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    const row = body.report.rows[0]
+    expect(row.variance).toBe(25000)
+    expect(row.utilizationPct).toBe(75)
+    expect(body.report.totals.totalApproved).toBe(100000)
+    expect(body.report.totals.totalActual).toBe(75000)
+  })
+
+  it('returns empty rows when no budgets', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(MOCK_USER as never)
+    vi.mocked(prisma.budget.findMany).mockResolvedValue([])
+
+    const res = await req('GET', '/api/fms/reports/budget-vs-actual', token)
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.report.rows).toHaveLength(0)
+  })
+})
+
+describe('GET /api/fms/reports/cost-report', () => {
+  it('returns 401 when not authenticated', async () => {
+    const res = await req('GET', '/api/fms/reports/cost-report')
+    expect(res.status).toBe(401)
+  })
+
+  it('returns cost breakdown by category', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(MOCK_USER as never)
+    vi.mocked(prisma.budget.findMany).mockResolvedValue(MOCK_BUDGETS_WITH_LINES as never)
+
+    const res = await req('GET', '/api/fms/reports/cost-report', token)
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    const hvac = body.report.rows.find((r: { category: string }) => r.category === 'HVAC')
+    expect(hvac).toBeDefined()
+    expect(hvac.actual).toBe(45000)
+    expect(body.report.totalActual).toBe(75000)
+  })
+
+  it('returns empty rows when no budgets', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(MOCK_USER as never)
+    vi.mocked(prisma.budget.findMany).mockResolvedValue([])
+
+    const res = await req('GET', '/api/fms/reports/cost-report', token)
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.report.rows).toHaveLength(0)
   })
 })

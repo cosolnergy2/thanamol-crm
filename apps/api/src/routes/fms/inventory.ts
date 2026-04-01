@@ -266,4 +266,74 @@ export const fmsInventoryRoutes = new Elysia({ prefix: '/api/fms/inventory' })
             projectId: t.Optional(t.String()),
           }),
         })
+        .post(
+          '/auto-reorder',
+          async ({ body, authUser, set }) => {
+            const where: Record<string, unknown> = {
+              is_active: true,
+              reorder_point: { not: null },
+            }
+            if (body.projectId) where.project_id = body.projectId
+
+            const items = await prisma.inventoryItem.findMany({ where })
+            const alertItems = items.filter(
+              (item) => item.reorder_point !== null && item.current_stock <= item.reorder_point
+            )
+
+            if (alertItems.length === 0) {
+              set.status = 400
+              return { error: 'No items below reorder point' }
+            }
+
+            const now = new Date()
+            const yearMonth = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`
+            const prefix = `PR-${yearMonth}-`
+            const count = await prisma.purchaseRequest.count({
+              where: { pr_number: { startsWith: prefix } },
+            })
+            const prNumber = `${prefix}${String(count + 1).padStart(4, '0')}`
+
+            const estimatedTotal = alertItems.reduce((sum, item) => {
+              const qty = item.reorder_quantity ?? 1
+              const cost = item.unit_cost ?? 0
+              return sum + qty * cost
+            }, 0)
+
+            const prItems = alertItems.map((item) => ({
+              inventory_item_id: item.id,
+              name: item.name,
+              quantity: item.reorder_quantity ?? 1,
+              unit_cost: item.unit_cost ?? 0,
+              total_cost: (item.reorder_quantity ?? 1) * (item.unit_cost ?? 0),
+            }))
+
+            const pr = await prisma.purchaseRequest.create({
+              data: {
+                pr_number: prNumber,
+                title: body.title ?? `Auto Reorder - ${new Date().toLocaleDateString()}`,
+                status: 'DRAFT',
+                requested_by: authUser!.id,
+                estimated_total: estimatedTotal,
+                items: prItems,
+              },
+              select: {
+                id: true,
+                pr_number: true,
+                title: true,
+                status: true,
+                estimated_total: true,
+                created_at: true,
+              },
+            })
+
+            set.status = 201
+            return { pr: { ...pr, created_at: pr.created_at.toISOString() }, itemCount: alertItems.length }
+          },
+          {
+            body: t.Object({
+              projectId: t.Optional(t.String()),
+              title: t.Optional(t.String()),
+            }),
+          }
+        )
   )
