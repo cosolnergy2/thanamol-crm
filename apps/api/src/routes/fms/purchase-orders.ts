@@ -307,20 +307,50 @@ export const fmsPurchaseOrdersRoutes = new Elysia({ prefix: '/api/fms/purchase-o
             }),
           }
         )
-        .post('/:id/cancel', async ({ params, set }) => {
+        .post(
+          '/:id/cancel',
+          async ({ params, body, set }) => {
+            const po = await prisma.purchaseOrder.findUnique({ where: { id: params.id } })
+            if (!po) {
+              set.status = 404
+              return { error: 'Purchase order not found' }
+            }
+            if (['FULLY_RECEIVED', 'CLOSED', 'CANCELLED'].includes(po.status)) {
+              set.status = 400
+              return { error: 'Cannot cancel a fully received, closed, or already cancelled PO' }
+            }
+
+            const cancelNote = body.reason ? `Cancelled: ${body.reason}` : null
+            const updated = await prisma.purchaseOrder.update({
+              where: { id: params.id },
+              data: {
+                status: 'CANCELLED',
+                notes: cancelNote ?? po.notes,
+              },
+              include: poInclude,
+            })
+            return { po: updated }
+          },
+          {
+            body: t.Object({
+              reason: t.Optional(t.String()),
+            }),
+          }
+        )
+        .post('/:id/close', async ({ params, set }) => {
           const po = await prisma.purchaseOrder.findUnique({ where: { id: params.id } })
           if (!po) {
             set.status = 404
             return { error: 'Purchase order not found' }
           }
-          if (['FULLY_RECEIVED', 'CLOSED', 'CANCELLED'].includes(po.status)) {
+          if (po.status !== 'FULLY_RECEIVED') {
             set.status = 400
-            return { error: 'Cannot cancel a fully received, closed, or already cancelled PO' }
+            return { error: 'Only fully received purchase orders can be closed' }
           }
 
           const updated = await prisma.purchaseOrder.update({
             where: { id: params.id },
-            data: { status: 'CANCELLED' },
+            data: { status: 'CLOSED' },
             include: poInclude,
           })
           return { po: updated }
