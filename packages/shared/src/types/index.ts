@@ -3669,6 +3669,89 @@ export type VendorInvoiceQueryParams = {
   paymentStatus?: string
   search?: string
 }
+
+// ─── Vendor Performance & Reports ─────────────────────────────────────────────
+
+export type VendorPerformance = {
+  vendorId: string
+  vendorCode: string
+  vendorName: string
+  deliveryScore: number
+  qualityScore: number
+  pricingScore: number
+  overallScore: number
+  stats: {
+    totalPOs: number
+    deliveredPOs: number
+    totalGRNs: number
+    acceptedGRNs: number
+    totalInvoices: number
+    totalSpend: number
+    vendorAvgPrice: number
+  }
+}
+
+export type VendorPriceTrendItem = {
+  itemName: string
+  latestPrice: number
+  currency: string
+  priceHistory: Array<{
+    date: string
+    unitPrice: number
+    currency: string
+    isActive: boolean
+  }>
+}
+
+export type VendorPriceTrend = {
+  vendorId: string
+  items: VendorPriceTrendItem[]
+}
+
+export type VendorSummaryRow = {
+  vendorId: string
+  vendorCode: string
+  vendorName: string
+  status: string
+  activeContractsCount: number
+  totalInvoices: number
+  totalSpend: number
+  invoiceStatusSummary: Record<string, number>
+}
+
+export type VendorSummaryReport = {
+  rows: VendorSummaryRow[]
+  totals: {
+    totalVendors: number
+    activeVendors: number
+    totalActiveContracts: number
+    totalSpend: number
+  }
+}
+
+export type ThreeWayMatchRow = {
+  description: string
+  invoiceQty: number
+  poQty: number | null
+  grnQty: number | null
+  invoiceUnitPrice: number
+  poUnitPrice: number | null
+  invoiceTotal: number
+  quantityMatch: boolean | null
+  priceMatch: boolean | null
+}
+
+export type ThreeWayMatch = {
+  invoiceId: string
+  invoiceNumber: string
+  vendor: { id: string; vendor_code: string; name: string }
+  poLinked: boolean
+  rows: ThreeWayMatchRow[]
+  allMatched: boolean
+  invoiceTotal: number
+  poTotal: number
+}
+
 export type BudgetTemplate = {
   id: string
   name: string

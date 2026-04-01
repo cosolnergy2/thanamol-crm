@@ -87,6 +87,113 @@ const updateVendorSchema = t.Object({
   companyId: t.Optional(t.Nullable(t.String())),
 })
 
+const PERFORMANCE_SCORE_WEIGHTS = {
+  delivery: 0.4,
+  quality: 0.35,
+  pricing: 0.25,
+} as const
+
+async function buildVendorPerformance(vendorId: string) {
+  const vendor = await prisma.vendor.findUnique({ where: { id: vendorId } })
+  if (!vendor) return null
+
+  const invoices = await prisma.vendorInvoice.findMany({
+    where: { vendor_id: vendorId },
+    select: { id: true, total: true, payment_status: true, po_id: true, items: true },
+  })
+
+  const poIds = invoices
+    .map((inv) => inv.po_id)
+    .filter((id): id is string => Boolean(id))
+
+  const [purchaseOrders, grns] = await Promise.all([
+    poIds.length > 0
+      ? prisma.purchaseOrder.findMany({
+          where: { id: { in: poIds } },
+          select: { id: true, status: true, delivery_date: true, items: true },
+        })
+      : Promise.resolve([]),
+    prisma.goodsReceivedNote.findMany({
+      where: { po_id: { in: poIds } },
+      select: { id: true, status: true, qc_status: true, items: true },
+    }),
+  ])
+
+  const deliveredCount = purchaseOrders.filter((po) =>
+    ['DELIVERED', 'COMPLETED', 'APPROVED'].includes(po.status)
+  ).length
+  const deliveryScore =
+    purchaseOrders.length > 0
+      ? Math.round((deliveredCount / purchaseOrders.length) * 100)
+      : 0
+
+  const acceptedGrns = grns.filter((g) => ['ACCEPTED', 'INSPECTED'].includes(g.status)).length
+  const qualityScore =
+    grns.length > 0 ? Math.round((acceptedGrns / grns.length) * 100) : 0
+
+  const totalSpend = invoices.reduce((sum, inv) => sum + inv.total, 0)
+  const vendorAvgPrice = invoices.length > 0 ? totalSpend / invoices.length : 0
+  const pricingScore = invoices.length > 0 ? 100 : 0
+
+  const overallScore = Math.round(
+    deliveryScore * PERFORMANCE_SCORE_WEIGHTS.delivery +
+      qualityScore * PERFORMANCE_SCORE_WEIGHTS.quality +
+      pricingScore * PERFORMANCE_SCORE_WEIGHTS.pricing
+  )
+
+  return {
+    vendorId: vendor.id,
+    vendorCode: vendor.vendor_code,
+    vendorName: vendor.name,
+    deliveryScore,
+    qualityScore,
+    pricingScore,
+    overallScore,
+    stats: {
+      totalPOs: purchaseOrders.length,
+      deliveredPOs: deliveredCount,
+      totalGRNs: grns.length,
+      acceptedGRNs: acceptedGrns,
+      totalInvoices: invoices.length,
+      totalSpend,
+      vendorAvgPrice,
+    },
+  }
+}
+
+async function buildVendorPriceTrend(vendorId: string) {
+  const prices = await prisma.vendorItemPrice.findMany({
+    where: { vendor_id: vendorId },
+    orderBy: { created_at: 'asc' },
+  })
+
+  const itemMap = new Map<
+    string,
+    Array<{ date: string; unitPrice: number; currency: string; isActive: boolean }>
+  >()
+
+  for (const price of prices) {
+    const key = price.item_name
+    const existing = itemMap.get(key) ?? []
+    existing.push({
+      date: price.created_at.toISOString(),
+      unitPrice: price.unit_price,
+      currency: price.currency,
+      isActive: price.is_active,
+    })
+    itemMap.set(key, existing)
+  }
+
+  const items = Array.from(itemMap.entries()).map(([itemName, history]) => ({
+    itemName,
+    latestPrice: history[history.length - 1]?.unitPrice ?? 0,
+    currency: history[history.length - 1]?.currency ?? 'THB',
+    priceHistory: history,
+  }))
+
+  return { vendorId, items }
+}
+
 export const fmsVendorsRoutes = new Elysia({ prefix: '/api/fms/vendors' })
   .use(authPlugin)
   .guard(
@@ -252,6 +359,31 @@ export const fmsVendorsRoutes = new Elysia({ prefix: '/api/fms/vendors' })
             params: t.Object({ id: t.String() }),
             body: updateVendorSchema,
           }
+        )
+        .get(
+          '/:id/performance',
+          async ({ params, set }) => {
+            const performance = await buildVendorPerformance(params.id)
+            if (!performance) {
+              set.status = 404
+              return { error: 'Vendor not found' }
+            }
+            return { performance }
+          },
+          { params: t.Object({ id: t.String() }) }
+        )
+        .get(
+          '/:id/price-trend',
+          async ({ params, set }) => {
+            const vendorExists = await prisma.vendor.findUnique({ where: { id: params.id } })
+            if (!vendorExists) {
+              set.status = 404
+              return { error: 'Vendor not found' }
+            }
+            const trend = await buildVendorPriceTrend(params.id)
+            return { trend }
+          },
+          { params: t.Object({ id: t.String() }) }
         )
         .delete(
           '/:id',

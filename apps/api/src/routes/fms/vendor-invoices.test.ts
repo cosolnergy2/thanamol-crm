@@ -14,11 +14,20 @@ vi.mock('../../lib/prisma', () => ({
       update: vi.fn(),
       delete: vi.fn(),
     },
+    purchaseOrder: { findUnique: vi.fn() },
+    goodsReceivedNote: { findMany: vi.fn() },
   },
 }))
 
 import { prisma } from '../../lib/prisma'
 import { fmsVendorInvoicesRoutes } from './vendor-invoices'
+
+type ExtendedPrisma = typeof prisma & {
+  purchaseOrder: { findUnique: ReturnType<typeof vi.fn> }
+  goodsReceivedNote: { findMany: ReturnType<typeof vi.fn> }
+}
+
+const ep = prisma as unknown as ExtendedPrisma
 
 const DEFAULT_JWT_SECRET = 'thanamol-jwt-secret-dev-only'
 
@@ -226,5 +235,85 @@ describe('DELETE /api/fms/vendor-invoices/:id', () => {
 
     const json = await res.json()
     expect(json.success).toBe(true)
+  })
+})
+
+describe('GET /api/fms/vendor-invoices/:id/three-way-match', () => {
+  it('returns 404 when invoice not found', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.vendorInvoice.findUnique).mockResolvedValue(null)
+
+    const res = await req('GET', '/api/fms/vendor-invoices/nonexistent/three-way-match', undefined, token)
+    expect(res.status).toBe(404)
+  })
+
+  it('returns match with poLinked false when invoice has no PO', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.vendorInvoice.findUnique).mockResolvedValue(mockInvoice as never)
+
+    const res = await req('GET', '/api/fms/vendor-invoices/invoice-1/three-way-match', undefined, token)
+    expect(res.status).toBe(200)
+
+    const json = await res.json()
+    expect(json.match.poLinked).toBe(false)
+    expect(json.match.invoiceId).toBe('invoice-1')
+    expect(json.match.rows).toHaveLength(1)
+    expect(json.match.rows[0].quantityMatch).toBeNull()
+    expect(json.match.rows[0].priceMatch).toBeNull()
+  })
+
+  it('returns all matched when PO and GRN quantities and prices align', async () => {
+    const token = await signToken()
+    const invoiceWithPO = {
+      ...mockInvoice,
+      po_id: 'po-1',
+      items: [{ description: 'Service fee', quantity: 2, unit_price: 5000, total: 10000 }],
+      vendor: mockVendor,
+    }
+    vi.mocked(prisma.vendorInvoice.findUnique).mockResolvedValue(invoiceWithPO as never)
+    ep.purchaseOrder.findUnique.mockResolvedValue({
+      id: 'po-1',
+      items: [{ item_name: 'Service fee', quantity: 2, unit_price: 5000, total: 10000 }],
+      total_amount: 10000,
+    })
+    ep.goodsReceivedNote.findMany.mockResolvedValue([
+      {
+        id: 'grn-1',
+        items: [{ item_name: 'Service fee', quantity: 2 }],
+      },
+    ])
+
+    const res = await req('GET', '/api/fms/vendor-invoices/invoice-1/three-way-match', undefined, token)
+    expect(res.status).toBe(200)
+
+    const json = await res.json()
+    expect(json.match.poLinked).toBe(true)
+    expect(json.match.allMatched).toBe(true)
+    expect(json.match.rows[0].quantityMatch).toBe(true)
+    expect(json.match.rows[0].priceMatch).toBe(true)
+  })
+
+  it('detects price mismatch when PO price differs from invoice', async () => {
+    const token = await signToken()
+    const invoiceWithPO = {
+      ...mockInvoice,
+      po_id: 'po-1',
+      items: [{ description: 'Service fee', quantity: 1, unit_price: 10000, total: 10000 }],
+      vendor: mockVendor,
+    }
+    vi.mocked(prisma.vendorInvoice.findUnique).mockResolvedValue(invoiceWithPO as never)
+    ep.purchaseOrder.findUnique.mockResolvedValue({
+      id: 'po-1',
+      items: [{ item_name: 'Service fee', quantity: 1, unit_price: 9000, total: 9000 }],
+      total_amount: 9000,
+    })
+    ep.goodsReceivedNote.findMany.mockResolvedValue([])
+
+    const res = await req('GET', '/api/fms/vendor-invoices/invoice-1/three-way-match', undefined, token)
+    expect(res.status).toBe(200)
+
+    const json = await res.json()
+    expect(json.match.allMatched).toBe(false)
+    expect(json.match.rows[0].priceMatch).toBe(false)
   })
 })

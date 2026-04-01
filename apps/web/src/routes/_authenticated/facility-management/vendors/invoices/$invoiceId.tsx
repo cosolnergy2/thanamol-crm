@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { ArrowLeft, CheckCircle, Send, Trash2, FileText, Clock } from 'lucide-react'
+import { ArrowLeft, CheckCircle, Send, Trash2, FileText, Clock, GitCompare, CheckCheck, XCircle, AlertCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -12,6 +12,8 @@ import {
   useDeleteVendorInvoice,
   useSubmitVendorInvoice,
 } from '@/hooks/useVendorInvoices'
+import { useThreeWayMatch } from '@/hooks/useVendorReports'
+import type { ThreeWayMatch } from '@thanamol/shared'
 
 export const Route = createFileRoute(
   '/_authenticated/facility-management/vendors/invoices/$invoiceId'
@@ -29,6 +31,131 @@ function parseSubmissionHistory(raw: unknown): SubmissionEvent[] {
   return raw.filter(
     (item): item is SubmissionEvent =>
       typeof item === 'object' && item !== null && 'submittedAt' in item
+  )
+}
+
+function MatchIndicator({ value }: { value: boolean | null }) {
+  if (value === null) return <span className="text-slate-400 text-xs">N/A</span>
+  if (value)
+    return (
+      <span className="flex items-center gap-1 text-emerald-600 text-xs">
+        <CheckCheck className="w-3 h-3" /> Match
+      </span>
+    )
+  return (
+    <span className="flex items-center gap-1 text-red-600 text-xs">
+      <XCircle className="w-3 h-3" /> Mismatch
+    </span>
+  )
+}
+
+function ThreeWayMatchSection({ invoiceId }: { invoiceId: string }) {
+  const { data, isLoading } = useThreeWayMatch(invoiceId)
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="py-8 text-center text-slate-400 text-sm font-extralight">
+          Loading match data...
+        </CardContent>
+      </Card>
+    )
+  }
+
+  const match = data?.match as ThreeWayMatch | undefined
+
+  if (!match) {
+    return (
+      <Card>
+        <CardContent className="py-8 text-center text-slate-400 text-sm font-extralight">
+          Unable to load three-way match data
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base font-light flex items-center gap-2">
+            <GitCompare className="w-4 h-4 text-slate-400" />
+            Three-Way Match
+          </CardTitle>
+          <div className="flex items-center gap-2">
+            {!match.poLinked && (
+              <span className="flex items-center gap-1 text-xs text-amber-600">
+                <AlertCircle className="w-3 h-3" />
+                No PO linked
+              </span>
+            )}
+            <Badge
+              className={`text-xs font-normal ${
+                match.allMatched
+                  ? 'bg-emerald-100 text-emerald-700'
+                  : 'bg-red-100 text-red-700'
+              }`}
+            >
+              {match.allMatched ? 'All Matched' : 'Discrepancies Found'}
+            </Badge>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="border-b text-slate-500">
+              <th className="text-left pb-2 font-normal">Item</th>
+              <th className="text-right pb-2 font-normal">PO Qty</th>
+              <th className="text-right pb-2 font-normal">GRN Qty</th>
+              <th className="text-right pb-2 font-normal">Inv Qty</th>
+              <th className="text-right pb-2 font-normal">PO Price</th>
+              <th className="text-right pb-2 font-normal">Inv Price</th>
+              <th className="text-center pb-2 font-normal">Qty Match</th>
+              <th className="text-center pb-2 font-normal">Price Match</th>
+            </tr>
+          </thead>
+          <tbody>
+            {match.rows.map((row, idx) => (
+              <tr key={idx} className="border-b last:border-0">
+                <td className="py-2 pr-2 max-w-[12rem] truncate text-slate-700">
+                  {row.description}
+                </td>
+                <td className="py-2 text-right text-slate-500">{row.poQty ?? '—'}</td>
+                <td className="py-2 text-right text-slate-500">{row.grnQty ?? '—'}</td>
+                <td className="py-2 text-right">{row.invoiceQty}</td>
+                <td className="py-2 text-right text-slate-500 font-mono">
+                  {row.poUnitPrice != null ? row.poUnitPrice.toLocaleString() : '—'}
+                </td>
+                <td className="py-2 text-right font-mono">
+                  {row.invoiceUnitPrice.toLocaleString()}
+                </td>
+                <td className="py-2 text-center">
+                  <MatchIndicator value={row.quantityMatch} />
+                </td>
+                <td className="py-2 text-center">
+                  <MatchIndicator value={row.priceMatch} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {match.poLinked && (
+          <div className="mt-4 flex justify-end gap-6 text-xs text-slate-500 border-t pt-3">
+            <span>
+              PO Total:{' '}
+              <span className="font-mono text-slate-700">{match.poTotal.toLocaleString()}</span>
+            </span>
+            <span>
+              Invoice Total:{' '}
+              <span className="font-mono text-slate-700">
+                {match.invoiceTotal.toLocaleString()}
+              </span>
+            </span>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 
@@ -239,6 +366,8 @@ function VendorInvoiceDetailPage() {
               </div>
             </CardContent>
           </Card>
+
+          <ThreeWayMatchSection invoiceId={invoiceId} />
         </div>
 
         <div className="space-y-6">

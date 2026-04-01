@@ -251,6 +251,105 @@ export const fmsVendorInvoicesRoutes = new Elysia({ prefix: '/api/fms/vendor-inv
             }),
           }
         )
+        .get(
+          '/:id/three-way-match',
+          async ({ params, set }) => {
+            const invoice = await prisma.vendorInvoice.findUnique({
+              where: { id: params.id },
+              include: invoiceInclude,
+            })
+            if (!invoice) {
+              set.status = 404
+              return { error: 'Invoice not found' }
+            }
+
+            const invoiceItems = invoice.items as Array<{
+              description: string
+              quantity: number
+              unit_price: number
+              total: number
+            }>
+
+            type POItemRaw = {
+              item_name: string
+              quantity: number
+              unit_price: number
+              total: number
+            }
+
+            type GRNItemRaw = {
+              item_name: string
+              quantity: number
+              unit_cost?: number | null
+            }
+
+            let poItems: POItemRaw[] = []
+            let grnItems: GRNItemRaw[] = []
+
+            if (invoice.po_id) {
+              const [po, grns] = await Promise.all([
+                prisma.purchaseOrder.findUnique({ where: { id: invoice.po_id } }),
+                prisma.goodsReceivedNote.findMany({ where: { po_id: invoice.po_id } }),
+              ])
+              if (po) poItems = po.items as POItemRaw[]
+              for (const grn of grns) {
+                grnItems = [...grnItems, ...(grn.items as GRNItemRaw[])]
+              }
+            }
+
+            const matchRows = invoiceItems.map((invItem) => {
+              const poItem = poItems.find(
+                (p) => p.item_name.toLowerCase() === invItem.description.toLowerCase()
+              )
+              const grnItem = grnItems.find(
+                (g) => g.item_name.toLowerCase() === invItem.description.toLowerCase()
+              )
+
+              const poQty = poItem?.quantity ?? null
+              const grnQty = grnItem?.quantity ?? null
+              const invQty = invItem.quantity
+
+              const quantityMatch =
+                poQty !== null && grnQty !== null
+                  ? poQty === invQty && grnQty === invQty
+                  : null
+
+              const poPriceUnit = poItem?.unit_price ?? null
+              const invPriceUnit = invItem.unit_price
+              const priceMatch = poPriceUnit !== null ? poPriceUnit === invPriceUnit : null
+
+              return {
+                description: invItem.description,
+                invoiceQty: invQty,
+                poQty,
+                grnQty,
+                invoiceUnitPrice: invPriceUnit,
+                poUnitPrice: poPriceUnit,
+                invoiceTotal: invItem.total,
+                quantityMatch,
+                priceMatch,
+              }
+            })
+
+            const allMatched = matchRows.every(
+              (r) => r.quantityMatch !== false && r.priceMatch !== false
+            )
+
+            return {
+              match: {
+                invoiceId: invoice.id,
+                invoiceNumber: invoice.invoice_number,
+                vendor: invoice.vendor,
+                poLinked: Boolean(invoice.po_id),
+                rows: matchRows,
+                allMatched,
+                invoiceTotal: invoice.total,
+                poTotal: poItems.reduce((sum, i) => sum + i.total, 0),
+              },
+            }
+          },
+          { params: t.Object({ id: t.String() }) }
+        )
         .delete(
           '/:id',
           async ({ params, set }) => {
