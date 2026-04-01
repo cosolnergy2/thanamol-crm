@@ -1,13 +1,11 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { z } from 'zod'
-import { Plus, Search, FileText, Pencil, Trash2, CheckCircle, XCircle } from 'lucide-react'
+import { Plus, Search, Pencil, Trash2, CheckCircle, XCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
@@ -23,17 +21,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import {
   useVendorContracts,
-  useCreateVendorContract,
   useDeleteVendorContract,
   useActivateVendorContract,
   useTerminateVendorContract,
 } from '@/hooks/useVendorContracts'
 import { useVendors } from '@/hooks/useVendors'
-import { useProjects } from '@/hooks/useProjects'
-import type { VendorContractStatus, CreateVendorContractRequest } from '@thanamol/shared'
+import type { VendorContractStatus } from '@thanamol/shared'
 
 const searchSchema = z.object({
   vendorId: z.string().optional(),
@@ -60,7 +55,6 @@ function VendorContractsListPage() {
   const [vendorId, setVendorId] = useState(initialVendorId ?? 'all')
   const [statusFilter, setStatusFilter] = useState(initialStatus ?? 'all')
   const [page, setPage] = useState(1)
-  const [showCreateDialog, setShowCreateDialog] = useState(false)
 
   const { data, isLoading } = useVendorContracts({
     page,
@@ -92,13 +86,12 @@ function VendorContractsListPage() {
             Manage contracts with vendors
           </p>
         </div>
-        <Button
-          onClick={() => setShowCreateDialog(true)}
-          className="bg-indigo-600 hover:bg-indigo-700 gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          New Contract
-        </Button>
+        <Link to="/facility-management/vendors/contracts/create">
+          <Button className="bg-indigo-600 hover:bg-indigo-700 gap-2">
+            <Plus className="w-4 h-4" />
+            New Contract
+          </Button>
+        </Link>
       </div>
 
       <Card>
@@ -213,12 +206,6 @@ function VendorContractsListPage() {
           )}
         </CardContent>
       </Card>
-
-      <CreateContractDialog
-        open={showCreateDialog}
-        onClose={() => setShowCreateDialog(false)}
-        vendors={vendorsData?.data ?? []}
-      />
     </div>
   )
 }
@@ -245,7 +232,13 @@ function ContractRow({
   return (
     <TableRow>
       <TableCell className="font-mono text-xs text-slate-500">
-        {contract.contract_number}
+        <Link
+          to="/facility-management/vendors/contracts/$contractId"
+          params={{ contractId: contract.id }}
+          className="hover:text-indigo-600 hover:underline"
+        >
+          {contract.contract_number}
+        </Link>
       </TableCell>
       <TableCell className="font-medium">{contract.title}</TableCell>
       <TableCell>
@@ -299,6 +292,19 @@ function ContractRow({
               <XCircle className="w-3.5 h-3.5" />
             </Button>
           )}
+          <Link
+            to="/facility-management/vendors/contracts/$contractId/edit"
+            params={{ contractId: contract.id }}
+          >
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-slate-500 hover:text-slate-700"
+              title="Edit"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+            </Button>
+          </Link>
           <Button
             variant="ghost"
             size="icon"
@@ -310,173 +316,5 @@ function ContractRow({
         </div>
       </TableCell>
     </TableRow>
-  )
-}
-
-function CreateContractDialog({
-  open,
-  onClose,
-  vendors,
-}: {
-  open: boolean
-  onClose: () => void
-  vendors: { id: string; name: string }[]
-}) {
-  const createContract = useCreateVendorContract()
-  const { data: projectsData } = useProjects({ limit: 100 })
-  const projects = projectsData?.data ?? []
-
-  const [vendorId, setVendorId] = useState('')
-  const [title, setTitle] = useState('')
-  const [scope, setScope] = useState('')
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
-  const [value, setValue] = useState('')
-  const [paymentTerms, setPaymentTerms] = useState('')
-  const [projectId, setProjectId] = useState('')
-
-  const resetForm = () => {
-    setVendorId('')
-    setTitle('')
-    setScope('')
-    setStartDate('')
-    setEndDate('')
-    setValue('')
-    setPaymentTerms('')
-    setProjectId('')
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    const payload: CreateVendorContractRequest = {
-      vendorId,
-      title,
-      scope: scope || undefined,
-      startDate,
-      endDate,
-      value: value ? Number(value) : undefined,
-      paymentTerms: paymentTerms || undefined,
-      projectId: projectId || undefined,
-    }
-    createContract.mutate(payload, {
-      onSuccess: () => {
-        resetForm()
-        onClose()
-      },
-    })
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="font-light">New Vendor Contract</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label>Vendor *</Label>
-            <Select value={vendorId || '__all__'} onValueChange={(v) => setVendorId(v === '__all__' ? '' : v)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select vendor" />
-              </SelectTrigger>
-              <SelectContent>
-                {vendors.map((v) => (
-                  <SelectItem key={v.id} value={v.id}>
-                    {v.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label>Contract Title *</Label>
-            <Input
-              required
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Contract title"
-            />
-          </div>
-          <div>
-            <Label>Scope</Label>
-            <Textarea
-              value={scope}
-              onChange={(e) => setScope(e.target.value)}
-              rows={2}
-              placeholder="Scope of work"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label>Start Date *</Label>
-              <Input
-                required
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-            </div>
-            <div>
-              <Label>End Date *</Label>
-              <Input
-                required
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label>Contract Value (THB)</Label>
-              <Input
-                type="number"
-                step="0.01"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                placeholder="0.00"
-              />
-            </div>
-            <div>
-              <Label>Payment Terms</Label>
-              <Input
-                value={paymentTerms}
-                onChange={(e) => setPaymentTerms(e.target.value)}
-                placeholder="e.g. Net 30"
-              />
-            </div>
-          </div>
-          <div>
-            <Label>Project</Label>
-            <Select value={projectId || '__all__'} onValueChange={(v) => setProjectId(v === '__all__' ? '' : v)}>
-              <SelectTrigger>
-                <SelectValue placeholder="No project" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__all__">No project</SelectItem>
-                {projects.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>
-                    {p.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={createContract.isPending || !vendorId || !title}
-              className="bg-indigo-600 hover:bg-indigo-700 gap-2"
-            >
-              <FileText className="w-4 h-4" />
-              Create Contract
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
   )
 }

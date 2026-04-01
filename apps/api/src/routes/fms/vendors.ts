@@ -18,6 +18,13 @@ function buildPagination(page: number, limit: number, total: number) {
   return { page, limit, total, totalPages: Math.ceil(total / limit) }
 }
 
+const vendorStatusUnion = t.Union([
+  t.Literal('ACTIVE'),
+  t.Literal('INACTIVE'),
+  t.Literal('BLACKLISTED'),
+  t.Literal('PENDING_APPROVAL'),
+])
+
 const createVendorSchema = t.Object({
   name: t.String({ minLength: 1 }),
   taxId: t.Optional(t.String()),
@@ -26,13 +33,27 @@ const createVendorSchema = t.Object({
   email: t.Optional(t.String()),
   website: t.Optional(t.String()),
   contactPerson: t.Optional(t.String()),
+  contactPhone: t.Optional(t.String()),
+  contactEmail: t.Optional(t.String()),
   category: t.Optional(t.String()),
   rating: t.Optional(t.Number({ minimum: 1, maximum: 5 })),
-  status: t.Optional(
-    t.Union([t.Literal('ACTIVE'), t.Literal('INACTIVE'), t.Literal('BLACKLISTED'), t.Literal('PENDING_APPROVAL')])
-  ),
+  status: t.Optional(vendorStatusUnion),
   bankDetails: t.Optional(t.Record(t.String(), t.Unknown())),
   notes: t.Optional(t.String()),
+  legalName: t.Optional(t.String()),
+  displayName: t.Optional(t.String()),
+  vendorType: t.Optional(t.String()),
+  companyRegistration: t.Optional(t.String()),
+  additionalContacts: t.Optional(t.Unknown()),
+  serviceTags: t.Optional(t.Unknown()),
+  supplierType: t.Optional(t.String()),
+  paymentTerms: t.Optional(t.String()),
+  creditDays: t.Optional(t.Number()),
+  creditLimit: t.Optional(t.Number()),
+  defaultConditions: t.Optional(t.Unknown()),
+  ratingLevel: t.Optional(t.String()),
+  registerAllCompanies: t.Optional(t.Boolean()),
+  companyId: t.Optional(t.String()),
 })
 
 const updateVendorSchema = t.Object({
@@ -43,13 +64,27 @@ const updateVendorSchema = t.Object({
   email: t.Optional(t.Nullable(t.String())),
   website: t.Optional(t.Nullable(t.String())),
   contactPerson: t.Optional(t.Nullable(t.String())),
+  contactPhone: t.Optional(t.Nullable(t.String())),
+  contactEmail: t.Optional(t.Nullable(t.String())),
   category: t.Optional(t.Nullable(t.String())),
   rating: t.Optional(t.Nullable(t.Number({ minimum: 1, maximum: 5 }))),
-  status: t.Optional(
-    t.Union([t.Literal('ACTIVE'), t.Literal('INACTIVE'), t.Literal('BLACKLISTED'), t.Literal('PENDING_APPROVAL')])
-  ),
+  status: t.Optional(vendorStatusUnion),
   bankDetails: t.Optional(t.Record(t.String(), t.Unknown())),
   notes: t.Optional(t.Nullable(t.String())),
+  legalName: t.Optional(t.Nullable(t.String())),
+  displayName: t.Optional(t.Nullable(t.String())),
+  vendorType: t.Optional(t.Nullable(t.String())),
+  companyRegistration: t.Optional(t.Nullable(t.String())),
+  additionalContacts: t.Optional(t.Nullable(t.Unknown())),
+  serviceTags: t.Optional(t.Nullable(t.Unknown())),
+  supplierType: t.Optional(t.Nullable(t.String())),
+  paymentTerms: t.Optional(t.Nullable(t.String())),
+  creditDays: t.Optional(t.Nullable(t.Number())),
+  creditLimit: t.Optional(t.Nullable(t.Number())),
+  defaultConditions: t.Optional(t.Nullable(t.Unknown())),
+  ratingLevel: t.Optional(t.Nullable(t.String())),
+  registerAllCompanies: t.Optional(t.Boolean()),
+  companyId: t.Optional(t.Nullable(t.String())),
 })
 
 export const fmsVendorsRoutes = new Elysia({ prefix: '/api/fms/vendors' })
@@ -156,6 +191,16 @@ export const fmsVendorsRoutes = new Elysia({ prefix: '/api/fms/vendors' })
                 status: body.status ?? 'ACTIVE',
                 bank_details: (body.bankDetails as object) ?? {},
                 notes: body.notes,
+                legal_name: body.legalName,
+                display_name: body.displayName,
+                vendor_type: body.vendorType,
+                company_registration: body.companyRegistration,
+                additional_contacts: (body.additionalContacts as object) ?? undefined,
+                service_tags: (body.serviceTags as object) ?? undefined,
+                supplier_type: body.supplierType,
+                payment_terms: body.paymentTerms,
+                credit_limit: body.creditLimit,
+                default_conditions: (body.defaultConditions as object) ?? undefined,
               },
             })
 
@@ -188,6 +233,16 @@ export const fmsVendorsRoutes = new Elysia({ prefix: '/api/fms/vendors' })
                 ...(body.status !== undefined && { status: body.status }),
                 ...(body.bankDetails !== undefined && { bank_details: body.bankDetails as object }),
                 ...(body.notes !== undefined && { notes: body.notes }),
+                ...(body.legalName !== undefined && { legal_name: body.legalName }),
+                ...(body.displayName !== undefined && { display_name: body.displayName }),
+                ...(body.vendorType !== undefined && { vendor_type: body.vendorType }),
+                ...(body.companyRegistration !== undefined && { company_registration: body.companyRegistration }),
+                ...(body.additionalContacts !== undefined && { additional_contacts: body.additionalContacts as object }),
+                ...(body.serviceTags !== undefined && { service_tags: body.serviceTags as object }),
+                ...(body.supplierType !== undefined && { supplier_type: body.supplierType }),
+                ...(body.paymentTerms !== undefined && { payment_terms: body.paymentTerms }),
+                ...(body.creditLimit !== undefined && { credit_limit: body.creditLimit }),
+                ...(body.defaultConditions !== undefined && { default_conditions: body.defaultConditions as object }),
               },
             })
 

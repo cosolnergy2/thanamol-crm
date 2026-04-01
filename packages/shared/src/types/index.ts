@@ -3420,6 +3420,27 @@ export type VendorInvoiceWithRelations = VendorInvoice & {
 
 // ─── Vendor Request/Response Types ────────────────────────────────────────────
 
+export type VendorAdditionalContact = {
+  name: string
+  phone?: string
+  email?: string
+  position?: string
+}
+
+export type VendorDefaultConditions = {
+  payment_installments?: Array<{ label: string; amount: number; due_date?: string }>
+  wht_enabled?: boolean
+  wht_rate?: number
+  vat_enabled?: boolean
+  retention_enabled?: boolean
+  retention_rate?: number
+  warranty?: string
+  credit_terms?: string
+  standard_lead_time?: string
+  late_penalty?: string
+  insurance?: string
+}
+
 export type CreateVendorRequest = {
   name: string
   taxId?: string
@@ -3428,6 +3449,8 @@ export type CreateVendorRequest = {
   email?: string
   website?: string
   contactPerson?: string
+  contactPhone?: string
+  contactEmail?: string
   category?: string
   rating?: number
   status?: VendorStatus
@@ -3437,12 +3460,16 @@ export type CreateVendorRequest = {
   displayName?: string
   vendorType?: string
   companyRegistration?: string
-  additionalContacts?: unknown
-  serviceTags?: unknown
+  additionalContacts?: VendorAdditionalContact[]
+  serviceTags?: string[]
   supplierType?: string
   paymentTerms?: string
+  creditDays?: number
   creditLimit?: number
-  defaultConditions?: unknown
+  defaultConditions?: VendorDefaultConditions
+  ratingLevel?: string
+  registerAllCompanies?: boolean
+  companyId?: string
 }
 
 export type UpdateVendorRequest = {
@@ -3453,6 +3480,8 @@ export type UpdateVendorRequest = {
   email?: string | null
   website?: string | null
   contactPerson?: string | null
+  contactPhone?: string | null
+  contactEmail?: string | null
   category?: string | null
   rating?: number | null
   status?: VendorStatus
@@ -3462,12 +3491,16 @@ export type UpdateVendorRequest = {
   displayName?: string | null
   vendorType?: string | null
   companyRegistration?: string | null
-  additionalContacts?: unknown | null
-  serviceTags?: unknown | null
+  additionalContacts?: VendorAdditionalContact[] | null
+  serviceTags?: string[] | null
   supplierType?: string | null
   paymentTerms?: string | null
+  creditDays?: number | null
   creditLimit?: number | null
-  defaultConditions?: unknown | null
+  defaultConditions?: VendorDefaultConditions | null
+  ratingLevel?: string | null
+  registerAllCompanies?: boolean
+  companyId?: string | null
 }
 
 export type VendorListResponse = PaginatedResponse<Vendor>
