@@ -13,11 +13,33 @@ vi.mock('../../lib/prisma', () => ({
       update: vi.fn(),
       delete: vi.fn(),
     },
+    vendorInvoice: { findMany: vi.fn() },
+    purchaseOrder: { findMany: vi.fn() },
+    goodsReceivedNote: { findMany: vi.fn() },
+    vendorItemPrice: { findMany: vi.fn() },
   },
 }))
 
 import { prisma } from '../../lib/prisma'
 import { fmsVendorsRoutes } from './vendors'
+
+type MockPrisma = {
+  user: { findUnique: ReturnType<typeof vi.fn> }
+  vendor: {
+    count: ReturnType<typeof vi.fn>
+    findMany: ReturnType<typeof vi.fn>
+    findUnique: ReturnType<typeof vi.fn>
+    create: ReturnType<typeof vi.fn>
+    update: ReturnType<typeof vi.fn>
+    delete: ReturnType<typeof vi.fn>
+  }
+  vendorInvoice: { findMany: ReturnType<typeof vi.fn> }
+  purchaseOrder: { findMany: ReturnType<typeof vi.fn> }
+  goodsReceivedNote: { findMany: ReturnType<typeof vi.fn> }
+  vendorItemPrice: { findMany: ReturnType<typeof vi.fn> }
+}
+
+const mp = prisma as unknown as MockPrisma
 
 const DEFAULT_JWT_SECRET = 'thanamol-jwt-secret-dev-only'
 
@@ -231,5 +253,119 @@ describe('DELETE /api/fms/vendors/:id', () => {
 
     const res = await req('DELETE', '/api/fms/vendors/nonexistent', undefined, token)
     expect(res.status).toBe(404)
+  })
+})
+
+describe('GET /api/fms/vendors/:id/performance', () => {
+  it('returns 404 when vendor not found', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.vendor.findUnique).mockResolvedValue(null)
+
+    const res = await req('GET', '/api/fms/vendors/nonexistent/performance', undefined, token)
+    expect(res.status).toBe(404)
+  })
+
+  it('returns performance scores with empty POs and GRNs', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.vendor.findUnique).mockResolvedValue(mockVendor as never)
+    mp.vendorInvoice.findMany.mockResolvedValue([])
+    mp.purchaseOrder.findMany.mockResolvedValue([])
+    mp.goodsReceivedNote.findMany.mockResolvedValue([])
+
+    const res = await req('GET', '/api/fms/vendors/vendor-1/performance', undefined, token)
+    expect(res.status).toBe(200)
+
+    const json = await res.json()
+    expect(json.performance).toBeDefined()
+    expect(json.performance.vendorId).toBe('vendor-1')
+    expect(json.performance.deliveryScore).toBe(0)
+    expect(json.performance.qualityScore).toBe(0)
+    expect(json.performance.overallScore).toBeGreaterThanOrEqual(0)
+  })
+
+  it('returns delivery score 100 when all POs are delivered', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.vendor.findUnique).mockResolvedValue(mockVendor as never)
+    mp.vendorInvoice.findMany.mockResolvedValue([
+      { id: 'inv-1', po_id: 'po-1', total: 5000 },
+    ])
+    mp.purchaseOrder.findMany.mockResolvedValue([
+      { id: 'po-1', status: 'DELIVERED', total_amount: 5000 },
+    ])
+    mp.goodsReceivedNote.findMany.mockResolvedValue([
+      { id: 'grn-1', status: 'ACCEPTED', po_id: 'po-1' },
+    ])
+
+    const res = await req('GET', '/api/fms/vendors/vendor-1/performance', undefined, token)
+    expect(res.status).toBe(200)
+
+    const json = await res.json()
+    expect(json.performance.deliveryScore).toBe(100)
+    expect(json.performance.qualityScore).toBe(100)
+    expect(json.performance.stats.totalPOs).toBe(1)
+  })
+})
+
+describe('GET /api/fms/vendors/:id/price-trend', () => {
+  it('returns 404 when vendor not found', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.vendor.findUnique).mockResolvedValue(null)
+
+    const res = await req('GET', '/api/fms/vendors/nonexistent/price-trend', undefined, token)
+    expect(res.status).toBe(404)
+  })
+
+  it('returns empty items when no price history', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.vendor.findUnique).mockResolvedValue(mockVendor as never)
+    mp.vendorItemPrice.findMany.mockResolvedValue([])
+
+    const res = await req('GET', '/api/fms/vendors/vendor-1/price-trend', undefined, token)
+    expect(res.status).toBe(200)
+
+    const json = await res.json()
+    expect(json.trend.vendorId).toBe('vendor-1')
+    expect(json.trend.items).toHaveLength(0)
+  })
+
+  it('groups price history by item name', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.vendor.findUnique).mockResolvedValue(mockVendor as never)
+    mp.vendorItemPrice.findMany.mockResolvedValue([
+      {
+        id: 'ip-1',
+        item_name: 'Cleaning Service',
+        unit_price: 1000,
+        currency: 'THB',
+        is_active: true,
+        created_at: new Date('2024-01-01'),
+      },
+      {
+        id: 'ip-2',
+        item_name: 'Cleaning Service',
+        unit_price: 1200,
+        currency: 'THB',
+        is_active: true,
+        created_at: new Date('2024-06-01'),
+      },
+      {
+        id: 'ip-3',
+        item_name: 'Security Service',
+        unit_price: 2000,
+        currency: 'THB',
+        is_active: true,
+        created_at: new Date('2024-01-01'),
+      },
+    ])
+
+    const res = await req('GET', '/api/fms/vendors/vendor-1/price-trend', undefined, token)
+    expect(res.status).toBe(200)
+
+    const json = await res.json()
+    expect(json.trend.items).toHaveLength(2)
+    const cleaning = json.trend.items.find((i: { itemName: string }) => i.itemName === 'Cleaning Service')
+    expect(cleaning).toBeDefined()
+    expect(cleaning.priceHistory).toHaveLength(2)
+    expect(cleaning.latestPrice).toBe(1200)
   })
 })

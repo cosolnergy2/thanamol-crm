@@ -97,13 +97,9 @@ function VendorReportsPage() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-16 text-slate-400 font-extralight">
-          Loading report...
-        </div>
+        <div className="text-center py-16 text-slate-400 font-extralight">Loading report...</div>
       ) : !report ? (
-        <div className="text-center py-16 text-slate-400 font-extralight">
-          No data available
-        </div>
+        <div className="text-center py-16 text-slate-400 font-extralight">No data available</div>
       ) : (
         <>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -158,9 +154,7 @@ function VendorReportsPage() {
                       <TableHead className="font-normal text-slate-500 text-right">
                         Total Spend
                       </TableHead>
-                      <TableHead className="font-normal text-slate-500">
-                        Invoice Status
-                      </TableHead>
+                      <TableHead className="font-normal text-slate-500">Invoice Status</TableHead>
                       <TableHead />
                     </TableRow>
                   </TableHeader>

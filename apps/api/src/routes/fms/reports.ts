@@ -212,6 +212,53 @@ async function buildBudgetVsActualReport(fiscalYear?: number) {
   return { rows, totals }
 }
 
+async function buildVendorSummaryReport() {
+  const vendors = await prisma.vendor.findMany({
+    select: {
+      id: true,
+      vendor_code: true,
+      name: true,
+      status: true,
+      contracts: {
+        where: { status: 'ACTIVE' },
+        select: { id: true },
+      },
+      invoices: {
+        select: { id: true, total: true, payment_status: true },
+      },
+    },
+    orderBy: { name: 'asc' },
+  })
+
+  const rows = vendors.map((vendor) => {
+    const totalSpend = vendor.invoices.reduce((sum, inv) => sum + inv.total, 0)
+    const invoiceStatusSummary = vendor.invoices.reduce<Record<string, number>>((acc, inv) => {
+      acc[inv.payment_status] = (acc[inv.payment_status] ?? 0) + 1
+      return acc
+    }, {})
+
+    return {
+      vendorId: vendor.id,
+      vendorCode: vendor.vendor_code,
+      vendorName: vendor.name,
+      status: vendor.status,
+      activeContractsCount: vendor.contracts.length,
+      totalInvoices: vendor.invoices.length,
+      totalSpend,
+      invoiceStatusSummary,
+    }
+  })
+
+  const totals = {
+    totalVendors: rows.length,
+    activeVendors: rows.filter((r) => r.status === 'ACTIVE').length,
+    totalActiveContracts: rows.reduce((sum, r) => sum + r.activeContractsCount, 0),
+    totalSpend: rows.reduce((sum, r) => sum + r.totalSpend, 0),
+  }
+
+  return { rows, totals }
+}
+
 async function buildCostReport(fiscalYear?: number) {
   const where: Record<string, unknown> = {}
   if (fiscalYear) where.fiscal_year = fiscalYear
@@ -373,4 +420,8 @@ export const fmsReportsRoutes = new Elysia({ prefix: '/api/fms/reports' })
             }),
           }
         )
+        .get('/vendor-summary', async () => {
+          const report = await buildVendorSummaryReport()
+          return { report }
+        })
   )

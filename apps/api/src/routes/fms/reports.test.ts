@@ -13,6 +13,7 @@ vi.mock('../../lib/prisma', () => ({
     incident: { groupBy: vi.fn() },
     insurancePolicy: { findMany: vi.fn() },
     preventiveMaintenance: { findMany: vi.fn() },
+    vendor: { findMany: vi.fn() },
   },
 }))
 
@@ -334,5 +335,82 @@ describe('GET /api/fms/reports/cost-report', () => {
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.report.rows).toHaveLength(0)
+  })
+})
+
+const MOCK_VENDORS_WITH_CONTRACTS = [
+  {
+    id: 'vendor-1',
+    vendor_code: 'VND-202503-0001',
+    name: 'ABC Maintenance Co.',
+    status: 'ACTIVE',
+    // The mock returns only ACTIVE contracts (matching the select where filter behavior)
+    contracts: [{ id: 'contract-1' }],
+    invoices: [
+      { id: 'inv-1', total: 10000, payment_status: 'PAID' },
+      { id: 'inv-2', total: 5000, payment_status: 'PENDING' },
+    ],
+  },
+  {
+    id: 'vendor-2',
+    vendor_code: 'VND-202503-0002',
+    name: 'XYZ Security Ltd.',
+    status: 'INACTIVE',
+    contracts: [],
+    invoices: [],
+  },
+]
+
+describe('GET /api/fms/reports/vendor-summary', () => {
+  it('returns 401 when not authenticated', async () => {
+    const res = await req('GET', '/api/fms/reports/vendor-summary')
+    expect(res.status).toBe(401)
+  })
+
+  it('returns vendor summary with totals', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(MOCK_USER as never)
+    vi.mocked(prisma.vendor.findMany).mockResolvedValue(MOCK_VENDORS_WITH_CONTRACTS as never)
+
+    const res = await req('GET', '/api/fms/reports/vendor-summary', token)
+    expect(res.status).toBe(200)
+
+    const body = await res.json()
+    expect(body.report).toBeDefined()
+    expect(body.report.totals.totalVendors).toBe(2)
+    expect(body.report.totals.activeVendors).toBe(1)
+    expect(body.report.totals.totalActiveContracts).toBe(1)
+    expect(body.report.totals.totalSpend).toBe(15000)
+    expect(body.report.rows).toHaveLength(2)
+  })
+
+  it('returns correct invoice status summary per vendor', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(MOCK_USER as never)
+    vi.mocked(prisma.vendor.findMany).mockResolvedValue(MOCK_VENDORS_WITH_CONTRACTS as never)
+
+    const res = await req('GET', '/api/fms/reports/vendor-summary', token)
+    expect(res.status).toBe(200)
+
+    const body = await res.json()
+    const vendor1Row = body.report.rows.find((r: { vendorId: string }) => r.vendorId === 'vendor-1')
+    expect(vendor1Row).toBeDefined()
+    expect(vendor1Row.totalInvoices).toBe(2)
+    expect(vendor1Row.totalSpend).toBe(15000)
+    expect(vendor1Row.invoiceStatusSummary.PAID).toBe(1)
+    expect(vendor1Row.invoiceStatusSummary.PENDING).toBe(1)
+  })
+
+  it('returns empty rows when no vendors', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(MOCK_USER as never)
+    vi.mocked(prisma.vendor.findMany).mockResolvedValue([])
+
+    const res = await req('GET', '/api/fms/reports/vendor-summary', token)
+    expect(res.status).toBe(200)
+
+    const body = await res.json()
+    expect(body.report.rows).toHaveLength(0)
+    expect(body.report.totals.totalVendors).toBe(0)
   })
 })

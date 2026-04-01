@@ -1,11 +1,9 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { ArrowLeft, TrendingUp, Award, Star, Package, Receipt, CheckCircle } from 'lucide-react'
+import { useState } from 'react'
+import { ArrowLeft } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { useVendors } from '@/hooks/useVendors'
 import { useVendorPerformance } from '@/hooks/useVendorPerformance'
-import { useState } from 'react'
-import type { VendorPerformance } from '@thanamol/shared'
 
 export const Route = createFileRoute(
   '/_authenticated/facility-management/vendors/performance'
@@ -20,25 +18,27 @@ const SCORE_COLORS = {
   poor: 'text-red-600 bg-red-50',
 } as const
 
-function scoreColor(score: number) {
+function scoreColorClass(score: number) {
   if (score >= 80) return SCORE_COLORS.excellent
   if (score >= 60) return SCORE_COLORS.good
   if (score >= 40) return SCORE_COLORS.average
   return SCORE_COLORS.poor
 }
 
+function barColor(score: number) {
+  if (score >= 80) return 'bg-emerald-500'
+  if (score >= 60) return 'bg-teal-500'
+  if (score >= 40) return 'bg-amber-500'
+  return 'bg-red-500'
+}
+
 function ScoreBar({ score }: { score: number }) {
-  const color =
-    score >= 80
-      ? 'bg-emerald-500'
-      : score >= 60
-        ? 'bg-teal-500'
-        : score >= 40
-          ? 'bg-amber-500'
-          : 'bg-red-500'
   return (
     <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-      <div className={`h-full ${color} rounded-full transition-all`} style={{ width: `${score}%` }} />
+      <div
+        className={`h-full ${barColor(score)} rounded-full transition-all`}
+        style={{ width: `${score}%` }}
+      />
     </div>
   )
 }
@@ -67,7 +67,7 @@ function VendorPerformanceCard({ vendorId }: { vendorId: string }) {
             <p className="text-xs text-slate-500 font-mono mt-0.5">{perf.vendorCode}</p>
           </div>
           <span
-            className={`text-lg font-semibold px-3 py-1 rounded-full ${scoreColor(perf.overallScore)}`}
+            className={`text-lg font-semibold px-3 py-1 rounded-full ${scoreColorClass(perf.overallScore)}`}
           >
             {perf.overallScore}
           </span>
@@ -157,7 +157,7 @@ function VendorPerformancePage() {
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="flex-1 relative">
+        <div className="flex-1">
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -166,29 +166,23 @@ function VendorPerformancePage() {
           />
         </div>
         <div className="flex items-center gap-2 text-xs text-slate-500">
-          <div className="flex items-center gap-1">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />
-            <span>Excellent (80+)</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="w-2.5 h-2.5 rounded-full bg-teal-500 inline-block" />
-            <span>Good (60+)</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block" />
-            <span>Average (40+)</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block" />
-            <span>Poor</span>
-          </div>
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />
+          <span>Excellent (80+)</span>
+          <span className="w-2.5 h-2.5 rounded-full bg-teal-500 inline-block" />
+          <span>Good (60+)</span>
+          <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block" />
+          <span>Average (40+)</span>
+          <span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block" />
+          <span>Poor</span>
         </div>
       </div>
 
       {isLoading ? (
         <div className="text-center py-16 text-slate-400 font-extralight">Loading vendors...</div>
       ) : vendors.length === 0 ? (
-        <div className="text-center py-16 text-slate-400 font-extralight">No active vendors found</div>
+        <div className="text-center py-16 text-slate-400 font-extralight">
+          No active vendors found
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {vendors.map((vendor) => (
