@@ -1454,13 +1454,20 @@ model Asset {
   qr_code_url     String?
   specifications  Json           @default("{}")
   photos          Json           @default("[]")
-  assigned_to     String?
-  assignee        User?          @relation("AssetAssignee", fields: [assigned_to], references: [id])
-  work_orders     WorkOrder[]
-  calibrations    CalibrationRecord[]
-  pm_schedules    PreventiveMaintenance[]
-  created_at      DateTime       @default(now())
-  updated_at      DateTime       @updatedAt
+  assigned_to      String?
+  assignee         User?          @relation("AssetAssignee", fields: [assigned_to], references: [id])
+  scope_type       String?
+  brand            String?
+  supplier_id      String?
+  install_date     DateTime?
+  criticality      String?
+  condition_score  Int?
+  lifecycle_status String?
+  work_orders      WorkOrder[]
+  calibrations     CalibrationRecord[]
+  pm_schedules     PreventiveMaintenance[]
+  created_at       DateTime       @default(now())
+  updated_at       DateTime       @updatedAt
 
   @@index([project_id])
   @@index([category_id])
@@ -1496,6 +1503,10 @@ model WorkOrder {
   actual_cost      Float?
   created_by       String
   creator          User            @relation("WorkOrderCreator", fields: [created_by], references: [id])
+  budget_code      String?
+  scheduled_start  DateTime?
+  scheduled_end    DateTime?
+  vendor_id        String?
   pm_logs          PMScheduleLog[]
   created_at       DateTime        @default(now())
   updated_at       DateTime        @updatedAt
@@ -1527,6 +1538,12 @@ model PreventiveMaintenance {
   is_active            Boolean     @default(true)
   created_by           String
   creator              User        @relation("PMCreator", fields: [created_by], references: [id])
+  scope_type           String?
+  trigger_type         String?
+  estimated_duration   Float?
+  spare_parts          Json?
+  auto_create_wo       Boolean     @default(false)
+  auto_wo_days_before  Int?
   logs                 PMScheduleLog[]
   created_at           DateTime    @default(now())
   updated_at           DateTime    @updatedAt
@@ -1562,6 +1579,13 @@ model CalibrationRecord {
   certificate_url       String?
   status                CalibrationStatus @default(PENDING)
   notes                 String?
+  calibration_number    String?           @unique
+  frequency_days        Int?
+  calibration_type      String?
+  calibration_standard  String?
+  certificate_number    String?
+  cost                  Float?
+  results               Json?
   created_at            DateTime          @default(now())
 
   @@index([asset_id])
@@ -1714,10 +1738,13 @@ model PettyCashTransaction {
   requester          User            @relation("PettyCashRequester", fields: [requested_by], references: [id])
   approved_by        String?
   approver           User?           @relation("PettyCashApprover", fields: [approved_by], references: [id])
-  transaction_date   DateTime
-  notes              String?
-  created_at         DateTime        @default(now())
-  updated_at         DateTime        @updatedAt
+  transaction_date       DateTime
+  site_id                String?
+  budget_code            String?
+  responsible_person_id  String?
+  notes                  String?
+  created_at             DateTime        @default(now())
+  updated_at             DateTime        @updatedAt
 
   @@index([fund_id])
   @@index([project_id])
@@ -1755,6 +1782,14 @@ model InventoryItem {
   project_id       String?
   project          Project?           @relation(fields: [project_id], references: [id])
   is_active        Boolean            @default(true)
+  item_type        String?
+  barcode          String?
+  company_id       String?
+  site_id          String?
+  specifications   Json?
+  vendor_id        String?
+  lead_time_days   Int?
+  photos           Json?
   stock_movements  StockMovement[]
   created_at       DateTime           @default(now())
   updated_at       DateTime           @updatedAt
@@ -1793,6 +1828,7 @@ model StockIssue {
   issued_by     String?
   issuer        User?    @relation("StockIssueBy", fields: [issued_by], references: [id])
   issue_date    DateTime
+  purpose       String?
   notes         String?
   created_at    DateTime @default(now())
 
@@ -1811,6 +1847,8 @@ model GoodsReceivedNote {
   inspection_notes String?
   project_id       String?
   project          Project?  @relation(fields: [project_id], references: [id])
+  po_id            String?
+  qc_status        String?
   created_at       DateTime  @default(now())
   updated_at       DateTime  @updatedAt
 
@@ -1835,11 +1873,19 @@ model PurchaseRequest {
   approved_by     String?
   approver        User?     @relation("PRApprover", fields: [approved_by], references: [id])
   approved_at     DateTime?
-  notes           String?
+  notes             String?
+  company_id        String?
+  site_id           String?
+  unit_id           String?
+  required_date     DateTime?
+  purpose           String?
+  pm_schedule_id    String?
+  documents         Json?
+  conditions        Json?
   purchase_orders   PurchaseOrder[]
   vendor_quotations VendorQuotation[]
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
 
   @@index([project_id])
   @@index([status])
@@ -1863,10 +1909,19 @@ model PurchaseOrder {
   notes            String?
   created_by       String
   creator          User      @relation("POCreator", fields: [created_by], references: [id])
-  approved_by      String?
-  approver         User?     @relation("POApprover", fields: [approved_by], references: [id])
-  created_at       DateTime  @default(now())
-  updated_at       DateTime  @updatedAt
+  approved_by       String?
+  approver          User?     @relation("POApprover", fields: [approved_by], references: [id])
+  company_id        String?
+  site_id           String?
+  unit_id           String?
+  po_date           DateTime?
+  payment_due_date  DateTime?
+  po_type           String?
+  delivery_address  String?
+  documents         Json?
+  conditions        Json?
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
 
   @@index([project_id])
   @@index([pr_id])
@@ -1905,12 +1960,22 @@ model Vendor {
   rating         Int?
   status         VendorStatus     @default(ACTIVE)
   bank_details   Json             @default("{}")
-  notes          String?
-  contracts      VendorContract[]
-  item_prices    VendorItemPrice[]
-  invoices       VendorInvoice[]
-  created_at     DateTime         @default(now())
-  updated_at     DateTime         @updatedAt
+  notes                  String?
+  legal_name             String?
+  display_name           String?
+  vendor_type            String?
+  company_registration   String?
+  additional_contacts    Json?
+  service_tags           Json?
+  supplier_type          String?
+  payment_terms          String?
+  credit_limit           Float?
+  default_conditions     Json?
+  contracts              VendorContract[]
+  item_prices            VendorItemPrice[]
+  invoices               VendorInvoice[]
+  created_at             DateTime         @default(now())
+  updated_at             DateTime         @updatedAt
 
   @@index([status])
 }
@@ -1927,11 +1992,17 @@ model VendorContract {
   value           Float?
   payment_terms   String?
   status          VendorContractStatus @default(DRAFT)
-  document_url    String?
-  project_id      String?
-  project         Project?             @relation(fields: [project_id], references: [id])
-  created_at      DateTime             @default(now())
-  updated_at      DateTime             @updatedAt
+  document_url              String?
+  project_id                String?
+  project                   Project?             @relation(fields: [project_id], references: [id])
+  contract_type             String?
+  service_category          String?
+  sla                       Json?
+  rate_card                 Json?
+  alert_days_before_expiry  Int?
+  auto_renew                Boolean              @default(false)
+  created_at                DateTime             @default(now())
+  updated_at                DateTime             @updatedAt
 
   @@index([vendor_id])
   @@index([project_id])
@@ -1966,10 +2037,12 @@ model VendorInvoice {
   invoice_date   DateTime
   due_date       DateTime?
   payment_status String    @default("PENDING")
-  payment_date   DateTime?
-  notes          String?
-  created_at     DateTime  @default(now())
-  updated_at     DateTime  @updatedAt
+  payment_date        DateTime?
+  notes               String?
+  pdf_url             String?
+  submission_history  Json?
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
 
   @@index([vendor_id])
 }
