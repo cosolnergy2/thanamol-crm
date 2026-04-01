@@ -228,6 +228,8 @@ function buildNavigation(t: ReturnType<typeof useLanguage>['t']): NavItem[] {
         { label: 'Insurance', path: '/facility-management/compliance/insurance' },
         { label: 'Contractor Safety', path: '/facility-management/compliance/contractors' },
         { label: 'Helpdesk', path: '/facility-management/helpdesk' },
+        { label: 'Disaster Plans', path: '/facility-management/emergency/plans' },
+        { label: 'Emergency Drills', path: '/facility-management/emergency/drills' },
         { label: 'FMS Reports', path: '/facility-management/reports' },
         { label: 'PM Compliance', path: '/facility-management/reports/pm-compliance' },
       ],

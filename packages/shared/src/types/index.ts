@@ -4203,3 +4203,108 @@ export type ApprovalRequestListResponse = {
   data: ApprovalRequest[]
   pagination: Pagination
 }
+
+// ─── FMS: Disaster Plans ──────────────────────────────────────────────────────
+
+export type DisasterPlanType = 'FIRE' | 'EARTHQUAKE' | 'FLOOD' | 'CHEMICAL' | 'OTHER'
+export type DisasterPlanStatus = 'DRAFT' | 'ACTIVE' | 'ARCHIVED'
+
+export type DisasterPlan = {
+  id: string
+  title: string
+  plan_type: DisasterPlanType
+  procedures: unknown[]
+  responsible_persons: unknown[]
+  review_date: string | null
+  project_id: string
+  status: DisasterPlanStatus
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type DisasterPlanWithRelations = DisasterPlan & {
+  project: { id: string; name: string; code: string }
+}
+
+export type CreateDisasterPlanRequest = {
+  title: string
+  planType: DisasterPlanType
+  projectId: string
+  procedures?: unknown[]
+  responsiblePersons?: unknown[]
+  reviewDate?: string
+  status?: DisasterPlanStatus
+  notes?: string
+}
+
+export type UpdateDisasterPlanRequest = Partial<Omit<CreateDisasterPlanRequest, 'projectId'>> & {
+  status?: DisasterPlanStatus
+}
+
+export type DisasterPlanListResponse = PaginatedResponse<DisasterPlanWithRelations>
+
+export type DisasterPlanQueryParams = {
+  projectId?: string
+  planType?: DisasterPlanType | 'all'
+  status?: DisasterPlanStatus | 'all'
+  search?: string
+  page?: number
+  limit?: number
+}
+
+// ─── FMS: Emergency Drills ────────────────────────────────────────────────────
+
+export type DrillStatus = 'SCHEDULED' | 'COMPLETED' | 'CANCELLED'
+
+export type EmergencyDrill = {
+  id: string
+  plan_id: string
+  drill_type: string
+  scheduled_date: string
+  actual_date: string | null
+  participants: unknown[]
+  findings: string | null
+  corrective_actions: unknown[]
+  status: DrillStatus
+  project_id: string
+  created_at: string
+  updated_at: string
+}
+
+export type EmergencyDrillWithRelations = EmergencyDrill & {
+  project: { id: string; name: string; code: string }
+  plan: { id: string; title: string; plan_type: DisasterPlanType }
+}
+
+export type CreateEmergencyDrillRequest = {
+  planId: string
+  drillType: string
+  scheduledDate: string
+  actualDate?: string
+  participants?: unknown[]
+  findings?: string
+  correctiveActions?: unknown[]
+  status?: DrillStatus
+  projectId: string
+}
+
+export type UpdateEmergencyDrillRequest = Partial<Omit<CreateEmergencyDrillRequest, 'projectId' | 'planId'>>
+
+export type CompleteDrillRequest = {
+  actualDate: string
+  participants?: unknown[]
+  findings?: string
+  correctiveActions?: unknown[]
+}
+
+export type EmergencyDrillListResponse = PaginatedResponse<EmergencyDrillWithRelations>
+
+export type EmergencyDrillQueryParams = {
+  projectId?: string
+  planId?: string
+  status?: DrillStatus | 'all'
+  search?: string
+  page?: number
+  limit?: number
+}

@@ -80,6 +80,8 @@ import { fmsReportsRoutes } from './routes/fms/reports'
 import { fmsApprovalWorkflowsRoutes } from './routes/fms/approval-workflows'
 import { fmsApprovalRequestsRoutes } from './routes/fms/approval-requests'
 import { fmsHelpdeskRoutes } from './routes/fms/helpdesk'
+import { fmsDisasterPlansRoutes } from './routes/fms/disaster-plans'
+import { fmsDrillsRoutes } from './routes/fms/drills'
 
 const API_PORT = Number(process.env.PORT ?? 3000)
 
@@ -168,6 +170,8 @@ const app = new Elysia()
   .use(fmsApprovalWorkflowsRoutes)
   .use(fmsApprovalRequestsRoutes)
   .use(fmsHelpdeskRoutes)
+  .use(fmsDisasterPlansRoutes)
+  .use(fmsDrillsRoutes)
   .listen(API_PORT)
 
 console.log(`API running at http://localhost:${API_PORT}`)
