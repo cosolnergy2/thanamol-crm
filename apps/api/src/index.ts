@@ -57,6 +57,7 @@ import { fmsInventoryCategoriesRoutes } from './routes/fms/inventory-categories'
 import { fmsInventoryRoutes } from './routes/fms/inventory'
 import { fmsStockMovementsRoutes } from './routes/fms/stock-movements'
 import { fmsStockIssuesRoutes } from './routes/fms/stock-issues'
+import { fmsStockTransfersRoutes } from './routes/fms/stock-transfers'
 import { fmsGRNRoutes } from './routes/fms/grn'
 import { fmsPurchaseRequestsRoutes } from './routes/fms/purchase-requests'
 import { fmsPurchaseOrdersRoutes } from './routes/fms/purchase-orders'
@@ -141,6 +142,7 @@ const app = new Elysia()
   .use(fmsInventoryRoutes)
   .use(fmsStockMovementsRoutes)
   .use(fmsStockIssuesRoutes)
+  .use(fmsStockTransfersRoutes)
   .use(fmsGRNRoutes)
   .use(fmsPurchaseRequestsRoutes)
   .use(fmsPurchaseOrdersRoutes)
