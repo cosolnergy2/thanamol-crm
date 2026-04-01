@@ -203,6 +203,8 @@ function buildNavigation(t: ReturnType<typeof useLanguage>['t']): NavItem[] {
         { label: 'Vendors', path: '/facility-management/vendors' },
         { label: 'Vendor Contracts', path: '/facility-management/vendors/contracts' },
         { label: 'Vendor Invoices', path: '/facility-management/vendors/invoices' },
+        { label: 'Approval Center', path: '/facility-management/approvals' },
+        { label: 'Approval Workflows', path: '/facility-management/approvals/workflows' },
       ],
     },
     {

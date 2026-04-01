@@ -3988,3 +3988,88 @@ export type AutoReorderResponse = {
   }
   itemCount: number
 }
+
+// ─── Approval Center ──────────────────────────────────────────────────────────
+
+export type ApprovalStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
+
+export type ApprovalWorkflowStep = {
+  step: number
+  role: string
+  threshold?: number
+}
+
+export type ApprovalHistoryEntry = {
+  step: number
+  action: 'APPROVED' | 'REJECTED'
+  user: string
+  date: string
+  notes?: string
+}
+
+export type ApprovalWorkflow = {
+  id: string
+  entity_type: string
+  name: string
+  steps: ApprovalWorkflowStep[]
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export type ApprovalRequest = {
+  id: string
+  entity_type: string
+  entity_id: string
+  workflow_id: string
+  workflow?: Pick<ApprovalWorkflow, 'id' | 'name' | 'entity_type' | 'steps'>
+  current_step: number
+  status: ApprovalStatus
+  history: ApprovalHistoryEntry[]
+  requested_by: string
+  requester?: { id: string; first_name: string; last_name: string }
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type CreateApprovalWorkflowRequest = {
+  entityType: string
+  name: string
+  steps: ApprovalWorkflowStep[]
+  isActive?: boolean
+}
+
+export type UpdateApprovalWorkflowRequest = {
+  name?: string
+  steps?: ApprovalWorkflowStep[]
+  isActive?: boolean
+}
+
+export type CreateApprovalRequestRequest = {
+  entityType: string
+  entityId: string
+  workflowId: string
+  requestedBy: string
+  notes?: string
+}
+
+export type ApproveRequestBody = {
+  userId: string
+  notes?: string
+}
+
+export type RejectRequestBody = {
+  userId: string
+  reason: string
+}
+
+export type ApprovalWorkflowListResponse = {
+  data: ApprovalWorkflow[]
+  pagination: Pagination
+}
+
+export type ApprovalRequestListResponse = {
+  data: ApprovalRequest[]
+  pagination: Pagination
+}
