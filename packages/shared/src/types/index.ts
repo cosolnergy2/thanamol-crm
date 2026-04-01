@@ -4479,3 +4479,62 @@ export type EnergyReportQueryParams = {
   endDate?: string
   periodType?: 'month' | 'week'
 }
+
+// ─── Inventory Analysis ───────────────────────────────────────────────────────
+
+export type ABCCategory = 'A' | 'B' | 'C'
+
+export type ABCAnalysisItem = {
+  itemId: string
+  itemCode: string
+  itemName: string
+  category: ABCCategory
+  annualSpend: number
+  percentOfTotalSpend: number
+}
+
+export type DeadStockItem = {
+  itemId: string
+  itemCode: string
+  itemName: string
+  lastMovementDate: string | null
+  daysSinceMovement: number
+  currentStock: number
+  stockValue: number
+}
+
+export type ConsumptionTrendItem = {
+  itemId: string
+  itemCode: string
+  itemName: string
+  totalConsumed: number
+  movementCount: number
+  avgMonthlyConsumption: number
+}
+
+export type ReorderSuggestion = {
+  itemId: string
+  itemCode: string
+  itemName: string
+  currentStock: number
+  currentReorderPoint: number | null
+  suggestedReorderPoint: number
+  avgDailyConsumption: number
+  leadTimeDays: number
+  reason: string
+}
+
+export type InventoryAnalysisReport = {
+  abcAnalysis: ABCAnalysisItem[]
+  deadStock: DeadStockItem[]
+  consumptionTrends: ConsumptionTrendItem[]
+  reorderSuggestions: ReorderSuggestion[]
+  summary: {
+    totalItems: number
+    totalDeadStockItems: number
+    totalDeadStockValue: number
+    aItemCount: number
+    bItemCount: number
+    cItemCount: number
+  }
+}

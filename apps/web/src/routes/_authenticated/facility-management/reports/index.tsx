@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Wrench, BarChart3, ShieldCheck, DollarSign, ClipboardList, ArrowRight } from 'lucide-react'
+import { Wrench, BarChart3, ShieldCheck, DollarSign, ClipboardList, ArrowRight, Package } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/PageHeader'
 
@@ -42,6 +42,13 @@ const REPORT_CARDS = [
     icon: ClipboardList,
     href: '/facility-management/reports/pm-compliance',
     accent: 'from-rose-500 to-rose-700',
+  },
+  {
+    title: 'Inventory Analysis',
+    description: 'ABC classification, dead stock detection, consumption trends and optimal reorder point suggestions',
+    icon: Package,
+    href: '/facility-management/reports/inventory-analysis',
+    accent: 'from-emerald-500 to-emerald-700',
   },
 ] as const
 

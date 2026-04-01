@@ -358,6 +358,156 @@ async function buildCostReport(fiscalYear?: number) {
   return { rows, totalActual }
 }
 
+const ABC_A_CUMULATIVE_THRESHOLD = 0.8
+const ABC_AB_CUMULATIVE_THRESHOLD = 0.95
+const DEAD_STOCK_THRESHOLD_DAYS = 90
+const ANALYSIS_MONTHS = 12
+const DEFAULT_LEAD_TIME_DAYS = 7
+
+async function buildInventoryAnalysisReport(projectId?: string) {
+  const projectFilter = projectId ? { project_id: projectId } : {}
+
+  const items = await prisma.inventoryItem.findMany({
+    where: { ...projectFilter, is_active: true },
+    include: {
+      stock_movements: {
+        orderBy: { created_at: 'desc' },
+      },
+    },
+  })
+
+  const now = new Date()
+  const analysisStartDate = new Date(now)
+  analysisStartDate.setMonth(analysisStartDate.getMonth() - ANALYSIS_MONTHS)
+
+  // ── ABC Analysis ──────────────────────────────────────────────────────────
+  const itemSpend = items.map((item) => {
+    const annualMovements = item.stock_movements.filter(
+      (m) => m.created_at >= analysisStartDate && m.quantity > 0
+    )
+    const totalConsumed = annualMovements.reduce((sum, m) => sum + m.quantity, 0)
+    const annualSpend = totalConsumed * (item.unit_cost ?? 0)
+    return { item, annualSpend }
+  })
+
+  const totalSpend = itemSpend.reduce((sum, e) => sum + e.annualSpend, 0)
+  const sortedBySpend = [...itemSpend].sort((a, b) => b.annualSpend - a.annualSpend)
+
+  let cumulativeSpend = 0
+  const abcAnalysis = sortedBySpend.map((entry) => {
+    cumulativeSpend += entry.annualSpend
+    const cumulativePct = totalSpend > 0 ? cumulativeSpend / totalSpend : 1
+    const category: 'A' | 'B' | 'C' =
+      cumulativePct <= ABC_A_CUMULATIVE_THRESHOLD
+        ? 'A'
+        : cumulativePct <= ABC_AB_CUMULATIVE_THRESHOLD
+          ? 'B'
+          : 'C'
+    return {
+      itemId: entry.item.id,
+      itemCode: entry.item.item_code,
+      itemName: entry.item.name,
+      category,
+      annualSpend: entry.annualSpend,
+      percentOfTotalSpend: totalSpend > 0 ? (entry.annualSpend / totalSpend) * 100 : 0,
+    }
+  })
+
+  // ── Dead Stock ────────────────────────────────────────────────────────────
+  const deadStock = items
+    .map((item) => {
+      const lastMovement = item.stock_movements[0] ?? null
+      const lastMovementDate = lastMovement ? lastMovement.created_at : null
+      const daysSinceMovement = lastMovementDate
+        ? Math.floor((now.getTime() - lastMovementDate.getTime()) / (24 * 60 * 60 * 1000))
+        : DEAD_STOCK_THRESHOLD_DAYS + 1
+      return { item, lastMovementDate, daysSinceMovement }
+    })
+    .filter(({ daysSinceMovement }) => daysSinceMovement > DEAD_STOCK_THRESHOLD_DAYS)
+    .map(({ item, lastMovementDate, daysSinceMovement }) => ({
+      itemId: item.id,
+      itemCode: item.item_code,
+      itemName: item.name,
+      lastMovementDate: lastMovementDate ? lastMovementDate.toISOString() : null,
+      daysSinceMovement,
+      currentStock: item.current_stock,
+      stockValue: item.current_stock * (item.unit_cost ?? 0),
+    }))
+
+  // ── Consumption Trends ────────────────────────────────────────────────────
+  const consumptionTrends = items
+    .map((item) => {
+      const recentMovements = item.stock_movements.filter(
+        (m) => m.created_at >= analysisStartDate && m.quantity > 0
+      )
+      const totalConsumed = recentMovements.reduce((sum, m) => sum + m.quantity, 0)
+      const avgMonthlyConsumption = totalConsumed / ANALYSIS_MONTHS
+      return {
+        itemId: item.id,
+        itemCode: item.item_code,
+        itemName: item.name,
+        totalConsumed,
+        movementCount: recentMovements.length,
+        avgMonthlyConsumption,
+      }
+    })
+    .filter((entry) => entry.movementCount > 0)
+    .sort((a, b) => b.movementCount - a.movementCount)
+
+  // ── Reorder Suggestions ───────────────────────────────────────────────────
+  const reorderSuggestions = items
+    .map((item) => {
+      const recentMovements = item.stock_movements.filter(
+        (m) => m.created_at >= analysisStartDate && m.quantity > 0
+      )
+      const totalConsumed = recentMovements.reduce((sum, m) => sum + m.quantity, 0)
+      const avgDailyConsumption = totalConsumed / (ANALYSIS_MONTHS * 30)
+      const leadTimeDays = item.lead_time_days ?? DEFAULT_LEAD_TIME_DAYS
+      const suggestedReorderPoint = Math.ceil(avgDailyConsumption * leadTimeDays)
+      const currentReorderPoint = item.reorder_point ?? null
+
+      let reason: string
+      if (currentReorderPoint === null) {
+        reason = `No reorder point set. Avg daily: ${avgDailyConsumption.toFixed(2)} × ${leadTimeDays} days lead time`
+      } else if (suggestedReorderPoint > currentReorderPoint) {
+        reason = `Current reorder point too low. Avg daily: ${avgDailyConsumption.toFixed(2)} × ${leadTimeDays} days lead time`
+      } else if (suggestedReorderPoint < currentReorderPoint) {
+        reason = `Current reorder point may be too high. Avg daily: ${avgDailyConsumption.toFixed(2)} × ${leadTimeDays} days lead time`
+      } else {
+        reason = `Reorder point is optimal. Avg daily: ${avgDailyConsumption.toFixed(2)} × ${leadTimeDays} days lead time`
+      }
+
+      return {
+        itemId: item.id,
+        itemCode: item.item_code,
+        itemName: item.name,
+        currentStock: item.current_stock,
+        currentReorderPoint,
+        suggestedReorderPoint,
+        avgDailyConsumption,
+        leadTimeDays,
+        reason,
+      }
+    })
+    .filter((s) => s.avgDailyConsumption > 0)
+    .sort((a, b) => b.avgDailyConsumption - a.avgDailyConsumption)
+
+  return {
+    abcAnalysis,
+    deadStock,
+    consumptionTrends,
+    reorderSuggestions,
+    summary: {
+      totalItems: items.length,
+      totalDeadStockItems: deadStock.length,
+      totalDeadStockValue: deadStock.reduce((sum, d) => sum + d.stockValue, 0),
+      aItemCount: abcAnalysis.filter((i) => i.category === 'A').length,
+      bItemCount: abcAnalysis.filter((i) => i.category === 'B').length,
+      cItemCount: abcAnalysis.filter((i) => i.category === 'C').length,
+    },
+  }
+}
+
 export const fmsReportsRoutes = new Elysia({ prefix: '/api/fms/reports' })
   .use(authPlugin)
   .guard(
@@ -513,6 +663,18 @@ export const fmsReportsRoutes = new Elysia({ prefix: '/api/fms/reports' })
               startDate: t.Optional(t.String()),
               endDate: t.Optional(t.String()),
               periodType: t.Optional(t.String()),
+            }),
+          },
+        )
+        .get(
+          '/inventory-analysis',
+          async ({ query }) => {
+            const report = await buildInventoryAnalysisReport(query.projectId || undefined)
+            return { report }
+          },
+          {
+            query: t.Object({
+              projectId: t.Optional(t.String()),
             }),
           },
         )
