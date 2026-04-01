@@ -15,8 +15,9 @@ import {
 } from '@/components/ui/select'
 import { useCreateGRN } from '@/hooks/useGRN'
 import { useInventoryItems } from '@/hooks/useInventory'
-import { useProjects } from '@/hooks/useProjects'
+import { usePurchaseOrders, usePurchaseOrder } from '@/hooks/usePurchaseOrders'
 import { useAuth } from '@/providers/AuthProvider'
+import { QC_STATUSES } from '@thanamol/shared'
 import type { GRNItem } from '@thanamol/shared'
 
 export const Route = createFileRoute(
@@ -27,47 +28,65 @@ export const Route = createFileRoute(
 
 type FormItem = GRNItem & { _key: string }
 
+function buildEmptyItem(): FormItem {
+  return {
+    _key: crypto.randomUUID(),
+    item_id: '',
+    item_code: '',
+    item_name: '',
+    quantity: 1,
+    unit_cost: null,
+    unit_of_measure: null,
+  }
+}
+
 function GRNCreatePage() {
   const navigate = useNavigate()
   const createGRN = useCreateGRN()
   const { data: inventoryData } = useInventoryItems({ isActive: true })
-  const { data: projectsData } = useProjects({ limit: 100 })
+  const { data: posData } = usePurchaseOrders({ limit: 100 })
   const { currentUser } = useAuth()
 
+  const [selectedPoId, setSelectedPoId] = useState('')
+  const { data: poDetailData } = usePurchaseOrder(selectedPoId)
+
   const [form, setForm] = useState({
-    supplierName: '',
     receivedDate: new Date().toISOString().split('T')[0],
-    projectId: '',
+    qcStatus: '',
     inspectionNotes: '',
   })
-  const [items, setItems] = useState<FormItem[]>([
-    {
+  const [items, setItems] = useState<FormItem[]>([buildEmptyItem()])
+
+  const inventoryItems = inventoryData?.data ?? []
+  const purchaseOrders = posData?.data ?? []
+  const selectedPo = poDetailData?.po ?? null
+
+  function handlePoSelect(poId: string) {
+    if (poId === '__none__') {
+      setSelectedPoId('')
+      setItems([buildEmptyItem()])
+      return
+    }
+    setSelectedPoId(poId)
+  }
+
+  // When PO detail loads, populate items from PO
+  function handlePopulateFromPo() {
+    if (!selectedPo) return
+    const poItems = selectedPo.items.map((poItem) => ({
       _key: crypto.randomUUID(),
       item_id: '',
       item_code: '',
-      item_name: '',
-      quantity: 1,
-      unit_cost: null,
-      unit_of_measure: null,
-    },
-  ])
-
-  const inventoryItems = inventoryData?.data ?? []
-  const projects = projectsData?.data ?? []
+      item_name: poItem.item_name,
+      quantity: poItem.quantity,
+      unit_cost: poItem.unit_price ?? null,
+      unit_of_measure: poItem.unit_of_measure ?? null,
+    }))
+    if (poItems.length > 0) setItems(poItems)
+  }
 
   function addItem() {
-    setItems((prev) => [
-      ...prev,
-      {
-        _key: crypto.randomUUID(),
-        item_id: '',
-        item_code: '',
-        item_name: '',
-        quantity: 1,
-        unit_cost: null,
-        unit_of_measure: null,
-      },
-    ])
+    setItems((prev) => [...prev, buildEmptyItem()])
   }
 
   function removeItem(key: string) {
@@ -106,10 +125,11 @@ function GRNCreatePage() {
 
     createGRN.mutate(
       {
-        supplierName: form.supplierName,
+        supplierName: selectedPo?.vendor_name ?? '',
         receivedDate: form.receivedDate,
-        projectId: form.projectId || undefined,
         inspectionNotes: form.inspectionNotes || undefined,
+        qcStatus: form.qcStatus || undefined,
+        poId: selectedPoId || undefined,
         receivedBy: currentUser?.id,
         items: validItems.map(({ _key: _k, ...rest }) => rest),
       },
@@ -120,6 +140,8 @@ function GRNCreatePage() {
       }
     )
   }
+
+  const supplierName = selectedPo?.vendor_name ?? ''
 
   return (
     <div className="space-y-6">
@@ -148,13 +170,43 @@ function GRNCreatePage() {
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="supplierName">Supplier Name *</Label>
+              <Label htmlFor="poId">Purchase Order</Label>
+              <Select
+                value={selectedPoId || '__none__'}
+                onValueChange={handlePoSelect}
+              >
+                <SelectTrigger id="poId">
+                  <SelectValue placeholder="Select PO (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">No PO (manual entry)</SelectItem>
+                  {purchaseOrders.map((po) => (
+                    <SelectItem key={po.id} value={po.id}>
+                      {po.po_number} — {po.vendor_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedPo && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="mt-2 text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                  onClick={handlePopulateFromPo}
+                >
+                  Auto-fill items from PO
+                </Button>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="supplierName">Supplier</Label>
               <Input
                 id="supplierName"
-                required
-                value={form.supplierName}
-                onChange={(e) => setForm({ ...form, supplierName: e.target.value })}
-                placeholder="Supplier name"
+                value={supplierName}
+                readOnly={Boolean(selectedPoId)}
+                placeholder={selectedPoId ? 'Auto-filled from PO' : 'Select a PO'}
+                className={selectedPoId ? 'bg-slate-50 text-slate-500' : ''}
               />
             </div>
             <div>
@@ -168,26 +220,25 @@ function GRNCreatePage() {
               />
             </div>
             <div>
-              <Label htmlFor="projectId">Project</Label>
+              <Label htmlFor="qcStatus">QC Status</Label>
               <Select
-                value={form.projectId}
-                onValueChange={(v) => setForm({ ...form, projectId: v })}
+                value={form.qcStatus}
+                onValueChange={(v) => setForm({ ...form, qcStatus: v })}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select project" />
+                <SelectTrigger id="qcStatus">
+                  <SelectValue placeholder="Select QC status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="__all__">No project</SelectItem>
-                  {projects.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.name}
+                  {QC_STATUSES.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label htmlFor="inspectionNotes">Inspection Notes</Label>
+            <div className="md:col-span-2">
+              <Label htmlFor="inspectionNotes">Notes</Label>
               <Textarea
                 id="inspectionNotes"
                 value={form.inspectionNotes}
@@ -221,7 +272,7 @@ function GRNCreatePage() {
                     onValueChange={(v) => selectInventoryItem(item._key, v)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select item..." />
+                      <SelectValue placeholder={item.item_name || 'Select item...'} />
                     </SelectTrigger>
                     <SelectContent>
                       {inventoryItems.map((inv) => (
@@ -231,6 +282,9 @@ function GRNCreatePage() {
                       ))}
                     </SelectContent>
                   </Select>
+                  {item.item_name && !item.item_id && (
+                    <p className="text-xs text-slate-400 mt-1 truncate">{item.item_name}</p>
+                  )}
                 </div>
                 <div className="col-span-2">
                   <Input
@@ -304,7 +358,7 @@ function GRNCreatePage() {
           </Button>
           <Button
             type="submit"
-            disabled={createGRN.isPending || !form.supplierName || items.every((i) => !i.item_id)}
+            disabled={createGRN.isPending || items.every((i) => !i.item_id)}
             className="bg-indigo-600 hover:bg-indigo-700 gap-2"
           >
             <Save className="w-4 h-4" />

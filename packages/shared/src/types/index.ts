@@ -2722,7 +2722,7 @@ export type StockIssueQueryParams = {
 }
 
 export type CreateGRNRequest = {
-  supplierName: string
+  supplierName?: string
   items: GRNItem[]
   receivedDate: string
   receivedBy?: string

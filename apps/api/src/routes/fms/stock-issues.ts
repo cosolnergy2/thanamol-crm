@@ -40,6 +40,7 @@ const createIssueSchema = t.Object({
   issuedTo: t.Optional(t.String()),
   issuedBy: t.Optional(t.String()),
   issueDate: t.String({ minLength: 1 }),
+  purpose: t.Optional(t.String()),
   notes: t.Optional(t.String()),
 })
 
@@ -49,6 +50,7 @@ const updateIssueSchema = t.Object({
   issuedTo: t.Optional(t.String()),
   issuedBy: t.Optional(t.String()),
   issueDate: t.Optional(t.String()),
+  purpose: t.Optional(t.String()),
   notes: t.Optional(t.String()),
 })
 
@@ -129,6 +131,7 @@ export const fmsStockIssuesRoutes = new Elysia({ prefix: '/api/fms/stock-issues'
                   issued_to: body.issuedTo ?? null,
                   issued_by: body.issuedBy ?? null,
                   issue_date: new Date(body.issueDate),
+                  purpose: body.purpose ?? null,
                   notes: body.notes ?? null,
                 },
                 include: stockIssueInclude,
@@ -183,6 +186,7 @@ export const fmsStockIssuesRoutes = new Elysia({ prefix: '/api/fms/stock-issues'
                 issued_to: body.issuedTo,
                 issued_by: body.issuedBy,
                 issue_date: body.issueDate ? new Date(body.issueDate) : undefined,
+                purpose: body.purpose,
                 notes: body.notes,
               },
               include: stockIssueInclude,

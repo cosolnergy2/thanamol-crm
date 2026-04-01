@@ -15,8 +15,8 @@ import {
 } from '@/components/ui/select'
 import { useCreateStockIssue } from '@/hooks/useStockIssues'
 import { useInventoryItems } from '@/hooks/useInventory'
-import { useProjects } from '@/hooks/useProjects'
 import { useAuth } from '@/providers/AuthProvider'
+import { STOCK_ISSUE_PURPOSES } from '@thanamol/shared'
 import type { StockIssueItem } from '@thanamol/shared'
 
 export const Route = createFileRoute(
@@ -31,12 +31,11 @@ function StockIssueCreatePage() {
   const navigate = useNavigate()
   const createIssue = useCreateStockIssue()
   const { data: inventoryData } = useInventoryItems({ isActive: true })
-  const { data: projectsData } = useProjects({ limit: 100 })
   const { currentUser } = useAuth()
 
   const [form, setForm] = useState({
-    projectId: '',
     issueDate: new Date().toISOString().split('T')[0],
+    purpose: '',
     notes: '',
   })
   const [items, setItems] = useState<FormItem[]>([
@@ -44,7 +43,6 @@ function StockIssueCreatePage() {
   ])
 
   const inventoryItems = inventoryData?.data ?? []
-  const projects = projectsData?.data ?? []
 
   function addItem() {
     setItems((prev) => [
@@ -87,8 +85,8 @@ function StockIssueCreatePage() {
 
     createIssue.mutate(
       {
-        projectId: form.projectId || undefined,
         issueDate: form.issueDate,
+        purpose: form.purpose || undefined,
         notes: form.notes || undefined,
         issuedBy: currentUser?.id,
         items: validItems.map(({ _key: _k, ...rest }) => rest),
@@ -128,6 +126,15 @@ function StockIssueCreatePage() {
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
+              <Label htmlFor="issueNumber">Issue Number</Label>
+              <Input
+                id="issueNumber"
+                value="Auto-generated (ISS-00001)"
+                readOnly
+                className="bg-slate-50 text-slate-400 cursor-not-allowed"
+              />
+            </div>
+            <div>
               <Label htmlFor="issueDate">Issue Date *</Label>
               <Input
                 id="issueDate"
@@ -138,19 +145,19 @@ function StockIssueCreatePage() {
               />
             </div>
             <div>
-              <Label htmlFor="projectId">Project</Label>
+              <Label htmlFor="purpose">Purpose *</Label>
               <Select
-                value={form.projectId}
-                onValueChange={(v) => setForm({ ...form, projectId: v })}
+                value={form.purpose}
+                onValueChange={(v) => setForm({ ...form, purpose: v })}
+                required
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select project" />
+                <SelectTrigger id="purpose">
+                  <SelectValue placeholder="Select purpose" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="__all__">No project</SelectItem>
-                  {projects.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.name}
+                  {STOCK_ISSUE_PURPOSES.map((p) => (
+                    <SelectItem key={p} value={p}>
+                      {p}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -244,7 +251,7 @@ function StockIssueCreatePage() {
           </Button>
           <Button
             type="submit"
-            disabled={createIssue.isPending || items.every((i) => !i.item_id)}
+            disabled={createIssue.isPending || items.every((i) => !i.item_id) || !form.purpose}
             className="bg-indigo-600 hover:bg-indigo-700 gap-2"
           >
             <Save className="w-4 h-4" />
