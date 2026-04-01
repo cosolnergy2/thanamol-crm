@@ -21,6 +21,10 @@ vi.mock('../../lib/prisma', () => ({
       update: vi.fn(),
       delete: vi.fn(),
     },
+    purchaseRequest: {
+      count: vi.fn(),
+      create: vi.fn(),
+    },
   },
 }))
 
@@ -326,5 +330,60 @@ describe('FMS Inventory Categories Routes', () => {
       const body = await res.json()
       expect(body.error).toContain('items')
     })
+  })
+})
+
+describe('POST /api/fms/inventory/auto-reorder', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  const lowStockItem = {
+    ...mockItem,
+    current_stock: 2,
+    reorder_point: 5,
+    reorder_quantity: 20,
+    unit_cost: 100,
+  }
+
+  it('returns 401 without auth', async () => {
+    const res = await reqInventory('POST', '/api/fms/inventory/auto-reorder', {})
+    expect(res.status).toBe(401)
+  })
+
+  it('returns 400 when no items below reorder point', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never)
+    vi.mocked(prisma.inventoryItem.findMany).mockResolvedValue([
+      { ...mockItem, current_stock: 20, reorder_point: 5 },
+    ] as never)
+
+    const token = await signToken()
+    const res = await reqInventory('POST', '/api/fms/inventory/auto-reorder', {}, token)
+
+    expect(res.status).toBe(400)
+    const body = await res.json()
+    expect(body.error).toContain('No items below reorder point')
+  })
+
+  it('generates a PR for items at or below reorder point', async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never)
+    vi.mocked(prisma.inventoryItem.findMany).mockResolvedValue([lowStockItem] as never)
+    vi.mocked(prisma.purchaseRequest.count).mockResolvedValue(0)
+    vi.mocked(prisma.purchaseRequest.create).mockResolvedValue({
+      id: 'pr-1',
+      pr_number: 'PR-202501-0001',
+      title: 'Auto Reorder',
+      status: 'DRAFT',
+      estimated_total: 2000,
+      created_at: new Date(),
+    } as never)
+
+    const token = await signToken()
+    const res = await reqInventory('POST', '/api/fms/inventory/auto-reorder', {}, token)
+
+    expect(res.status).toBe(201)
+    const body = await res.json()
+    expect(body.pr.pr_number).toBe('PR-202501-0001')
+    expect(body.itemCount).toBe(1)
   })
 })

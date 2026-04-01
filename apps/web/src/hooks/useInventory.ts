@@ -9,6 +9,8 @@ import type {
   CreateInventoryCategoryRequest,
   UpdateInventoryCategoryRequest,
   InventoryQueryParams,
+  AutoReorderRequest,
+  AutoReorderResponse,
 } from '@thanamol/shared'
 import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api-client'
 
@@ -156,6 +158,17 @@ export function useDeleteInventoryCategory() {
       apiDelete<{ success: boolean }>(`/fms/inventory-categories/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY_KEYS.categories })
+    },
+  })
+}
+
+export function useAutoReorder() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: AutoReorderRequest) =>
+      apiPost<AutoReorderResponse>('/fms/inventory/auto-reorder', data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY_KEYS.all })
     },
   })
 }

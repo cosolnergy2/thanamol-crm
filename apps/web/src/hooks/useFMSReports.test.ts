@@ -13,6 +13,9 @@ import {
   useFMSAssetStatusReport,
   useFMSBudgetVarianceReport,
   useFMSComplianceStatusReport,
+  useFMSBudgetOverviewReport,
+  useFMSBudgetVsActualReport,
+  useFMSCostReport,
   FMS_REPORTS_QUERY_KEYS,
 } from './useFMSReports'
 
@@ -120,5 +123,97 @@ describe('useFMSComplianceStatusReport', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
     expect(result.current.data?.report.fireEquipmentOverdue).toBe(2)
     expect(result.current.data?.report.activePermitsToWork).toBe(5)
+  })
+})
+
+const mockBudgetOverview = {
+  totalBudgets: 3,
+  totalApprovedAmount: 300000,
+  totalSpent: 200000,
+  totalRemaining: 100000,
+  byStatus: { ACTIVE: 2, CLOSED: 1 },
+}
+
+const mockBudgetVsActual = {
+  rows: [
+    {
+      id: 'b1',
+      budgetCode: 'BUD-2025-001',
+      title: 'FY2025 Budget',
+      fiscalYear: 2025,
+      status: 'ACTIVE',
+      project: 'Tower A',
+      totalApproved: 100000,
+      totalActual: 75000,
+      totalCommitted: 15000,
+      variance: 25000,
+      utilizationPct: 75,
+    },
+  ],
+  totals: { totalApproved: 100000, totalActual: 75000, totalVariance: 25000 },
+}
+
+const mockCostReport = {
+  rows: [
+    { category: 'HVAC', approved: 60000, actual: 45000, committed: 10000 },
+    { category: 'Electrical', approved: 40000, actual: 30000, committed: 5000 },
+  ],
+  totalActual: 75000,
+}
+
+describe('useFMSBudgetOverviewReport', () => {
+  beforeEach(() => vi.resetAllMocks())
+
+  it('fetches budget overview without fiscal year', async () => {
+    vi.mocked(apiGet).mockResolvedValue({ report: mockBudgetOverview })
+    const { result } = renderHook(() => useFMSBudgetOverviewReport(), { wrapper: createWrapper() })
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(result.current.data?.report.totalBudgets).toBe(3)
+    expect(apiGet).toHaveBeenCalledWith('/fms/reports/budget-overview')
+  })
+
+  it('includes fiscalYear in URL when provided', async () => {
+    vi.mocked(apiGet).mockResolvedValue({ report: mockBudgetOverview })
+    const { result } = renderHook(() => useFMSBudgetOverviewReport(2025), { wrapper: createWrapper() })
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(apiGet).toHaveBeenCalledWith(expect.stringContaining('fiscalYear=2025'))
+  })
+
+  it('generates stable query keys', () => {
+    expect(FMS_REPORTS_QUERY_KEYS.budgetOverview(2025)).toEqual(['fms-reports', 'budget-overview', 2025])
+    expect(FMS_REPORTS_QUERY_KEYS.budgetOverview()).toEqual(['fms-reports', 'budget-overview', undefined])
+  })
+})
+
+describe('useFMSBudgetVsActualReport', () => {
+  beforeEach(() => vi.resetAllMocks())
+
+  it('fetches budget vs actual data with correct shape', async () => {
+    vi.mocked(apiGet).mockResolvedValue({ report: mockBudgetVsActual })
+    const { result } = renderHook(() => useFMSBudgetVsActualReport(), { wrapper: createWrapper() })
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    const row = result.current.data?.report.rows[0]
+    expect(row?.variance).toBe(25000)
+    expect(row?.utilizationPct).toBe(75)
+    expect(result.current.data?.report.totals.totalVariance).toBe(25000)
+  })
+})
+
+describe('useFMSCostReport', () => {
+  beforeEach(() => vi.resetAllMocks())
+
+  it('fetches cost report rows', async () => {
+    vi.mocked(apiGet).mockResolvedValue({ report: mockCostReport })
+    const { result } = renderHook(() => useFMSCostReport(), { wrapper: createWrapper() })
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(result.current.data?.report.rows).toHaveLength(2)
+    expect(result.current.data?.report.totalActual).toBe(75000)
+  })
+
+  it('includes fiscalYear in URL when provided', async () => {
+    vi.mocked(apiGet).mockResolvedValue({ report: mockCostReport })
+    const { result } = renderHook(() => useFMSCostReport(2025), { wrapper: createWrapper() })
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(apiGet).toHaveBeenCalledWith(expect.stringContaining('fiscalYear=2025'))
   })
 })

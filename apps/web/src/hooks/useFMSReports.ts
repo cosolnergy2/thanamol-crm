@@ -7,7 +7,10 @@ import type {
   FMSBudgetOverviewReport,
   FMSBudgetVsActualReport,
   FMSCostReport,
+<<<<<<< HEAD
   PMComplianceReport,
+=======
+>>>>>>> feat/T-178-auto-reorder-budget-reports
 } from '@thanamol/shared'
 import { apiGet } from '@/lib/api-client'
 
@@ -19,10 +22,18 @@ export const FMS_REPORTS_QUERY_KEYS = {
     ['fms-reports', 'budget-variance', params] as const,
   complianceStatus: (projectId: string) =>
     ['fms-reports', 'compliance-status', projectId] as const,
+<<<<<<< HEAD
   budgetOverview: (fiscalYear?: number) => ['fms-reports', 'budget-overview', fiscalYear] as const,
   budgetVsActual: (fiscalYear?: number) => ['fms-reports', 'budget-vs-actual', fiscalYear] as const,
   costReport: (fiscalYear?: number) => ['fms-reports', 'cost-report', fiscalYear] as const,
   pmCompliance: (projectId: string) => ['fms-reports', 'pm-compliance', projectId] as const,
+=======
+  budgetOverview: (fiscalYear?: number) =>
+    ['fms-reports', 'budget-overview', fiscalYear] as const,
+  budgetVsActual: (fiscalYear?: number) =>
+    ['fms-reports', 'budget-vs-actual', fiscalYear] as const,
+  costReport: (fiscalYear?: number) => ['fms-reports', 'cost-report', fiscalYear] as const,
+>>>>>>> feat/T-178-auto-reorder-budget-reports
 }
 
 export type MaintenanceCostParams = {
@@ -126,6 +137,7 @@ export function useFMSCostReport(fiscalYear?: number) {
     staleTime: 60 * 1000,
   })
 }
+<<<<<<< HEAD
 
 export function usePMComplianceReport(projectId: string) {
   return useQuery({
@@ -138,3 +150,5 @@ export function usePMComplianceReport(projectId: string) {
     staleTime: 60 * 1000,
   })
 }
+=======
+>>>>>>> feat/T-178-auto-reorder-budget-reports
