@@ -17,7 +17,10 @@ import { PageHeader } from '@/components/PageHeader'
 import { useCreateWorkOrder } from '@/hooks/useWorkOrders'
 import { useProjects } from '@/hooks/useProjects'
 import { useAssets } from '@/hooks/useAssets'
+import { useVendors } from '@/hooks/useVendors'
 import { useAuth } from '@/providers/AuthProvider'
+import { useQuery } from '@tanstack/react-query'
+import { apiGet } from '@/lib/api-client'
 import type { WorkOrderType } from '@thanamol/shared'
 
 export const Route = createFileRoute('/_authenticated/facility-management/work-orders/create')({
@@ -32,7 +35,19 @@ const WO_TYPES: Array<{ value: WorkOrderType; label: string }> = [
   { value: 'CALIBRATION', label: 'Calibration' },
 ]
 
-const PRIORITIES = ['LOW', 'MEDIUM', 'HIGH', 'URGENT']
+const PRIORITIES: Array<{ value: string; label: string }> = [
+  { value: 'LOW', label: 'Low' },
+  { value: 'MEDIUM', label: 'Medium' },
+  { value: 'HIGH', label: 'High' },
+  { value: 'URGENT', label: 'Urgent' },
+]
+
+type UserEntry = {
+  id: string
+  first_name: string
+  last_name: string
+  is_active: boolean
+}
 
 function WorkOrderCreatePage() {
   const navigate = useNavigate()
@@ -49,6 +64,11 @@ function WorkOrderCreatePage() {
     scheduledDate: '',
     estimatedHours: '',
     costEstimate: '',
+    assignedTo: '',
+    vendorId: '',
+    scheduledStart: '',
+    scheduledEnd: '',
+    budgetCode: '',
   })
 
   const { data: projectsData } = useProjects({ limit: 100 })
@@ -59,6 +79,16 @@ function WorkOrderCreatePage() {
     limit: 100,
   })
   const assets = assetsData?.data ?? []
+
+  const { data: vendorsData } = useVendors({ limit: 100 })
+  const vendors = vendorsData?.data ?? []
+
+  const { data: usersData } = useQuery({
+    queryKey: ['auth-users'],
+    queryFn: () => apiGet<{ users: UserEntry[] }>('/auth/users'),
+    staleTime: 60 * 1000,
+  })
+  const activeUsers = (usersData?.users ?? []).filter((u) => u.is_active)
 
   function handleChange(field: string, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -71,7 +101,7 @@ function WorkOrderCreatePage() {
       return
     }
     if (!form.projectId) {
-      toast.error('Project is required')
+      toast.error('Site is required')
       return
     }
     if (!currentUser) {
@@ -86,10 +116,15 @@ function WorkOrderCreatePage() {
         type: form.type,
         priority: form.priority,
         projectId: form.projectId,
-        assetId: form.assetId || undefined,
+        assetId: form.assetId && form.assetId !== '__all__' ? form.assetId : undefined,
         scheduledDate: form.scheduledDate || undefined,
         estimatedHours: form.estimatedHours ? Number(form.estimatedHours) : undefined,
         costEstimate: form.costEstimate ? Number(form.costEstimate) : undefined,
+        assignedTo: form.assignedTo && form.assignedTo !== '__none__' ? form.assignedTo : undefined,
+        vendorId: form.vendorId && form.vendorId !== '__none__' ? form.vendorId : undefined,
+        scheduledStart: form.scheduledStart || undefined,
+        scheduledEnd: form.scheduledEnd || undefined,
+        budgetCode: form.budgetCode || undefined,
         createdBy: currentUser.id,
       })
       toast.success('Work order created')
@@ -107,36 +142,17 @@ function WorkOrderCreatePage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm font-light text-slate-600">Details</CardTitle>
+              <CardTitle className="text-sm font-light text-slate-600">Basic Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-1.5">
-                <Label htmlFor="title">
-                  Title <span className="text-rose-500">*</span>
-                </Label>
-                <Input
-                  id="title"
-                  value={form.title}
-                  onChange={(e) => handleChange('title', e.target.value)}
-                  placeholder="Work order title"
-                  required
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={form.description}
-                  onChange={(e) => handleChange('description', e.target.value)}
-                  rows={3}
-                  placeholder="Describe the work to be done"
-                />
+                <Label>WO Number</Label>
+                <Input value="Auto-generated" disabled className="text-slate-400 bg-slate-50" />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor="type">Type</Label>
+                  <Label htmlFor="type">WO Type</Label>
                   <Select value={form.type} onValueChange={(v) => handleChange('type', v)}>
                     <SelectTrigger>
                       <SelectValue />
@@ -162,25 +178,18 @@ function WorkOrderCreatePage() {
                     </SelectTrigger>
                     <SelectContent>
                       {PRIORITIES.map((p) => (
-                        <SelectItem key={p} value={p}>
-                          {p}
+                        <SelectItem key={p.value} value={p.value}>
+                          {p.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
               </div>
-            </CardContent>
-          </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm font-light text-slate-600">Location & Asset</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="project">
-                  Project <span className="text-rose-500">*</span>
+                  Site <span className="text-rose-500">*</span>
                 </Label>
                 <Select
                   value={form.projectId}
@@ -190,7 +199,7 @@ function WorkOrderCreatePage() {
                   }}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select project" />
+                    <SelectValue placeholder="Select site" />
                   </SelectTrigger>
                   <SelectContent>
                     {projects.map((p) => (
@@ -224,12 +233,103 @@ function WorkOrderCreatePage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="scheduledDate">Scheduled Date</Label>
+                <Label htmlFor="title">
+                  Title <span className="text-rose-500">*</span>
+                </Label>
                 <Input
-                  id="scheduledDate"
-                  type="date"
-                  value={form.scheduledDate}
-                  onChange={(e) => handleChange('scheduledDate', e.target.value)}
+                  id="title"
+                  value={form.title}
+                  onChange={(e) => handleChange('title', e.target.value)}
+                  placeholder="Work order title"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="budgetCode">Budget Code</Label>
+                <Input
+                  id="budgetCode"
+                  value={form.budgetCode}
+                  onChange={(e) => handleChange('budgetCode', e.target.value)}
+                  placeholder="MAINT-2026-01"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={form.description}
+                  onChange={(e) => handleChange('description', e.target.value)}
+                  rows={3}
+                  placeholder="Describe the work to be done"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-light text-slate-600">Assignment & Schedule</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="assignedTo">Assigned To (Technician)</Label>
+                <Select
+                  value={form.assignedTo}
+                  onValueChange={(v) => handleChange('assignedTo', v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select technician" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">Unassigned</SelectItem>
+                    {activeUsers.map((u) => (
+                      <SelectItem key={u.id} value={u.id}>
+                        {u.first_name} {u.last_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="vendorId">Vendor (if outsourced)</Label>
+                <Select
+                  value={form.vendorId}
+                  onValueChange={(v) => handleChange('vendorId', v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select vendor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">No vendor</SelectItem>
+                    {vendors.map((v) => (
+                      <SelectItem key={v.id} value={v.id}>
+                        {v.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="scheduledStart">Scheduled Start</Label>
+                <Input
+                  id="scheduledStart"
+                  type="datetime-local"
+                  value={form.scheduledStart}
+                  onChange={(e) => handleChange('scheduledStart', e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="scheduledEnd">Scheduled End</Label>
+                <Input
+                  id="scheduledEnd"
+                  type="datetime-local"
+                  value={form.scheduledEnd}
+                  onChange={(e) => handleChange('scheduledEnd', e.target.value)}
                 />
               </div>
 

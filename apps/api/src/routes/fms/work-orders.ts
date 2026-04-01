@@ -43,6 +43,10 @@ const createWOSchema = t.Object({
   estimatedHours: t.Optional(t.Number()),
   scheduledDate: t.Optional(t.String()),
   costEstimate: t.Optional(t.Number()),
+  budgetCode: t.Optional(t.String()),
+  scheduledStart: t.Optional(t.String()),
+  scheduledEnd: t.Optional(t.String()),
+  vendorId: t.Optional(t.String()),
   createdBy: t.String({ minLength: 1 }),
 })
 
@@ -65,6 +69,10 @@ const updateWOSchema = t.Object({
   partsUsed: t.Optional(t.Array(t.Unknown())),
   costEstimate: t.Optional(t.Number()),
   actualCost: t.Optional(t.Number()),
+  budgetCode: t.Optional(t.String()),
+  scheduledStart: t.Optional(t.String()),
+  scheduledEnd: t.Optional(t.String()),
+  vendorId: t.Optional(t.String()),
 })
 
 export const fmsWorkOrdersRoutes = new Elysia({ prefix: '/api/fms/work-orders' })
@@ -166,6 +174,10 @@ export const fmsWorkOrdersRoutes = new Elysia({ prefix: '/api/fms/work-orders' }
                 estimated_hours: body.estimatedHours ?? null,
                 scheduled_date: body.scheduledDate ? new Date(body.scheduledDate) : null,
                 cost_estimate: body.costEstimate ?? null,
+                budget_code: body.budgetCode ?? null,
+                scheduled_start: body.scheduledStart ? new Date(body.scheduledStart) : null,
+                scheduled_end: body.scheduledEnd ? new Date(body.scheduledEnd) : null,
+                vendor_id: body.vendorId ?? null,
                 created_by: body.createdBy,
               },
               include: workOrderInclude,
@@ -205,6 +217,10 @@ export const fmsWorkOrdersRoutes = new Elysia({ prefix: '/api/fms/work-orders' }
                 parts_used: body.partsUsed as object[] | undefined,
                 cost_estimate: body.costEstimate,
                 actual_cost: body.actualCost,
+                budget_code: body.budgetCode,
+                scheduled_start: body.scheduledStart ? new Date(body.scheduledStart) : undefined,
+                scheduled_end: body.scheduledEnd ? new Date(body.scheduledEnd) : undefined,
+                vendor_id: body.vendorId,
               },
               include: workOrderInclude,
             })
