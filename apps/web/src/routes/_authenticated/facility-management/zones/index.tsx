@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, MapPin, Pencil, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Card, CardContent } from '@/components/ui/card'
@@ -44,6 +44,12 @@ function ZoneListPage() {
 
   const { data: projectsData, isLoading: loadingProjects } = useProjects({ limit: 100 })
   const projects = projectsData?.data ?? []
+
+  useEffect(() => {
+    if (projects.length > 0 && !selectedProjectId) {
+      setSelectedProjectId(projects[0].id)
+    }
+  }, [projects, selectedProjectId])
 
   const { data: zonesData, isLoading: loadingZones, isError } = useZones({
     projectId: selectedProjectId,
