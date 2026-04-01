@@ -176,6 +176,7 @@ import { Route as AuthenticatedFacilityManagementPettyCashTransactionsCreateRout
 import { Route as AuthenticatedFacilityManagementPettyCashFundsCreateRouteImport } from './routes/_authenticated/facility-management/petty-cash/funds/create'
 import { Route as AuthenticatedFacilityManagementInventoryStockIssuesCreateRouteImport } from './routes/_authenticated/facility-management/inventory/stock-issues/create'
 import { Route as AuthenticatedFacilityManagementInventoryGrnCreateRouteImport } from './routes/_authenticated/facility-management/inventory/grn/create'
+import { Route as AuthenticatedFacilityManagementInventoryItemIdEditRouteImport } from './routes/_authenticated/facility-management/inventory/$itemId/edit'
 import { Route as AuthenticatedFacilityManagementCompliancePermitsCreateRouteImport } from './routes/_authenticated/facility-management/compliance/permits/create'
 import { Route as AuthenticatedFacilityManagementComplianceIncidentsCreateRouteImport } from './routes/_authenticated/facility-management/compliance/incidents/create'
 import { Route as AuthenticatedFacilityManagementCalibrationsCalibrationIdEditRouteImport } from './routes/_authenticated/facility-management/calibrations/$calibrationId/edit'
@@ -1181,6 +1182,12 @@ const AuthenticatedFacilityManagementInventoryGrnCreateRoute =
     path: '/facility-management/inventory/grn/create',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFacilityManagementInventoryItemIdEditRoute =
+  AuthenticatedFacilityManagementInventoryItemIdEditRouteImport.update({
+    id: '/facility-management/inventory/$itemId/edit',
+    path: '/facility-management/inventory/$itemId/edit',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedFacilityManagementCompliancePermitsCreateRoute =
   AuthenticatedFacilityManagementCompliancePermitsCreateRouteImport.update({
     id: '/facility-management/compliance/permits/create',
@@ -1374,6 +1381,7 @@ export interface FileRoutesByFullPath {
   '/facility-management/calibrations/$calibrationId/edit': typeof AuthenticatedFacilityManagementCalibrationsCalibrationIdEditRoute
   '/facility-management/compliance/incidents/create': typeof AuthenticatedFacilityManagementComplianceIncidentsCreateRoute
   '/facility-management/compliance/permits/create': typeof AuthenticatedFacilityManagementCompliancePermitsCreateRoute
+  '/facility-management/inventory/$itemId/edit': typeof AuthenticatedFacilityManagementInventoryItemIdEditRoute
   '/facility-management/inventory/grn/create': typeof AuthenticatedFacilityManagementInventoryGrnCreateRoute
   '/facility-management/inventory/stock-issues/create': typeof AuthenticatedFacilityManagementInventoryStockIssuesCreateRoute
   '/facility-management/petty-cash/funds/create': typeof AuthenticatedFacilityManagementPettyCashFundsCreateRoute
@@ -1551,6 +1559,7 @@ export interface FileRoutesByTo {
   '/facility-management/calibrations/$calibrationId/edit': typeof AuthenticatedFacilityManagementCalibrationsCalibrationIdEditRoute
   '/facility-management/compliance/incidents/create': typeof AuthenticatedFacilityManagementComplianceIncidentsCreateRoute
   '/facility-management/compliance/permits/create': typeof AuthenticatedFacilityManagementCompliancePermitsCreateRoute
+  '/facility-management/inventory/$itemId/edit': typeof AuthenticatedFacilityManagementInventoryItemIdEditRoute
   '/facility-management/inventory/grn/create': typeof AuthenticatedFacilityManagementInventoryGrnCreateRoute
   '/facility-management/inventory/stock-issues/create': typeof AuthenticatedFacilityManagementInventoryStockIssuesCreateRoute
   '/facility-management/petty-cash/funds/create': typeof AuthenticatedFacilityManagementPettyCashFundsCreateRoute
@@ -1730,6 +1739,7 @@ export interface FileRoutesById {
   '/_authenticated/facility-management/calibrations/$calibrationId/edit': typeof AuthenticatedFacilityManagementCalibrationsCalibrationIdEditRoute
   '/_authenticated/facility-management/compliance/incidents/create': typeof AuthenticatedFacilityManagementComplianceIncidentsCreateRoute
   '/_authenticated/facility-management/compliance/permits/create': typeof AuthenticatedFacilityManagementCompliancePermitsCreateRoute
+  '/_authenticated/facility-management/inventory/$itemId/edit': typeof AuthenticatedFacilityManagementInventoryItemIdEditRoute
   '/_authenticated/facility-management/inventory/grn/create': typeof AuthenticatedFacilityManagementInventoryGrnCreateRoute
   '/_authenticated/facility-management/inventory/stock-issues/create': typeof AuthenticatedFacilityManagementInventoryStockIssuesCreateRoute
   '/_authenticated/facility-management/petty-cash/funds/create': typeof AuthenticatedFacilityManagementPettyCashFundsCreateRoute
@@ -1909,6 +1919,7 @@ export interface FileRouteTypes {
     | '/facility-management/calibrations/$calibrationId/edit'
     | '/facility-management/compliance/incidents/create'
     | '/facility-management/compliance/permits/create'
+    | '/facility-management/inventory/$itemId/edit'
     | '/facility-management/inventory/grn/create'
     | '/facility-management/inventory/stock-issues/create'
     | '/facility-management/petty-cash/funds/create'
@@ -2086,6 +2097,7 @@ export interface FileRouteTypes {
     | '/facility-management/calibrations/$calibrationId/edit'
     | '/facility-management/compliance/incidents/create'
     | '/facility-management/compliance/permits/create'
+    | '/facility-management/inventory/$itemId/edit'
     | '/facility-management/inventory/grn/create'
     | '/facility-management/inventory/stock-issues/create'
     | '/facility-management/petty-cash/funds/create'
@@ -2264,6 +2276,7 @@ export interface FileRouteTypes {
     | '/_authenticated/facility-management/calibrations/$calibrationId/edit'
     | '/_authenticated/facility-management/compliance/incidents/create'
     | '/_authenticated/facility-management/compliance/permits/create'
+    | '/_authenticated/facility-management/inventory/$itemId/edit'
     | '/_authenticated/facility-management/inventory/grn/create'
     | '/_authenticated/facility-management/inventory/stock-issues/create'
     | '/_authenticated/facility-management/petty-cash/funds/create'
@@ -3484,6 +3497,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFacilityManagementInventoryGrnCreateRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/facility-management/inventory/$itemId/edit': {
+      id: '/_authenticated/facility-management/inventory/$itemId/edit'
+      path: '/facility-management/inventory/$itemId/edit'
+      fullPath: '/facility-management/inventory/$itemId/edit'
+      preLoaderRoute: typeof AuthenticatedFacilityManagementInventoryItemIdEditRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/facility-management/compliance/permits/create': {
       id: '/_authenticated/facility-management/compliance/permits/create'
       path: '/facility-management/compliance/permits/create'
@@ -3683,6 +3703,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFacilityManagementCalibrationsCalibrationIdEditRoute: typeof AuthenticatedFacilityManagementCalibrationsCalibrationIdEditRoute
   AuthenticatedFacilityManagementComplianceIncidentsCreateRoute: typeof AuthenticatedFacilityManagementComplianceIncidentsCreateRoute
   AuthenticatedFacilityManagementCompliancePermitsCreateRoute: typeof AuthenticatedFacilityManagementCompliancePermitsCreateRoute
+  AuthenticatedFacilityManagementInventoryItemIdEditRoute: typeof AuthenticatedFacilityManagementInventoryItemIdEditRoute
   AuthenticatedFacilityManagementInventoryGrnCreateRoute: typeof AuthenticatedFacilityManagementInventoryGrnCreateRoute
   AuthenticatedFacilityManagementInventoryStockIssuesCreateRoute: typeof AuthenticatedFacilityManagementInventoryStockIssuesCreateRoute
   AuthenticatedFacilityManagementPettyCashFundsCreateRoute: typeof AuthenticatedFacilityManagementPettyCashFundsCreateRoute
@@ -3929,6 +3950,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedFacilityManagementComplianceIncidentsCreateRoute,
   AuthenticatedFacilityManagementCompliancePermitsCreateRoute:
     AuthenticatedFacilityManagementCompliancePermitsCreateRoute,
+  AuthenticatedFacilityManagementInventoryItemIdEditRoute:
+    AuthenticatedFacilityManagementInventoryItemIdEditRoute,
   AuthenticatedFacilityManagementInventoryGrnCreateRoute:
     AuthenticatedFacilityManagementInventoryGrnCreateRoute,
   AuthenticatedFacilityManagementInventoryStockIssuesCreateRoute:
