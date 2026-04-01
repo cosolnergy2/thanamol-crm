@@ -212,6 +212,73 @@ async function buildBudgetVsActualReport(fiscalYear?: number) {
   return { rows, totals }
 }
 
+async function buildEnergyReport(
+  projectId: string,
+  startDate?: string,
+  endDate?: string,
+  periodType: 'month' | 'week' = 'month',
+) {
+  const where: Record<string, unknown> = { project_id: projectId }
+  if (startDate || endDate) {
+    const dateFilter: Record<string, Date> = {}
+    if (startDate) dateFilter.gte = new Date(startDate)
+    if (endDate) dateFilter.lte = new Date(endDate)
+    where.reading_date = dateFilter
+  }
+
+  const readings = await prisma.fmsMeterRecord.findMany({
+    where,
+    orderBy: { reading_date: 'asc' },
+  })
+
+  const consumptionByType = readings.reduce<
+    Record<string, { totalConsumption: number; readingCount: number; unit: string }>
+  >((acc, reading) => {
+    const key = reading.meter_type
+    const consumption = Math.max(0, reading.value - (reading.previous_value ?? 0))
+    const existing = acc[key] ?? { totalConsumption: 0, readingCount: 0, unit: reading.unit }
+    acc[key] = {
+      totalConsumption: existing.totalConsumption + consumption,
+      readingCount: existing.readingCount + 1,
+      unit: reading.unit,
+    }
+    return acc
+  }, {})
+
+  const periodKey = (date: Date): string => {
+    if (periodType === 'week') {
+      const d = new Date(date)
+      d.setHours(0, 0, 0, 0)
+      d.setDate(d.getDate() - d.getDay())
+      return d.toISOString().slice(0, 10)
+    }
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+  }
+
+  const periodMap = new Map<
+    string,
+    Record<string, { consumption: number; unit: string }>
+  >()
+
+  for (const reading of readings) {
+    const key = periodKey(reading.reading_date)
+    const consumption = Math.max(0, reading.value - (reading.previous_value ?? 0))
+    const existing = periodMap.get(key) ?? {}
+    const typeData = existing[reading.meter_type] ?? { consumption: 0, unit: reading.unit }
+    existing[reading.meter_type] = {
+      consumption: typeData.consumption + consumption,
+      unit: reading.unit,
+    }
+    periodMap.set(key, existing)
+  }
+
+  const byPeriod = Array.from(periodMap.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([period, types]) => ({ period, ...types }))
+
+  return { consumptionByType, byPeriod }
+}
+
 async function buildVendorSummaryReport() {
   const vendors = await prisma.vendor.findMany({
     select: {
@@ -424,4 +491,29 @@ export const fmsReportsRoutes = new Elysia({ prefix: '/api/fms/reports' })
           const report = await buildVendorSummaryReport()
           return { report }
         })
+        .get(
+          '/energy',
+          async ({ query, set }) => {
+            if (!query.projectId) {
+              set.status = 400
+              return { error: 'projectId is required' }
+            }
+            const periodType = query.periodType === 'week' ? 'week' : 'month'
+            const report = await buildEnergyReport(
+              query.projectId,
+              query.startDate || undefined,
+              query.endDate || undefined,
+              periodType,
+            )
+            return { report }
+          },
+          {
+            query: t.Object({
+              projectId: t.Optional(t.String()),
+              startDate: t.Optional(t.String()),
+              endDate: t.Optional(t.String()),
+              periodType: t.Optional(t.String()),
+            }),
+          },
+        )
   )

@@ -2823,11 +2823,6 @@ export interface FileRouteTypes {
     | '/_authenticated/facility-management/procurement/orders/$poId/'
     | '/_authenticated/facility-management/procurement/requests/$prId/'
     | '/_authenticated/facility-management/vendors/contracts/$contractId/'
-    | '/_authenticated/facility-management/meters/'
-    | '/_authenticated/facility-management/meters/create'
-    | '/_authenticated/facility-management/meters/rates'
-    | '/_authenticated/facility-management/meters/dashboard'
-    | '/_authenticated/facility-management/meters/$readingId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
