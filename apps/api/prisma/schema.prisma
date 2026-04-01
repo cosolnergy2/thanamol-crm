@@ -343,6 +343,26 @@ enum InsurancePolicyStatus {
   PENDING_RENEWAL
 }
 
+enum DisasterPlanType {
+  FIRE
+  EARTHQUAKE
+  FLOOD
+  CHEMICAL
+  OTHER
+}
+
+enum DisasterPlanStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum DrillStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
 enum ApprovalStatus {
   PENDING
   APPROVED
@@ -666,7 +686,13 @@ model Project {
   incidents                  Incident[]
   insurance_policies         InsurancePolicy[]
   contractor_safety_records  ContractorSafety[]
+  disaster_plans             DisasterPlan[]
+  emergency_drills           EmergencyDrill[]
   tickets                    Ticket[]
+  fms_meter_records          FmsMeterRecord[]
+  utility_rates              UtilityRate[]
+  landscape_tasks            LandscapeTask[]
+  waste_records              WasteRecord[]
 
   @@index([status])
   @@index([code])
@@ -1057,6 +1083,45 @@ model MeterRecord {
 
   @@index([unit_id])
   @@index([reading_date])
+}
+
+// ─── FMS Meters Domain ────────────────────────────────────────────────────────
+
+model FmsMeterRecord {
+  id             String    @id @default(uuid())
+  project_id     String
+  location       String
+  meter_type     MeterType
+  reading_date   DateTime
+  value          Float
+  previous_value Float
+  unit           String
+  notes          String?
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+
+  project Project @relation(fields: [project_id], references: [id])
+
+  @@index([project_id])
+  @@index([reading_date])
+  @@index([meter_type])
+}
+
+model UtilityRate {
+  id           String    @id @default(uuid())
+  project_id   String
+  meter_type   MeterType
+  tier_name    String
+  min_usage    Float
+  max_usage    Float
+  rate_per_unit Float
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+
+  project Project @relation(fields: [project_id], references: [id])
+
+  @@index([project_id])
+  @@index([meter_type])
 }
 
 // ─── Tasks Domain ─────────────────────────────────────────────────────────────
@@ -2313,4 +2378,87 @@ model ApprovalRequest {
   @@index([workflow_id])
   @@index([requested_by])
   @@index([status])
+}
+
+// ─── Emergency & BCP ─────────────────────────────────────────────────────────
+
+model DisasterPlan {
+  id                  String             @id @default(uuid())
+  title               String
+  plan_type           DisasterPlanType
+  procedures          Json               @default("[]")
+  responsible_persons Json               @default("[]")
+  review_date         DateTime?
+  project_id          String
+  project             Project            @relation(fields: [project_id], references: [id])
+  status              DisasterPlanStatus @default(DRAFT)
+  notes               String?
+  created_at          DateTime           @default(now())
+  updated_at          DateTime           @updatedAt
+  drills              EmergencyDrill[]
+
+  @@index([project_id])
+  @@index([plan_type])
+  @@index([status])
+}
+
+model EmergencyDrill {
+  id                 String       @id @default(uuid())
+  plan_id            String
+  plan               DisasterPlan @relation(fields: [plan_id], references: [id])
+  drill_type         String
+  scheduled_date     DateTime
+  actual_date        DateTime?
+  participants       Json         @default("[]")
+  findings           String?
+  corrective_actions Json         @default("[]")
+  status             DrillStatus  @default(SCHEDULED)
+  project_id         String
+  project            Project      @relation(fields: [project_id], references: [id])
+  created_at         DateTime     @default(now())
+  updated_at         DateTime     @updatedAt
+
+  @@index([project_id])
+  @@index([plan_id])
+  @@index([status])
+}
+
+// ─── Landscape & Waste Domain ─────────────────────────────────────────────────
+
+model LandscapeTask {
+  id             String    @id @default(cuid())
+  title          String
+  description    String?
+  project_id     String
+  project        Project   @relation(fields: [project_id], references: [id])
+  zone_id        String?
+  scheduled_date DateTime
+  completed_date DateTime?
+  status         String    @default("SCHEDULED")
+  assigned_to    String?
+  notes          String?
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+
+  @@index([project_id])
+  @@index([status])
+}
+
+model WasteRecord {
+  id              String   @id @default(cuid())
+  record_date     DateTime
+  project_id      String
+  project         Project  @relation(fields: [project_id], references: [id])
+  waste_type      String
+  volume          Float
+  unit            String
+  disposal_method String?
+  vendor_id       String?
+  cost            Float?
+  notes           String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@index([project_id])
+  @@index([waste_type])
 }

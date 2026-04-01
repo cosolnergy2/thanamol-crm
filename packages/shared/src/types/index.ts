@@ -4203,3 +4203,279 @@ export type ApprovalRequestListResponse = {
   data: ApprovalRequest[]
   pagination: Pagination
 }
+
+// ─── FMS: Disaster Plans ──────────────────────────────────────────────────────
+
+export type DisasterPlanType = 'FIRE' | 'EARTHQUAKE' | 'FLOOD' | 'CHEMICAL' | 'OTHER'
+export type DisasterPlanStatus = 'DRAFT' | 'ACTIVE' | 'ARCHIVED'
+
+export type DisasterPlan = {
+  id: string
+  title: string
+  plan_type: DisasterPlanType
+  procedures: unknown[]
+  responsible_persons: unknown[]
+  review_date: string | null
+  project_id: string
+  status: DisasterPlanStatus
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type DisasterPlanWithRelations = DisasterPlan & {
+  project: { id: string; name: string; code: string }
+}
+
+export type CreateDisasterPlanRequest = {
+  title: string
+  planType: DisasterPlanType
+  projectId: string
+  procedures?: unknown[]
+  responsiblePersons?: unknown[]
+  reviewDate?: string
+  status?: DisasterPlanStatus
+  notes?: string
+}
+
+export type UpdateDisasterPlanRequest = Partial<Omit<CreateDisasterPlanRequest, 'projectId'>> & {
+  status?: DisasterPlanStatus
+}
+
+export type DisasterPlanListResponse = PaginatedResponse<DisasterPlanWithRelations>
+
+export type DisasterPlanQueryParams = {
+  projectId?: string
+  planType?: DisasterPlanType | 'all'
+  status?: DisasterPlanStatus | 'all'
+  search?: string
+  page?: number
+  limit?: number
+}
+
+// ─── FMS: Emergency Drills ────────────────────────────────────────────────────
+
+export type DrillStatus = 'SCHEDULED' | 'COMPLETED' | 'CANCELLED'
+
+export type EmergencyDrill = {
+  id: string
+  plan_id: string
+  drill_type: string
+  scheduled_date: string
+  actual_date: string | null
+  participants: unknown[]
+  findings: string | null
+  corrective_actions: unknown[]
+  status: DrillStatus
+  project_id: string
+  created_at: string
+  updated_at: string
+}
+
+export type EmergencyDrillWithRelations = EmergencyDrill & {
+  project: { id: string; name: string; code: string }
+  plan: { id: string; title: string; plan_type: DisasterPlanType }
+}
+
+export type CreateEmergencyDrillRequest = {
+  planId: string
+  drillType: string
+  scheduledDate: string
+  actualDate?: string
+  participants?: unknown[]
+  findings?: string
+  correctiveActions?: unknown[]
+  status?: DrillStatus
+  projectId: string
+}
+
+export type UpdateEmergencyDrillRequest = Partial<Omit<CreateEmergencyDrillRequest, 'projectId' | 'planId'>>
+
+export type CompleteDrillRequest = {
+  actualDate: string
+  participants?: unknown[]
+  findings?: string
+  correctiveActions?: unknown[]
+}
+
+export type EmergencyDrillListResponse = PaginatedResponse<EmergencyDrillWithRelations>
+
+export type EmergencyDrillQueryParams = {
+  projectId?: string
+  planId?: string
+  status?: DrillStatus | 'all'
+  search?: string
+  page?: number
+  limit?: number
+}
+
+// ─── Landscape ────────────────────────────────────────────────────────────────
+
+export type LandscapeTask = {
+  id: string
+  title: string
+  description: string | null
+  project_id: string
+  zone_id: string | null
+  scheduled_date: string
+  completed_date: string | null
+  status: string
+  assigned_to: string | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type CreateLandscapeTaskRequest = {
+  title: string
+  description?: string
+  projectId: string
+  zoneId?: string
+  scheduledDate: string
+  completedDate?: string
+  status?: string
+  assignedTo?: string
+  notes?: string
+}
+
+export type UpdateLandscapeTaskRequest = Partial<Omit<CreateLandscapeTaskRequest, 'projectId'>>
+
+export type LandscapeTaskListResponse = PaginatedResponse<LandscapeTask>
+
+// ─── Waste ────────────────────────────────────────────────────────────────────
+
+export type WasteRecord = {
+  id: string
+  record_date: string
+  project_id: string
+  waste_type: string
+  volume: number
+  unit: string
+  disposal_method: string | null
+  vendor_id: string | null
+  cost: number | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type CreateWasteRecordRequest = {
+  recordDate: string
+  projectId: string
+  wasteType: string
+  volume: number
+  unit: string
+  disposalMethod?: string
+  vendorId?: string
+  cost?: number
+  notes?: string
+}
+
+export type UpdateWasteRecordRequest = Partial<Omit<CreateWasteRecordRequest, 'projectId'>>
+
+export type WasteRecordListResponse = PaginatedResponse<WasteRecord>
+
+// ─── FMS: Meters & Utility Rates ─────────────────────────────────────────────
+
+export type FmsMeterType = 'ELECTRICITY' | 'WATER' | 'GAS'
+
+export type FmsMeterReading = {
+  id: string
+  project_id: string
+  project?: { id: string; name: string; code: string }
+  meter_type: FmsMeterType
+  location: string
+  reading_date: string
+  value: number
+  previous_value: number
+  unit: string
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type UtilityRate = {
+  id: string
+  project_id: string
+  meter_type: FmsMeterType
+  tier_name: string
+  min_usage: number
+  max_usage: number | null
+  rate_per_unit: number
+  created_at: string
+  updated_at: string
+}
+
+export type CreateFmsMeterReadingRequest = {
+  projectId: string
+  meterType: FmsMeterType
+  location?: string
+  readingDate: string
+  value: number
+  previousValue?: number
+  unit: string
+  notes?: string
+}
+
+export type UpdateFmsMeterReadingRequest = Partial<Omit<CreateFmsMeterReadingRequest, 'projectId'>>
+
+export type CreateUtilityRateRequest = {
+  projectId: string
+  meterType: FmsMeterType
+  tierName: string
+  minUsage: number
+  maxUsage?: number
+  ratePerUnit: number
+}
+
+export type UpdateUtilityRateRequest = Partial<Omit<CreateUtilityRateRequest, 'projectId'>>
+
+export type MeterRevenueRow = {
+  id: string
+  meterType: FmsMeterType
+  location: string | null
+  readingDate: string
+  value: number
+  previousValue: number | null
+  unit: string
+  consumption: number
+  charge: number
+}
+
+export type MeterRevenueResponse = {
+  data: MeterRevenueRow[]
+  totalCharge: number
+}
+
+export type FmsMeterReadingListResponse = PaginatedResponse<FmsMeterReading>
+export type UtilityRateListResponse = { data: UtilityRate[] }
+
+export type FmsMeterQueryParams = {
+  projectId?: string
+  meterType?: FmsMeterType
+  page?: number
+  limit?: number
+}
+
+export type EnergyConsumptionSummary = {
+  totalConsumption: number
+  readingCount: number
+  unit: string
+}
+
+export type EnergyPeriodRow = {
+  period: string
+  [key: string]: unknown
+}
+
+export type EnergyReport = {
+  consumptionByType: Record<string, EnergyConsumptionSummary>
+  byPeriod: EnergyPeriodRow[]
+}
+
+export type EnergyReportQueryParams = {
+  projectId?: string
+  startDate?: string
+  endDate?: string
+  periodType?: 'month' | 'week'
+}

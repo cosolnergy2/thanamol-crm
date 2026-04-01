@@ -89,3 +89,12 @@ export const VENDOR_RATING_LEVELS = ['สูง', 'กลาง', 'ต่ำ'] a
 export const VENDOR_CONTRACT_TYPES = ['Service Agreement', 'Maintenance', 'Supply', 'Rental', 'Consulting'] as const
 export const VENDOR_SERVICE_CATEGORIES = ['HVAC', 'Electrical', 'Plumbing', 'Cleaning', 'Security', 'Landscaping', 'IT', 'Fire Safety', 'Elevator', 'General'] as const
 export const VENDOR_PAYMENT_TERMS = ['30 Days', '45 Days', '60 Days', '90 Days', 'COD', 'Advance Payment'] as const
+
+export const LANDSCAPE_TASK_STATUSES = ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'] as const
+export type LandscapeTaskStatus = (typeof LANDSCAPE_TASK_STATUSES)[number]
+
+export const WASTE_TYPES = ['GENERAL', 'RECYCLABLE', 'HAZARDOUS', 'ORGANIC'] as const
+export type WasteType = (typeof WASTE_TYPES)[number]
+
+export const WASTE_UNITS = ['kg', 'ton', 'm3'] as const
+export type WasteUnit = (typeof WASTE_UNITS)[number]
