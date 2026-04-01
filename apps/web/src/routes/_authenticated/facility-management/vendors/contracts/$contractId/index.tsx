@@ -44,16 +44,6 @@ type RateCardEntry = {
   rate?: number | null
 }
 
-function parseSla(sla: unknown): SlaEntry[] {
-  if (!Array.isArray(sla)) return []
-  return sla as SlaEntry[]
-}
-
-function parseRateCard(rateCard: unknown): RateCardEntry[] {
-  if (!Array.isArray(rateCard)) return []
-  return rateCard as RateCardEntry[]
-}
-
 function VendorContractDetailPage() {
   const { contractId } = Route.useParams()
   const navigate = useNavigate()
@@ -70,8 +60,8 @@ function VendorContractDetailPage() {
   }
 
   const c = data.contract
-  const slaRows = parseSla(c.sla)
-  const rateCardRows = parseRateCard(c.rate_card)
+  const slaRows = Array.isArray(c.sla) ? (c.sla as SlaEntry[]) : []
+  const rateCardRows = Array.isArray(c.rate_card) ? (c.rate_card as RateCardEntry[]) : []
   const status = c.status as VendorContractStatus
 
   return (
@@ -129,7 +119,6 @@ function VendorContractDetailPage() {
         </div>
       </div>
 
-      {/* Basic Info */}
       <Card>
         <CardHeader>
           <CardTitle className="text-sm font-medium text-slate-600">ข้อมูลพื้นฐาน</CardTitle>
@@ -169,10 +158,13 @@ function VendorContractDetailPage() {
               value={c.value != null ? `฿${c.value.toLocaleString()}` : '—'}
             />
             <InfoField label="Payment Terms" value={c.payment_terms ?? '—'} />
-            <InfoField label="Alert Before Expiry" value={c.alert_days_before_expiry != null ? `${c.alert_days_before_expiry} days` : '—'} />
+            <InfoField
+              label="Alert Before Expiry"
+              value={c.alert_days_before_expiry != null ? `${c.alert_days_before_expiry} days` : '—'}
+            />
             <InfoField label="Auto-renew" value={c.auto_renew ? 'Yes' : 'No'} />
             {c.document_url && (
-              <div className="col-span-1">
+              <div>
                 <dt className="text-xs text-slate-500 mb-1">Document</dt>
                 <dd>
                   <a
@@ -196,7 +188,6 @@ function VendorContractDetailPage() {
         </CardContent>
       </Card>
 
-      {/* SLA */}
       {slaRows.length > 0 && (
         <Card>
           <CardHeader>
@@ -227,7 +218,6 @@ function VendorContractDetailPage() {
         </Card>
       )}
 
-      {/* Rate Card */}
       {rateCardRows.length > 0 && (
         <Card>
           <CardHeader>

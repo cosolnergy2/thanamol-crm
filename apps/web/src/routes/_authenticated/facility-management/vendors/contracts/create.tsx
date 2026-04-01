@@ -60,8 +60,8 @@ function VendorContractCreatePage() {
   const vendors = vendorsData?.data ?? []
   const projects = projectsData?.data ?? []
 
-  // Basic Info
   const [vendorId, setVendorId] = useState('')
+  const [title, setTitle] = useState('')
   const [contractType, setContractType] = useState('')
   const [serviceCategory, setServiceCategory] = useState('')
   const [projectId, setProjectId] = useState('')
@@ -70,15 +70,8 @@ function VendorContractCreatePage() {
   const [value, setValue] = useState('')
   const [paymentTerms, setPaymentTerms] = useState('')
   const [documentUrl, setDocumentUrl] = useState('')
-  const [title, setTitle] = useState('')
-
-  // SLA rows
   const [slaRows, setSlaRows] = useState<SlaRow[]>([newSlaRow()])
-
-  // Rate Card rows
   const [rateCardRows, setRateCardRows] = useState<RateCardRow[]>([newRateCardRow()])
-
-  // Settings
   const [alertDays, setAlertDays] = useState('30')
   const [autoRenew, setAutoRenew] = useState(false)
   const [status, setStatus] = useState<VendorContractStatus>('DRAFT')
@@ -88,16 +81,8 @@ function VendorContractCreatePage() {
     setSlaRows((rows) => rows.map((r) => (r.id === id ? { ...r, [field]: val } : r)))
   }
 
-  function removeSlaRow(id: string) {
-    setSlaRows((rows) => rows.filter((r) => r.id !== id))
-  }
-
   function updateRateCardRow(id: string, field: keyof Omit<RateCardRow, 'id'>, val: string) {
     setRateCardRows((rows) => rows.map((r) => (r.id === id ? { ...r, [field]: val } : r)))
-  }
-
-  function removeRateCardRow(id: string) {
-    setRateCardRows((rows) => rows.filter((r) => r.id !== id))
   }
 
   function buildSlaPayload() {
@@ -150,8 +135,6 @@ function VendorContractCreatePage() {
     )
   }
 
-  const canSubmit = vendorId && title && startDate && endDate && !createContract.isPending
-
   return (
     <div className="space-y-6 max-w-4xl">
       <div className="flex items-center gap-3">
@@ -173,7 +156,6 @@ function VendorContractCreatePage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Basic Info */}
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium text-slate-600">ข้อมูลพื้นฐาน</CardTitle>
@@ -211,6 +193,7 @@ function VendorContractCreatePage() {
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="__none__">None</SelectItem>
                     {VENDOR_CONTRACT_TYPES.map((t) => (
                       <SelectItem key={t} value={t}>
                         {t}
@@ -226,6 +209,7 @@ function VendorContractCreatePage() {
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="__none__">None</SelectItem>
                     {VENDOR_SERVICE_CATEGORIES.map((c) => (
                       <SelectItem key={c} value={c}>
                         {c}
@@ -300,7 +284,6 @@ function VendorContractCreatePage() {
           </CardContent>
         </Card>
 
-        {/* SLA */}
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium text-slate-600">เงื่อนไข SLA</CardTitle>
@@ -350,7 +333,7 @@ function VendorContractCreatePage() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 text-red-400 hover:text-red-600 shrink-0"
-                    onClick={() => removeSlaRow(row.id)}
+                    onClick={() => setSlaRows((rows) => rows.filter((r) => r.id !== row.id))}
                     disabled={slaRows.length === 1}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -371,7 +354,6 @@ function VendorContractCreatePage() {
           </CardContent>
         </Card>
 
-        {/* Rate Card */}
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium text-slate-600">อัตราค่าบริการ</CardTitle>
@@ -410,7 +392,7 @@ function VendorContractCreatePage() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 text-red-400 hover:text-red-600 shrink-0"
-                    onClick={() => removeRateCardRow(row.id)}
+                    onClick={() => setRateCardRows((rows) => rows.filter((r) => r.id !== row.id))}
                     disabled={rateCardRows.length === 1}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -431,7 +413,6 @@ function VendorContractCreatePage() {
           </CardContent>
         </Card>
 
-        {/* Settings */}
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium text-slate-600">การตั้งค่า</CardTitle>
@@ -508,7 +489,7 @@ function VendorContractCreatePage() {
           </Button>
           <Button
             type="submit"
-            disabled={!canSubmit}
+            disabled={!vendorId || !title || !startDate || !endDate || createContract.isPending}
             className="bg-indigo-600 hover:bg-indigo-700 gap-2"
           >
             <Save className="w-4 h-4" />

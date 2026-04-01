@@ -14,7 +14,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useVendorContract, useUpdateVendorContract } from '@/hooks/useVendorContracts'
-import { useVendors } from '@/hooks/useVendors'
 import { useProjects } from '@/hooks/useProjects'
 import {
   VENDOR_CONTRACT_TYPES,
@@ -90,13 +89,10 @@ function VendorContractEditPage() {
   const navigate = useNavigate()
   const { data, isLoading } = useVendorContract(contractId)
   const updateContract = useUpdateVendorContract(contractId)
-  const { data: vendorsData } = useVendors({ limit: 200 })
   const { data: projectsData } = useProjects({ limit: 200 })
 
-  const vendors = vendorsData?.data ?? []
   const projects = projectsData?.data ?? []
 
-  // Basic Info
   const [title, setTitle] = useState('')
   const [contractType, setContractType] = useState('')
   const [serviceCategory, setServiceCategory] = useState('')
@@ -106,17 +102,12 @@ function VendorContractEditPage() {
   const [value, setValue] = useState('')
   const [paymentTerms, setPaymentTerms] = useState('')
   const [documentUrl, setDocumentUrl] = useState('')
-
-  // SLA / Rate Card
   const [slaRows, setSlaRows] = useState<SlaRow[]>([newSlaRow()])
   const [rateCardRows, setRateCardRows] = useState<RateCardRow[]>([newRateCardRow()])
-
-  // Settings
   const [alertDays, setAlertDays] = useState('30')
   const [autoRenew, setAutoRenew] = useState(false)
   const [status, setStatus] = useState<VendorContractStatus>('DRAFT')
   const [scope, setScope] = useState('')
-
   const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
@@ -145,21 +136,13 @@ function VendorContractEditPage() {
     setSlaRows((rows) => rows.map((r) => (r.id === id ? { ...r, [field]: val } : r)))
   }
 
-  function removeSlaRow(id: string) {
-    setSlaRows((rows) => rows.filter((r) => r.id !== id))
-  }
-
   function updateRateCardRow(id: string, field: keyof Omit<RateCardRow, 'id'>, val: string) {
     setRateCardRows((rows) => rows.map((r) => (r.id === id ? { ...r, [field]: val } : r)))
   }
 
-  function removeRateCardRow(id: string) {
-    setRateCardRows((rows) => rows.filter((r) => r.id !== id))
-  }
-
   function buildSlaPayload() {
     const filled = slaRows.filter((r) => r.serviceType || r.responseTimeHours || r.resolutionTimeHours)
-    if (filled.length === 0) return null
+    if (filled.length === 0) return undefined
     return filled.map((r) => ({
       serviceType: r.serviceType,
       responseTimeHours: r.responseTimeHours ? Number(r.responseTimeHours) : null,
@@ -170,7 +153,7 @@ function VendorContractEditPage() {
 
   function buildRateCardPayload() {
     const filled = rateCardRows.filter((r) => r.service || r.rate)
-    if (filled.length === 0) return null
+    if (filled.length === 0) return undefined
     return filled.map((r) => ({
       service: r.service,
       unit: r.unit,
@@ -245,7 +228,6 @@ function VendorContractEditPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Basic Info */}
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium text-slate-600">ข้อมูลพื้นฐาน</CardTitle>
@@ -289,9 +271,9 @@ function VendorContractEditPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="__none__">None</SelectItem>
-                    {VENDOR_SERVICE_CATEGORIES.map((c) => (
-                      <SelectItem key={c} value={c}>
-                        {c}
+                    {VENDOR_SERVICE_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -363,7 +345,6 @@ function VendorContractEditPage() {
           </CardContent>
         </Card>
 
-        {/* SLA */}
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium text-slate-600">เงื่อนไข SLA</CardTitle>
@@ -413,7 +394,7 @@ function VendorContractEditPage() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 text-red-400 hover:text-red-600 shrink-0"
-                    onClick={() => removeSlaRow(row.id)}
+                    onClick={() => setSlaRows((rows) => rows.filter((r) => r.id !== row.id))}
                     disabled={slaRows.length === 1}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -434,7 +415,6 @@ function VendorContractEditPage() {
           </CardContent>
         </Card>
 
-        {/* Rate Card */}
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium text-slate-600">อัตราค่าบริการ</CardTitle>
@@ -473,7 +453,7 @@ function VendorContractEditPage() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 text-red-400 hover:text-red-600 shrink-0"
-                    onClick={() => removeRateCardRow(row.id)}
+                    onClick={() => setRateCardRows((rows) => rows.filter((r) => r.id !== row.id))}
                     disabled={rateCardRows.length === 1}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -494,7 +474,6 @@ function VendorContractEditPage() {
           </CardContent>
         </Card>
 
-        {/* Settings */}
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium text-slate-600">การตั้งค่า</CardTitle>
