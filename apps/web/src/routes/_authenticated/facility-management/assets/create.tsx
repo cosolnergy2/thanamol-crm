@@ -13,11 +13,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 import { PageHeader } from '@/components/PageHeader'
 import { useCreateAsset, useAssetCategories } from '@/hooks/useAssets'
 import { useProjects } from '@/hooks/useProjects'
 import { useZones } from '@/hooks/useZones'
 import { useVendors } from '@/hooks/useVendors'
+import { useCompanies } from '@/hooks/useCompanies'
+import { useUnits } from '@/hooks/useUnits'
+import { useUsers } from '@/hooks/useUsers'
 import type { AssetStatus } from '@thanamol/shared'
 import {
   ASSET_SCOPE_TYPES,
@@ -40,6 +44,13 @@ const ASSET_STATUSES: Array<{ value: AssetStatus; label: string }> = [
 
 const EXTRA_ASSET_CATEGORIES = ['Officer', 'Other'] as const
 
+function generateAssetCode(projectCode: string, categoryName: string, index: number): string {
+  const projPart = (projectCode || 'XXX').slice(0, 3).toUpperCase()
+  const catPart = (categoryName || 'XX').slice(0, 2).toUpperCase()
+  const seq = String(index).padStart(4, '0')
+  return `${projPart}-${catPart}-${seq}`
+}
+
 function AssetCreatePage() {
   const navigate = useNavigate()
   const createAsset = useCreateAsset()
@@ -47,8 +58,9 @@ function AssetCreatePage() {
   const [form, setForm] = useState({
     name: '',
     description: '',
+    companyId: '',
     projectId: '',
-    categoryId: '',
+    siteId: '',
     zoneId: '',
     unitId: '',
     locationDetail: '',
@@ -64,6 +76,7 @@ function AssetCreatePage() {
     modelName: '',
     serialNumber: '',
     supplierId: '',
+    backupSupplierId: '',
     supplierPhone: '',
     purchaseCost: '',
     purchaseDate: '',
@@ -73,7 +86,13 @@ function AssetCreatePage() {
     specifications: '',
     notes: '',
     imageUrl: '',
+    categoryId: '',
+    assignedTo: '',
+    assetCode: '',
   })
+
+  const [autoAssetCode, setAutoAssetCode] = useState(true)
+  const [generateQr, setGenerateQr] = useState(false)
 
   const { data: projectsData } = useProjects({ limit: 100 })
   const projects = projectsData?.data ?? []
@@ -84,11 +103,33 @@ function AssetCreatePage() {
   const { data: zonesData } = useZones({ projectId: form.projectId })
   const zones = zonesData?.data ?? []
 
+  const { data: unitsData } = useUnits({ projectId: form.projectId || undefined, limit: 100 })
+  const units = unitsData?.data ?? []
+
   const { data: vendorsData } = useVendors({ limit: 100 })
   const vendors = vendorsData?.data ?? []
 
+  const { data: companiesData } = useCompanies({ limit: 100 })
+  const companies = companiesData?.data ?? []
+
+  const { data: usersData } = useUsers()
+  const users = usersData?.users ?? []
+
+  const sites = projects.filter((p) => (p as unknown as { is_site?: boolean }).is_site)
+
+  const selectedProject = projects.find((p) => p.id === form.projectId)
+  const selectedCategory = categories.find((c) => c.id === form.categoryId)
+
+  const computedAssetCode = autoAssetCode
+    ? generateAssetCode(selectedProject?.code ?? '', selectedCategory?.name ?? '', 1)
+    : form.assetCode
+
   function handleChange(field: string, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }))
+  }
+
+  function handleProjectChange(value: string) {
+    setForm((prev) => ({ ...prev, projectId: value, zoneId: '', unitId: '' }))
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -102,14 +143,28 @@ function AssetCreatePage() {
       return
     }
 
+    const specificationsPayload: Record<string, unknown> = {}
+    if (form.specifications.trim()) {
+      specificationsPayload.specifications = form.specifications
+    }
+    if (generateQr) {
+      specificationsPayload.qr_auto = true
+    }
+    if (form.backupSupplierId && form.backupSupplierId !== '__none__') {
+      specificationsPayload.backup_supplier_id = form.backupSupplierId
+    }
+    if (!autoAssetCode && form.assetCode) {
+      specificationsPayload.asset_code_manual = form.assetCode
+    }
+
     try {
       await createAsset.mutateAsync({
         name: form.name,
         description: form.description || undefined,
         projectId: form.projectId,
-        categoryId: form.categoryId || undefined,
-        zoneId: form.zoneId || undefined,
-        unitId: form.unitId || undefined,
+        categoryId: form.categoryId && form.categoryId !== '__none__' ? form.categoryId : undefined,
+        zoneId: form.zoneId && form.zoneId !== '__none__' ? form.zoneId : undefined,
+        unitId: form.unitId && form.unitId !== '__none__' ? form.unitId : undefined,
         locationDetail: form.locationDetail || undefined,
         status: form.status,
         scopeType: form.scopeType || undefined,
@@ -120,14 +175,13 @@ function AssetCreatePage() {
         brand: form.brand || undefined,
         modelName: form.modelName || undefined,
         serialNumber: form.serialNumber || undefined,
-        supplierId: form.supplierId || undefined,
+        supplierId: form.supplierId && form.supplierId !== '__none__' ? form.supplierId : undefined,
         purchaseCost: form.purchaseCost ? Number(form.purchaseCost) : undefined,
         purchaseDate: form.purchaseDate || undefined,
         installDate: form.installDate || undefined,
         warrantyExpiry: form.warrantyExpiry || undefined,
-        specifications: form.specifications
-          ? { notes: form.specifications }
-          : undefined,
+        assignedTo: form.assignedTo && form.assignedTo !== '__none__' ? form.assignedTo : undefined,
+        specifications: Object.keys(specificationsPayload).length > 0 ? specificationsPayload : undefined,
         photos: form.imageUrl ? [form.imageUrl] : undefined,
       })
       toast.success('Asset created successfully')
@@ -150,6 +204,36 @@ function AssetCreatePage() {
               <CardTitle className="text-sm font-light text-slate-600">Basic Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Asset Code */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="assetCode">Asset Code</Label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-500">Auto</span>
+                    <Switch
+                      checked={autoAssetCode}
+                      onCheckedChange={setAutoAssetCode}
+                      id="autoAssetCode"
+                    />
+                  </div>
+                </div>
+                {autoAssetCode ? (
+                  <Input
+                    id="assetCode"
+                    value={computedAssetCode}
+                    readOnly
+                    className="bg-slate-50 text-slate-500"
+                  />
+                ) : (
+                  <Input
+                    id="assetCode"
+                    value={form.assetCode}
+                    onChange={(e) => handleChange('assetCode', e.target.value)}
+                    placeholder="e.g. PRJ-AC-0001"
+                  />
+                )}
+              </div>
+
               <div className="space-y-1.5">
                 <Label htmlFor="name">
                   Name <span className="text-rose-500">*</span>
@@ -212,6 +296,23 @@ function AssetCreatePage() {
                 </Select>
               </div>
 
+              <div className="space-y-1.5">
+                <Label htmlFor="assignedTo">ผู้ดูแล (Assigned To)</Label>
+                <Select value={form.assignedTo} onValueChange={(v) => handleChange('assignedTo', v)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select assignee" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">Unassigned</SelectItem>
+                    {users.map((u) => (
+                      <SelectItem key={u.id} value={u.id}>
+                        {u.first_name} {u.last_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="criticality">Criticality</Label>
@@ -267,6 +368,23 @@ function AssetCreatePage() {
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* QR Code toggle */}
+              <div className="flex items-center justify-between rounded-md border border-slate-200 p-3">
+                <div>
+                  <p className="text-sm font-medium text-slate-700">สร้าง QR อัตโนมัติ</p>
+                  {generateQr && (
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      ระบบจะสร้าง QR Code ให้อัตโนมัติจากรหัส Asset หลังจากบันทึก
+                    </p>
+                  )}
+                </div>
+                <Switch
+                  checked={generateQr}
+                  onCheckedChange={setGenerateQr}
+                  id="generateQr"
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -276,59 +394,126 @@ function AssetCreatePage() {
               <CardTitle className="text-sm font-light text-slate-600">Ownership & Location</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="scopeType">Scope Type</Label>
-                <Select value={form.scopeType} onValueChange={(v) => handleChange('scopeType', v)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select scope type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ASSET_SCOPE_TYPES.map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {s}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              {/* Row 1: Scope Type | Company | Project */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="scopeType">Scope Type</Label>
+                  <Select value={form.scopeType} onValueChange={(v) => handleChange('scopeType', v)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select scope" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ASSET_SCOPE_TYPES.map((s) => (
+                        <SelectItem key={s} value={s}>
+                          {s}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="companyId">Company</Label>
+                  <Select value={form.companyId} onValueChange={(v) => handleChange('companyId', v)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select company" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">No company</SelectItem>
+                      {companies.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="project">
+                    Project <span className="text-rose-500">*</span>
+                  </Label>
+                  <Select value={form.projectId} onValueChange={handleProjectChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select project" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {projects.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>
+                          {p.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="project">
-                  Project <span className="text-rose-500">*</span>
-                </Label>
-                <Select value={form.projectId} onValueChange={(v) => handleChange('projectId', v)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select project" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {projects.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>
-                        {p.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {/* Row 2: Site | Zone | Unit */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="siteId">Site</Label>
+                  <Select value={form.siteId} onValueChange={(v) => handleChange('siteId', v)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select site" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">No site</SelectItem>
+                      {sites.length > 0
+                        ? sites.map((p) => (
+                            <SelectItem key={p.id} value={p.id}>
+                              {p.name}
+                            </SelectItem>
+                          ))
+                        : projects.map((p) => (
+                            <SelectItem key={p.id} value={p.id}>
+                              {p.name}
+                            </SelectItem>
+                          ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="zone">Zone</Label>
-                <Select
-                  value={form.zoneId}
-                  onValueChange={(v) => handleChange('zoneId', v)}
-                  disabled={!form.projectId}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select zone" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="__none__">No zone</SelectItem>
-                    {zones.map((z) => (
-                      <SelectItem key={z.id} value={z.id}>
-                        {z.code} — {z.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="space-y-1.5">
+                  <Label htmlFor="zone">Zone</Label>
+                  <Select
+                    value={form.zoneId}
+                    onValueChange={(v) => handleChange('zoneId', v)}
+                    disabled={!form.projectId}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select zone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">No zone</SelectItem>
+                      {zones.map((z) => (
+                        <SelectItem key={z.id} value={z.id}>
+                          {z.code} — {z.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="unitId">Unit</Label>
+                  <Select
+                    value={form.unitId}
+                    onValueChange={(v) => handleChange('unitId', v)}
+                    disabled={!form.projectId}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select unit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">No unit</SelectItem>
+                      {units.map((u) => (
+                        <SelectItem key={u.id} value={u.id}>
+                          {u.unit_number}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               <div className="space-y-1.5">
@@ -399,6 +584,26 @@ function AssetCreatePage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="__none__">No supplier</SelectItem>
+                    {vendors.map((v) => (
+                      <SelectItem key={v.id} value={v.id}>
+                        {v.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="backupSupplierId">Supplier สำรอง (ซ่อมบำรุง)</Label>
+                <Select
+                  value={form.backupSupplierId}
+                  onValueChange={(v) => handleChange('backupSupplierId', v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select backup supplier" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">No backup supplier</SelectItem>
                     {vendors.map((v) => (
                       <SelectItem key={v.id} value={v.id}>
                         {v.name}
