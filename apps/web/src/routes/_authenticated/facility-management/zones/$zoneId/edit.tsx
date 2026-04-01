@@ -184,7 +184,7 @@ function ZoneEditPage() {
             <div className="space-y-2">
               <Label htmlFor="parentZoneId">Parent Zone</Label>
               <Select
-                value={parentZoneIdValue ?? ''}
+                value={parentZoneIdValue || 'none'}
                 onValueChange={(v) => setValue('parentZoneId', v === 'none' ? '' : v)}
               >
                 <SelectTrigger id="parentZoneId">
