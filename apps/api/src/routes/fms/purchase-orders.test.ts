@@ -210,7 +210,25 @@ describe('POST /api/fms/purchase-orders/:id/cancel', () => {
       status: 'CANCELLED',
     } as never)
 
-    const res = await req('POST', '/api/fms/purchase-orders/po-1/cancel', undefined, token)
+    const res = await req('POST', '/api/fms/purchase-orders/po-1/cancel', {}, token)
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.po.status).toBe('CANCELLED')
+  })
+
+  it('cancels a PO with a reason', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.purchaseOrder.findUnique).mockResolvedValue({
+      ...mockPO,
+      status: 'ISSUED',
+    } as never)
+    vi.mocked(prisma.purchaseOrder.update).mockResolvedValue({
+      ...mockPO,
+      status: 'CANCELLED',
+      notes: 'Cancelled: budget cut',
+    } as never)
+
+    const res = await req('POST', '/api/fms/purchase-orders/po-1/cancel', { reason: 'budget cut' }, token)
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.po.status).toBe('CANCELLED')
@@ -223,8 +241,46 @@ describe('POST /api/fms/purchase-orders/:id/cancel', () => {
       status: 'FULLY_RECEIVED',
     } as never)
 
-    const res = await req('POST', '/api/fms/purchase-orders/po-1/cancel', undefined, token)
+    const res = await req('POST', '/api/fms/purchase-orders/po-1/cancel', {}, token)
     expect(res.status).toBe(400)
+  })
+})
+
+describe('POST /api/fms/purchase-orders/:id/close', () => {
+  it('closes a fully received PO', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.purchaseOrder.findUnique).mockResolvedValue({
+      ...mockPO,
+      status: 'FULLY_RECEIVED',
+    } as never)
+    vi.mocked(prisma.purchaseOrder.update).mockResolvedValue({
+      ...mockPO,
+      status: 'CLOSED',
+    } as never)
+
+    const res = await req('POST', '/api/fms/purchase-orders/po-1/close', undefined, token)
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.po.status).toBe('CLOSED')
+  })
+
+  it('returns 400 when closing a non-fully-received PO', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.purchaseOrder.findUnique).mockResolvedValue({
+      ...mockPO,
+      status: 'ISSUED',
+    } as never)
+
+    const res = await req('POST', '/api/fms/purchase-orders/po-1/close', undefined, token)
+    expect(res.status).toBe(400)
+  })
+
+  it('returns 404 for unknown PO on close', async () => {
+    const token = await signToken()
+    vi.mocked(prisma.purchaseOrder.findUnique).mockResolvedValue(null)
+
+    const res = await req('POST', '/api/fms/purchase-orders/unknown/close', undefined, token)
+    expect(res.status).toBe(404)
   })
 })
 

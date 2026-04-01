@@ -108,8 +108,22 @@ export function useReceivePurchaseOrder() {
 export function useCancelPurchaseOrder() {
   const queryClient = useQueryClient()
   return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
+      apiPost<{ po: PurchaseOrderWithRelations }>(`/fms/purchase-orders/${id}/cancel`, {
+        reason,
+      }),
+    onSuccess: (_data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: PO_QUERY_KEYS.all })
+      queryClient.invalidateQueries({ queryKey: PO_QUERY_KEYS.detail(id) })
+    },
+  })
+}
+
+export function useClosePurchaseOrder() {
+  const queryClient = useQueryClient()
+  return useMutation({
     mutationFn: (id: string) =>
-      apiPost<{ po: PurchaseOrderWithRelations }>(`/fms/purchase-orders/${id}/cancel`, {}),
+      apiPost<{ po: PurchaseOrderWithRelations }>(`/fms/purchase-orders/${id}/close`, {}),
     onSuccess: (_data, id) => {
       queryClient.invalidateQueries({ queryKey: PO_QUERY_KEYS.all })
       queryClient.invalidateQueries({ queryKey: PO_QUERY_KEYS.detail(id) })

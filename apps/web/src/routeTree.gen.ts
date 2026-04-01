@@ -188,7 +188,6 @@ import { Route as AuthenticatedFacilityManagementProcurementRequestsPrIdIndexRou
 import { Route as AuthenticatedFacilityManagementProcurementOrdersPoIdIndexRouteImport } from './routes/_authenticated/facility-management/procurement/orders/$poId/index'
 import { Route as AuthenticatedFacilityManagementInventoryStockIssuesIssueIdIndexRouteImport } from './routes/_authenticated/facility-management/inventory/stock-issues/$issueId/index'
 import { Route as AuthenticatedFacilityManagementInventoryGrnGrnIdIndexRouteImport } from './routes/_authenticated/facility-management/inventory/grn/$grnId/index'
-import { Route as AuthenticatedFacilityManagementProcurementRequestsPrIdEditRouteImport } from './routes/_authenticated/facility-management/procurement/requests/$prId/edit'
 import { Route as AuthenticatedFacilityManagementProcurementOrdersPoIdEditRouteImport } from './routes/_authenticated/facility-management/procurement/orders/$poId/edit'
 
 const LoginRoute = LoginRouteImport.update({
@@ -1264,12 +1263,6 @@ const AuthenticatedFacilityManagementInventoryGrnGrnIdIndexRoute =
     path: '/facility-management/inventory/grn/$grnId/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedFacilityManagementProcurementRequestsPrIdEditRoute =
-  AuthenticatedFacilityManagementProcurementRequestsPrIdEditRouteImport.update({
-    id: '/facility-management/procurement/requests/$prId/edit',
-    path: '/facility-management/procurement/requests/$prId/edit',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
 const AuthenticatedFacilityManagementProcurementOrdersPoIdEditRoute =
   AuthenticatedFacilityManagementProcurementOrdersPoIdEditRouteImport.update({
     id: '/facility-management/procurement/orders/$poId/edit',
@@ -1453,7 +1446,6 @@ export interface FileRoutesByFullPath {
   '/forms/sale-job04-f01/$id/': typeof AuthenticatedFormsSaleJob04F01IdIndexRoute
   '/quotations/commercial/$id/': typeof AuthenticatedQuotationsCommercialIdIndexRoute
   '/facility-management/procurement/orders/$poId/edit': typeof AuthenticatedFacilityManagementProcurementOrdersPoIdEditRoute
-  '/facility-management/procurement/requests/$prId/edit': typeof AuthenticatedFacilityManagementProcurementRequestsPrIdEditRoute
   '/facility-management/inventory/grn/$grnId/': typeof AuthenticatedFacilityManagementInventoryGrnGrnIdIndexRoute
   '/facility-management/inventory/stock-issues/$issueId/': typeof AuthenticatedFacilityManagementInventoryStockIssuesIssueIdIndexRoute
   '/facility-management/procurement/orders/$poId/': typeof AuthenticatedFacilityManagementProcurementOrdersPoIdIndexRoute
@@ -1635,7 +1627,6 @@ export interface FileRoutesByTo {
   '/forms/sale-job04-f01/$id': typeof AuthenticatedFormsSaleJob04F01IdIndexRoute
   '/quotations/commercial/$id': typeof AuthenticatedQuotationsCommercialIdIndexRoute
   '/facility-management/procurement/orders/$poId/edit': typeof AuthenticatedFacilityManagementProcurementOrdersPoIdEditRoute
-  '/facility-management/procurement/requests/$prId/edit': typeof AuthenticatedFacilityManagementProcurementRequestsPrIdEditRoute
   '/facility-management/inventory/grn/$grnId': typeof AuthenticatedFacilityManagementInventoryGrnGrnIdIndexRoute
   '/facility-management/inventory/stock-issues/$issueId': typeof AuthenticatedFacilityManagementInventoryStockIssuesIssueIdIndexRoute
   '/facility-management/procurement/orders/$poId': typeof AuthenticatedFacilityManagementProcurementOrdersPoIdIndexRoute
@@ -1819,7 +1810,6 @@ export interface FileRoutesById {
   '/_authenticated/forms/sale-job04-f01/$id/': typeof AuthenticatedFormsSaleJob04F01IdIndexRoute
   '/_authenticated/quotations/commercial/$id/': typeof AuthenticatedQuotationsCommercialIdIndexRoute
   '/_authenticated/facility-management/procurement/orders/$poId/edit': typeof AuthenticatedFacilityManagementProcurementOrdersPoIdEditRoute
-  '/_authenticated/facility-management/procurement/requests/$prId/edit': typeof AuthenticatedFacilityManagementProcurementRequestsPrIdEditRoute
   '/_authenticated/facility-management/inventory/grn/$grnId/': typeof AuthenticatedFacilityManagementInventoryGrnGrnIdIndexRoute
   '/_authenticated/facility-management/inventory/stock-issues/$issueId/': typeof AuthenticatedFacilityManagementInventoryStockIssuesIssueIdIndexRoute
   '/_authenticated/facility-management/procurement/orders/$poId/': typeof AuthenticatedFacilityManagementProcurementOrdersPoIdIndexRoute
@@ -2003,7 +1993,6 @@ export interface FileRouteTypes {
     | '/forms/sale-job04-f01/$id/'
     | '/quotations/commercial/$id/'
     | '/facility-management/procurement/orders/$poId/edit'
-    | '/facility-management/procurement/requests/$prId/edit'
     | '/facility-management/inventory/grn/$grnId/'
     | '/facility-management/inventory/stock-issues/$issueId/'
     | '/facility-management/procurement/orders/$poId/'
@@ -2185,7 +2174,6 @@ export interface FileRouteTypes {
     | '/forms/sale-job04-f01/$id'
     | '/quotations/commercial/$id'
     | '/facility-management/procurement/orders/$poId/edit'
-    | '/facility-management/procurement/requests/$prId/edit'
     | '/facility-management/inventory/grn/$grnId'
     | '/facility-management/inventory/stock-issues/$issueId'
     | '/facility-management/procurement/orders/$poId'
@@ -2368,7 +2356,6 @@ export interface FileRouteTypes {
     | '/_authenticated/forms/sale-job04-f01/$id/'
     | '/_authenticated/quotations/commercial/$id/'
     | '/_authenticated/facility-management/procurement/orders/$poId/edit'
-    | '/_authenticated/facility-management/procurement/requests/$prId/edit'
     | '/_authenticated/facility-management/inventory/grn/$grnId/'
     | '/_authenticated/facility-management/inventory/stock-issues/$issueId/'
     | '/_authenticated/facility-management/procurement/orders/$poId/'
@@ -3635,13 +3622,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFacilityManagementInventoryGrnGrnIdIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/facility-management/procurement/requests/$prId/edit': {
-      id: '/_authenticated/facility-management/procurement/requests/$prId/edit'
-      path: '/facility-management/procurement/requests/$prId/edit'
-      fullPath: '/facility-management/procurement/requests/$prId/edit'
-      preLoaderRoute: typeof AuthenticatedFacilityManagementProcurementRequestsPrIdEditRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/facility-management/procurement/orders/$poId/edit': {
       id: '/_authenticated/facility-management/procurement/orders/$poId/edit'
       path: '/facility-management/procurement/orders/$poId/edit'
@@ -3827,7 +3807,6 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFormsSaleJob04F01IdIndexRoute: typeof AuthenticatedFormsSaleJob04F01IdIndexRoute
   AuthenticatedQuotationsCommercialIdIndexRoute: typeof AuthenticatedQuotationsCommercialIdIndexRoute
   AuthenticatedFacilityManagementProcurementOrdersPoIdEditRoute: typeof AuthenticatedFacilityManagementProcurementOrdersPoIdEditRoute
-  AuthenticatedFacilityManagementProcurementRequestsPrIdEditRoute: typeof AuthenticatedFacilityManagementProcurementRequestsPrIdEditRoute
   AuthenticatedFacilityManagementInventoryGrnGrnIdIndexRoute: typeof AuthenticatedFacilityManagementInventoryGrnGrnIdIndexRoute
   AuthenticatedFacilityManagementInventoryStockIssuesIssueIdIndexRoute: typeof AuthenticatedFacilityManagementInventoryStockIssuesIssueIdIndexRoute
   AuthenticatedFacilityManagementProcurementOrdersPoIdIndexRoute: typeof AuthenticatedFacilityManagementProcurementOrdersPoIdIndexRoute
@@ -4118,8 +4097,6 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedQuotationsCommercialIdIndexRoute,
   AuthenticatedFacilityManagementProcurementOrdersPoIdEditRoute:
     AuthenticatedFacilityManagementProcurementOrdersPoIdEditRoute,
-  AuthenticatedFacilityManagementProcurementRequestsPrIdEditRoute:
-    AuthenticatedFacilityManagementProcurementRequestsPrIdEditRoute,
   AuthenticatedFacilityManagementInventoryGrnGrnIdIndexRoute:
     AuthenticatedFacilityManagementInventoryGrnGrnIdIndexRoute,
   AuthenticatedFacilityManagementInventoryStockIssuesIssueIdIndexRoute:
