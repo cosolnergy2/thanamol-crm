@@ -2,14 +2,16 @@
   "mcpServers": {
     "automated-test": {
       "command": "bun",
-      "args": ["run", "src/index.ts"],
-      "cwd": "/Users/jettapat/personal/7tapat/projects/thanamol-crm/mcp/browser",
+      "args": [
+        "run",
+        "mcp/browser/src/index.ts"
+      ],
       "env": {
         "HEADLESS": "false",
-        "CHROME_DATA_DIR": "./chrome-data",
+        "CHROME_DATA_DIR": "mcp/browser/chrome-data",
         "VIEWPORT_WIDTH": "1920",
         "VIEWPORT_HEIGHT": "1080",
-        "REPORT_DIR": "./reports"
+        "REPORT_DIR": "mcp/browser/reports"
       }
     }
   }
