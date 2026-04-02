@@ -36,21 +36,25 @@ const grnItemSchema = t.Object({
 })
 
 const createGRNSchema = t.Object({
-  supplierName: t.String({ minLength: 1 }),
+  supplierName: t.Optional(t.String()),
   items: t.Array(grnItemSchema, { minItems: 1 }),
   receivedDate: t.String({ minLength: 1 }),
   receivedBy: t.Optional(t.String()),
   inspectionNotes: t.Optional(t.String()),
   projectId: t.Optional(t.String()),
+  poId: t.Optional(t.String()),
+  qcStatus: t.Optional(t.String()),
 })
 
 const updateGRNSchema = t.Object({
-  supplierName: t.Optional(t.String({ minLength: 1 })),
+  supplierName: t.Optional(t.String()),
   receivedDate: t.Optional(t.String()),
   receivedBy: t.Optional(t.String()),
   status: t.Optional(t.String()),
   inspectionNotes: t.Optional(t.String()),
   projectId: t.Optional(t.String()),
+  poId: t.Optional(t.String()),
+  qcStatus: t.Optional(t.String()),
 })
 
 export const fmsGRNRoutes = new Elysia({ prefix: '/api/fms/grn' })
@@ -122,15 +126,23 @@ export const fmsGRNRoutes = new Elysia({ prefix: '/api/fms/grn' })
           async ({ body, set }) => {
             const grnNumber = await generateGRNNumber()
 
+            let supplierName = body.supplierName ?? ''
+            if (body.poId && !supplierName) {
+              const po = await prisma.purchaseOrder.findUnique({ where: { id: body.poId } })
+              if (po) supplierName = po.vendor_name
+            }
+
             const grn = await prisma.goodsReceivedNote.create({
               data: {
                 grn_number: grnNumber,
-                supplier_name: body.supplierName,
+                supplier_name: supplierName,
                 items: body.items as object[],
                 received_date: new Date(body.receivedDate),
                 received_by: body.receivedBy ?? null,
                 inspection_notes: body.inspectionNotes ?? null,
                 project_id: body.projectId ?? null,
+                po_id: body.poId ?? null,
+                qc_status: body.qcStatus ?? null,
                 status: 'DRAFT',
               },
               include: grnInclude,
@@ -166,6 +178,8 @@ export const fmsGRNRoutes = new Elysia({ prefix: '/api/fms/grn' })
                 status: body.status as GRNStatus | undefined,
                 inspection_notes: body.inspectionNotes,
                 project_id: body.projectId,
+                po_id: body.poId,
+                qc_status: body.qcStatus,
               },
               include: grnInclude,
             })

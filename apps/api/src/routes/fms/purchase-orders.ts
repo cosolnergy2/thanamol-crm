@@ -32,16 +32,32 @@ const poItemSchema = t.Object({
   unit_of_measure: t.Optional(t.String()),
   unit_price: t.Number({ minimum: 0 }),
   total: t.Number({ minimum: 0 }),
+  item_type: t.Optional(t.String()),
+  buy_or_rent: t.Optional(t.Union([t.Literal('buy'), t.Literal('rent')])),
+  budget_code: t.Optional(t.String()),
+  supplier: t.Optional(t.String()),
+  specification: t.Optional(t.String()),
+  category: t.Optional(t.String()),
+  asset_id: t.Optional(t.String()),
 })
 
 const createPOSchema = t.Object({
   prId: t.Optional(t.String()),
   vendorName: t.String({ minLength: 1 }),
   projectId: t.Optional(t.String()),
+  companyId: t.Optional(t.String()),
+  siteId: t.Optional(t.String()),
+  unitId: t.Optional(t.String()),
   items: t.Array(poItemSchema, { minItems: 1 }),
   deliveryDate: t.Optional(t.String()),
+  poDate: t.Optional(t.String()),
+  paymentDueDate: t.Optional(t.String()),
   paymentTerms: t.Optional(t.String()),
+  poType: t.Optional(t.String()),
+  deliveryAddress: t.Optional(t.String()),
   notes: t.Optional(t.String()),
+  documents: t.Optional(t.Any()),
+  conditions: t.Optional(t.Any()),
   createdBy: t.String({ minLength: 1 }),
 })
 
@@ -49,10 +65,19 @@ const updatePOSchema = t.Object({
   prId: t.Optional(t.Nullable(t.String())),
   vendorName: t.Optional(t.String({ minLength: 1 })),
   projectId: t.Optional(t.Nullable(t.String())),
+  companyId: t.Optional(t.Nullable(t.String())),
+  siteId: t.Optional(t.Nullable(t.String())),
+  unitId: t.Optional(t.Nullable(t.String())),
   items: t.Optional(t.Array(poItemSchema)),
   deliveryDate: t.Optional(t.Nullable(t.String())),
+  poDate: t.Optional(t.Nullable(t.String())),
+  paymentDueDate: t.Optional(t.Nullable(t.String())),
   paymentTerms: t.Optional(t.Nullable(t.String())),
+  poType: t.Optional(t.Nullable(t.String())),
+  deliveryAddress: t.Optional(t.Nullable(t.String())),
   notes: t.Optional(t.Nullable(t.String())),
+  documents: t.Optional(t.Any()),
+  conditions: t.Optional(t.Any()),
 })
 
 function calculateTotals(items: Array<{ quantity: number; unit_price: number; total: number }>) {
@@ -140,13 +165,22 @@ export const fmsPurchaseOrdersRoutes = new Elysia({ prefix: '/api/fms/purchase-o
                 pr_id: body.prId ?? null,
                 vendor_name: body.vendorName,
                 project_id: body.projectId ?? null,
+                company_id: body.companyId ?? null,
+                site_id: body.siteId ?? null,
+                unit_id: body.unitId ?? null,
                 items: body.items as object[],
                 subtotal,
                 tax,
                 total,
                 delivery_date: body.deliveryDate ? new Date(body.deliveryDate) : null,
+                po_date: body.poDate ? new Date(body.poDate) : null,
+                payment_due_date: body.paymentDueDate ? new Date(body.paymentDueDate) : null,
                 payment_terms: body.paymentTerms ?? null,
+                po_type: body.poType ?? null,
+                delivery_address: body.deliveryAddress ?? null,
                 notes: body.notes ?? null,
+                documents: body.documents ?? null,
+                conditions: body.conditions ?? null,
                 created_by: body.createdBy,
               },
               include: poInclude,
@@ -187,13 +221,22 @@ export const fmsPurchaseOrdersRoutes = new Elysia({ prefix: '/api/fms/purchase-o
                 pr_id: body.prId,
                 vendor_name: body.vendorName,
                 project_id: body.projectId,
+                company_id: body.companyId,
+                site_id: body.siteId,
+                unit_id: body.unitId,
                 items: body.items as object[] | undefined,
                 subtotal,
                 tax,
                 total,
                 delivery_date: body.deliveryDate ? new Date(body.deliveryDate) : undefined,
+                po_date: body.poDate ? new Date(body.poDate) : undefined,
+                payment_due_date: body.paymentDueDate ? new Date(body.paymentDueDate) : undefined,
                 payment_terms: body.paymentTerms,
+                po_type: body.poType,
+                delivery_address: body.deliveryAddress,
                 notes: body.notes,
+                documents: body.documents,
+                conditions: body.conditions,
               },
               include: poInclude,
             })
@@ -264,20 +307,50 @@ export const fmsPurchaseOrdersRoutes = new Elysia({ prefix: '/api/fms/purchase-o
             }),
           }
         )
-        .post('/:id/cancel', async ({ params, set }) => {
+        .post(
+          '/:id/cancel',
+          async ({ params, body, set }) => {
+            const po = await prisma.purchaseOrder.findUnique({ where: { id: params.id } })
+            if (!po) {
+              set.status = 404
+              return { error: 'Purchase order not found' }
+            }
+            if (['FULLY_RECEIVED', 'CLOSED', 'CANCELLED'].includes(po.status)) {
+              set.status = 400
+              return { error: 'Cannot cancel a fully received, closed, or already cancelled PO' }
+            }
+
+            const cancelNote = body.reason ? `Cancelled: ${body.reason}` : null
+            const updated = await prisma.purchaseOrder.update({
+              where: { id: params.id },
+              data: {
+                status: 'CANCELLED',
+                notes: cancelNote ?? po.notes,
+              },
+              include: poInclude,
+            })
+            return { po: updated }
+          },
+          {
+            body: t.Object({
+              reason: t.Optional(t.String()),
+            }),
+          }
+        )
+        .post('/:id/close', async ({ params, set }) => {
           const po = await prisma.purchaseOrder.findUnique({ where: { id: params.id } })
           if (!po) {
             set.status = 404
             return { error: 'Purchase order not found' }
           }
-          if (['FULLY_RECEIVED', 'CLOSED', 'CANCELLED'].includes(po.status)) {
+          if (po.status !== 'FULLY_RECEIVED') {
             set.status = 400
-            return { error: 'Cannot cancel a fully received, closed, or already cancelled PO' }
+            return { error: 'Only fully received purchase orders can be closed' }
           }
 
           const updated = await prisma.purchaseOrder.update({
             where: { id: params.id },
-            data: { status: 'CANCELLED' },
+            data: { status: 'CLOSED' },
             include: poInclude,
           })
           return { po: updated }

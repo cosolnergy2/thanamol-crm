@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { Plus, Search, Trash2, Star, GitCompare } from 'lucide-react'
+import { Plus, Search, Trash2, Star, GitCompare, BarChart2 } from 'lucide-react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -76,15 +76,27 @@ function QuotationListPage() {
             {data?.pagination.total ?? 0} quotations
           </p>
         </div>
-        <Button
-          className="bg-indigo-600 hover:bg-indigo-700 gap-2"
-          onClick={() =>
-            navigate({ to: '/facility-management/procurement/quotations/create' })
-          }
-        >
-          <Plus className="w-4 h-4" />
-          Add Quotation
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={() =>
+              navigate({ to: '/facility-management/procurement/quotations/compare' })
+            }
+          >
+            <BarChart2 className="w-4 h-4" />
+            Compare
+          </Button>
+          <Button
+            className="bg-indigo-600 hover:bg-indigo-700 gap-2"
+            onClick={() =>
+              navigate({ to: '/facility-management/procurement/quotations/create' })
+            }
+          >
+            <Plus className="w-4 h-4" />
+            Add Quotation
+          </Button>
+        </div>
       </div>
 
       <Card>
@@ -133,10 +145,28 @@ function QuotationListPage() {
                         {pr ? `PR: ${pr.pr_number} — ${pr.title}` : 'No PR linked'}
                       </h3>
                       {prQuotations.length > 1 && (
-                        <Badge variant="outline" className="gap-1">
-                          <GitCompare className="w-3 h-3" />
-                          {prQuotations.length} quotations
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="gap-1">
+                            <GitCompare className="w-3 h-3" />
+                            {prQuotations.length} quotations
+                          </Badge>
+                          {prKey !== 'no-pr' && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-xs gap-1"
+                              onClick={() =>
+                                navigate({
+                                  to: '/facility-management/procurement/quotations/compare',
+                                  search: { prId: prKey },
+                                })
+                              }
+                            >
+                              <GitCompare className="w-3 h-3" />
+                              Compare
+                            </Button>
+                          )}
+                        </div>
                       )}
                     </div>
 

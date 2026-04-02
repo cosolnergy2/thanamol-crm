@@ -15,7 +15,9 @@ import {
 } from '@/components/ui/select'
 import { useCreateInventoryItem, useInventoryCategories } from '@/hooks/useInventory'
 import { useProjects } from '@/hooks/useProjects'
-import { UNITS_OF_MEASURE } from '@thanamol/shared'
+import { useCompanies } from '@/hooks/useCompanies'
+import { useVendors } from '@/hooks/useVendors'
+import { UNITS_OF_MEASURE, INVENTORY_ITEM_TYPES } from '@thanamol/shared'
 
 export const Route = createFileRoute(
   '/_authenticated/facility-management/inventory/create'
@@ -23,44 +25,87 @@ export const Route = createFileRoute(
   component: InventoryCreatePage,
 })
 
+const ITEM_STATUS_OPTIONS = [
+  { value: 'true', label: 'Active' },
+  { value: 'false', label: 'Inactive' },
+]
+
 function InventoryCreatePage() {
   const navigate = useNavigate()
   const createItem = useCreateInventoryItem()
   const { data: categoriesData } = useInventoryCategories()
   const { data: projectsData } = useProjects({ limit: 100 })
+  const { data: companiesData } = useCompanies({ limit: 100 })
+  const { data: vendorsData } = useVendors({ limit: 100 })
 
   const [form, setForm] = useState({
     name: '',
-    description: '',
+    itemType: '',
     categoryId: '',
     unitOfMeasure: '',
+    barcode: '',
+    companyId: '',
+    projectId: '',
+    siteId: '',
+    storageLocation: '',
+    currentStock: '',
+    reorderPoint: '',
     minimumStock: '',
     maximumStock: '',
-    reorderPoint: '',
     reorderQuantity: '',
     unitCost: '',
-    storageLocation: '',
-    projectId: '',
+    vendorId: '',
+    vendorItemCode: '',
+    leadTimeDays: '',
+    backupVendorId: '',
+    backupVendorItemCode: '',
+    specifications: '',
+    description: '',
+    photoUrl: '',
+    isActive: 'true',
   })
 
   const categories = categoriesData?.data ?? []
   const projects = projectsData?.data ?? []
+  const companies = companiesData?.data ?? []
+  const vendors = vendorsData?.data ?? []
+
+  function buildSpecifications() {
+    const base: Record<string, string> = {}
+    if (form.vendorItemCode) base.vendorItemCode = form.vendorItemCode
+    if (form.backupVendorId) base.backupVendorId = form.backupVendorId
+    if (form.backupVendorItemCode) base.backupVendorItemCode = form.backupVendorItemCode
+    if (form.specifications) base.notes = form.specifications
+    return Object.keys(base).length > 0 ? base : undefined
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    const specs = buildSpecifications()
+    const photos = form.photoUrl ? [{ url: form.photoUrl }] : undefined
+
     createItem.mutate(
       {
         name: form.name,
         description: form.description || undefined,
-        categoryId: form.categoryId || undefined,
+        categoryId: form.categoryId && form.categoryId !== '__none__' ? form.categoryId : undefined,
         unitOfMeasure: form.unitOfMeasure || undefined,
+        currentStock: form.currentStock ? Number(form.currentStock) : undefined,
         minimumStock: form.minimumStock ? Number(form.minimumStock) : undefined,
         maximumStock: form.maximumStock ? Number(form.maximumStock) : undefined,
         reorderPoint: form.reorderPoint ? Number(form.reorderPoint) : undefined,
         reorderQuantity: form.reorderQuantity ? Number(form.reorderQuantity) : undefined,
         unitCost: form.unitCost ? Number(form.unitCost) : undefined,
         storageLocation: form.storageLocation || undefined,
-        projectId: form.projectId || undefined,
+        projectId: form.projectId && form.projectId !== '__none__' ? form.projectId : undefined,
+        itemType: form.itemType || undefined,
+        barcode: form.barcode || undefined,
+        companyId: form.companyId && form.companyId !== '__none__' ? form.companyId : undefined,
+        siteId: form.siteId && form.siteId !== '__none__' ? form.siteId : undefined,
+        specifications: specs,
+        vendorId: form.vendorId && form.vendorId !== '__none__' ? form.vendorId : undefined,
+        leadTimeDays: form.leadTimeDays ? Number(form.leadTimeDays) : undefined,
+        photos,
       },
       {
         onSuccess: (data) => {
@@ -88,7 +133,7 @@ function InventoryCreatePage() {
             Add Inventory Item
           </h1>
           <p className="text-sm text-slate-500 mt-1 font-extralight">
-            Register a new spare part or supply
+            Register a new spare part, consumable, tool, or equipment
           </p>
         </div>
       </div>
@@ -96,10 +141,20 @@ function InventoryCreatePage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base font-medium">Basic Information</CardTitle>
+            <CardTitle className="text-base font-medium">ข้อมูลพื้นฐาน / Basic Information</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="md:col-span-2">
+            <div>
+              <Label htmlFor="itemCode">Item Code (Auto-generated)</Label>
+              <Input
+                id="itemCode"
+                value="Auto-generated on save"
+                readOnly
+                disabled
+                className="bg-slate-50 text-slate-400 font-mono"
+              />
+            </div>
+            <div>
               <Label htmlFor="name">Item Name *</Label>
               <Input
                 id="name"
@@ -110,16 +165,34 @@ function InventoryCreatePage() {
               />
             </div>
             <div>
+              <Label htmlFor="itemType">Type</Label>
+              <Select
+                value={form.itemType}
+                onValueChange={(v) => setForm({ ...form, itemType: v })}
+              >
+                <SelectTrigger id="itemType">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {INVENTORY_ITEM_TYPES.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
               <Label htmlFor="categoryId">Category</Label>
               <Select
                 value={form.categoryId}
                 onValueChange={(v) => setForm({ ...form, categoryId: v })}
               >
-                <SelectTrigger>
+                <SelectTrigger id="categoryId">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="__all__">No category</SelectItem>
+                  <SelectItem value="__none__">No category</SelectItem>
                   {categories.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id}>
                       {cat.name}
@@ -134,7 +207,7 @@ function InventoryCreatePage() {
                 value={form.unitOfMeasure}
                 onValueChange={(v) => setForm({ ...form, unitOfMeasure: v })}
               >
-                <SelectTrigger>
+                <SelectTrigger id="unitOfMeasure">
                   <SelectValue placeholder="Select unit" />
                 </SelectTrigger>
                 <SelectContent>
@@ -146,14 +219,13 @@ function InventoryCreatePage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="md:col-span-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
-                rows={3}
-                placeholder="Item specifications and description"
+            <div>
+              <Label htmlFor="barcode">Barcode</Label>
+              <Input
+                id="barcode"
+                value={form.barcode}
+                onChange={(e) => setForm({ ...form, barcode: e.target.value })}
+                placeholder="e.g. 8850123456789"
               />
             </div>
           </CardContent>
@@ -161,30 +233,92 @@ function InventoryCreatePage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base font-medium">Stock Levels & Pricing</CardTitle>
+            <CardTitle className="text-base font-medium">ความเป็นเจ้าของและที่เก็บ / Ownership & Storage</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="companyId">Company</Label>
+              <Select
+                value={form.companyId}
+                onValueChange={(v) => setForm({ ...form, companyId: v })}
+              >
+                <SelectTrigger id="companyId">
+                  <SelectValue placeholder="Select company" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">No company</SelectItem>
+                  {companies.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="projectId">Project</Label>
+              <Select
+                value={form.projectId}
+                onValueChange={(v) => setForm({ ...form, projectId: v })}
+              >
+                <SelectTrigger id="projectId">
+                  <SelectValue placeholder="Select project" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">No project</SelectItem>
+                  {projects.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="siteId">Site</Label>
+              <Select
+                value={form.siteId}
+                onValueChange={(v) => setForm({ ...form, siteId: v })}
+              >
+                <SelectTrigger id="siteId">
+                  <SelectValue placeholder="Select site (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">No site</SelectItem>
+                  {projects.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="storageLocation">Storage Location</Label>
+              <Input
+                id="storageLocation"
+                value={form.storageLocation}
+                onChange={(e) => setForm({ ...form, storageLocation: e.target.value })}
+                placeholder="เช่น ชั้น A-1, โกดัง 3"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-medium">Stock และราคา / Stock & Pricing</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <Label htmlFor="minimumStock">Minimum Stock</Label>
+              <Label htmlFor="currentStock">Current Stock</Label>
               <Input
-                id="minimumStock"
+                id="currentStock"
                 type="number"
                 min="0"
-                step="0.01"
-                value={form.minimumStock}
-                onChange={(e) => setForm({ ...form, minimumStock: e.target.value })}
-                placeholder="0"
-              />
-            </div>
-            <div>
-              <Label htmlFor="maximumStock">Maximum Stock</Label>
-              <Input
-                id="maximumStock"
-                type="number"
-                min="0"
-                step="0.01"
-                value={form.maximumStock}
-                onChange={(e) => setForm({ ...form, maximumStock: e.target.value })}
+                step="0.001"
+                value={form.currentStock}
+                onChange={(e) => setForm({ ...form, currentStock: e.target.value })}
                 placeholder="0"
               />
             </div>
@@ -201,7 +335,31 @@ function InventoryCreatePage() {
               />
             </div>
             <div>
-              <Label htmlFor="reorderQuantity">Reorder Quantity</Label>
+              <Label htmlFor="minimumStock">Min Stock</Label>
+              <Input
+                id="minimumStock"
+                type="number"
+                min="0"
+                step="0.01"
+                value={form.minimumStock}
+                onChange={(e) => setForm({ ...form, minimumStock: e.target.value })}
+                placeholder="0"
+              />
+            </div>
+            <div>
+              <Label htmlFor="maximumStock">Max Stock</Label>
+              <Input
+                id="maximumStock"
+                type="number"
+                min="0"
+                step="0.01"
+                value={form.maximumStock}
+                onChange={(e) => setForm({ ...form, maximumStock: e.target.value })}
+                placeholder="0"
+              />
+            </div>
+            <div>
+              <Label htmlFor="reorderQuantity">Recommended Order Qty</Label>
               <Input
                 id="reorderQuantity"
                 type="number"
@@ -213,7 +371,7 @@ function InventoryCreatePage() {
               />
             </div>
             <div>
-              <Label htmlFor="unitCost">Unit Cost (฿)</Label>
+              <Label htmlFor="unitCost">Unit Price (฿)</Label>
               <Input
                 id="unitCost"
                 type="number"
@@ -229,32 +387,126 @@ function InventoryCreatePage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base font-medium">Location & Project</CardTitle>
+            <CardTitle className="text-base font-medium">Vendor & Lead Time</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="storageLocation">Storage Location</Label>
+              <Label htmlFor="vendorId">Primary Vendor</Label>
+              <Select
+                value={form.vendorId}
+                onValueChange={(v) => setForm({ ...form, vendorId: v })}
+              >
+                <SelectTrigger id="vendorId">
+                  <SelectValue placeholder="Select vendor" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">No vendor</SelectItem>
+                  {vendors.map((v) => (
+                    <SelectItem key={v.id} value={v.id}>
+                      {v.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="vendorItemCode">Vendor Item Code</Label>
               <Input
-                id="storageLocation"
-                value={form.storageLocation}
-                onChange={(e) => setForm({ ...form, storageLocation: e.target.value })}
-                placeholder="e.g. Shelf A-1, Warehouse B"
+                id="vendorItemCode"
+                value={form.vendorItemCode}
+                onChange={(e) => setForm({ ...form, vendorItemCode: e.target.value })}
+                placeholder="Vendor's part number"
               />
             </div>
             <div>
-              <Label htmlFor="projectId">Project</Label>
+              <Label htmlFor="leadTimeDays">Lead Time (days)</Label>
+              <Input
+                id="leadTimeDays"
+                type="number"
+                min="0"
+                value={form.leadTimeDays}
+                onChange={(e) => setForm({ ...form, leadTimeDays: e.target.value })}
+                placeholder="0"
+              />
+            </div>
+            <div>
+              <Label htmlFor="backupVendorId">Backup Vendor</Label>
               <Select
-                value={form.projectId}
-                onValueChange={(v) => setForm({ ...form, projectId: v })}
+                value={form.backupVendorId}
+                onValueChange={(v) => setForm({ ...form, backupVendorId: v })}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select project" />
+                <SelectTrigger id="backupVendorId">
+                  <SelectValue placeholder="Select backup vendor" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="__all__">No project</SelectItem>
-                  {projects.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.name}
+                  <SelectItem value="__none__">No backup vendor</SelectItem>
+                  {vendors.map((v) => (
+                    <SelectItem key={v.id} value={v.id}>
+                      {v.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="backupVendorItemCode">Backup Vendor Item Code</Label>
+              <Input
+                id="backupVendorItemCode"
+                value={form.backupVendorItemCode}
+                onChange={(e) => setForm({ ...form, backupVendorItemCode: e.target.value })}
+                placeholder="Backup vendor's part number"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-medium">รายละเอียดเพิ่มเติม / Additional</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="md:col-span-2">
+              <Label htmlFor="specifications">Specifications</Label>
+              <Textarea
+                id="specifications"
+                value={form.specifications}
+                onChange={(e) => setForm({ ...form, specifications: e.target.value })}
+                rows={3}
+                placeholder="Technical specifications, dimensions, part details"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <Label htmlFor="description">Notes</Label>
+              <Textarea
+                id="description"
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                rows={3}
+                placeholder="Additional notes or remarks"
+              />
+            </div>
+            <div>
+              <Label htmlFor="photoUrl">Image URL</Label>
+              <Input
+                id="photoUrl"
+                value={form.photoUrl}
+                onChange={(e) => setForm({ ...form, photoUrl: e.target.value })}
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+            <div>
+              <Label htmlFor="isActive">Status</Label>
+              <Select
+                value={form.isActive}
+                onValueChange={(v) => setForm({ ...form, isActive: v })}
+              >
+                <SelectTrigger id="isActive">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {ITEM_STATUS_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
                     </SelectItem>
                   ))}
                 </SelectContent>

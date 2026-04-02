@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { ClipboardList, Plus } from 'lucide-react'
+import { ClipboardList, ClipboardCheck, Plus, CheckCircle, XCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -20,6 +20,7 @@ import {
   usePreventiveMaintenance,
   useUpdatePM,
   useGeneratePMWorkOrder,
+  usePMInspections,
 } from '@/hooks/usePreventiveMaintenance'
 import type { PMFrequency } from '@thanamol/shared'
 
@@ -39,6 +40,26 @@ const PM_FREQUENCY_LABELS: Record<PMFrequency, string> = {
   CUSTOM: 'Custom',
 }
 
+type ChecklistTask = {
+  name: string
+  description?: string
+  duration_minutes?: number | null
+}
+
+type SparePart = {
+  itemId: string
+  quantity: number
+}
+
+function DetailRow({ label, value }: { label: string; value: string | null | undefined }) {
+  return (
+    <div className="flex justify-between items-start">
+      <span className="text-xs text-slate-400 font-extralight">{label}</span>
+      <span className="text-xs text-slate-700 font-light text-right">{value ?? '—'}</span>
+    </div>
+  )
+}
+
 function PMDetailPage() {
   const { pmId } = Route.useParams()
   const navigate = useNavigate()
@@ -47,6 +68,8 @@ function PMDetailPage() {
 
   const updatePM = useUpdatePM(pmId)
   const generateWO = useGeneratePMWorkOrder(pmId)
+  const { data: inspectionsData } = usePMInspections(pmId)
+  const inspections = inspectionsData?.data ?? []
 
   const [showGenerateDialog, setShowGenerateDialog] = useState(false)
   const [scheduledDate, setScheduledDate] = useState('')
@@ -97,6 +120,8 @@ function PMDetailPage() {
   }
 
   const logs = (pm.logs as Array<Record<string, unknown>>) ?? []
+  const checklist = (pm.checklist as ChecklistTask[]) ?? []
+  const spareParts = (pm.spare_parts as SparePart[]) ?? []
 
   return (
     <div className="space-y-4">
@@ -112,6 +137,15 @@ function PMDetailPage() {
             >
               {pm.is_active ? 'Deactivate' : 'Activate'}
             </Button>
+            <Link
+              to="/facility-management/preventive-maintenance/$pmId/inspect"
+              params={{ pmId }}
+            >
+              <Button variant="outline" size="sm">
+                <ClipboardCheck className="w-3.5 h-3.5 mr-1.5" />
+                Record Inspection
+              </Button>
+            </Link>
             {pm.is_active && (
               <Button
                 size="sm"
@@ -126,7 +160,7 @@ function PMDetailPage() {
         }
       />
 
-      <div className="flex items-center gap-3 -mt-2 mb-2">
+      <div className="flex items-center gap-3 -mt-2 mb-2 flex-wrap">
         <span className="font-mono text-xs text-slate-500">{pm.pm_number}</span>
         <Badge
           variant="outline"
@@ -138,9 +172,28 @@ function PMDetailPage() {
         >
           {pm.is_active ? 'Active' : 'Inactive'}
         </Badge>
-        <Badge variant="outline" className="text-[10px] bg-indigo-50 text-indigo-700 border-indigo-200">
+        <Badge
+          variant="outline"
+          className="text-[10px] bg-indigo-50 text-indigo-700 border-indigo-200"
+        >
           {PM_FREQUENCY_LABELS[pm.frequency as PMFrequency] ?? pm.frequency}
         </Badge>
+        {pm.trigger_type && (
+          <Badge
+            variant="outline"
+            className="text-[10px] bg-amber-50 text-amber-700 border-amber-200"
+          >
+            {pm.trigger_type}
+          </Badge>
+        )}
+        {pm.auto_create_wo && (
+          <Badge
+            variant="outline"
+            className="text-[10px] bg-teal-50 text-teal-700 border-teal-200"
+          >
+            Auto WO
+          </Badge>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -152,56 +205,49 @@ function PMDetailPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {[
-              { label: 'Project', value: pm.project.name },
-              { label: 'Asset', value: pm.asset?.name },
-              { label: 'Frequency', value: PM_FREQUENCY_LABELS[pm.frequency as PMFrequency] },
-              {
-                label: 'Custom Interval',
-                value: pm.custom_interval_days ? `${pm.custom_interval_days} days` : null,
-              },
-              {
-                label: 'Next Due',
-                value: pm.next_due_date
-                  ? new Date(pm.next_due_date).toLocaleDateString()
-                  : null,
-              },
-              {
-                label: 'Last Completed',
-                value: pm.last_completed_date
+            <DetailRow label="Project" value={pm.project.name} />
+            <DetailRow label="Asset" value={pm.asset?.name} />
+            <DetailRow label="Scope Type" value={pm.scope_type} />
+            <DetailRow label="Trigger Type" value={pm.trigger_type} />
+            <DetailRow
+              label="Frequency"
+              value={PM_FREQUENCY_LABELS[pm.frequency as PMFrequency]}
+            />
+            <DetailRow
+              label="Custom Interval"
+              value={pm.custom_interval_days ? `${pm.custom_interval_days} days` : null}
+            />
+            <DetailRow
+              label="Next Due"
+              value={pm.next_due_date ? new Date(pm.next_due_date).toLocaleDateString() : null}
+            />
+            <DetailRow
+              label="Last Completed"
+              value={
+                pm.last_completed_date
                   ? new Date(pm.last_completed_date).toLocaleDateString()
-                  : null,
-              },
-              {
-                label: 'Assigned To',
-                value: pm.assignee
-                  ? `${pm.assignee.first_name} ${pm.assignee.last_name}`
-                  : null,
-              },
-              {
-                label: 'Created By',
-                value: `${pm.creator.first_name} ${pm.creator.last_name}`,
-              },
-              {
-                label: 'Total Logs',
-                value: String(pm._count.logs),
-              },
-            ].map(({ label, value }) => (
-              <div key={label} className="flex justify-between items-start">
-                <span className="text-xs text-slate-400 font-extralight">{label}</span>
-                <span className="text-xs text-slate-700 font-light text-right">
-                  {value ?? '—'}
-                </span>
-              </div>
-            ))}
-
-            {pm.description && (
-              <div className="pt-2 border-t border-slate-100">
-                <p className="text-[10px] font-extralight text-slate-400 uppercase tracking-widest mb-1">
-                  Description
-                </p>
-                <p className="text-xs text-slate-600 font-light">{pm.description}</p>
-              </div>
+                  : null
+              }
+            />
+            <DetailRow
+              label="Estimated Duration"
+              value={pm.estimated_duration ? `${pm.estimated_duration} hrs` : null}
+            />
+            <DetailRow
+              label="Assigned To"
+              value={pm.assignee ? `${pm.assignee.first_name} ${pm.assignee.last_name}` : null}
+            />
+            <DetailRow
+              label="Created By"
+              value={`${pm.creator.first_name} ${pm.creator.last_name}`}
+            />
+            <DetailRow label="Total Logs" value={String(pm._count.logs)} />
+            <DetailRow label="Auto-generate WO" value={pm.auto_create_wo ? 'Yes' : 'No'} />
+            {pm.auto_create_wo && pm.auto_wo_days_before && (
+              <DetailRow
+                label="Generate WO Before (days)"
+                value={String(pm.auto_wo_days_before)}
+              />
             )}
           </CardContent>
         </Card>
@@ -228,6 +274,120 @@ function PMDetailPage() {
                     </Badge>
                   </div>
                 ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {checklist.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-light text-slate-600">
+                Maintenance Checklist
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {checklist.map((task, i) => (
+                  <div
+                    key={i}
+                    className="flex items-start justify-between border-b border-slate-50 pb-2 last:border-0"
+                  >
+                    <div>
+                      <p className="text-xs font-medium text-slate-700">{task.name}</p>
+                      {task.description && (
+                        <p className="text-[11px] text-slate-400 mt-0.5">{task.description}</p>
+                      )}
+                    </div>
+                    {task.duration_minutes != null && (
+                      <span className="text-[11px] text-slate-400 shrink-0 ml-4">
+                        {task.duration_minutes} min
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {spareParts.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-light text-slate-600">
+                Required Spare Parts
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {spareParts.map((part, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between text-xs border-b border-slate-50 pb-2 last:border-0"
+                  >
+                    <span className="text-slate-600">{part.itemId}</span>
+                    <span className="text-slate-400">Qty: {part.quantity}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-light text-slate-600 flex items-center gap-2">
+                <ClipboardCheck className="w-4 h-4 text-slate-400" />
+                Inspection History
+              </CardTitle>
+              <Link
+                to="/facility-management/preventive-maintenance/$pmId/inspect"
+                params={{ pmId }}
+              >
+                <Button variant="outline" size="sm" className="h-7 text-xs">
+                  <Plus className="w-3 h-3 mr-1" />
+                  New Inspection
+                </Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {inspections.length === 0 ? (
+              <p className="text-xs text-slate-400 text-center py-8">No inspections recorded yet</p>
+            ) : (
+              <div className="space-y-2">
+                {inspections.map((inspection) => {
+                  const insp = inspection as Record<string, unknown>
+                  return (
+                    <div
+                      key={insp.id as string}
+                      className="flex items-center justify-between text-xs border-b border-slate-50 pb-2 last:border-0"
+                    >
+                      <div className="flex items-center gap-2">
+                        {insp.passed ? (
+                          <CheckCircle className="w-3.5 h-3.5 text-teal-500" />
+                        ) : (
+                          <XCircle className="w-3.5 h-3.5 text-rose-500" />
+                        )}
+                        <span className="text-slate-600">
+                          {new Date(insp.inspection_date as string).toLocaleDateString()}
+                        </span>
+                        <span className="text-slate-400">— {insp.inspector_name as string}</span>
+                      </div>
+                      <Badge
+                        variant="outline"
+                        className={`text-[9px] ${
+                          insp.passed
+                            ? 'bg-teal-50 text-teal-700 border-teal-200'
+                            : 'bg-rose-50 text-rose-700 border-rose-200'
+                        }`}
+                      >
+                        {insp.passed ? 'PASS' : 'FAIL'}
+                      </Badge>
+                    </div>
+                  )
+                })}
               </div>
             )}
           </CardContent>

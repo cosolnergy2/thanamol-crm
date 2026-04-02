@@ -91,3 +91,17 @@ export function useDeleteVendorInvoice() {
     },
   })
 }
+
+export function useSubmitVendorInvoice(id: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (notes?: string) =>
+      apiPost<{ invoice: VendorInvoiceWithRelations }>(`/fms/vendor-invoices/${id}/submit`, {
+        notes,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: VENDOR_INVOICE_QUERY_KEYS.all })
+      queryClient.invalidateQueries({ queryKey: VENDOR_INVOICE_QUERY_KEYS.detail(id) })
+    },
+  })
+}

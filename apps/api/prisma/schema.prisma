@@ -343,6 +343,32 @@ enum InsurancePolicyStatus {
   PENDING_RENEWAL
 }
 
+enum DisasterPlanType {
+  FIRE
+  EARTHQUAKE
+  FLOOD
+  CHEMICAL
+  OTHER
+}
+
+enum DisasterPlanStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum DrillStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 // ─── Auth Domain ──────────────────────────────────────────────────────────────
 
 model User {
@@ -377,6 +403,7 @@ model User {
   created_tasks          Task[]                  @relation("TaskCreator")
   task_comments          TaskComment[]
   assigned_tickets       Ticket[]                @relation("TicketAssignee")
+  requested_tickets      Ticket[]                @relation("TicketRequester")
   uploaded_documents     Document[]              @relation("DocumentUploader")
   approved_iso_documents ISODocument[]           @relation("ISODocumentApprover")
   created_meeting_minutes MeetingMinute[]        @relation("MeetingMinuteCreator")
@@ -401,6 +428,7 @@ model User {
   stock_movements        StockMovement[]         @relation("StockMovementPerformer")
   stock_issues_to        StockIssue[]            @relation("StockIssueTo")
   stock_issues_by        StockIssue[]            @relation("StockIssueBy")
+  stock_transfers_by     StockTransfer[]         @relation("StockTransferBy")
   grn_received           GoodsReceivedNote[]     @relation("GRNReceiver")
   pr_requested           PurchaseRequest[]       @relation("PRRequester")
   pr_approved            PurchaseRequest[]       @relation("PRApprover")
@@ -412,6 +440,7 @@ model User {
   requested_permits      PermitToWork[]          @relation("PTWRequester")
   approved_permits       PermitToWork[]          @relation("PTWApprover")
   reported_incidents     Incident[]              @relation("IncidentReporter")
+  approval_requests      ApprovalRequest[]       @relation("ApprovalRequester")
 
   @@index([email])
 }
@@ -645,6 +674,8 @@ model Project {
   petty_cash_transactions    PettyCashTransaction[]
   inventory_items            InventoryItem[]
   stock_issues               StockIssue[]
+  stock_transfers_source     StockTransfer[]     @relation("StockTransferSource")
+  stock_transfers_destination StockTransfer[]    @relation("StockTransferDestination")
   goods_received_notes       GoodsReceivedNote[]
   purchase_requests          PurchaseRequest[]
   purchase_orders            PurchaseOrder[]
@@ -655,6 +686,13 @@ model Project {
   incidents                  Incident[]
   insurance_policies         InsurancePolicy[]
   contractor_safety_records  ContractorSafety[]
+  disaster_plans             DisasterPlan[]
+  emergency_drills           EmergencyDrill[]
+  tickets                    Ticket[]
+  fms_meter_records          FmsMeterRecord[]
+  utility_rates              UtilityRate[]
+  landscape_tasks            LandscapeTask[]
+  waste_records              WasteRecord[]
 
   @@index([status])
   @@index([code])
@@ -1047,6 +1085,45 @@ model MeterRecord {
   @@index([reading_date])
 }
 
+// ─── FMS Meters Domain ────────────────────────────────────────────────────────
+
+model FmsMeterRecord {
+  id             String    @id @default(uuid())
+  project_id     String
+  location       String
+  meter_type     MeterType
+  reading_date   DateTime
+  value          Float
+  previous_value Float
+  unit           String
+  notes          String?
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+
+  project Project @relation(fields: [project_id], references: [id])
+
+  @@index([project_id])
+  @@index([reading_date])
+  @@index([meter_type])
+}
+
+model UtilityRate {
+  id           String    @id @default(uuid())
+  project_id   String
+  meter_type   MeterType
+  tier_name    String
+  min_usage    Float
+  max_usage    Float
+  rate_per_unit Float
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+
+  project Project @relation(fields: [project_id], references: [id])
+
+  @@index([project_id])
+  @@index([meter_type])
+}
+
 // ─── Tasks Domain ─────────────────────────────────────────────────────────────
 
 model Task {
@@ -1122,6 +1199,9 @@ model Ticket {
   description String?
   customer_id String?
   unit_id     String?
+  project_id       String?
+  site             String?
+  requester_id     String?
   category         String?
   priority         Priority     @default(MEDIUM)
   status           TicketStatus @default(OPEN)
@@ -1133,12 +1213,15 @@ model Ticket {
   created_at       DateTime     @default(now())
   updated_at       DateTime     @updatedAt
 
-  customer Customer? @relation(fields: [customer_id], references: [id])
-  unit     Unit?     @relation(fields: [unit_id], references: [id])
-  assignee User?     @relation("TicketAssignee", fields: [assigned_to], references: [id])
+  customer  Customer? @relation(fields: [customer_id], references: [id])
+  unit      Unit?     @relation(fields: [unit_id], references: [id])
+  project   Project?  @relation(fields: [project_id], references: [id])
+  requester User?     @relation("TicketRequester", fields: [requester_id], references: [id])
+  assignee  User?     @relation("TicketAssignee", fields: [assigned_to], references: [id])
 
   @@index([customer_id])
   @@index([unit_id])
+  @@index([project_id])
   @@index([assigned_to])
   @@index([status])
 }
@@ -1454,13 +1537,20 @@ model Asset {
   qr_code_url     String?
   specifications  Json           @default("{}")
   photos          Json           @default("[]")
-  assigned_to     String?
-  assignee        User?          @relation("AssetAssignee", fields: [assigned_to], references: [id])
-  work_orders     WorkOrder[]
-  calibrations    CalibrationRecord[]
-  pm_schedules    PreventiveMaintenance[]
-  created_at      DateTime       @default(now())
-  updated_at      DateTime       @updatedAt
+  assigned_to      String?
+  assignee         User?          @relation("AssetAssignee", fields: [assigned_to], references: [id])
+  scope_type       String?
+  brand            String?
+  supplier_id      String?
+  install_date     DateTime?
+  criticality      String?
+  condition_score  Int?
+  lifecycle_status String?
+  work_orders      WorkOrder[]
+  calibrations     CalibrationRecord[]
+  pm_schedules     PreventiveMaintenance[]
+  created_at       DateTime       @default(now())
+  updated_at       DateTime       @updatedAt
 
   @@index([project_id])
   @@index([category_id])
@@ -1496,6 +1586,10 @@ model WorkOrder {
   actual_cost      Float?
   created_by       String
   creator          User            @relation("WorkOrderCreator", fields: [created_by], references: [id])
+  budget_code      String?
+  scheduled_start  DateTime?
+  scheduled_end    DateTime?
+  vendor_id        String?
   pm_logs          PMScheduleLog[]
   created_at       DateTime        @default(now())
   updated_at       DateTime        @updatedAt
@@ -1527,7 +1621,14 @@ model PreventiveMaintenance {
   is_active            Boolean     @default(true)
   created_by           String
   creator              User        @relation("PMCreator", fields: [created_by], references: [id])
+  scope_type           String?
+  trigger_type         String?
+  estimated_duration   Float?
+  spare_parts          Json?
+  auto_create_wo       Boolean     @default(false)
+  auto_wo_days_before  Int?
   logs                 PMScheduleLog[]
+  inspections          PMInspection[]
   created_at           DateTime    @default(now())
   updated_at           DateTime    @updatedAt
 
@@ -1552,6 +1653,20 @@ model PMScheduleLog {
   @@index([pm_id])
 }
 
+model PMInspection {
+  id              String                @id @default(uuid())
+  pm_id           String
+  pm              PreventiveMaintenance @relation(fields: [pm_id], references: [id])
+  inspection_date DateTime
+  inspector_name  String
+  checklist_results Json               @default("[]")
+  passed          Boolean
+  notes           String?
+  created_at      DateTime              @default(now())
+
+  @@index([pm_id])
+}
+
 model CalibrationRecord {
   id                    String            @id @default(uuid())
   asset_id              String
@@ -1562,6 +1677,13 @@ model CalibrationRecord {
   certificate_url       String?
   status                CalibrationStatus @default(PENDING)
   notes                 String?
+  calibration_number    String?           @unique
+  frequency_days        Int?
+  calibration_type      String?
+  calibration_standard  String?
+  certificate_number    String?
+  cost                  Float?
+  results               Json?
   created_at            DateTime          @default(now())
 
   @@index([asset_id])
@@ -1714,10 +1836,13 @@ model PettyCashTransaction {
   requester          User            @relation("PettyCashRequester", fields: [requested_by], references: [id])
   approved_by        String?
   approver           User?           @relation("PettyCashApprover", fields: [approved_by], references: [id])
-  transaction_date   DateTime
-  notes              String?
-  created_at         DateTime        @default(now())
-  updated_at         DateTime        @updatedAt
+  transaction_date       DateTime
+  site_id                String?
+  budget_code            String?
+  responsible_person_id  String?
+  notes                  String?
+  created_at             DateTime        @default(now())
+  updated_at             DateTime        @updatedAt
 
   @@index([fund_id])
   @@index([project_id])
@@ -1755,6 +1880,14 @@ model InventoryItem {
   project_id       String?
   project          Project?           @relation(fields: [project_id], references: [id])
   is_active        Boolean            @default(true)
+  item_type        String?
+  barcode          String?
+  company_id       String?
+  site_id          String?
+  specifications   Json?
+  vendor_id        String?
+  lead_time_days   Int?
+  photos           Json?
   stock_movements  StockMovement[]
   created_at       DateTime           @default(now())
   updated_at       DateTime           @updatedAt
@@ -1793,10 +1926,29 @@ model StockIssue {
   issued_by     String?
   issuer        User?    @relation("StockIssueBy", fields: [issued_by], references: [id])
   issue_date    DateTime
+  purpose       String?
   notes         String?
   created_at    DateTime @default(now())
 
   @@index([project_id])
+}
+
+model StockTransfer {
+  id                     String   @id @default(uuid())
+  transfer_number        String   @unique
+  source_project_id      String?
+  source_project         Project? @relation("StockTransferSource", fields: [source_project_id], references: [id])
+  destination_project_id String?
+  destination_project    Project? @relation("StockTransferDestination", fields: [destination_project_id], references: [id])
+  items                  Json     @default("[]")
+  transfer_date          DateTime
+  notes                  String?
+  transferred_by         String?
+  transferred_by_user    User?    @relation("StockTransferBy", fields: [transferred_by], references: [id])
+  created_at             DateTime @default(now())
+
+  @@index([source_project_id])
+  @@index([destination_project_id])
 }
 
 model GoodsReceivedNote {
@@ -1811,6 +1963,8 @@ model GoodsReceivedNote {
   inspection_notes String?
   project_id       String?
   project          Project?  @relation(fields: [project_id], references: [id])
+  po_id            String?
+  qc_status        String?
   created_at       DateTime  @default(now())
   updated_at       DateTime  @updatedAt
 
@@ -1835,11 +1989,19 @@ model PurchaseRequest {
   approved_by     String?
   approver        User?     @relation("PRApprover", fields: [approved_by], references: [id])
   approved_at     DateTime?
-  notes           String?
+  notes             String?
+  company_id        String?
+  site_id           String?
+  unit_id           String?
+  required_date     DateTime?
+  purpose           String?
+  pm_schedule_id    String?
+  documents         Json?
+  conditions        Json?
   purchase_orders   PurchaseOrder[]
   vendor_quotations VendorQuotation[]
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
 
   @@index([project_id])
   @@index([status])
@@ -1863,10 +2025,19 @@ model PurchaseOrder {
   notes            String?
   created_by       String
   creator          User      @relation("POCreator", fields: [created_by], references: [id])
-  approved_by      String?
-  approver         User?     @relation("POApprover", fields: [approved_by], references: [id])
-  created_at       DateTime  @default(now())
-  updated_at       DateTime  @updatedAt
+  approved_by       String?
+  approver          User?     @relation("POApprover", fields: [approved_by], references: [id])
+  company_id        String?
+  site_id           String?
+  unit_id           String?
+  po_date           DateTime?
+  payment_due_date  DateTime?
+  po_type           String?
+  delivery_address  String?
+  documents         Json?
+  conditions        Json?
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
 
   @@index([project_id])
   @@index([pr_id])
@@ -1905,12 +2076,22 @@ model Vendor {
   rating         Int?
   status         VendorStatus     @default(ACTIVE)
   bank_details   Json             @default("{}")
-  notes          String?
-  contracts      VendorContract[]
-  item_prices    VendorItemPrice[]
-  invoices       VendorInvoice[]
-  created_at     DateTime         @default(now())
-  updated_at     DateTime         @updatedAt
+  notes                  String?
+  legal_name             String?
+  display_name           String?
+  vendor_type            String?
+  company_registration   String?
+  additional_contacts    Json?
+  service_tags           Json?
+  supplier_type          String?
+  payment_terms          String?
+  credit_limit           Float?
+  default_conditions     Json?
+  contracts              VendorContract[]
+  item_prices            VendorItemPrice[]
+  invoices               VendorInvoice[]
+  created_at             DateTime         @default(now())
+  updated_at             DateTime         @updatedAt
 
   @@index([status])
 }
@@ -1927,11 +2108,17 @@ model VendorContract {
   value           Float?
   payment_terms   String?
   status          VendorContractStatus @default(DRAFT)
-  document_url    String?
-  project_id      String?
-  project         Project?             @relation(fields: [project_id], references: [id])
-  created_at      DateTime             @default(now())
-  updated_at      DateTime             @updatedAt
+  document_url              String?
+  project_id                String?
+  project                   Project?             @relation(fields: [project_id], references: [id])
+  contract_type             String?
+  service_category          String?
+  sla                       Json?
+  rate_card                 Json?
+  alert_days_before_expiry  Int?
+  auto_renew                Boolean              @default(false)
+  created_at                DateTime             @default(now())
+  updated_at                DateTime             @updatedAt
 
   @@index([vendor_id])
   @@index([project_id])
@@ -1966,10 +2153,12 @@ model VendorInvoice {
   invoice_date   DateTime
   due_date       DateTime?
   payment_status String    @default("PENDING")
-  payment_date   DateTime?
-  notes          String?
-  created_at     DateTime  @default(now())
-  updated_at     DateTime  @updatedAt
+  payment_date        DateTime?
+  notes               String?
+  pdf_url             String?
+  submission_history  Json?
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
 
   @@index([vendor_id])
 }
@@ -2153,4 +2342,123 @@ model ContractorSafety {
   updated_at            DateTime  @updatedAt
 
   @@index([project_id])
+}
+
+// ─── Approval Center ──────────────────────────────────────────────────────────
+
+model ApprovalWorkflow {
+  id          String            @id @default(uuid())
+  entity_type String
+  name        String
+  steps       Json              @default("[]")
+  is_active   Boolean           @default(true)
+  created_at  DateTime          @default(now())
+  updated_at  DateTime          @updatedAt
+  requests    ApprovalRequest[]
+
+  @@index([entity_type])
+}
+
+model ApprovalRequest {
+  id           String           @id @default(uuid())
+  entity_type  String
+  entity_id    String
+  workflow_id  String
+  workflow     ApprovalWorkflow @relation(fields: [workflow_id], references: [id])
+  current_step Int              @default(0)
+  status       ApprovalStatus   @default(PENDING)
+  history      Json             @default("[]")
+  requested_by String
+  requester    User             @relation("ApprovalRequester", fields: [requested_by], references: [id])
+  notes        String?
+  created_at   DateTime         @default(now())
+  updated_at   DateTime         @updatedAt
+
+  @@index([entity_type, entity_id])
+  @@index([workflow_id])
+  @@index([requested_by])
+  @@index([status])
+}
+
+// ─── Emergency & BCP ─────────────────────────────────────────────────────────
+
+model DisasterPlan {
+  id                  String             @id @default(uuid())
+  title               String
+  plan_type           DisasterPlanType
+  procedures          Json               @default("[]")
+  responsible_persons Json               @default("[]")
+  review_date         DateTime?
+  project_id          String
+  project             Project            @relation(fields: [project_id], references: [id])
+  status              DisasterPlanStatus @default(DRAFT)
+  notes               String?
+  created_at          DateTime           @default(now())
+  updated_at          DateTime           @updatedAt
+  drills              EmergencyDrill[]
+
+  @@index([project_id])
+  @@index([plan_type])
+  @@index([status])
+}
+
+model EmergencyDrill {
+  id                 String       @id @default(uuid())
+  plan_id            String
+  plan               DisasterPlan @relation(fields: [plan_id], references: [id])
+  drill_type         String
+  scheduled_date     DateTime
+  actual_date        DateTime?
+  participants       Json         @default("[]")
+  findings           String?
+  corrective_actions Json         @default("[]")
+  status             DrillStatus  @default(SCHEDULED)
+  project_id         String
+  project            Project      @relation(fields: [project_id], references: [id])
+  created_at         DateTime     @default(now())
+  updated_at         DateTime     @updatedAt
+
+  @@index([project_id])
+  @@index([plan_id])
+  @@index([status])
+}
+
+// ─── Landscape & Waste Domain ─────────────────────────────────────────────────
+
+model LandscapeTask {
+  id             String    @id @default(cuid())
+  title          String
+  description    String?
+  project_id     String
+  project        Project   @relation(fields: [project_id], references: [id])
+  zone_id        String?
+  scheduled_date DateTime
+  completed_date DateTime?
+  status         String    @default("SCHEDULED")
+  assigned_to    String?
+  notes          String?
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+
+  @@index([project_id])
+  @@index([status])
+}
+
+model WasteRecord {
+  id              String   @id @default(cuid())
+  record_date     DateTime
+  project_id      String
+  project         Project  @relation(fields: [project_id], references: [id])
+  waste_type      String
+  volume          Float
+  unit            String
+  disposal_method String?
+  vendor_id       String?
+  cost            Float?
+  notes           String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@index([project_id])
+  @@index([waste_type])
 }

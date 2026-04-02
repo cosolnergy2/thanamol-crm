@@ -57,6 +57,7 @@ import { fmsInventoryCategoriesRoutes } from './routes/fms/inventory-categories'
 import { fmsInventoryRoutes } from './routes/fms/inventory'
 import { fmsStockMovementsRoutes } from './routes/fms/stock-movements'
 import { fmsStockIssuesRoutes } from './routes/fms/stock-issues'
+import { fmsStockTransfersRoutes } from './routes/fms/stock-transfers'
 import { fmsGRNRoutes } from './routes/fms/grn'
 import { fmsPurchaseRequestsRoutes } from './routes/fms/purchase-requests'
 import { fmsPurchaseOrdersRoutes } from './routes/fms/purchase-orders'
@@ -76,6 +77,14 @@ import { fmsInsurancePoliciesRoutes } from './routes/fms/insurance-policies'
 import { fmsContractorSafetyRoutes } from './routes/fms/contractor-safety'
 import { fmsDashboardRoutes } from './routes/fms/dashboard'
 import { fmsReportsRoutes } from './routes/fms/reports'
+import { fmsApprovalWorkflowsRoutes } from './routes/fms/approval-workflows'
+import { fmsApprovalRequestsRoutes } from './routes/fms/approval-requests'
+import { fmsHelpdeskRoutes } from './routes/fms/helpdesk'
+import { fmsMetersRoutes } from './routes/fms/meters'
+import { fmsDisasterPlansRoutes } from './routes/fms/disaster-plans'
+import { fmsDrillsRoutes } from './routes/fms/drills'
+import { fmsLandscapeRoutes } from './routes/fms/landscape'
+import { fmsWasteRoutes } from './routes/fms/waste'
 
 const API_PORT = Number(process.env.PORT ?? 3000)
 
@@ -141,6 +150,7 @@ const app = new Elysia()
   .use(fmsInventoryRoutes)
   .use(fmsStockMovementsRoutes)
   .use(fmsStockIssuesRoutes)
+  .use(fmsStockTransfersRoutes)
   .use(fmsGRNRoutes)
   .use(fmsPurchaseRequestsRoutes)
   .use(fmsPurchaseOrdersRoutes)
@@ -160,6 +170,14 @@ const app = new Elysia()
   .use(fmsContractorSafetyRoutes)
   .use(fmsDashboardRoutes)
   .use(fmsReportsRoutes)
+  .use(fmsApprovalWorkflowsRoutes)
+  .use(fmsApprovalRequestsRoutes)
+  .use(fmsHelpdeskRoutes)
+  .use(fmsMetersRoutes)
+  .use(fmsDisasterPlansRoutes)
+  .use(fmsDrillsRoutes)
+  .use(fmsLandscapeRoutes)
+  .use(fmsWasteRoutes)
   .listen(API_PORT)
 
 console.log(`API running at http://localhost:${API_PORT}`)

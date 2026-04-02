@@ -87,4 +87,17 @@ describe('apiGet – error path', () => {
     const { apiGet } = await import('./api-client')
     await expect(apiGet('/some/path')).rejects.toThrow('Validation error')
   })
+
+  it('throws with Elysia-style error field when message is absent', async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce({
+      ok: false,
+      status: 409,
+      statusText: 'Conflict',
+      json: () => Promise.resolve({ error: 'A zone with this code already exists in the project' }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { apiGet } = await import('./api-client')
+    await expect(apiGet('/fms/zones')).rejects.toThrow('A zone with this code already exists in the project')
+  })
 })

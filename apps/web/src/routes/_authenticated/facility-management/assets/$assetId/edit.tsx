@@ -13,11 +13,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PageHeader } from '@/components/PageHeader'
 import { useAsset, useUpdateAsset, useAssetCategories } from '@/hooks/useAssets'
+import { useProjects } from '@/hooks/useProjects'
 import { useZones } from '@/hooks/useZones'
+import { useVendors } from '@/hooks/useVendors'
+import { useCompanies } from '@/hooks/useCompanies'
+import { useUnits } from '@/hooks/useUnits'
+import { useUsers } from '@/hooks/useUsers'
 import type { AssetStatus } from '@thanamol/shared'
+import {
+  ASSET_SCOPE_TYPES,
+  ASSET_CRITICALITIES,
+  ASSET_CONDITION_SCORES,
+  ASSET_LIFECYCLE_STATUSES,
+} from '@thanamol/shared'
 
 export const Route = createFileRoute('/_authenticated/facility-management/assets/$assetId/edit')({
   component: AssetEditPage,
@@ -31,6 +43,25 @@ const ASSET_STATUSES: Array<{ value: AssetStatus; label: string }> = [
   { value: 'IN_STORAGE', label: 'In Storage' },
 ]
 
+function isoDateString(value: string | null | undefined): string {
+  if (!value) return ''
+  try {
+    return new Date(value).toISOString().split('T')[0]
+  } catch {
+    return ''
+  }
+}
+
+function extractNotes(specifications: Record<string, unknown> | null | undefined): string {
+  if (!specifications || typeof specifications !== 'object') return ''
+  return (specifications.notes as string) ?? ''
+}
+
+function extractBackupSupplierId(specifications: Record<string, unknown> | null | undefined): string {
+  if (!specifications || typeof specifications !== 'object') return ''
+  return (specifications.backup_supplier_id as string) ?? ''
+}
+
 function AssetEditPage() {
   const { assetId } = Route.useParams()
   const navigate = useNavigate()
@@ -40,49 +71,98 @@ function AssetEditPage() {
   const [form, setForm] = useState({
     name: '',
     description: '',
+    status: 'OPERATIONAL' as AssetStatus,
     categoryId: '',
+    // Classification
+    scopeType: '',
+    criticality: '',
+    lifecycleStatus: '',
+    conditionScore: '',
+    // Ownership & Location
+    companyId: '',
+    siteId: '',
     zoneId: '',
+    unitId: '',
     locationDetail: '',
+    // Technical
+    brand: '',
     manufacturer: '',
     modelName: '',
     serialNumber: '',
-    purchaseDate: '',
+    supplierId: '',
+    backupSupplierId: '',
+    // Purchase & Warranty
     purchaseCost: '',
+    purchaseDate: '',
+    installDate: '',
     warrantyExpiry: '',
-    status: 'OPERATIONAL' as AssetStatus,
+    // Additional
+    specifications: '',
+    notes: '',
+    imageUrl: '',
+    assignedTo: '',
   })
+
+  const [generateQr, setGenerateQr] = useState(false)
 
   const asset = data?.asset
 
   const { data: categoriesData } = useAssetCategories({ limit: 100 })
   const categories = categoriesData?.data ?? []
 
-  const { data: zonesData } = useZones({
-    projectId: asset?.project_id ?? '',
-  })
+  const { data: projectsData } = useProjects({ limit: 100 })
+  const projects = projectsData?.data ?? []
+
+  const { data: zonesData } = useZones({ projectId: asset?.project_id ?? '' })
   const zones = zonesData?.data ?? []
 
+  const { data: unitsData } = useUnits({ projectId: asset?.project_id || undefined, limit: 100 })
+  const units = unitsData?.data ?? []
+
+  const { data: vendorsData } = useVendors({ limit: 100 })
+  const vendors = vendorsData?.data ?? []
+
+  const { data: companiesData } = useCompanies({ limit: 100 })
+  const companies = companiesData?.data ?? []
+
+  const { data: usersData } = useUsers()
+  const users = usersData?.users ?? []
+
+  const sites = projects.filter((p) => (p as unknown as { is_site?: boolean }).is_site)
+
   useEffect(() => {
-    if (asset) {
-      setForm({
-        name: asset.name,
-        description: asset.description ?? '',
-        categoryId: asset.category_id ?? '',
-        zoneId: asset.zone_id ?? '',
-        locationDetail: asset.location_detail ?? '',
-        manufacturer: asset.manufacturer ?? '',
-        modelName: asset.model_name ?? '',
-        serialNumber: asset.serial_number ?? '',
-        purchaseDate: asset.purchase_date
-          ? new Date(asset.purchase_date).toISOString().split('T')[0]
-          : '',
-        purchaseCost: asset.purchase_cost != null ? String(asset.purchase_cost) : '',
-        warrantyExpiry: asset.warranty_expiry
-          ? new Date(asset.warranty_expiry).toISOString().split('T')[0]
-          : '',
-        status: asset.status as AssetStatus,
-      })
-    }
+    if (!asset) return
+    const specs = asset.specifications as Record<string, unknown>
+    setForm({
+      name: asset.name,
+      description: asset.description ?? '',
+      status: asset.status as AssetStatus,
+      categoryId: asset.category_id ?? '',
+      scopeType: asset.scope_type ?? '',
+      criticality: asset.criticality ?? '',
+      lifecycleStatus: asset.lifecycle_status ?? '',
+      conditionScore: asset.condition_score != null ? String(asset.condition_score) : '',
+      companyId: '',
+      siteId: '',
+      zoneId: asset.zone_id ?? '',
+      unitId: asset.unit_id ?? '',
+      locationDetail: asset.location_detail ?? '',
+      brand: asset.brand ?? '',
+      manufacturer: asset.manufacturer ?? '',
+      modelName: asset.model_name ?? '',
+      serialNumber: asset.serial_number ?? '',
+      supplierId: asset.supplier_id ?? '',
+      backupSupplierId: extractBackupSupplierId(specs),
+      purchaseCost: asset.purchase_cost != null ? String(asset.purchase_cost) : '',
+      purchaseDate: isoDateString(asset.purchase_date),
+      installDate: isoDateString(asset.install_date),
+      warrantyExpiry: isoDateString(asset.warranty_expiry),
+      specifications: '',
+      notes: extractNotes(specs),
+      imageUrl: Array.isArray(asset.photos) && asset.photos.length > 0 ? asset.photos[0] : '',
+      assignedTo: asset.assigned_to ?? '',
+    })
+    setGenerateQr(!!(specs?.qr_auto))
   }, [asset])
 
   function handleChange(field: string, value: string) {
@@ -96,20 +176,45 @@ function AssetEditPage() {
       return
     }
 
+    const specificationsPayload: Record<string, unknown> = {}
+    if (form.specifications.trim()) {
+      specificationsPayload.specifications = form.specifications
+    }
+    if (form.notes.trim()) {
+      specificationsPayload.notes = form.notes
+    }
+    if (generateQr) {
+      specificationsPayload.qr_auto = true
+    }
+    if (form.backupSupplierId && form.backupSupplierId !== '__none__') {
+      specificationsPayload.backup_supplier_id = form.backupSupplierId
+    }
+
     try {
       await updateAsset.mutateAsync({
         name: form.name,
         description: form.description || undefined,
-        categoryId: form.categoryId || undefined,
-        zoneId: form.zoneId || undefined,
+        status: form.status,
+        categoryId: form.categoryId && form.categoryId !== '__none__' ? form.categoryId : undefined,
+        scopeType: form.scopeType || undefined,
+        criticality: form.criticality || undefined,
+        lifecycleStatus: form.lifecycleStatus || undefined,
+        conditionScore: form.conditionScore ? Number(form.conditionScore) : undefined,
+        zoneId: form.zoneId && form.zoneId !== '__none__' ? form.zoneId : undefined,
+        unitId: form.unitId && form.unitId !== '__none__' ? form.unitId : undefined,
         locationDetail: form.locationDetail || undefined,
+        brand: form.brand || undefined,
         manufacturer: form.manufacturer || undefined,
         modelName: form.modelName || undefined,
         serialNumber: form.serialNumber || undefined,
-        purchaseDate: form.purchaseDate || undefined,
+        supplierId: form.supplierId && form.supplierId !== '__none__' ? form.supplierId : undefined,
         purchaseCost: form.purchaseCost ? Number(form.purchaseCost) : undefined,
+        purchaseDate: form.purchaseDate || undefined,
+        installDate: form.installDate || undefined,
         warrantyExpiry: form.warrantyExpiry || undefined,
-        status: form.status,
+        assignedTo: form.assignedTo && form.assignedTo !== '__none__' ? form.assignedTo : undefined,
+        specifications: Object.keys(specificationsPayload).length > 0 ? specificationsPayload : undefined,
+        photos: form.imageUrl ? [form.imageUrl] : undefined,
       })
       toast.success('Asset updated')
       navigate({ to: `/facility-management/assets/${assetId}` })
@@ -122,7 +227,10 @@ function AssetEditPage() {
     return (
       <div className="space-y-4">
         <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-64 w-full" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-64 w-full" />
+        </div>
       </div>
     )
   }
@@ -137,11 +245,19 @@ function AssetEditPage() {
 
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+          {/* Basic Information */}
           <Card>
             <CardHeader>
               <CardTitle className="text-sm font-light text-slate-600">Basic Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Asset Number — read-only in edit */}
+              <div className="space-y-1.5">
+                <Label>Asset Code</Label>
+                <Input value={asset.asset_number} readOnly className="bg-slate-50 text-slate-500" />
+              </div>
+
               <div className="space-y-1.5">
                 <Label htmlFor="name">
                   Name <span className="text-rose-500">*</span>
@@ -190,7 +306,7 @@ function AssetEditPage() {
                     <SelectValue placeholder="No category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="__all__">No category</SelectItem>
+                    <SelectItem value="__none__">No category</SelectItem>
                     {categories.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
                         {c.name}
@@ -199,34 +315,214 @@ function AssetEditPage() {
                   </SelectContent>
                 </Select>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm font-light text-slate-600">Location</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-1.5">
-                <Label>Project</Label>
-                <Input value={asset.project.name} disabled className="bg-slate-50" />
-              </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="zone">Zone</Label>
-                <Select value={form.zoneId} onValueChange={(v) => handleChange('zoneId', v)}>
+                <Label htmlFor="assignedTo">ผู้ดูแล (Assigned To)</Label>
+                <Select
+                  value={form.assignedTo}
+                  onValueChange={(v) => handleChange('assignedTo', v)}
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder="No zone" />
+                    <SelectValue placeholder="Select assignee" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="__all__">No zone</SelectItem>
-                    {zones.map((z) => (
-                      <SelectItem key={z.id} value={z.id}>
-                        {z.code} — {z.name}
+                    <SelectItem value="__none__">Unassigned</SelectItem>
+                    {users.map((u) => (
+                      <SelectItem key={u.id} value={u.id}>
+                        {u.first_name} {u.last_name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="criticality">Criticality</Label>
+                  <Select
+                    value={form.criticality}
+                    onValueChange={(v) => handleChange('criticality', v)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select criticality" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">None</SelectItem>
+                      {ASSET_CRITICALITIES.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          {c}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="conditionScore">Condition Score</Label>
+                  <Select
+                    value={form.conditionScore}
+                    onValueChange={(v) => handleChange('conditionScore', v)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select condition" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">None</SelectItem>
+                      {ASSET_CONDITION_SCORES.map((s) => (
+                        <SelectItem key={s.value} value={String(s.value)}>
+                          {s.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="lifecycleStatus">Lifecycle Status</Label>
+                <Select
+                  value={form.lifecycleStatus}
+                  onValueChange={(v) => handleChange('lifecycleStatus', v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select lifecycle status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">None</SelectItem>
+                    {ASSET_LIFECYCLE_STATUSES.map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {s}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* QR Code toggle */}
+              <div className="flex items-center justify-between rounded-md border border-slate-200 p-3">
+                <div>
+                  <p className="text-sm font-medium text-slate-700">สร้าง QR อัตโนมัติ</p>
+                  {generateQr && (
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      ระบบจะสร้าง QR Code ให้อัตโนมัติจากรหัส Asset หลังจากบันทึก
+                    </p>
+                  )}
+                </div>
+                <Switch
+                  checked={generateQr}
+                  onCheckedChange={setGenerateQr}
+                  id="generateQr"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Ownership & Location */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-light text-slate-600">Ownership &amp; Location</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Row 1: Scope Type | Company | Project */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="scopeType">Scope Type</Label>
+                  <Select value={form.scopeType} onValueChange={(v) => handleChange('scopeType', v)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select scope" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">None</SelectItem>
+                      {ASSET_SCOPE_TYPES.map((s) => (
+                        <SelectItem key={s} value={s}>
+                          {s}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="companyId">Company</Label>
+                  <Select value={form.companyId} onValueChange={(v) => handleChange('companyId', v)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select company" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">No company</SelectItem>
+                      {companies.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label>Project</Label>
+                  <Input value={asset.project.name} disabled className="bg-slate-50" />
+                </div>
+              </div>
+
+              {/* Row 2: Site | Zone | Unit */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="siteId">Site</Label>
+                  <Select value={form.siteId} onValueChange={(v) => handleChange('siteId', v)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select site" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">No site</SelectItem>
+                      {sites.length > 0
+                        ? sites.map((p) => (
+                            <SelectItem key={p.id} value={p.id}>
+                              {p.name}
+                            </SelectItem>
+                          ))
+                        : projects.map((p) => (
+                            <SelectItem key={p.id} value={p.id}>
+                              {p.name}
+                            </SelectItem>
+                          ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="zone">Zone</Label>
+                  <Select value={form.zoneId} onValueChange={(v) => handleChange('zoneId', v)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="No zone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">No zone</SelectItem>
+                      {zones.map((z) => (
+                        <SelectItem key={z.id} value={z.id}>
+                          {z.code} — {z.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="unitId">Unit</Label>
+                  <Select value={form.unitId} onValueChange={(v) => handleChange('unitId', v)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="No unit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">No unit</SelectItem>
+                      {units.map((u) => (
+                        <SelectItem key={u.id} value={u.id}>
+                          {u.unit_number}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               <div className="space-y-1.5">
@@ -235,51 +531,121 @@ function AssetEditPage() {
                   id="locationDetail"
                   value={form.locationDetail}
                   onChange={(e) => handleChange('locationDetail', e.target.value)}
+                  placeholder="e.g. Room 101, Floor 2"
                 />
               </div>
             </CardContent>
           </Card>
 
+          {/* Technical Details */}
           <Card>
             <CardHeader>
               <CardTitle className="text-sm font-light text-slate-600">Technical Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="brand">Brand</Label>
+                  <Input
+                    id="brand"
+                    value={form.brand}
+                    onChange={(e) => handleChange('brand', e.target.value)}
+                    placeholder="Carrier, Daikin, Mitsubishi..."
+                  />
+                </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="manufacturer">Manufacturer</Label>
                   <Input
                     id="manufacturer"
                     value={form.manufacturer}
                     onChange={(e) => handleChange('manufacturer', e.target.value)}
+                    placeholder="Manufacturer"
                   />
                 </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="modelName">Model</Label>
                   <Input
                     id="modelName"
                     value={form.modelName}
                     onChange={(e) => handleChange('modelName', e.target.value)}
+                    placeholder="Model name"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="serialNumber">Serial Number</Label>
+                  <Input
+                    id="serialNumber"
+                    value={form.serialNumber}
+                    onChange={(e) => handleChange('serialNumber', e.target.value)}
+                    placeholder="Serial number"
                   />
                 </div>
               </div>
+
               <div className="space-y-1.5">
-                <Label htmlFor="serialNumber">Serial Number</Label>
-                <Input
-                  id="serialNumber"
-                  value={form.serialNumber}
-                  onChange={(e) => handleChange('serialNumber', e.target.value)}
-                />
+                <Label htmlFor="supplierId">Supplier (Main)</Label>
+                <Select
+                  value={form.supplierId}
+                  onValueChange={(v) => handleChange('supplierId', v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select supplier" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">No supplier</SelectItem>
+                    {vendors.map((v) => (
+                      <SelectItem key={v.id} value={v.id}>
+                        {v.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="backupSupplierId">Supplier สำรอง (ซ่อมบำรุง)</Label>
+                <Select
+                  value={form.backupSupplierId}
+                  onValueChange={(v) => handleChange('backupSupplierId', v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select backup supplier" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">No backup supplier</SelectItem>
+                    {vendors.map((v) => (
+                      <SelectItem key={v.id} value={v.id}>
+                        {v.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </CardContent>
           </Card>
 
+          {/* Purchase & Warranty */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm font-light text-slate-600">Purchase & Warranty</CardTitle>
+              <CardTitle className="text-sm font-light text-slate-600">Purchase &amp; Warranty</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="purchaseCost">Purchase Price</Label>
+                  <Input
+                    id="purchaseCost"
+                    type="number"
+                    value={form.purchaseCost}
+                    onChange={(e) => handleChange('purchaseCost', e.target.value)}
+                    placeholder="0.00"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="purchaseDate">Purchase Date</Label>
                   <Input
@@ -289,25 +655,67 @@ function AssetEditPage() {
                     onChange={(e) => handleChange('purchaseDate', e.target.value)}
                   />
                 </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="purchaseCost">Purchase Cost</Label>
+                  <Label htmlFor="installDate">Install Date</Label>
                   <Input
-                    id="purchaseCost"
-                    type="number"
-                    value={form.purchaseCost}
-                    onChange={(e) => handleChange('purchaseCost', e.target.value)}
-                    min="0"
-                    step="0.01"
+                    id="installDate"
+                    type="date"
+                    value={form.installDate}
+                    onChange={(e) => handleChange('installDate', e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="warrantyExpiry">Warranty End Date</Label>
+                  <Input
+                    id="warrantyExpiry"
+                    type="date"
+                    value={form.warrantyExpiry}
+                    onChange={(e) => handleChange('warrantyExpiry', e.target.value)}
                   />
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Additional Information */}
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="text-sm font-light text-slate-600">Additional Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="specifications">Specifications</Label>
+                  <Textarea
+                    id="specifications"
+                    value={form.specifications}
+                    onChange={(e) => handleChange('specifications', e.target.value)}
+                    placeholder="Technical specifications..."
+                    rows={4}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="notes">Notes</Label>
+                  <Textarea
+                    id="notes"
+                    value={form.notes}
+                    onChange={(e) => handleChange('notes', e.target.value)}
+                    placeholder="Additional notes..."
+                    rows={4}
+                  />
+                </div>
+              </div>
+
               <div className="space-y-1.5">
-                <Label htmlFor="warrantyExpiry">Warranty Expiry</Label>
+                <Label htmlFor="imageUrl">Asset Image URL</Label>
                 <Input
-                  id="warrantyExpiry"
-                  type="date"
-                  value={form.warrantyExpiry}
-                  onChange={(e) => handleChange('warrantyExpiry', e.target.value)}
+                  id="imageUrl"
+                  value={form.imageUrl}
+                  onChange={(e) => handleChange('imageUrl', e.target.value)}
+                  placeholder="https://..."
                 />
               </div>
             </CardContent>

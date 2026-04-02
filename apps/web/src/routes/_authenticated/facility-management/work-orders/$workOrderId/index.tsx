@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
-import { Wrench, Play, CheckCircle, XCircle, UserPlus } from 'lucide-react'
+import { Wrench, Play, CheckCircle, XCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -23,6 +23,7 @@ import {
   useCompleteWorkOrder,
   useCancelWorkOrder,
 } from '@/hooks/useWorkOrders'
+import { useVendors } from '@/hooks/useVendors'
 import type { WorkOrderStatus, WorkOrderType } from '@thanamol/shared'
 
 export const Route = createFileRoute(
@@ -63,6 +64,12 @@ function WorkOrderDetailPage() {
   const startWO = useStartWorkOrder(workOrderId)
   const completeWO = useCompleteWorkOrder(workOrderId)
   const cancelWO = useCancelWorkOrder(workOrderId)
+
+  const { data: vendorsData } = useVendors({ limit: 100 })
+  const vendors = vendorsData?.data ?? []
+  const vendorName = wo?.vendor_id
+    ? (vendors.find((v) => v.id === wo.vendor_id)?.name ?? wo.vendor_id)
+    : null
 
   const [showCompleteDialog, setShowCompleteDialog] = useState(false)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
@@ -204,9 +211,23 @@ function WorkOrderDetailPage() {
                   ? `${wo.assignee.first_name} ${wo.assignee.last_name}`
                   : null,
               },
+              { label: 'Vendor', value: vendorName },
               {
                 label: 'Created By',
                 value: `${wo.creator.first_name} ${wo.creator.last_name}`,
+              },
+              { label: 'Budget Code', value: wo.budget_code },
+              {
+                label: 'Scheduled Start',
+                value: wo.scheduled_start
+                  ? new Date(wo.scheduled_start).toLocaleString()
+                  : null,
+              },
+              {
+                label: 'Scheduled End',
+                value: wo.scheduled_end
+                  ? new Date(wo.scheduled_end).toLocaleString()
+                  : null,
               },
               {
                 label: 'Scheduled Date',

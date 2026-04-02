@@ -5,6 +5,9 @@ import type {
   CreatePMRequest,
   UpdatePMRequest,
   PMQueryParams,
+  PMInspectionListResponse,
+  CreatePMInspectionRequest,
+  PMInspection,
 } from '@thanamol/shared'
 import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api-client'
 
@@ -12,6 +15,7 @@ export const PM_QUERY_KEYS = {
   all: ['preventive-maintenance'] as const,
   list: (params: PMQueryParams) => ['preventive-maintenance', 'list', params] as const,
   detail: (id: string) => ['preventive-maintenance', id] as const,
+  inspections: (id: string) => ['preventive-maintenance', id, 'inspections'] as const,
 }
 
 function buildQueryString(params: Record<string, unknown>): string {
@@ -92,6 +96,33 @@ export function useDeletePM() {
       apiDelete<{ success: boolean }>(`/fms/preventive-maintenance/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PM_QUERY_KEYS.all })
+    },
+  })
+}
+
+export function usePMInspections(pmId: string, page = 1, limit = 20) {
+  return useQuery({
+    queryKey: PM_QUERY_KEYS.inspections(pmId),
+    queryFn: () =>
+      apiGet<PMInspectionListResponse>(
+        `/fms/preventive-maintenance/${pmId}/inspections?page=${page}&limit=${limit}`
+      ),
+    enabled: Boolean(pmId),
+    staleTime: 30 * 1000,
+  })
+}
+
+export function useCreatePMInspection(pmId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: CreatePMInspectionRequest) =>
+      apiPost<{ inspection: PMInspection }>(
+        `/fms/preventive-maintenance/${pmId}/inspect`,
+        data
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: PM_QUERY_KEYS.inspections(pmId) })
+      queryClient.invalidateQueries({ queryKey: PM_QUERY_KEYS.detail(pmId) })
     },
   })
 }

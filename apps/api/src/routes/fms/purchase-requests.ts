@@ -31,6 +31,13 @@ const prItemSchema = t.Object({
   unit_of_measure: t.Optional(t.String()),
   estimated_unit_price: t.Optional(t.Number()),
   total: t.Optional(t.Number()),
+  item_type: t.Optional(t.String()),
+  mode: t.Optional(t.Union([t.Literal('buy'), t.Literal('rent')])),
+  budget_code: t.Optional(t.String()),
+  supplier: t.Optional(t.String()),
+  specification: t.Optional(t.String()),
+  category: t.Optional(t.String()),
+  asset_id: t.Optional(t.String()),
 })
 
 const createPRSchema = t.Object({
@@ -42,6 +49,14 @@ const createPRSchema = t.Object({
   priority: t.Optional(t.String()),
   requestedBy: t.String({ minLength: 1 }),
   notes: t.Optional(t.String()),
+  companyId: t.Optional(t.String()),
+  siteId: t.Optional(t.String()),
+  unitId: t.Optional(t.String()),
+  requiredDate: t.Optional(t.String()),
+  purpose: t.Optional(t.String()),
+  pmScheduleId: t.Optional(t.String()),
+  documents: t.Optional(t.Any()),
+  conditions: t.Optional(t.Any()),
 })
 
 const updatePRSchema = t.Object({
@@ -52,6 +67,14 @@ const updatePRSchema = t.Object({
   estimatedTotal: t.Optional(t.Nullable(t.Number())),
   priority: t.Optional(t.String()),
   notes: t.Optional(t.Nullable(t.String())),
+  companyId: t.Optional(t.Nullable(t.String())),
+  siteId: t.Optional(t.Nullable(t.String())),
+  unitId: t.Optional(t.Nullable(t.String())),
+  requiredDate: t.Optional(t.Nullable(t.String())),
+  purpose: t.Optional(t.Nullable(t.String())),
+  pmScheduleId: t.Optional(t.Nullable(t.String())),
+  documents: t.Optional(t.Any()),
+  conditions: t.Optional(t.Any()),
 })
 
 export const fmsPurchaseRequestsRoutes = new Elysia({ prefix: '/api/fms/purchase-requests' })
@@ -148,6 +171,14 @@ export const fmsPurchaseRequestsRoutes = new Elysia({ prefix: '/api/fms/purchase
                 priority: body.priority ?? 'MEDIUM',
                 requested_by: body.requestedBy,
                 notes: body.notes ?? null,
+                company_id: body.companyId ?? null,
+                site_id: body.siteId ?? null,
+                unit_id: body.unitId ?? null,
+                required_date: body.requiredDate ? new Date(body.requiredDate) : null,
+                purpose: body.purpose ?? null,
+                pm_schedule_id: body.pmScheduleId ?? null,
+                documents: body.documents ?? null,
+                conditions: body.conditions ?? null,
               },
               include: prInclude,
             })
@@ -183,6 +214,14 @@ export const fmsPurchaseRequestsRoutes = new Elysia({ prefix: '/api/fms/purchase
                 estimated_total: body.estimatedTotal,
                 priority: body.priority,
                 notes: body.notes,
+                company_id: body.companyId,
+                site_id: body.siteId,
+                unit_id: body.unitId,
+                required_date: body.requiredDate ? new Date(body.requiredDate) : undefined,
+                purpose: body.purpose,
+                pm_schedule_id: body.pmScheduleId,
+                documents: body.documents,
+                conditions: body.conditions,
               },
               include: prInclude,
             })

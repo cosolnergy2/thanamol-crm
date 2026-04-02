@@ -23,6 +23,13 @@ const contractInclude = {
   project: { select: { id: true, name: true, code: true } },
 }
 
+const contractStatusSchema = t.Union([
+  t.Literal('DRAFT'),
+  t.Literal('ACTIVE'),
+  t.Literal('EXPIRED'),
+  t.Literal('TERMINATED'),
+])
+
 const createContractSchema = t.Object({
   vendorId: t.String({ minLength: 1 }),
   title: t.String({ minLength: 1 }),
@@ -31,11 +38,15 @@ const createContractSchema = t.Object({
   endDate: t.String({ minLength: 1 }),
   value: t.Optional(t.Number({ minimum: 0 })),
   paymentTerms: t.Optional(t.String()),
-  status: t.Optional(
-    t.Union([t.Literal('DRAFT'), t.Literal('ACTIVE'), t.Literal('EXPIRED'), t.Literal('TERMINATED')])
-  ),
+  status: t.Optional(contractStatusSchema),
   documentUrl: t.Optional(t.String()),
   projectId: t.Optional(t.String()),
+  contractType: t.Optional(t.String()),
+  serviceCategory: t.Optional(t.String()),
+  sla: t.Optional(t.Any()),
+  rateCard: t.Optional(t.Any()),
+  alertDaysBeforeExpiry: t.Optional(t.Number({ minimum: 0 })),
+  autoRenew: t.Optional(t.Boolean()),
 })
 
 const updateContractSchema = t.Object({
@@ -45,11 +56,15 @@ const updateContractSchema = t.Object({
   endDate: t.Optional(t.String()),
   value: t.Optional(t.Nullable(t.Number({ minimum: 0 }))),
   paymentTerms: t.Optional(t.Nullable(t.String())),
-  status: t.Optional(
-    t.Union([t.Literal('DRAFT'), t.Literal('ACTIVE'), t.Literal('EXPIRED'), t.Literal('TERMINATED')])
-  ),
+  status: t.Optional(contractStatusSchema),
   documentUrl: t.Optional(t.Nullable(t.String())),
   projectId: t.Optional(t.Nullable(t.String())),
+  contractType: t.Optional(t.Nullable(t.String())),
+  serviceCategory: t.Optional(t.Nullable(t.String())),
+  sla: t.Optional(t.Nullable(t.Any())),
+  rateCard: t.Optional(t.Nullable(t.Any())),
+  alertDaysBeforeExpiry: t.Optional(t.Nullable(t.Number({ minimum: 0 }))),
+  autoRenew: t.Optional(t.Boolean()),
 })
 
 export const fmsVendorContractsRoutes = new Elysia({ prefix: '/api/fms/vendor-contracts' })
@@ -148,6 +163,12 @@ export const fmsVendorContractsRoutes = new Elysia({ prefix: '/api/fms/vendor-co
                 status: body.status ?? 'DRAFT',
                 document_url: body.documentUrl,
                 project_id: body.projectId,
+                contract_type: body.contractType,
+                service_category: body.serviceCategory,
+                sla: body.sla ?? undefined,
+                rate_card: body.rateCard ?? undefined,
+                alert_days_before_expiry: body.alertDaysBeforeExpiry,
+                auto_renew: body.autoRenew ?? false,
               },
               include: contractInclude,
             })
@@ -178,6 +199,12 @@ export const fmsVendorContractsRoutes = new Elysia({ prefix: '/api/fms/vendor-co
                 ...(body.status !== undefined && { status: body.status }),
                 ...(body.documentUrl !== undefined && { document_url: body.documentUrl }),
                 ...(body.projectId !== undefined && { project_id: body.projectId }),
+                ...(body.contractType !== undefined && { contract_type: body.contractType }),
+                ...(body.serviceCategory !== undefined && { service_category: body.serviceCategory }),
+                ...(body.sla !== undefined && { sla: body.sla }),
+                ...(body.rateCard !== undefined && { rate_card: body.rateCard }),
+                ...(body.alertDaysBeforeExpiry !== undefined && { alert_days_before_expiry: body.alertDaysBeforeExpiry }),
+                ...(body.autoRenew !== undefined && { auto_renew: body.autoRenew }),
               },
               include: contractInclude,
             })

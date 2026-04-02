@@ -1322,6 +1322,9 @@ export type Ticket = {
   description: string | null
   customer_id: string | null
   unit_id: string | null
+  project_id: string | null
+  site: string | null
+  requester_id: string | null
   category: string | null
   priority: TicketPriority
   status: TicketStatus
@@ -1337,6 +1340,12 @@ export type Ticket = {
 export type TicketWithRelations = Ticket & {
   customer: Pick<Customer, 'id' | 'name' | 'email' | 'phone'> | null
   unit: Pick<Unit, 'id' | 'unit_number' | 'floor' | 'building'> | null
+  assignee: { id: string; first_name: string; last_name: string } | null
+}
+
+export type HelpdeskTicket = Ticket & {
+  project: { id: string; name: string; code: string } | null
+  requester: { id: string; first_name: string; last_name: string } | null
   assignee: { id: string; first_name: string; last_name: string } | null
 }
 
@@ -1362,6 +1371,44 @@ export type TicketQueryParams = {
   priority?: TicketPriority | 'all'
   customerId?: string
   assignedTo?: string
+}
+
+// ─── Helpdesk ─────────────────────────────────────────────────────────────────
+
+export type HelpdeskListResponse = PaginatedResponse<HelpdeskTicket>
+
+export type CreateHelpdeskTicketRequest = {
+  title: string
+  description?: string
+  projectId?: string
+  site?: string
+  requesterId?: string
+  category?: string
+  priority?: TicketPriority
+  assignedTo?: string
+}
+
+export type UpdateHelpdeskTicketRequest = Partial<CreateHelpdeskTicketRequest> & {
+  status?: TicketStatus
+  resolutionNotes?: string
+}
+
+export type HelpdeskQueryParams = {
+  page?: number
+  limit?: number
+  projectId?: string
+  status?: TicketStatus | 'all'
+  priority?: TicketPriority | 'all'
+  site?: string
+}
+
+export type CreateWorkOrderFromTicketRequest = {
+  projectId: string
+  createdBy: string
+  title?: string
+  description?: string
+  assignedTo?: string
+  priority?: string
 }
 
 // ─── Notification ─────────────────────────────────────────────────────────────
@@ -1945,6 +1992,15 @@ export type Asset = {
   specifications: Record<string, unknown>
   photos: string[]
   assigned_to: string | null
+  scope_type?: string | null
+  brand?: string | null
+  supplier_id?: string | null
+  install_date?: string | null
+  criticality?: string | null
+  condition_score?: number | null
+  lifecycle_status?: string | null
+  created_at: string
+  updated_at: string
 }
 
 // ─── FMS: Petty Cash ─────────────────────────────────────────────────────────
@@ -1989,6 +2045,13 @@ export type CreateAssetRequest = {
   specifications?: Record<string, unknown>
   photos?: string[]
   assignedTo?: string
+  scopeType?: string
+  brand?: string
+  supplierId?: string
+  installDate?: string
+  criticality?: string
+  conditionScore?: number
+  lifecycleStatus?: string
 }
 
 export type UpdateAssetRequest = Partial<CreateAssetRequest>
@@ -2034,6 +2097,10 @@ export type WorkOrder = {
   cost_estimate: number | null
   actual_cost: number | null
   created_by: string
+  budget_code?: string | null
+  scheduled_start?: string | null
+  scheduled_end?: string | null
+  vendor_id?: string | null
   created_at: string
   updated_at: string
 }
@@ -2060,6 +2127,10 @@ export type CreateWorkOrderRequest = {
   estimatedHours?: number
   scheduledDate?: string
   costEstimate?: number
+  budgetCode?: string
+  scheduledStart?: string
+  scheduledEnd?: string
+  vendorId?: string
   createdBy: string
 }
 
@@ -2106,6 +2177,12 @@ export type PreventiveMaintenance = {
   last_completed_date: string | null
   is_active: boolean
   created_by: string
+  scope_type?: string | null
+  trigger_type?: string | null
+  estimated_duration?: number | null
+  spare_parts?: unknown | null
+  auto_create_wo: boolean
+  auto_wo_days_before?: number | null
   created_at: string
   updated_at: string
 }
@@ -2130,6 +2207,12 @@ export type CreatePMRequest = {
   checklist?: unknown[]
   assignedTo?: string
   nextDueDate?: string
+  scopeType?: string
+  triggerType?: string
+  estimatedDuration?: number
+  spareParts?: unknown[]
+  autoCreateWo?: boolean
+  autoWoDaysBefore?: number
   createdBy: string
 }
 
@@ -2161,6 +2244,42 @@ export type PMScheduleLog = {
   created_at: string
 }
 
+export type PMInspection = {
+  id: string
+  pm_id: string
+  inspection_date: string
+  inspector_name: string
+  checklist_results: unknown[]
+  passed: boolean
+  notes: string | null
+  created_at: string
+}
+
+export type CreatePMInspectionRequest = {
+  inspectionDate: string
+  inspectorName: string
+  checklistResults?: Array<{ item: string; passed: boolean; notes?: string }>
+  passed: boolean
+  notes?: string
+}
+
+export type PMInspectionListResponse = PaginatedResponse<PMInspection>
+
+export type PMComplianceReport = {
+  total: number
+  onTimeCount: number
+  overdueCount: number
+  missedCount: number
+  compliancePercentage: number
+  overdueList: Array<{
+    id: string
+    pm_number: string
+    title: string
+    next_due_date: string
+    days_overdue: number
+  }>
+}
+
 // ─── FMS: Calibration ─────────────────────────────────────────────────────────
 
 export type CalibrationStatus = 'PENDING' | 'IN_PROGRESS' | 'PASSED' | 'FAILED' | 'OVERDUE'
@@ -2174,6 +2293,13 @@ export type CalibrationRecord = {
   certificate_url: string | null
   status: CalibrationStatus
   notes: string | null
+  calibration_number?: string | null
+  frequency_days?: number | null
+  calibration_type?: string | null
+  calibration_standard?: string | null
+  certificate_number?: string | null
+  cost?: number | null
+  results?: unknown | null
   created_at: string
 }
 
@@ -2208,6 +2334,13 @@ export type CreateCalibrationRequest = {
   certificateUrl?: string
   status?: CalibrationStatus
   notes?: string
+  calibrationNumber?: string
+  frequencyDays?: number
+  calibrationType?: string
+  calibrationStandard?: string
+  certificateNumber?: string
+  cost?: number
+  results?: unknown
 }
 
 export type UpdateCalibrationRequest = Partial<CreateCalibrationRequest>
@@ -2333,6 +2466,9 @@ export type PettyCashTransaction = {
   requested_by: string
   approved_by: string | null
   transaction_date: string
+  site_id?: string | null
+  budget_code?: string | null
+  responsible_person_id?: string | null
   notes: string | null
   created_at: string
   updated_at: string
@@ -2374,6 +2510,14 @@ export type InventoryItem = {
   storage_location: string | null
   project_id: string | null
   is_active: boolean
+  item_type?: string | null
+  barcode?: string | null
+  company_id?: string | null
+  site_id?: string | null
+  specifications?: unknown | null
+  vendor_id?: string | null
+  lead_time_days?: number | null
+  photos?: unknown | null
   created_at: string
   updated_at: string
 }
@@ -2452,6 +2596,7 @@ export type StockIssue = {
   issued_to: string | null
   issued_by: string | null
   issue_date: string
+  purpose?: string | null
   notes: string | null
   created_at: string
 }
@@ -2481,6 +2626,8 @@ export type GoodsReceivedNote = {
   status: GRNStatus
   inspection_notes: string | null
   project_id: string | null
+  po_id?: string | null
+  qc_status?: string | null
   created_at: string
   updated_at: string
 }
@@ -2557,6 +2704,9 @@ export type CreatePettyCashTransactionRequest = {
   receiptUrl?: string
   requestedBy: string
   transactionDate: string
+  siteId?: string
+  budgetCode?: string
+  responsiblePersonId?: string
   notes?: string
 }
 
@@ -2585,6 +2735,7 @@ export type CreateInventoryItemRequest = {
   description?: string
   categoryId?: string
   unitOfMeasure?: string
+  currentStock?: number
   minimumStock?: number
   maximumStock?: number
   reorderPoint?: number
@@ -2592,6 +2743,14 @@ export type CreateInventoryItemRequest = {
   unitCost?: number
   storageLocation?: string
   projectId?: string
+  itemType?: string
+  barcode?: string
+  companyId?: string
+  siteId?: string
+  specifications?: unknown
+  vendorId?: string
+  leadTimeDays?: number
+  photos?: unknown
 }
 
 export type UpdateInventoryItemRequest = Partial<CreateInventoryItemRequest> & {
@@ -2631,6 +2790,7 @@ export type CreateStockIssueRequest = {
   issuedTo?: string
   issuedBy?: string
   issueDate: string
+  purpose?: string
   notes?: string
 }
 
@@ -2646,12 +2806,14 @@ export type StockIssueQueryParams = {
 }
 
 export type CreateGRNRequest = {
-  supplierName: string
+  supplierName?: string
   items: GRNItem[]
   receivedDate: string
   receivedBy?: string
   inspectionNotes?: string
   projectId?: string
+  poId?: string
+  qcStatus?: string
 }
 
 export type UpdateGRNRequest = Partial<Omit<CreateGRNRequest, 'items'>> & {
@@ -2666,6 +2828,53 @@ export type GRNQueryParams = {
   limit?: number
   projectId?: string
   status?: GRNStatus | 'all'
+  search?: string
+}
+
+// ─── FMS: Stock Transfers ─────────────────────────────────────────────────────
+
+export type StockTransferItem = {
+  item_id: string
+  item_code?: string
+  item_name?: string
+  quantity: number
+  unit_of_measure?: string | null
+}
+
+export type StockTransfer = {
+  id: string
+  transfer_number: string
+  source_project_id: string | null
+  destination_project_id: string | null
+  transfer_date: string
+  notes: string | null
+  transferred_by: string | null
+  items: StockTransferItem[]
+  created_at: string
+}
+
+export type StockTransferWithRelations = StockTransfer & {
+  source_project: { id: string; name: string; code: string } | null
+  destination_project: { id: string; name: string; code: string } | null
+  transferred_by_user: { id: string; first_name: string; last_name: string } | null
+}
+
+export type CreateStockTransferRequest = {
+  sourceProjectId?: string
+  destinationProjectId?: string
+  items: { itemId: string; quantity: number }[]
+  transferDate: string
+  notes?: string
+  transferredBy?: string
+}
+
+export type StockTransferListResponse = PaginatedResponse<StockTransferWithRelations>
+
+export type StockTransferQueryParams = {
+  page?: number
+  limit?: number
+  sourceProjectId?: string
+  destinationProjectId?: string
   search?: string
 }
 
@@ -2687,6 +2896,13 @@ export type PRItem = {
   unit_of_measure?: string
   estimated_unit_price?: number
   total?: number
+  item_type?: string
+  mode?: 'buy' | 'rent'
+  budget_code?: string
+  supplier?: string
+  specification?: string
+  category?: string
+  asset_id?: string
 }
 
 export type PurchaseRequest = {
@@ -2703,6 +2919,14 @@ export type PurchaseRequest = {
   approved_by?: string | null
   approved_at?: string | null
   notes?: string | null
+  company_id?: string | null
+  site_id?: string | null
+  unit_id?: string | null
+  required_date?: string | null
+  purpose?: string | null
+  pm_schedule_id?: string | null
+  documents?: unknown | null
+  conditions?: unknown | null
   created_at: string
   updated_at: string
 }
@@ -2720,6 +2944,27 @@ export type POItem = {
   unit_of_measure?: string
   unit_price: number
   total: number
+  item_type?: string
+  buy_or_rent?: 'buy' | 'rent'
+  budget_code?: string
+  supplier?: string
+  specification?: string
+  category?: string
+  asset_id?: string
+}
+
+export type POConditions = {
+  payment_installments?: Array<{ label: string; amount: number; due_date?: string }>
+  wht_enabled?: boolean
+  wht_rate?: number
+  vat_enabled?: boolean
+  retention_enabled?: boolean
+  retention_rate?: number
+  warranty?: string
+  credit_terms?: string
+  timeline?: string
+  late_penalty?: string
+  insurance?: string
 }
 
 export type PurchaseOrder = {
@@ -2738,6 +2983,15 @@ export type PurchaseOrder = {
   notes?: string | null
   created_by: string
   approved_by?: string | null
+  company_id?: string | null
+  site_id?: string | null
+  unit_id?: string | null
+  po_date?: string | null
+  payment_due_date?: string | null
+  po_type?: string | null
+  delivery_address?: string | null
+  documents?: unknown | null
+  conditions?: unknown | null
   created_at: string
   updated_at: string
 }
@@ -2785,6 +3039,14 @@ export type CreatePRRequest = {
   priority?: string
   requestedBy: string
   notes?: string
+  companyId?: string
+  siteId?: string
+  unitId?: string
+  requiredDate?: string
+  purpose?: string
+  pmScheduleId?: string
+  documents?: unknown
+  conditions?: unknown
 }
 
 export type UpdatePRRequest = Partial<Omit<CreatePRRequest, 'requestedBy'>>
@@ -2808,6 +3070,15 @@ export type CreatePORequest = {
   paymentTerms?: string
   notes?: string
   createdBy: string
+  companyId?: string
+  siteId?: string
+  unitId?: string
+  poDate?: string
+  paymentDueDate?: string
+  poType?: string
+  deliveryAddress?: string
+  documents?: unknown
+  conditions?: unknown
 }
 
 export type UpdatePORequest = Partial<Omit<CreatePORequest, 'createdBy'>>
@@ -2877,6 +3148,16 @@ export type Vendor = {
   status: VendorStatus
   bank_details: Record<string, unknown>
   notes?: string | null
+  legal_name?: string | null
+  display_name?: string | null
+  vendor_type?: string | null
+  company_registration?: string | null
+  additional_contacts?: unknown | null
+  service_tags?: unknown | null
+  supplier_type?: string | null
+  payment_terms?: string | null
+  credit_limit?: number | null
+  default_conditions?: unknown | null
   created_at: string
   updated_at: string
 }
@@ -2927,6 +3208,12 @@ export type VendorContract = {
   status: VendorContractStatus
   document_url?: string | null
   project_id?: string | null
+  contract_type?: string | null
+  service_category?: string | null
+  sla?: unknown | null
+  rate_card?: unknown | null
+  alert_days_before_expiry?: number | null
+  auto_renew: boolean
   created_at: string
   updated_at: string
 }
@@ -3179,6 +3466,8 @@ export type VendorInvoice = {
   payment_status: string
   payment_date?: string | null
   notes?: string | null
+  pdf_url?: string | null
+  submission_history?: unknown | null
   created_at: string
   updated_at: string
 }
@@ -3262,6 +3551,27 @@ export type VendorInvoiceWithRelations = VendorInvoice & {
 
 // ─── Vendor Request/Response Types ────────────────────────────────────────────
 
+export type VendorAdditionalContact = {
+  name: string
+  phone?: string
+  email?: string
+  position?: string
+}
+
+export type VendorDefaultConditions = {
+  payment_installments?: Array<{ label: string; amount: number; due_date?: string }>
+  wht_enabled?: boolean
+  wht_rate?: number
+  vat_enabled?: boolean
+  retention_enabled?: boolean
+  retention_rate?: number
+  warranty?: string
+  credit_terms?: string
+  standard_lead_time?: string
+  late_penalty?: string
+  insurance?: string
+}
+
 export type CreateVendorRequest = {
   name: string
   taxId?: string
@@ -3270,11 +3580,27 @@ export type CreateVendorRequest = {
   email?: string
   website?: string
   contactPerson?: string
+  contactPhone?: string
+  contactEmail?: string
   category?: string
   rating?: number
   status?: VendorStatus
   bankDetails?: Record<string, unknown>
   notes?: string
+  legalName?: string
+  displayName?: string
+  vendorType?: string
+  companyRegistration?: string
+  additionalContacts?: VendorAdditionalContact[]
+  serviceTags?: string[]
+  supplierType?: string
+  paymentTerms?: string
+  creditDays?: number
+  creditLimit?: number
+  defaultConditions?: VendorDefaultConditions
+  ratingLevel?: string
+  registerAllCompanies?: boolean
+  companyId?: string
 }
 
 export type UpdateVendorRequest = {
@@ -3285,11 +3611,27 @@ export type UpdateVendorRequest = {
   email?: string | null
   website?: string | null
   contactPerson?: string | null
+  contactPhone?: string | null
+  contactEmail?: string | null
   category?: string | null
   rating?: number | null
   status?: VendorStatus
   bankDetails?: Record<string, unknown>
   notes?: string | null
+  legalName?: string | null
+  displayName?: string | null
+  vendorType?: string | null
+  companyRegistration?: string | null
+  additionalContacts?: VendorAdditionalContact[] | null
+  serviceTags?: string[] | null
+  supplierType?: string | null
+  paymentTerms?: string | null
+  creditDays?: number | null
+  creditLimit?: number | null
+  defaultConditions?: VendorDefaultConditions | null
+  ratingLevel?: string | null
+  registerAllCompanies?: boolean
+  companyId?: string | null
 }
 
 export type VendorListResponse = PaginatedResponse<Vendor>
@@ -3313,6 +3655,12 @@ export type CreateVendorContractRequest = {
   status?: VendorContractStatus
   documentUrl?: string
   projectId?: string
+  contractType?: string
+  serviceCategory?: string
+  sla?: unknown
+  rateCard?: unknown
+  alertDaysBeforeExpiry?: number
+  autoRenew?: boolean
 }
 
 export type UpdateVendorContractRequest = Partial<Omit<CreateVendorContractRequest, 'vendorId'>>
@@ -3354,6 +3702,8 @@ export type CreateVendorInvoiceRequest = {
   invoiceDate: string
   dueDate?: string
   notes?: string
+  pdfUrl?: string
+  submissionHistory?: unknown
 }
 
 export type UpdateVendorInvoiceRequest = Partial<Omit<CreateVendorInvoiceRequest, 'vendorId'>>
@@ -3367,6 +3717,89 @@ export type VendorInvoiceQueryParams = {
   paymentStatus?: string
   search?: string
 }
+
+// ─── Vendor Performance & Reports ─────────────────────────────────────────────
+
+export type VendorPerformance = {
+  vendorId: string
+  vendorCode: string
+  vendorName: string
+  deliveryScore: number
+  qualityScore: number
+  pricingScore: number
+  overallScore: number
+  stats: {
+    totalPOs: number
+    deliveredPOs: number
+    totalGRNs: number
+    acceptedGRNs: number
+    totalInvoices: number
+    totalSpend: number
+    vendorAvgPrice: number
+  }
+}
+
+export type VendorPriceTrendItem = {
+  itemName: string
+  latestPrice: number
+  currency: string
+  priceHistory: Array<{
+    date: string
+    unitPrice: number
+    currency: string
+    isActive: boolean
+  }>
+}
+
+export type VendorPriceTrend = {
+  vendorId: string
+  items: VendorPriceTrendItem[]
+}
+
+export type VendorSummaryRow = {
+  vendorId: string
+  vendorCode: string
+  vendorName: string
+  status: string
+  activeContractsCount: number
+  totalInvoices: number
+  totalSpend: number
+  invoiceStatusSummary: Record<string, number>
+}
+
+export type VendorSummaryReport = {
+  rows: VendorSummaryRow[]
+  totals: {
+    totalVendors: number
+    activeVendors: number
+    totalActiveContracts: number
+    totalSpend: number
+  }
+}
+
+export type ThreeWayMatchRow = {
+  description: string
+  invoiceQty: number
+  poQty: number | null
+  grnQty: number | null
+  invoiceUnitPrice: number
+  poUnitPrice: number | null
+  invoiceTotal: number
+  quantityMatch: boolean | null
+  priceMatch: boolean | null
+}
+
+export type ThreeWayMatch = {
+  invoiceId: string
+  invoiceNumber: string
+  vendor: { id: string; vendor_code: string; name: string }
+  poLinked: boolean
+  rows: ThreeWayMatchRow[]
+  allMatched: boolean
+  invoiceTotal: number
+  poTotal: number
+}
+
 export type BudgetTemplate = {
   id: string
   name: string
@@ -3625,4 +4058,504 @@ export type FMSComplianceStatusReport = {
     type: string
     end_date: string
   }>
+}
+
+export type FMSBudgetOverviewReport = {
+  totalBudgets: number
+  totalApprovedAmount: number
+  totalSpent: number
+  totalRemaining: number
+  byStatus: Record<string, number>
+}
+
+export type FMSBudgetVsActualRow = {
+  id: string
+  budgetCode: string
+  title: string
+  fiscalYear: number
+  status: string
+  project: { id: string; name: string; code: string } | null
+  totalApproved: number
+  totalActual: number
+  totalCommitted: number
+  variance: number
+  utilizationPct: number
+}
+
+export type FMSBudgetVsActualReport = {
+  rows: FMSBudgetVsActualRow[]
+  totals: {
+    totalApproved: number
+    totalActual: number
+    totalVariance: number
+  }
+}
+
+export type FMSCostReportRow = {
+  category: string
+  approved: number
+  actual: number
+  committed: number
+}
+
+export type FMSCostReport = {
+  rows: FMSCostReportRow[]
+  totalActual: number
+}
+
+export type PredictiveMaintenanceRiskLevel = 'HIGH' | 'MEDIUM' | 'LOW'
+
+export type PredictiveMaintenanceItem = {
+  assetId: string
+  assetName: string
+  riskLevel: PredictiveMaintenanceRiskLevel
+  reason: string
+  recommendation: string
+}
+
+export type PredictiveMaintenanceReport = {
+  items: PredictiveMaintenanceItem[]
+  summary: {
+    total: number
+    high: number
+    medium: number
+    low: number
+  }
+}
+
+export type AutoReorderRequest = {
+  projectId?: string
+  title?: string
+}
+
+export type AutoReorderResponse = {
+  pr: {
+    id: string
+    pr_number: string
+    title: string
+    status: string
+    estimated_total: number | null
+    created_at: string
+  }
+  itemCount: number
+}
+
+// ─── Approval Center ──────────────────────────────────────────────────────────
+
+export type ApprovalStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
+
+export type ApprovalWorkflowStep = {
+  step: number
+  role: string
+  threshold?: number
+}
+
+export type ApprovalHistoryEntry = {
+  step: number
+  action: 'APPROVED' | 'REJECTED'
+  user: string
+  date: string
+  notes?: string
+}
+
+export type ApprovalWorkflow = {
+  id: string
+  entity_type: string
+  name: string
+  steps: ApprovalWorkflowStep[]
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export type ApprovalRequest = {
+  id: string
+  entity_type: string
+  entity_id: string
+  workflow_id: string
+  workflow?: Pick<ApprovalWorkflow, 'id' | 'name' | 'entity_type' | 'steps'>
+  current_step: number
+  status: ApprovalStatus
+  history: ApprovalHistoryEntry[]
+  requested_by: string
+  requester?: { id: string; first_name: string; last_name: string }
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type CreateApprovalWorkflowRequest = {
+  entityType: string
+  name: string
+  steps: ApprovalWorkflowStep[]
+  isActive?: boolean
+}
+
+export type UpdateApprovalWorkflowRequest = {
+  name?: string
+  steps?: ApprovalWorkflowStep[]
+  isActive?: boolean
+}
+
+export type CreateApprovalRequestRequest = {
+  entityType: string
+  entityId: string
+  workflowId: string
+  requestedBy: string
+  notes?: string
+}
+
+export type ApproveRequestBody = {
+  userId: string
+  notes?: string
+}
+
+export type RejectRequestBody = {
+  userId: string
+  reason: string
+}
+
+export type ApprovalWorkflowListResponse = {
+  data: ApprovalWorkflow[]
+  pagination: Pagination
+}
+
+export type ApprovalRequestListResponse = {
+  data: ApprovalRequest[]
+  pagination: Pagination
+}
+
+// ─── FMS: Disaster Plans ──────────────────────────────────────────────────────
+
+export type DisasterPlanType = 'FIRE' | 'EARTHQUAKE' | 'FLOOD' | 'CHEMICAL' | 'OTHER'
+export type DisasterPlanStatus = 'DRAFT' | 'ACTIVE' | 'ARCHIVED'
+
+export type DisasterPlan = {
+  id: string
+  title: string
+  plan_type: DisasterPlanType
+  procedures: unknown[]
+  responsible_persons: unknown[]
+  review_date: string | null
+  project_id: string
+  status: DisasterPlanStatus
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type DisasterPlanWithRelations = DisasterPlan & {
+  project: { id: string; name: string; code: string }
+}
+
+export type CreateDisasterPlanRequest = {
+  title: string
+  planType: DisasterPlanType
+  projectId: string
+  procedures?: unknown[]
+  responsiblePersons?: unknown[]
+  reviewDate?: string
+  status?: DisasterPlanStatus
+  notes?: string
+}
+
+export type UpdateDisasterPlanRequest = Partial<Omit<CreateDisasterPlanRequest, 'projectId'>> & {
+  status?: DisasterPlanStatus
+}
+
+export type DisasterPlanListResponse = PaginatedResponse<DisasterPlanWithRelations>
+
+export type DisasterPlanQueryParams = {
+  projectId?: string
+  planType?: DisasterPlanType | 'all'
+  status?: DisasterPlanStatus | 'all'
+  search?: string
+  page?: number
+  limit?: number
+}
+
+// ─── FMS: Emergency Drills ────────────────────────────────────────────────────
+
+export type DrillStatus = 'SCHEDULED' | 'COMPLETED' | 'CANCELLED'
+
+export type EmergencyDrill = {
+  id: string
+  plan_id: string
+  drill_type: string
+  scheduled_date: string
+  actual_date: string | null
+  participants: unknown[]
+  findings: string | null
+  corrective_actions: unknown[]
+  status: DrillStatus
+  project_id: string
+  created_at: string
+  updated_at: string
+}
+
+export type EmergencyDrillWithRelations = EmergencyDrill & {
+  project: { id: string; name: string; code: string }
+  plan: { id: string; title: string; plan_type: DisasterPlanType }
+}
+
+export type CreateEmergencyDrillRequest = {
+  planId: string
+  drillType: string
+  scheduledDate: string
+  actualDate?: string
+  participants?: unknown[]
+  findings?: string
+  correctiveActions?: unknown[]
+  status?: DrillStatus
+  projectId: string
+}
+
+export type UpdateEmergencyDrillRequest = Partial<Omit<CreateEmergencyDrillRequest, 'projectId' | 'planId'>>
+
+export type CompleteDrillRequest = {
+  actualDate: string
+  participants?: unknown[]
+  findings?: string
+  correctiveActions?: unknown[]
+}
+
+export type EmergencyDrillListResponse = PaginatedResponse<EmergencyDrillWithRelations>
+
+export type EmergencyDrillQueryParams = {
+  projectId?: string
+  planId?: string
+  status?: DrillStatus | 'all'
+  search?: string
+  page?: number
+  limit?: number
+}
+
+// ─── Landscape ────────────────────────────────────────────────────────────────
+
+export type LandscapeTask = {
+  id: string
+  title: string
+  description: string | null
+  project_id: string
+  zone_id: string | null
+  scheduled_date: string
+  completed_date: string | null
+  status: string
+  assigned_to: string | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type CreateLandscapeTaskRequest = {
+  title: string
+  description?: string
+  projectId: string
+  zoneId?: string
+  scheduledDate: string
+  completedDate?: string
+  status?: string
+  assignedTo?: string
+  notes?: string
+}
+
+export type UpdateLandscapeTaskRequest = Partial<Omit<CreateLandscapeTaskRequest, 'projectId'>>
+
+export type LandscapeTaskListResponse = PaginatedResponse<LandscapeTask>
+
+// ─── Waste ────────────────────────────────────────────────────────────────────
+
+export type WasteRecord = {
+  id: string
+  record_date: string
+  project_id: string
+  waste_type: string
+  volume: number
+  unit: string
+  disposal_method: string | null
+  vendor_id: string | null
+  cost: number | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type CreateWasteRecordRequest = {
+  recordDate: string
+  projectId: string
+  wasteType: string
+  volume: number
+  unit: string
+  disposalMethod?: string
+  vendorId?: string
+  cost?: number
+  notes?: string
+}
+
+export type UpdateWasteRecordRequest = Partial<Omit<CreateWasteRecordRequest, 'projectId'>>
+
+export type WasteRecordListResponse = PaginatedResponse<WasteRecord>
+
+// ─── FMS: Meters & Utility Rates ─────────────────────────────────────────────
+
+export type FmsMeterType = 'ELECTRICITY' | 'WATER' | 'GAS'
+
+export type FmsMeterReading = {
+  id: string
+  project_id: string
+  project?: { id: string; name: string; code: string }
+  meter_type: FmsMeterType
+  location: string
+  reading_date: string
+  value: number
+  previous_value: number
+  unit: string
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type UtilityRate = {
+  id: string
+  project_id: string
+  meter_type: FmsMeterType
+  tier_name: string
+  min_usage: number
+  max_usage: number | null
+  rate_per_unit: number
+  created_at: string
+  updated_at: string
+}
+
+export type CreateFmsMeterReadingRequest = {
+  projectId: string
+  meterType: FmsMeterType
+  location?: string
+  readingDate: string
+  value: number
+  previousValue?: number
+  unit: string
+  notes?: string
+}
+
+export type UpdateFmsMeterReadingRequest = Partial<Omit<CreateFmsMeterReadingRequest, 'projectId'>>
+
+export type CreateUtilityRateRequest = {
+  projectId: string
+  meterType: FmsMeterType
+  tierName: string
+  minUsage: number
+  maxUsage?: number
+  ratePerUnit: number
+}
+
+export type UpdateUtilityRateRequest = Partial<Omit<CreateUtilityRateRequest, 'projectId'>>
+
+export type MeterRevenueRow = {
+  id: string
+  meterType: FmsMeterType
+  location: string | null
+  readingDate: string
+  value: number
+  previousValue: number | null
+  unit: string
+  consumption: number
+  charge: number
+}
+
+export type MeterRevenueResponse = {
+  data: MeterRevenueRow[]
+  totalCharge: number
+}
+
+export type FmsMeterReadingListResponse = PaginatedResponse<FmsMeterReading>
+export type UtilityRateListResponse = { data: UtilityRate[] }
+
+export type FmsMeterQueryParams = {
+  projectId?: string
+  meterType?: FmsMeterType
+  page?: number
+  limit?: number
+}
+
+export type EnergyConsumptionSummary = {
+  totalConsumption: number
+  readingCount: number
+  unit: string
+}
+
+export type EnergyPeriodRow = {
+  period: string
+  [key: string]: unknown
+}
+
+export type EnergyReport = {
+  consumptionByType: Record<string, EnergyConsumptionSummary>
+  byPeriod: EnergyPeriodRow[]
+}
+
+export type EnergyReportQueryParams = {
+  projectId?: string
+  startDate?: string
+  endDate?: string
+  periodType?: 'month' | 'week'
+}
+
+// ─── Inventory Analysis ───────────────────────────────────────────────────────
+
+export type ABCCategory = 'A' | 'B' | 'C'
+
+export type ABCAnalysisItem = {
+  itemId: string
+  itemCode: string
+  itemName: string
+  category: ABCCategory
+  annualSpend: number
+  percentOfTotalSpend: number
+}
+
+export type DeadStockItem = {
+  itemId: string
+  itemCode: string
+  itemName: string
+  lastMovementDate: string | null
+  daysSinceMovement: number
+  currentStock: number
+  stockValue: number
+}
+
+export type ConsumptionTrendItem = {
+  itemId: string
+  itemCode: string
+  itemName: string
+  totalConsumed: number
+  movementCount: number
+  avgMonthlyConsumption: number
+}
+
+export type ReorderSuggestion = {
+  itemId: string
+  itemCode: string
+  itemName: string
+  currentStock: number
+  currentReorderPoint: number | null
+  suggestedReorderPoint: number
+  avgDailyConsumption: number
+  leadTimeDays: number
+  reason: string
+}
+
+export type InventoryAnalysisReport = {
+  abcAnalysis: ABCAnalysisItem[]
+  deadStock: DeadStockItem[]
+  consumptionTrends: ConsumptionTrendItem[]
+  reorderSuggestions: ReorderSuggestion[]
+  summary: {
+    totalItems: number
+    totalDeadStockItems: number
+    totalDeadStockValue: number
+    aItemCount: number
+    bItemCount: number
+    cItemCount: number
+  }
 }

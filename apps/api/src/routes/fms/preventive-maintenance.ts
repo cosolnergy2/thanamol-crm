@@ -52,6 +52,12 @@ const createPMSchema = t.Object({
   checklist: t.Optional(t.Array(t.Unknown())),
   assignedTo: t.Optional(t.String()),
   nextDueDate: t.Optional(t.String()),
+  scopeType: t.Optional(t.String()),
+  triggerType: t.Optional(t.String()),
+  estimatedDuration: t.Optional(t.Number()),
+  spareParts: t.Optional(t.Array(t.Unknown())),
+  autoCreateWo: t.Optional(t.Boolean()),
+  autoWoDaysBefore: t.Optional(t.Number()),
   createdBy: t.String({ minLength: 1 }),
 })
 
@@ -67,6 +73,12 @@ const updatePMSchema = t.Object({
   nextDueDate: t.Optional(t.String()),
   isActive: t.Optional(t.Boolean()),
   lastCompletedDate: t.Optional(t.String()),
+  scopeType: t.Optional(t.String()),
+  triggerType: t.Optional(t.String()),
+  estimatedDuration: t.Optional(t.Number()),
+  spareParts: t.Optional(t.Array(t.Unknown())),
+  autoCreateWo: t.Optional(t.Boolean()),
+  autoWoDaysBefore: t.Optional(t.Number()),
 })
 
 export const fmsPMRoutes = new Elysia({ prefix: '/api/fms/preventive-maintenance' })
@@ -164,6 +176,12 @@ export const fmsPMRoutes = new Elysia({ prefix: '/api/fms/preventive-maintenance
                 checklist: (body.checklist as object[]) ?? [],
                 assigned_to: body.assignedTo ?? null,
                 next_due_date: body.nextDueDate ? new Date(body.nextDueDate) : null,
+                scope_type: body.scopeType ?? null,
+                trigger_type: body.triggerType ?? null,
+                estimated_duration: body.estimatedDuration ?? null,
+                spare_parts: (body.spareParts as object[]) ?? [],
+                auto_create_wo: body.autoCreateWo ?? false,
+                auto_wo_days_before: body.autoWoDaysBefore ?? null,
                 created_by: body.createdBy,
               },
               include: pmInclude,
@@ -200,6 +218,12 @@ export const fmsPMRoutes = new Elysia({ prefix: '/api/fms/preventive-maintenance
                 last_completed_date: body.lastCompletedDate
                   ? new Date(body.lastCompletedDate)
                   : undefined,
+                scope_type: body.scopeType,
+                trigger_type: body.triggerType,
+                estimated_duration: body.estimatedDuration,
+                spare_parts: body.spareParts as object[] | undefined,
+                auto_create_wo: body.autoCreateWo,
+                auto_wo_days_before: body.autoWoDaysBefore,
               },
               include: pmInclude,
             })
@@ -266,4 +290,73 @@ export const fmsPMRoutes = new Elysia({ prefix: '/api/fms/preventive-maintenance
           await prisma.preventiveMaintenance.delete({ where: { id: params.id } })
           return { success: true }
         })
+        .post(
+          '/:id/inspect',
+          async ({ params, body, set }) => {
+            const pm = await prisma.preventiveMaintenance.findUnique({
+              where: { id: params.id },
+            })
+            if (!pm) {
+              set.status = 404
+              return { error: 'PM schedule not found' }
+            }
+
+            const inspection = await prisma.pMInspection.create({
+              data: {
+                pm_id: params.id,
+                inspection_date: new Date(body.inspectionDate),
+                inspector_name: body.inspectorName,
+                checklist_results: (body.checklistResults as object[]) ?? [],
+                passed: body.passed,
+                notes: body.notes ?? null,
+              },
+            })
+
+            set.status = 201
+            return { inspection }
+          },
+          {
+            body: t.Object({
+              inspectionDate: t.String({ minLength: 1 }),
+              inspectorName: t.String({ minLength: 1 }),
+              checklistResults: t.Optional(t.Array(t.Unknown())),
+              passed: t.Boolean(),
+              notes: t.Optional(t.String()),
+            }),
+          }
+        )
+        .get(
+          '/:id/inspections',
+          async ({ params, query, set }) => {
+            const pm = await prisma.preventiveMaintenance.findUnique({
+              where: { id: params.id },
+            })
+            if (!pm) {
+              set.status = 404
+              return { error: 'PM schedule not found' }
+            }
+
+            const page = Math.max(1, Number(query.page ?? 1))
+            const limit = Math.min(100, Math.max(1, Number(query.limit ?? 20)))
+            const skip = (page - 1) * limit
+
+            const [total, inspections] = await Promise.all([
+              prisma.pMInspection.count({ where: { pm_id: params.id } }),
+              prisma.pMInspection.findMany({
+                where: { pm_id: params.id },
+                skip,
+                take: limit,
+                orderBy: { inspection_date: 'desc' },
+              }),
+            ])
+
+            return { data: inspections, pagination: buildPagination(page, limit, total) }
+          },
+          {
+            query: t.Object({
+              page: t.Optional(t.String()),
+              limit: t.Optional(t.String()),
+            }),
+          }
+        )
   )

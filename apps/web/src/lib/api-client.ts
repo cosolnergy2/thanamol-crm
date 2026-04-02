@@ -106,7 +106,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
         throw new Error('Session expired')
       }
       const errorData = await retryResponse.json().catch(() => ({ message: retryResponse.statusText }))
-      throw new Error(errorData.message ?? retryResponse.statusText)
+      throw new Error(errorData.message ?? errorData.error ?? retryResponse.statusText)
     }
 
     return retryResponse.json() as Promise<T>
@@ -114,7 +114,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({ message: response.statusText }))
-    throw new Error(errorData.message ?? response.statusText)
+    throw new Error(errorData.message ?? errorData.error ?? response.statusText)
   }
 
   return response.json() as Promise<T>
