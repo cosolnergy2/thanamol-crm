@@ -304,7 +304,7 @@ function VendorInvoiceDetailPage() {
               )}
               {invoice.pdf_url && (
                 <div className="col-span-2">
-                  <p className="text-slate-500">PDF Document</p>
+                  <p className="text-slate-500">Attachment</p>
                   <a
                     href={invoice.pdf_url}
                     target="_blank"
@@ -312,7 +312,7 @@ function VendorInvoiceDetailPage() {
                     className="text-indigo-600 hover:underline flex items-center gap-1 text-sm"
                   >
                     <FileText className="w-4 h-4" />
-                    View PDF
+                    View File
                   </a>
                 </div>
               )}

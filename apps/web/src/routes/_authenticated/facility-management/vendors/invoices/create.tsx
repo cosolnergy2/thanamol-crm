@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { FileUpload } from '@/components/FileUpload'
 import { useCreateVendorInvoice } from '@/hooks/useVendorInvoices'
 import { useVendors } from '@/hooks/useVendors'
 import { usePurchaseOrders } from '@/hooks/usePurchaseOrders'
@@ -236,16 +237,11 @@ function VendorInvoiceCreatePage() {
             </div>
 
             <div className="md:col-span-2">
-              <Label>PDF URL</Label>
-              <Input
-                type="url"
-                value={pdfUrl}
-                onChange={(e) => setPdfUrl(e.target.value)}
-                placeholder="https://storage.example.com/invoice.pdf"
+              <FileUpload
+                label="Attachment"
+                value={pdfUrl || undefined}
+                onChange={(url) => setPdfUrl(url ?? '')}
               />
-              <p className="text-xs text-slate-400 mt-1">
-                Paste a link to the invoice PDF document
-              </p>
             </div>
           </CardContent>
         </Card>
