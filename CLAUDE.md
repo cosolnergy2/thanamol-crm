@@ -45,6 +45,15 @@ PropertyFlow CRM — a property management CRM system.
 - **File uploads:** Stored locally in `apps/api/uploads/`, served via Elysia static plugin at `/uploads/`
 - See `DEPLOY.md` for full operations guide
 
+## Browser Testing (automated-test MCP)
+
+When asked to test, verify, or check any page, flow, or feature on a URL — use the `automated-test` MCP server tools. NEVER use Fetch or WebFetch for testing.
+
+- **Tools:** `browser_launch`, `browser_goto`, `browser_click`, `browser_fill`, `browser_type_text`, `browser_press_key`, `browser_screenshot`, `browser_evaluate`, `browser_wait_for_selector`, `browser_get_text`, `browser_close`, `scraper_get_page_content`, `scraper_get_links`, `scraper_get_current_url`, `scraper_wait_for_navigation`, `test_report`
+- **Production URL:** `http://ecm.thanamol.com:8080/`
+- **Flow:** `browser_launch` → navigate/interact → `test_report` (always end with a report + screenshot)
+- **Reports:** Saved to `mcp/browser/reports/`
+
 ## Task Management
 
 - Tasks tracked in `tasks.csv` (ID, Title, Assignee, Status, Detail)
