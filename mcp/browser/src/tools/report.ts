@@ -1,7 +1,7 @@
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { join, resolve } from 'path'
+import { join } from 'path'
 import { mkdir, writeFile } from 'fs/promises'
 
 import { ensureLaunched } from '../session'
@@ -102,21 +102,9 @@ ${screenshotRef}`
       const reportPath = join(config.REPORT_DIR, `${baseName}.md`)
       await writeFile(reportPath, markdown, 'utf-8')
 
-      // Open the report in the browser for visual review
-      const absoluteReportPath = resolve(reportPath)
-      const sessionResult = await ensureLaunched()
-      let openedInBrowser = false
-      if (sessionResult.isOk()) {
-        const gotoResult = await sessionResult.value.goto(`file://${absoluteReportPath}`)
-        openedInBrowser = gotoResult.isOk()
-      }
-
       return {
         content: [
-          {
-            type: 'text',
-            text: `Report saved: ${reportPath}${openedInBrowser ? '\nReport opened in browser for review.' : ''}\n\n${markdown}`,
-          },
+          { type: 'text', text: `Report saved: ${reportPath}\n\n${markdown}` },
           ...screenshotContent,
         ],
       }
