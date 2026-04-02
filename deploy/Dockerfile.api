@@ -17,10 +17,10 @@ COPY apps/api/ apps/api/
 
 # Remove prisma.config.ts to avoid module issues, generate client
 WORKDIR /app/apps/api
-RUN rm -f prisma.config.ts && npx prisma generate
+RUN npx prisma generate
 
 # Create startup script
-RUN printf '#!/bin/sh\nset -e\necho "Pushing database schema..."\nbunx prisma db push --url "$DATABASE_URL" --accept-data-loss 2>&1\necho "Schema pushed. Seeding..."\nbun run prisma/seed.ts 2>/dev/null || echo "Seed skipped or already done"\necho "Starting API..."\nexec bun run src/index.ts\n' > /app/start.sh && chmod +x /app/start.sh
+RUN printf '#!/bin/sh\nset -e\necho "Running database migrations..."\nbunx prisma migrate deploy 2>&1\necho "Migrations complete. Seeding..."\nbun run prisma/seed.ts 2>/dev/null || echo "Seed skipped or already done"\necho "Starting API..."\nexec bun run src/index.ts\n' > /app/start.sh && chmod +x /app/start.sh
 
 # Runtime with bun for speed
 FROM oven/bun:1.3
