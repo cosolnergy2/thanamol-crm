@@ -17,7 +17,7 @@ import { useCreateGRN } from '@/hooks/useGRN'
 import { useInventoryItems } from '@/hooks/useInventory'
 import { usePurchaseOrders, usePurchaseOrder } from '@/hooks/usePurchaseOrders'
 import { useAuth } from '@/providers/AuthProvider'
-import { QC_STATUSES } from '@thanamol/shared'
+import { QC_STATUSES, generateUUID } from '@thanamol/shared'
 import type { GRNItem } from '@thanamol/shared'
 
 export const Route = createFileRoute(
@@ -30,7 +30,7 @@ type FormItem = GRNItem & { _key: string }
 
 function buildEmptyItem(): FormItem {
   return {
-    _key: crypto.randomUUID(),
+    _key: generateUUID(),
     item_id: '',
     item_code: '',
     item_name: '',
@@ -74,7 +74,7 @@ function GRNCreatePage() {
   function handlePopulateFromPo() {
     if (!selectedPo) return
     const poItems = selectedPo.items.map((poItem) => ({
-      _key: crypto.randomUUID(),
+      _key: generateUUID(),
       item_id: '',
       item_code: '',
       item_name: poItem.item_name,

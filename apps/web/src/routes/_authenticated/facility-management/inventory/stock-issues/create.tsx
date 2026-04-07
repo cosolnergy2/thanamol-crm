@@ -17,7 +17,7 @@ import { useCreateStockIssue } from '@/hooks/useStockIssues'
 import { useInventoryItems } from '@/hooks/useInventory'
 import { useProjects } from '@/hooks/useProjects'
 import { useAuth } from '@/providers/AuthProvider'
-import { STOCK_ISSUE_PURPOSES } from '@thanamol/shared'
+import { STOCK_ISSUE_PURPOSES, generateUUID } from '@thanamol/shared'
 import type { StockIssueItem } from '@thanamol/shared'
 
 export const Route = createFileRoute(
@@ -46,7 +46,7 @@ function StockIssueCreatePage() {
     projectId: form.siteId && form.siteId !== '__all__' ? form.siteId : undefined,
   })
   const [items, setItems] = useState<FormItem[]>([
-    { _key: crypto.randomUUID(), item_id: '', item_code: '', item_name: '', quantity: 1, unit_cost: null, unit_of_measure: null },
+    { _key: generateUUID(), item_id: '', item_code: '', item_name: '', quantity: 1, unit_cost: null, unit_of_measure: null },
   ])
 
   const inventoryItems = inventoryData?.data ?? []
@@ -55,7 +55,7 @@ function StockIssueCreatePage() {
   function addItem() {
     setItems((prev) => [
       ...prev,
-      { _key: crypto.randomUUID(), item_id: '', item_code: '', item_name: '', quantity: 1, unit_cost: null, unit_of_measure: null },
+      { _key: generateUUID(), item_id: '', item_code: '', item_name: '', quantity: 1, unit_cost: null, unit_of_measure: null },
     ])
   }
 
@@ -177,7 +177,7 @@ function StockIssueCreatePage() {
                 value={form.siteId}
                 onValueChange={(v) => {
                   setForm({ ...form, siteId: v })
-                  setItems([{ _key: crypto.randomUUID(), item_id: '', item_code: '', item_name: '', quantity: 1, unit_cost: null, unit_of_measure: null }])
+                  setItems([{ _key: generateUUID(), item_id: '', item_code: '', item_name: '', quantity: 1, unit_cost: null, unit_of_measure: null }])
                 }}
               >
                 <SelectTrigger id="siteId">

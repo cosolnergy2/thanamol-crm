@@ -18,6 +18,7 @@ import { useProjects } from '@/hooks/useProjects'
 import {
   VENDOR_CONTRACT_TYPES,
   VENDOR_SERVICE_CATEGORIES,
+  generateUUID,
 } from '@thanamol/shared'
 import type { VendorContractStatus } from '@thanamol/shared'
 
@@ -56,17 +57,17 @@ type RateCardEntry = {
 }
 
 function newSlaRow(): SlaRow {
-  return { id: crypto.randomUUID(), serviceType: '', responseTimeHours: '', resolutionTimeHours: '', penaltyPerDay: '' }
+  return { id: generateUUID(), serviceType: '', responseTimeHours: '', resolutionTimeHours: '', penaltyPerDay: '' }
 }
 
 function newRateCardRow(): RateCardRow {
-  return { id: crypto.randomUUID(), service: '', unit: '', rate: '' }
+  return { id: generateUUID(), service: '', unit: '', rate: '' }
 }
 
 function slaEntriesToRows(entries: SlaEntry[]): SlaRow[] {
   if (entries.length === 0) return [newSlaRow()]
   return entries.map((e) => ({
-    id: crypto.randomUUID(),
+    id: generateUUID(),
     serviceType: e.serviceType ?? '',
     responseTimeHours: e.responseTimeHours != null ? String(e.responseTimeHours) : '',
     resolutionTimeHours: e.resolutionTimeHours != null ? String(e.resolutionTimeHours) : '',
@@ -77,7 +78,7 @@ function slaEntriesToRows(entries: SlaEntry[]): SlaRow[] {
 function rateCardEntriesToRows(entries: RateCardEntry[]): RateCardRow[] {
   if (entries.length === 0) return [newRateCardRow()]
   return entries.map((e) => ({
-    id: crypto.randomUUID(),
+    id: generateUUID(),
     service: e.service ?? '',
     unit: e.unit ?? '',
     rate: e.rate != null ? String(e.rate) : '',

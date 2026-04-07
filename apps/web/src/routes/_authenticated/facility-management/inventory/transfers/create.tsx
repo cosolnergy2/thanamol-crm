@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { generateUUID } from '@thanamol/shared'
 import { useCreateStockTransfer } from '@/hooks/useStockTransfers'
 import { useInventoryItems } from '@/hooks/useInventory'
 import { useProjects } from '@/hooks/useProjects'
@@ -44,14 +45,14 @@ function StockTransferCreatePage() {
     notes: '',
   })
   const [items, setItems] = useState<TransferItem[]>([
-    { _key: crypto.randomUUID(), itemId: '', quantity: 1 },
+    { _key: generateUUID(), itemId: '', quantity: 1 },
   ])
 
   const inventoryItems = inventoryData?.data ?? []
   const projects = projectsData?.data ?? []
 
   function addItem() {
-    setItems((prev) => [...prev, { _key: crypto.randomUUID(), itemId: '', quantity: 1 }])
+    setItems((prev) => [...prev, { _key: generateUUID(), itemId: '', quantity: 1 }])
   }
 
   function removeItem(key: string) {

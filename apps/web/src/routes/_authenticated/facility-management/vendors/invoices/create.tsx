@@ -17,6 +17,7 @@ import { FileUpload } from '@/components/FileUpload'
 import { useCreateVendorInvoice } from '@/hooks/useVendorInvoices'
 import { useVendors } from '@/hooks/useVendors'
 import { usePurchaseOrders } from '@/hooks/usePurchaseOrders'
+import { generateUUID } from '@thanamol/shared'
 import type { CreateVendorInvoiceRequest, VendorInvoiceItem } from '@thanamol/shared'
 
 export const Route = createFileRoute(
@@ -28,7 +29,7 @@ export const Route = createFileRoute(
 type FormItem = VendorInvoiceItem & { _key: string }
 
 function buildEmptyItem(): FormItem {
-  return { _key: crypto.randomUUID(), description: '', quantity: 1, unit_price: 0, total: 0 }
+  return { _key: generateUUID(), description: '', quantity: 1, unit_price: 0, total: 0 }
 }
 
 function VendorInvoiceCreatePage() {
@@ -81,7 +82,7 @@ function VendorInvoiceCreatePage() {
     if (po.items && po.items.length > 0) {
       setItems(
         po.items.map((item) => ({
-          _key: crypto.randomUUID(),
+          _key: generateUUID(),
           description: item.item_name ?? '',
           quantity: item.quantity,
           unit_price: item.unit_price,
