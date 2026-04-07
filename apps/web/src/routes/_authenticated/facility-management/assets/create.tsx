@@ -93,6 +93,7 @@ function AssetCreatePage() {
 
   const [autoAssetCode, setAutoAssetCode] = useState(true)
   const [generateQr, setGenerateQr] = useState(false)
+  const [isStockStore, setIsStockStore] = useState(false)
 
   const { data: projectsData } = useProjects({ limit: 100 })
   const projects = projectsData?.data ?? []
@@ -183,6 +184,7 @@ function AssetCreatePage() {
         assignedTo: form.assignedTo && form.assignedTo !== '__none__' ? form.assignedTo : undefined,
         specifications: Object.keys(specificationsPayload).length > 0 ? specificationsPayload : undefined,
         photos: form.imageUrl ? [form.imageUrl] : undefined,
+        isStockStore,
       })
       toast.success('Asset created successfully')
       navigate({ to: '/facility-management/assets' })
@@ -523,6 +525,17 @@ function AssetCreatePage() {
                   value={form.locationDetail}
                   onChange={(e) => handleChange('locationDetail', e.target.value)}
                   placeholder="e.g. Room 101, Floor 2"
+                />
+              </div>
+
+              <div className="flex items-center justify-between rounded-md border border-slate-200 p-3">
+                <div>
+                  <p className="text-sm font-medium text-slate-700">เป็น Stock/Store (จัดการแยกโดยเฉพาะ)</p>
+                </div>
+                <Switch
+                  checked={isStockStore}
+                  onCheckedChange={setIsStockStore}
+                  id="isStockStore"
                 />
               </div>
             </CardContent>

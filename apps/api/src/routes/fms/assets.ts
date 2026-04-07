@@ -54,6 +54,7 @@ const createAssetSchema = t.Object({
   criticality: t.Optional(t.String()),
   conditionScore: t.Optional(t.Number()),
   lifecycleStatus: t.Optional(t.String()),
+  isStockStore: t.Optional(t.Boolean()),
 })
 
 const updateAssetSchema = t.Object({
@@ -80,6 +81,7 @@ const updateAssetSchema = t.Object({
   criticality: t.Optional(t.String()),
   conditionScore: t.Optional(t.Number()),
   lifecycleStatus: t.Optional(t.String()),
+  isStockStore: t.Optional(t.Boolean()),
 })
 
 export const fmsAssetsRoutes = new Elysia({ prefix: '/api/fms/assets' })
@@ -204,6 +206,7 @@ export const fmsAssetsRoutes = new Elysia({ prefix: '/api/fms/assets' })
                 criticality: body.criticality ?? null,
                 condition_score: body.conditionScore ?? null,
                 lifecycle_status: body.lifecycleStatus ?? null,
+                is_stock_store: body.isStockStore ?? false,
               },
               include: assetInclude,
             })
@@ -247,6 +250,7 @@ export const fmsAssetsRoutes = new Elysia({ prefix: '/api/fms/assets' })
                 criticality: body.criticality,
                 condition_score: body.conditionScore,
                 lifecycle_status: body.lifecycleStatus,
+                is_stock_store: body.isStockStore,
               },
               include: assetInclude,
             })

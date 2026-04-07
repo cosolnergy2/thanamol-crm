@@ -1999,6 +1999,7 @@ export type Asset = {
   criticality?: string | null
   condition_score?: number | null
   lifecycle_status?: string | null
+  is_stock_store?: boolean
   created_at: string
   updated_at: string
 }
@@ -2052,6 +2053,7 @@ export type CreateAssetRequest = {
   criticality?: string
   conditionScore?: number
   lifecycleStatus?: string
+  isStockStore?: boolean
 }
 
 export type UpdateAssetRequest = Partial<CreateAssetRequest>

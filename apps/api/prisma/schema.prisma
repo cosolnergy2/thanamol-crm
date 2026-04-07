@@ -1546,6 +1546,7 @@ model Asset {
   criticality      String?
   condition_score  Int?
   lifecycle_status String?
+  is_stock_store   Boolean        @default(false)
   work_orders      WorkOrder[]
   calibrations     CalibrationRecord[]
   pm_schedules     PreventiveMaintenance[]
