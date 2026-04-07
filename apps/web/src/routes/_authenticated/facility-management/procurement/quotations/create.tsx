@@ -17,6 +17,7 @@ import {
 import { useCreateVendorQuotation } from '@/hooks/useVendorQuotations'
 import { usePurchaseRequest } from '@/hooks/usePurchaseRequests'
 import { usePurchaseRequests } from '@/hooks/usePurchaseRequests'
+import { generateUUID } from '@thanamol/shared'
 import type { VQItem } from '@thanamol/shared'
 
 const searchSchema = z.object({
@@ -50,7 +51,7 @@ function VQCreatePage() {
   const [validUntil, setValidUntil] = useState('')
   const [notes, setNotes] = useState('')
   const [items, setItems] = useState<FormItem[]>([
-    { _key: crypto.randomUUID(), item_name: '', quantity: 1, unit_price: 0, total: 0 },
+    { _key: generateUUID(), item_name: '', quantity: 1, unit_price: 0, total: 0 },
   ])
 
   useEffect(() => {
@@ -64,7 +65,7 @@ function VQCreatePage() {
       if (prItems.length > 0) {
         setItems(
           prItems.map((item) => ({
-            _key: crypto.randomUUID(),
+            _key: generateUUID(),
             item_name: item.item_name,
             quantity: item.quantity,
             unit_price: 0,
@@ -78,7 +79,7 @@ function VQCreatePage() {
   function addItem() {
     setItems((prev) => [
       ...prev,
-      { _key: crypto.randomUUID(), item_name: '', quantity: 1, unit_price: 0, total: 0 },
+      { _key: generateUUID(), item_name: '', quantity: 1, unit_price: 0, total: 0 },
     ])
   }
 

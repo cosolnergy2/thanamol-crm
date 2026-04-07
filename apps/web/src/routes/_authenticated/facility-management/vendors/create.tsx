@@ -21,6 +21,7 @@ import {
   VENDOR_SUPPLIER_TYPES,
   VENDOR_RATING_LEVELS,
   VENDOR_PAYMENT_TERMS,
+  generateUUID,
 } from '@thanamol/shared'
 import type {
   VendorAdditionalContact,
@@ -39,11 +40,11 @@ type PaymentInstallment = {
 }
 
 function buildEmptyContact(): VendorAdditionalContact & { _key: string } {
-  return { _key: crypto.randomUUID(), name: '', phone: '', email: '', position: '' }
+  return { _key: generateUUID(), name: '', phone: '', email: '', position: '' }
 }
 
 function buildEmptyInstallment(): PaymentInstallment {
-  return { _key: crypto.randomUUID(), label: '', amount: 0, due_date: '' }
+  return { _key: generateUUID(), label: '', amount: 0, due_date: '' }
 }
 
 const EMPTY_CONDITIONS: Omit<VendorDefaultConditions, 'payment_installments'> = {
