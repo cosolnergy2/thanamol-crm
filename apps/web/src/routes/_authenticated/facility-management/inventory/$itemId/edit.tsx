@@ -30,6 +30,8 @@ const ITEM_STATUS_OPTIONS = [
   { value: 'false', label: 'Inactive' },
 ]
 
+const EXTRA_INVENTORY_CATEGORIES = ['Officer', 'Other'] as const
+
 function InventoryEditPage() {
   const { itemId } = Route.useParams()
   const navigate = useNavigate()
@@ -256,6 +258,11 @@ function InventoryEditPage() {
                   {categories.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id}>
                       {cat.name}
+                    </SelectItem>
+                  ))}
+                  {EXTRA_INVENTORY_CATEGORIES.map((name) => (
+                    <SelectItem key={name} value={name}>
+                      {name}
                     </SelectItem>
                   ))}
                 </SelectContent>
