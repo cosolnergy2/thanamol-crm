@@ -19,7 +19,6 @@ import { useProjects } from '@/hooks/useProjects'
 import {
   VENDOR_CONTRACT_TYPES,
   VENDOR_SERVICE_CATEGORIES,
-  generateUUID,
 } from '@thanamol/shared'
 import type { VendorContractStatus } from '@thanamol/shared'
 
@@ -45,11 +44,11 @@ type RateCardRow = {
 }
 
 function newSlaRow(): SlaRow {
-  return { id: generateUUID(), serviceType: '', responseTimeHours: '', resolutionTimeHours: '', penaltyPerDay: '' }
+  return { id: crypto.randomUUID(), serviceType: '', responseTimeHours: '', resolutionTimeHours: '', penaltyPerDay: '' }
 }
 
 function newRateCardRow(): RateCardRow {
-  return { id: generateUUID(), service: '', unit: '', rate: '' }
+  return { id: crypto.randomUUID(), service: '', unit: '', rate: '' }
 }
 
 function VendorContractCreatePage() {

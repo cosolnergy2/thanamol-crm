@@ -20,7 +20,6 @@ import {
   VENDOR_SUPPLIER_TYPES,
   VENDOR_RATING_LEVELS,
   VENDOR_PAYMENT_TERMS,
-  generateUUID,
 } from '@thanamol/shared'
 import type {
   VendorAdditionalContact,
@@ -39,11 +38,11 @@ type PaymentInstallment = {
 }
 
 function buildEmptyContact(): VendorAdditionalContact & { _key: string } {
-  return { _key: generateUUID(), name: '', phone: '', email: '', position: '' }
+  return { _key: crypto.randomUUID(), name: '', phone: '', email: '', position: '' }
 }
 
 function buildEmptyInstallment(): PaymentInstallment {
-  return { _key: generateUUID(), label: '', amount: 0, due_date: '' }
+  return { _key: crypto.randomUUID(), label: '', amount: 0, due_date: '' }
 }
 
 const EMPTY_CONDITIONS: Omit<VendorDefaultConditions, 'payment_installments'> = {
@@ -112,7 +111,7 @@ export function VendorEditPage() {
 
       const rawContacts = v.additional_contacts as (VendorAdditionalContact & { _key?: string })[] | null
       if (rawContacts && Array.isArray(rawContacts)) {
-        setAdditionalContacts(rawContacts.map((c) => ({ ...c, _key: generateUUID() })))
+        setAdditionalContacts(rawContacts.map((c) => ({ ...c, _key: crypto.randomUUID() })))
       }
 
       const rawConditions = v.default_conditions as VendorDefaultConditions | null
@@ -122,7 +121,7 @@ export function VendorEditPage() {
         if (payment_installments && Array.isArray(payment_installments)) {
           setInstallments(
             payment_installments.map((inst) => ({
-              _key: generateUUID(),
+              _key: crypto.randomUUID(),
               label: inst.label,
               amount: inst.amount,
               due_date: inst.due_date ?? '',

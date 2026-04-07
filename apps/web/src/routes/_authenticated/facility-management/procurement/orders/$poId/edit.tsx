@@ -19,7 +19,7 @@ import { useProjects } from '@/hooks/useProjects'
 import { useUnits } from '@/hooks/useUnits'
 import { useVendors } from '@/hooks/useVendors'
 import { usePurchaseRequests } from '@/hooks/usePurchaseRequests'
-import { PO_TYPES, PR_ITEM_TYPES, generateUUID } from '@thanamol/shared'
+import { PO_TYPES, PR_ITEM_TYPES } from '@thanamol/shared'
 import type { POItem, POConditions } from '@thanamol/shared'
 
 export const Route = createFileRoute(
@@ -38,7 +38,7 @@ type PaymentInstallment = {
 }
 
 function buildItemKey(item: POItem): FormItem {
-  return { ...item, _key: generateUUID() }
+  return { ...item, _key: crypto.randomUUID() }
 }
 
 function POEditPage() {
@@ -129,7 +129,7 @@ function POEditPage() {
       if (cond.payment_installments && cond.payment_installments.length > 0) {
         setInstallments(
           cond.payment_installments.map((inst) => ({
-            _key: generateUUID(),
+            _key: crypto.randomUUID(),
             label: inst.label,
             amount: inst.amount,
             due_date: inst.due_date ?? '',
@@ -145,7 +145,7 @@ function POEditPage() {
     setItems((prev) => [
       ...prev,
       {
-        _key: generateUUID(),
+        _key: crypto.randomUUID(),
         item_name: '',
         quantity: 1,
         unit_price: 0,
@@ -179,7 +179,7 @@ function POEditPage() {
   function addInstallment() {
     setInstallments((prev) => [
       ...prev,
-      { _key: generateUUID(), label: '', amount: 0, due_date: '' },
+      { _key: crypto.randomUUID(), label: '', amount: 0, due_date: '' },
     ])
   }
 
