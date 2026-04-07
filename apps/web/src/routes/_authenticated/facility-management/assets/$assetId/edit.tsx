@@ -104,6 +104,7 @@ function AssetEditPage() {
   })
 
   const [generateQr, setGenerateQr] = useState(false)
+  const [isStockStore, setIsStockStore] = useState(false)
 
   const asset = data?.asset
 
@@ -163,6 +164,7 @@ function AssetEditPage() {
       assignedTo: asset.assigned_to ?? '',
     })
     setGenerateQr(!!(specs?.qr_auto))
+    setIsStockStore(asset.is_stock_store ?? false)
   }, [asset])
 
   function handleChange(field: string, value: string) {
@@ -215,6 +217,7 @@ function AssetEditPage() {
         assignedTo: form.assignedTo && form.assignedTo !== '__none__' ? form.assignedTo : undefined,
         specifications: Object.keys(specificationsPayload).length > 0 ? specificationsPayload : undefined,
         photos: form.imageUrl ? [form.imageUrl] : undefined,
+        isStockStore,
       })
       toast.success('Asset updated')
       navigate({ to: `/facility-management/assets/${assetId}` })
@@ -532,6 +535,17 @@ function AssetEditPage() {
                   value={form.locationDetail}
                   onChange={(e) => handleChange('locationDetail', e.target.value)}
                   placeholder="e.g. Room 101, Floor 2"
+                />
+              </div>
+
+              <div className="flex items-center justify-between rounded-md border border-slate-200 p-3">
+                <div>
+                  <p className="text-sm font-medium text-slate-700">เป็น Stock/Store (จัดการแยกโดยเฉพาะ)</p>
+                </div>
+                <Switch
+                  checked={isStockStore}
+                  onCheckedChange={setIsStockStore}
+                  id="isStockStore"
                 />
               </div>
             </CardContent>
