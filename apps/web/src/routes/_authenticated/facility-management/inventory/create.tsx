@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { FileUpload } from '@/components/FileUpload'
 import { useCreateInventoryItem, useInventoryCategories } from '@/hooks/useInventory'
 import { useProjects } from '@/hooks/useProjects'
 import { useCompanies } from '@/hooks/useCompanies'
@@ -493,12 +494,11 @@ function InventoryCreatePage() {
               />
             </div>
             <div>
-              <Label htmlFor="photoUrl">Image URL</Label>
-              <Input
-                id="photoUrl"
-                value={form.photoUrl}
-                onChange={(e) => setForm({ ...form, photoUrl: e.target.value })}
-                placeholder="https://example.com/image.jpg"
+              <FileUpload
+                label="Photo"
+                accept="image/*"
+                value={form.photoUrl || undefined}
+                onChange={(url) => setForm({ ...form, photoUrl: url ?? '' })}
               />
             </div>
             <div>
