@@ -29,6 +29,8 @@ export const VISITOR_STATUSES = ['EXPECTED', 'CHECKED_IN', 'CHECKED_OUT', 'CANCE
 export const KEY_STATUSES = ['AVAILABLE', 'ISSUED', 'LOST', 'DAMAGED'] as const
 export const PARKING_STATUSES = ['AVAILABLE', 'OCCUPIED', 'RESERVED', 'MAINTENANCE'] as const
 export const CLEANING_STATUSES = ['PENDING', 'IN_PROGRESS', 'COMPLETED'] as const
+export const CLEANING_SHIFTS = ['Morning', 'Afternoon', 'Evening', 'Night'] as const
+export type CleaningShift = (typeof CLEANING_SHIFTS)[number]
 export const PETTY_CASH_CATEGORIES = [
   'OFFICE_SUPPLIES',
   'TRANSPORTATION',
