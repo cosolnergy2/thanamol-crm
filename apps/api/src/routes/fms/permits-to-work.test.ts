@@ -61,15 +61,22 @@ const mockPermit = {
   description: null,
   project_id: 'proj-1',
   zone_id: null,
+  company_id: null,
+  site_id: null,
+  location: null,
+  unit: null,
   permit_type: 'Hot Work',
   status: 'DRAFT',
   risk_assessment: [],
+  workers: [],
+  ppe_required: [],
   safety_measures: [],
   start_date: null,
   end_date: null,
   requested_by: 'user-1',
   approved_by: null,
   contractor_name: null,
+  contractor_contact: null,
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
   project: { id: 'proj-1', name: 'Test Project' },
@@ -119,9 +126,79 @@ describe('POST /fms/permits-to-work', () => {
     expect(data.permit.status).toBe('DRAFT')
   })
 
+  it('creates permit with new fields: company, site, location, unit, contractor_contact, workers, ppe_required', async () => {
+    const token = await signToken()
+    ;(prisma.permitToWork.count as ReturnType<typeof vi.fn>).mockResolvedValue(0)
+    const mockPermitWithNewFields = {
+      ...mockPermit,
+      company_id: 'company-1',
+      site_id: 'SITE-001',
+      location: '2nd Floor',
+      unit: 'Unit 201',
+      contractor_contact: '0812345678',
+      workers: [{ name: 'John Doe', id_number: 'ID123' }],
+      ppe_required: ['Hard Hat', 'Safety Glasses'],
+    }
+    ;(prisma.permitToWork.create as ReturnType<typeof vi.fn>).mockResolvedValue(mockPermitWithNewFields)
+
+    const res = await req(
+      'POST',
+      '/api/fms/permits-to-work',
+      {
+        title: 'Hot Work at Roof',
+        projectId: 'proj-1',
+        companyId: 'company-1',
+        siteId: 'SITE-001',
+        location: '2nd Floor',
+        unit: 'Unit 201',
+        contractorContact: '0812345678',
+        workers: [{ name: 'John Doe', id_number: 'ID123' }],
+        ppeRequired: ['Hard Hat', 'Safety Glasses'],
+      },
+      token
+    )
+    expect(res.status).toBe(201)
+    const data = await res.json()
+    expect(data.permit.workers).toHaveLength(1)
+    expect(data.permit.ppe_required).toContain('Hard Hat')
+  })
+
   it('returns 401 without token', async () => {
     const res = await req('POST', '/api/fms/permits-to-work', { title: 'Test', projectId: 'proj-1' })
     expect(res.status).toBe(401)
+  })
+})
+
+describe('PUT /fms/permits-to-work/:id', () => {
+  it('updates new fields: location, unit, contractor_contact, workers, ppe_required', async () => {
+    const token = await signToken()
+    ;(prisma.permitToWork.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(mockPermit)
+    const updated = {
+      ...mockPermit,
+      location: 'Roof Level',
+      unit: 'Unit A',
+      contractor_contact: '091-111-2222',
+      workers: [{ name: 'Jane Smith', id_number: 'ID456' }],
+      ppe_required: ['Hard Hat', 'Gloves', 'Fall Protection'],
+    }
+    ;(prisma.permitToWork.update as ReturnType<typeof vi.fn>).mockResolvedValue(updated)
+
+    const res = await req(
+      'PUT',
+      '/api/fms/permits-to-work/ptw-1',
+      {
+        location: 'Roof Level',
+        unit: 'Unit A',
+        contractorContact: '091-111-2222',
+        workers: [{ name: 'Jane Smith', id_number: 'ID456' }],
+        ppeRequired: ['Hard Hat', 'Gloves', 'Fall Protection'],
+      },
+      token
+    )
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.permit.location).toBe('Roof Level')
+    expect(data.permit.ppe_required).toHaveLength(3)
   })
 })
 
