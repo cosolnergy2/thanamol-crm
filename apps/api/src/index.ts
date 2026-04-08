@@ -94,6 +94,10 @@ import { financeBankAccountsRoutes } from './routes/finance/bank-accounts'
 import { financeChequesRoutes } from './routes/finance/cheques'
 import { financeWithholdingTaxRoutes } from './routes/finance/withholding-tax'
 import { financeAPInvoicesRoutes } from './routes/finance/ap-invoices'
+import { financeBankReconciliationsRoutes } from './routes/finance/bank-reconciliations'
+import { financePaymentVouchersRoutes } from './routes/finance/payment-vouchers'
+import { financeFixedAssetsRoutes } from './routes/finance/fixed-assets'
+import { financeCFODashboardRoutes } from './routes/finance/cfo-dashboard'
 
 const API_PORT = Number(process.env.PORT ?? 3000)
 
@@ -198,6 +202,10 @@ const app = (base as any)
   .use(financeChequesRoutes)
   .use(financeWithholdingTaxRoutes)
   .use(financeAPInvoicesRoutes)
+  .use(financeBankReconciliationsRoutes)
+  .use(financePaymentVouchersRoutes)
+  .use(financeFixedAssetsRoutes)
+  .use(financeCFODashboardRoutes)
   .listen(API_PORT)
 
 console.log(`API running at http://localhost:${API_PORT}`)
