@@ -89,10 +89,10 @@ function EmptyRow({ cols, message }: { cols: number; message: string }) {
 function InventoryAnalysisReportPage() {
   const { data: projectsData } = useProjects({ limit: 50 })
   const projects = projectsData?.data ?? []
-  const [projectId, setProjectId] = useState('')
+  const [projectId, setProjectId] = useState('all')
   const [activeTab, setActiveTab] = useState<Tab>('ABC Analysis')
 
-  const selectedProjectId = projectId || undefined
+  const selectedProjectId = projectId === 'all' ? undefined : projectId
 
   const { data, isLoading, isError } = useInventoryAnalysisReport(selectedProjectId)
   const report = data?.report
@@ -141,7 +141,7 @@ function InventoryAnalysisReportPage() {
                 <SelectValue placeholder="All projects" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="" className="text-xs">
+                <SelectItem value="all" className="text-xs">
                   All projects
                 </SelectItem>
                 {projects.map((p) => (
