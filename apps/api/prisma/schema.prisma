@@ -2243,6 +2243,13 @@ model FireEquipment {
   id                   String    @id @default(uuid())
   equipment_number     String
   type                 String
+  manufacturer         String?
+  model                String?
+  serial_number        String?
+  capacity_size        String?
+  installation_date    DateTime?
+  condition            String?
+  certification_number String?
   project_id           String
   project              Project   @relation(fields: [project_id], references: [id])
   zone_id              String?
