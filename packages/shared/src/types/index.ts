@@ -3191,11 +3191,26 @@ export const FIRE_EQUIPMENT_TYPES = [
 
 export type FireEquipmentType = (typeof FIRE_EQUIPMENT_TYPES)[number]
 export type FireEquipmentStatus = 'ACTIVE' | 'INACTIVE' | 'UNDER_MAINTENANCE' | 'DECOMMISSIONED'
+export type FireEquipmentCondition = 'Good' | 'Fair' | 'Poor' | 'Requires Replacement'
+
+export const FIRE_EQUIPMENT_CONDITIONS: FireEquipmentCondition[] = [
+  'Good',
+  'Fair',
+  'Poor',
+  'Requires Replacement',
+]
 
 export type FireEquipment = {
   id: string
   equipment_number: string
   type: string
+  manufacturer: string | null
+  model: string | null
+  serial_number: string | null
+  capacity_size: string | null
+  installation_date: string | null
+  condition: string | null
+  certification_number: string | null
   project_id: string
   zone_id: string | null
   location_detail: string | null
@@ -3262,6 +3277,13 @@ export type CreateFireEquipmentRequest = {
   equipmentNumber: string
   type: string
   projectId: string
+  manufacturer?: string
+  model?: string
+  serialNumber?: string
+  capacitySize?: string
+  installationDate?: string
+  condition?: FireEquipmentCondition
+  certificationNumber?: string
   zoneId?: string
   locationDetail?: string
   lastInspectionDate?: string

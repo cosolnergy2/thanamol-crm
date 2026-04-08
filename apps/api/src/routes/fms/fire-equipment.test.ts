@@ -58,6 +58,13 @@ const mockEquipment = {
   id: 'eq-1',
   equipment_number: 'FE-001',
   type: 'Fire Extinguisher',
+  manufacturer: null,
+  model: null,
+  serial_number: null,
+  capacity_size: null,
+  installation_date: null,
+  condition: null,
+  certification_number: null,
   location_detail: 'Floor 1',
   project_id: 'proj-1',
   zone_id: null,
@@ -115,6 +122,43 @@ describe('POST /fms/fire-equipment', () => {
     expect(data.equipment.type).toBe('Fire Extinguisher')
   })
 
+  it('creates fire equipment with all new fields', async () => {
+    const token = await signToken()
+    const equipmentWithFields = {
+      ...mockEquipment,
+      manufacturer: 'Ansul',
+      model: 'Sentry ABC',
+      serial_number: 'SN-123',
+      capacity_size: '5kg',
+      installation_date: new Date('2024-01-01').toISOString(),
+      condition: 'Good',
+      certification_number: 'CERT-001',
+    }
+    ;(prisma.fireEquipment.create as ReturnType<typeof vi.fn>).mockResolvedValue(equipmentWithFields)
+
+    const res = await req(
+      'POST',
+      '/api/fms/fire-equipment',
+      {
+        equipmentNumber: 'FE-001',
+        type: 'Fire Extinguisher',
+        projectId: 'proj-1',
+        manufacturer: 'Ansul',
+        model: 'Sentry ABC',
+        serialNumber: 'SN-123',
+        capacitySize: '5kg',
+        installationDate: '2024-01-01',
+        condition: 'Good',
+        certificationNumber: 'CERT-001',
+      },
+      token
+    )
+    expect(res.status).toBe(201)
+    const data = await res.json()
+    expect(data.equipment.manufacturer).toBe('Ansul')
+    expect(data.equipment.condition).toBe('Good')
+  })
+
   it('returns 401 without token', async () => {
     const res = await req('POST', '/api/fms/fire-equipment', { equipmentNumber: 'FE-001', type: 'Fire Extinguisher', projectId: 'proj-1' })
     expect(res.status).toBe(401)
@@ -138,6 +182,39 @@ describe('PUT /fms/fire-equipment/:id', () => {
 
     const res = await req('PUT', '/api/fms/fire-equipment/eq-1', { locationDetail: 'Floor 2' }, token)
     expect(res.status).toBe(200)
+  })
+
+  it('updates new equipment fields', async () => {
+    const token = await signToken()
+    ;(prisma.fireEquipment.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(mockEquipment)
+    const updated = {
+      ...mockEquipment,
+      manufacturer: 'Ansul',
+      model: 'Sentry',
+      serial_number: 'SN-999',
+      capacity_size: '9L',
+      condition: 'Fair',
+      certification_number: 'CERT-999',
+    }
+    ;(prisma.fireEquipment.update as ReturnType<typeof vi.fn>).mockResolvedValue(updated)
+
+    const res = await req(
+      'PUT',
+      '/api/fms/fire-equipment/eq-1',
+      {
+        manufacturer: 'Ansul',
+        model: 'Sentry',
+        serialNumber: 'SN-999',
+        capacitySize: '9L',
+        condition: 'Fair',
+        certificationNumber: 'CERT-999',
+      },
+      token
+    )
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.equipment.manufacturer).toBe('Ansul')
+    expect(data.equipment.condition).toBe('Fair')
   })
 })
 
