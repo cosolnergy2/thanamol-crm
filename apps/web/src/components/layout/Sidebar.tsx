@@ -136,6 +136,10 @@ function buildNavigation(t: ReturnType<typeof useLanguage>['t']): NavItem[] {
         { label: t.profitLoss, path: '/finance/accounting/profit-loss' },
         { label: t.generalLedger, path: '/finance/accounting/general-ledger' },
         { label: t.accountingDashboard, path: '/finance/accounting' },
+        { label: t.bankAccounts, path: '/finance/banking/bank-accounts' },
+        { label: t.chequeManagement, path: '/finance/banking/cheques' },
+        { label: t.taxDashboard, path: '/finance/tax/dashboard' },
+        { label: t.apAging, path: '/finance/ap/aging' },
       ],
     },
     {

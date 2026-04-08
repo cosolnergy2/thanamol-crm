@@ -161,7 +161,11 @@ import { Route as AuthenticatedFormsSaleJob04F01IdIndexRouteImport } from './rou
 import { Route as AuthenticatedFormsSaleJob03F01IdIndexRouteImport } from './routes/_authenticated/forms/sale-job03-f01/$id/index'
 import { Route as AuthenticatedFormsSaleJob02F01IdIndexRouteImport } from './routes/_authenticated/forms/sale-job02-f01/$id/index'
 import { Route as AuthenticatedFormsSaleF01IdIndexRouteImport } from './routes/_authenticated/forms/sale-f01/$id/index'
+import { Route as AuthenticatedFinanceTaxDashboardIndexRouteImport } from './routes/_authenticated/finance/tax/dashboard/index'
 import { Route as AuthenticatedFinanceInvoicesInvoiceIdIndexRouteImport } from './routes/_authenticated/finance/invoices/$invoiceId/index'
+import { Route as AuthenticatedFinanceBankingChequesIndexRouteImport } from './routes/_authenticated/finance/banking/cheques/index'
+import { Route as AuthenticatedFinanceBankingBankAccountsIndexRouteImport } from './routes/_authenticated/finance/banking/bank-accounts/index'
+import { Route as AuthenticatedFinanceApAgingIndexRouteImport } from './routes/_authenticated/finance/ap/aging/index'
 import { Route as AuthenticatedFinanceAccountingTrialBalanceIndexRouteImport } from './routes/_authenticated/finance/accounting/trial-balance/index'
 import { Route as AuthenticatedFinanceAccountingProfitLossIndexRouteImport } from './routes/_authenticated/finance/accounting/profit-loss/index'
 import { Route as AuthenticatedFinanceAccountingPeriodsIndexRouteImport } from './routes/_authenticated/finance/accounting/periods/index'
@@ -1142,10 +1146,34 @@ const AuthenticatedFormsSaleF01IdIndexRoute =
     path: '/forms/sale-f01/$id/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFinanceTaxDashboardIndexRoute =
+  AuthenticatedFinanceTaxDashboardIndexRouteImport.update({
+    id: '/finance/tax/dashboard/',
+    path: '/finance/tax/dashboard/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedFinanceInvoicesInvoiceIdIndexRoute =
   AuthenticatedFinanceInvoicesInvoiceIdIndexRouteImport.update({
     id: '/finance/invoices/$invoiceId/',
     path: '/finance/invoices/$invoiceId/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceBankingChequesIndexRoute =
+  AuthenticatedFinanceBankingChequesIndexRouteImport.update({
+    id: '/finance/banking/cheques/',
+    path: '/finance/banking/cheques/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceBankingBankAccountsIndexRoute =
+  AuthenticatedFinanceBankingBankAccountsIndexRouteImport.update({
+    id: '/finance/banking/bank-accounts/',
+    path: '/finance/banking/bank-accounts/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceApAgingIndexRoute =
+  AuthenticatedFinanceApAgingIndexRouteImport.update({
+    id: '/finance/ap/aging/',
+    path: '/finance/ap/aging/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedFinanceAccountingTrialBalanceIndexRoute =
@@ -1836,7 +1864,11 @@ export interface FileRoutesByFullPath {
   '/finance/accounting/periods/': typeof AuthenticatedFinanceAccountingPeriodsIndexRoute
   '/finance/accounting/profit-loss/': typeof AuthenticatedFinanceAccountingProfitLossIndexRoute
   '/finance/accounting/trial-balance/': typeof AuthenticatedFinanceAccountingTrialBalanceIndexRoute
+  '/finance/ap/aging/': typeof AuthenticatedFinanceApAgingIndexRoute
+  '/finance/banking/bank-accounts/': typeof AuthenticatedFinanceBankingBankAccountsIndexRoute
+  '/finance/banking/cheques/': typeof AuthenticatedFinanceBankingChequesIndexRoute
   '/finance/invoices/$invoiceId/': typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRoute
+  '/finance/tax/dashboard/': typeof AuthenticatedFinanceTaxDashboardIndexRoute
   '/forms/sale-f01/$id/': typeof AuthenticatedFormsSaleF01IdIndexRoute
   '/forms/sale-job02-f01/$id/': typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
   '/forms/sale-job03-f01/$id/': typeof AuthenticatedFormsSaleJob03F01IdIndexRoute
@@ -2066,7 +2098,11 @@ export interface FileRoutesByTo {
   '/finance/accounting/periods': typeof AuthenticatedFinanceAccountingPeriodsIndexRoute
   '/finance/accounting/profit-loss': typeof AuthenticatedFinanceAccountingProfitLossIndexRoute
   '/finance/accounting/trial-balance': typeof AuthenticatedFinanceAccountingTrialBalanceIndexRoute
+  '/finance/ap/aging': typeof AuthenticatedFinanceApAgingIndexRoute
+  '/finance/banking/bank-accounts': typeof AuthenticatedFinanceBankingBankAccountsIndexRoute
+  '/finance/banking/cheques': typeof AuthenticatedFinanceBankingChequesIndexRoute
   '/finance/invoices/$invoiceId': typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRoute
+  '/finance/tax/dashboard': typeof AuthenticatedFinanceTaxDashboardIndexRoute
   '/forms/sale-f01/$id': typeof AuthenticatedFormsSaleF01IdIndexRoute
   '/forms/sale-job02-f01/$id': typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
   '/forms/sale-job03-f01/$id': typeof AuthenticatedFormsSaleJob03F01IdIndexRoute
@@ -2298,7 +2334,11 @@ export interface FileRoutesById {
   '/_authenticated/finance/accounting/periods/': typeof AuthenticatedFinanceAccountingPeriodsIndexRoute
   '/_authenticated/finance/accounting/profit-loss/': typeof AuthenticatedFinanceAccountingProfitLossIndexRoute
   '/_authenticated/finance/accounting/trial-balance/': typeof AuthenticatedFinanceAccountingTrialBalanceIndexRoute
+  '/_authenticated/finance/ap/aging/': typeof AuthenticatedFinanceApAgingIndexRoute
+  '/_authenticated/finance/banking/bank-accounts/': typeof AuthenticatedFinanceBankingBankAccountsIndexRoute
+  '/_authenticated/finance/banking/cheques/': typeof AuthenticatedFinanceBankingChequesIndexRoute
   '/_authenticated/finance/invoices/$invoiceId/': typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRoute
+  '/_authenticated/finance/tax/dashboard/': typeof AuthenticatedFinanceTaxDashboardIndexRoute
   '/_authenticated/forms/sale-f01/$id/': typeof AuthenticatedFormsSaleF01IdIndexRoute
   '/_authenticated/forms/sale-job02-f01/$id/': typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
   '/_authenticated/forms/sale-job03-f01/$id/': typeof AuthenticatedFormsSaleJob03F01IdIndexRoute
@@ -2530,7 +2570,11 @@ export interface FileRouteTypes {
     | '/finance/accounting/periods/'
     | '/finance/accounting/profit-loss/'
     | '/finance/accounting/trial-balance/'
+    | '/finance/ap/aging/'
+    | '/finance/banking/bank-accounts/'
+    | '/finance/banking/cheques/'
     | '/finance/invoices/$invoiceId/'
+    | '/finance/tax/dashboard/'
     | '/forms/sale-f01/$id/'
     | '/forms/sale-job02-f01/$id/'
     | '/forms/sale-job03-f01/$id/'
@@ -2760,7 +2804,11 @@ export interface FileRouteTypes {
     | '/finance/accounting/periods'
     | '/finance/accounting/profit-loss'
     | '/finance/accounting/trial-balance'
+    | '/finance/ap/aging'
+    | '/finance/banking/bank-accounts'
+    | '/finance/banking/cheques'
     | '/finance/invoices/$invoiceId'
+    | '/finance/tax/dashboard'
     | '/forms/sale-f01/$id'
     | '/forms/sale-job02-f01/$id'
     | '/forms/sale-job03-f01/$id'
@@ -2991,7 +3039,11 @@ export interface FileRouteTypes {
     | '/_authenticated/finance/accounting/periods/'
     | '/_authenticated/finance/accounting/profit-loss/'
     | '/_authenticated/finance/accounting/trial-balance/'
+    | '/_authenticated/finance/ap/aging/'
+    | '/_authenticated/finance/banking/bank-accounts/'
+    | '/_authenticated/finance/banking/cheques/'
     | '/_authenticated/finance/invoices/$invoiceId/'
+    | '/_authenticated/finance/tax/dashboard/'
     | '/_authenticated/forms/sale-f01/$id/'
     | '/_authenticated/forms/sale-job02-f01/$id/'
     | '/_authenticated/forms/sale-job03-f01/$id/'
@@ -4080,11 +4132,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFormsSaleF01IdIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/finance/tax/dashboard/': {
+      id: '/_authenticated/finance/tax/dashboard/'
+      path: '/finance/tax/dashboard'
+      fullPath: '/finance/tax/dashboard/'
+      preLoaderRoute: typeof AuthenticatedFinanceTaxDashboardIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/finance/invoices/$invoiceId/': {
       id: '/_authenticated/finance/invoices/$invoiceId/'
       path: '/finance/invoices/$invoiceId'
       fullPath: '/finance/invoices/$invoiceId/'
       preLoaderRoute: typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/banking/cheques/': {
+      id: '/_authenticated/finance/banking/cheques/'
+      path: '/finance/banking/cheques'
+      fullPath: '/finance/banking/cheques/'
+      preLoaderRoute: typeof AuthenticatedFinanceBankingChequesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/banking/bank-accounts/': {
+      id: '/_authenticated/finance/banking/bank-accounts/'
+      path: '/finance/banking/bank-accounts'
+      fullPath: '/finance/banking/bank-accounts/'
+      preLoaderRoute: typeof AuthenticatedFinanceBankingBankAccountsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/ap/aging/': {
+      id: '/_authenticated/finance/ap/aging/'
+      path: '/finance/ap/aging'
+      fullPath: '/finance/ap/aging/'
+      preLoaderRoute: typeof AuthenticatedFinanceApAgingIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/finance/accounting/trial-balance/': {
@@ -4834,7 +4914,11 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFinanceAccountingPeriodsIndexRoute: typeof AuthenticatedFinanceAccountingPeriodsIndexRoute
   AuthenticatedFinanceAccountingProfitLossIndexRoute: typeof AuthenticatedFinanceAccountingProfitLossIndexRoute
   AuthenticatedFinanceAccountingTrialBalanceIndexRoute: typeof AuthenticatedFinanceAccountingTrialBalanceIndexRoute
+  AuthenticatedFinanceApAgingIndexRoute: typeof AuthenticatedFinanceApAgingIndexRoute
+  AuthenticatedFinanceBankingBankAccountsIndexRoute: typeof AuthenticatedFinanceBankingBankAccountsIndexRoute
+  AuthenticatedFinanceBankingChequesIndexRoute: typeof AuthenticatedFinanceBankingChequesIndexRoute
   AuthenticatedFinanceInvoicesInvoiceIdIndexRoute: typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRoute
+  AuthenticatedFinanceTaxDashboardIndexRoute: typeof AuthenticatedFinanceTaxDashboardIndexRoute
   AuthenticatedFormsSaleF01IdIndexRoute: typeof AuthenticatedFormsSaleF01IdIndexRoute
   AuthenticatedFormsSaleJob02F01IdIndexRoute: typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
   AuthenticatedFormsSaleJob03F01IdIndexRoute: typeof AuthenticatedFormsSaleJob03F01IdIndexRoute
@@ -5211,8 +5295,15 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedFinanceAccountingProfitLossIndexRoute,
   AuthenticatedFinanceAccountingTrialBalanceIndexRoute:
     AuthenticatedFinanceAccountingTrialBalanceIndexRoute,
+  AuthenticatedFinanceApAgingIndexRoute: AuthenticatedFinanceApAgingIndexRoute,
+  AuthenticatedFinanceBankingBankAccountsIndexRoute:
+    AuthenticatedFinanceBankingBankAccountsIndexRoute,
+  AuthenticatedFinanceBankingChequesIndexRoute:
+    AuthenticatedFinanceBankingChequesIndexRoute,
   AuthenticatedFinanceInvoicesInvoiceIdIndexRoute:
     AuthenticatedFinanceInvoicesInvoiceIdIndexRoute,
+  AuthenticatedFinanceTaxDashboardIndexRoute:
+    AuthenticatedFinanceTaxDashboardIndexRoute,
   AuthenticatedFormsSaleF01IdIndexRoute: AuthenticatedFormsSaleF01IdIndexRoute,
   AuthenticatedFormsSaleJob02F01IdIndexRoute:
     AuthenticatedFormsSaleJob02F01IdIndexRoute,
