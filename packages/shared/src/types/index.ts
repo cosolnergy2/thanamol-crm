@@ -2372,13 +2372,30 @@ export type UpdateSecurityPatrolRequest = Partial<Omit<CreateSecurityPatrolReque
 
 export type SecurityPatrolListResponse = PaginatedResponse<SecurityPatrol>
 
+export type CleaningAreaTask = {
+  task_name: string
+  completed: boolean
+  quality_score: number
+}
+
+export type CleaningArea = {
+  area_name: string
+  tasks: CleaningAreaTask[]
+}
+
 export type CleaningChecklist = {
   id: string
+  checklist_number: string | null
   project_id: string
+  site_id: string | null
   zone_id: string | null
   checklist_date: string
+  shift: string | null
   items: unknown[]
+  cleaning_areas: CleaningArea[]
   completed_by: string | null
+  cleaner_id: string | null
+  supervisor_id: string | null
   status: string
   notes: string | null
   created_at: string
@@ -2386,10 +2403,15 @@ export type CleaningChecklist = {
 
 export type CreateCleaningChecklistRequest = {
   projectId: string
+  siteId?: string
   zoneId?: string
   checklistDate: string
+  shift?: string
   items?: unknown[]
+  cleaningAreas?: CleaningArea[]
   completedBy?: string
+  cleanerId?: string
+  supervisorId?: string
   status?: string
   notes?: string
 }

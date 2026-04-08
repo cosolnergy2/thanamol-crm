@@ -1726,17 +1726,23 @@ model PettyCashFund {
 }
 
 model CleaningChecklist {
-  id             String   @id @default(uuid())
-  project_id     String
-  project        Project  @relation(fields: [project_id], references: [id])
-  zone_id        String?
-  zone           Zone?    @relation(fields: [zone_id], references: [id])
-  checklist_date DateTime
-  items          Json     @default("[]")
-  completed_by   String?
-  status         String   @default("PENDING")
-  notes          String?
-  created_at     DateTime @default(now())
+  id               String   @id @default(uuid())
+  checklist_number String?  @unique
+  project_id       String
+  project          Project  @relation(fields: [project_id], references: [id])
+  site_id          String?
+  zone_id          String?
+  zone             Zone?    @relation(fields: [zone_id], references: [id])
+  checklist_date   DateTime
+  shift            String?
+  items            Json     @default("[]")
+  cleaning_areas   Json     @default("[]")
+  completed_by     String?
+  cleaner_id       String?
+  supervisor_id    String?
+  status           String   @default("PENDING")
+  notes            String?
+  created_at       DateTime @default(now())
 
   @@index([project_id])
 }
