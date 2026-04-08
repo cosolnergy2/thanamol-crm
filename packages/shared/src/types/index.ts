@@ -4914,3 +4914,173 @@ export type AccountingDashboardData = {
   open_periods: number
   recent_journals: JournalEntry[]
 }
+
+// ─── Banking ──────────────────────────────────────────────────────────────────
+
+export type BankAccount = {
+  id: string
+  account_name: string
+  account_number: string
+  bank_name: string
+  branch_name: string | null
+  account_type: 'SAVINGS' | 'CURRENT' | 'FIXED_DEPOSIT'
+  gl_account_code: string | null
+  site_id: string | null
+  currency: string
+  opening_balance: number
+  current_balance: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export type CreateBankAccountRequest = {
+  accountName: string
+  accountNumber: string
+  bankName: string
+  branchName?: string
+  accountType?: BankAccount['account_type']
+  glAccountCode?: string
+  siteId?: string
+  currency?: string
+  openingBalance?: number
+}
+
+export type BankAccountListResponse = PaginatedResponse<BankAccount>
+
+export type ChequeRegister = {
+  id: string
+  cheque_number: string
+  cheque_type: 'ISSUED' | 'RECEIVED'
+  cheque_date: string
+  bank_account_id: string
+  amount: number
+  payee_name: string
+  status: 'ISSUED' | 'CLEARED' | 'BOUNCED' | 'CANCELLED' | 'VOIDED'
+  reference_document: string | null
+  cleared_date: string | null
+  bounced_date: string | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type CreateChequeRequest = {
+  chequeNumber: string
+  chequeType: ChequeRegister['cheque_type']
+  chequeDate: string
+  bankAccountId: string
+  amount: number
+  payeeName: string
+  referenceDocument?: string
+  notes?: string
+}
+
+export type ChequeListResponse = PaginatedResponse<ChequeRegister>
+
+// ─── Tax & Compliance ─────────────────────────────────────────────────────────
+
+export type WithholdingTaxRecord = {
+  id: string
+  wht_number: string
+  document_type: 'PND1' | 'PND3' | 'PND53'
+  fiscal_year: number
+  fiscal_month: number
+  vendor_name: string
+  tax_id: string | null
+  income_type: string | null
+  gross_amount: number
+  wht_rate: number
+  wht_amount: number
+  net_amount: number
+  payment_date: string | null
+  certificate_issued: boolean
+  certificate_date: string | null
+  status: 'DRAFT' | 'ISSUED' | 'SUBMITTED' | 'CANCELLED'
+  created_at: string
+  updated_at: string
+}
+
+export type CreateWithholdingTaxRequest = {
+  documentType: WithholdingTaxRecord['document_type']
+  fiscalYear: number
+  fiscalMonth: number
+  vendorId?: string
+  vendorName: string
+  taxId?: string
+  incomeType?: string
+  grossAmount: number
+  whtRate: number
+  whtAmount: number
+  netAmount: number
+  paymentDate?: string
+}
+
+export type WhtListResponse = PaginatedResponse<WithholdingTaxRecord>
+
+export type TaxDashboardData = {
+  input_vat: number
+  output_vat: number
+  net_vat: number
+  total_wht: number
+  period: string
+}
+
+// ─── AP Enhancements ──────────────────────────────────────────────────────────
+
+export type APInvoice = {
+  id: string
+  ap_invoice_number: string
+  vendor_id: string
+  vendor_invoice_number: string | null
+  invoice_date: string
+  due_date: string
+  payment_terms: string | null
+  subtotal: number
+  vat_amount: number
+  wht_amount: number
+  total_amount: number
+  status: 'AP_DRAFT' | 'AP_PENDING_APPROVAL' | 'AP_APPROVED' | 'AP_PARTIALLY_PAID' | 'AP_PAID' | 'AP_CANCELLED'
+  matched_po_id: string | null
+  matched_grn_id: string | null
+  gl_account_code: string | null
+  items: unknown
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type CreateAPInvoiceRequest = {
+  vendorId: string
+  vendorInvoiceNumber?: string
+  invoiceDate: string
+  dueDate: string
+  paymentTerms?: string
+  subtotal: number
+  vatAmount?: number
+  whtAmount?: number
+  totalAmount: number
+  matchedPoId?: string
+  matchedGrnId?: string
+  glAccountCode?: string
+  items?: unknown
+  notes?: string
+}
+
+export type APInvoiceListResponse = PaginatedResponse<APInvoice>
+
+export type APAgingBucket = {
+  vendor_id: string
+  vendor_name: string
+  current: number
+  days_1_30: number
+  days_31_60: number
+  days_61_90: number
+  over_90: number
+  total: number
+}
+
+export type APAgingResponse = {
+  buckets: APAgingBucket[]
+  totals: APAgingBucket
+}

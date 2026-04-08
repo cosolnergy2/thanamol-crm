@@ -81,3 +81,32 @@ export const MONTHS_TH = [
   'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
   'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.',
 ] as const
+
+// Banking
+export const BANK_ACCOUNT_TYPES = ['SAVINGS', 'CURRENT', 'FIXED_DEPOSIT'] as const
+export type BankAccountType = (typeof BANK_ACCOUNT_TYPES)[number]
+
+export const RECONCILIATION_STATUSES = ['IN_PROGRESS', 'BALANCED', 'UNBALANCED'] as const
+export type ReconciliationStatus = (typeof RECONCILIATION_STATUSES)[number]
+
+export const CHEQUE_TYPES = ['ISSUED', 'RECEIVED'] as const
+export type ChequeType = (typeof CHEQUE_TYPES)[number]
+
+export const CHEQUE_STATUSES = ['ISSUED', 'CLEARED', 'BOUNCED', 'CANCELLED', 'VOIDED'] as const
+export type ChequeStatus = (typeof CHEQUE_STATUSES)[number]
+
+// Tax
+export const WHT_DOCUMENT_TYPES = ['PND1', 'PND3', 'PND53'] as const
+export type WhtDocumentType = (typeof WHT_DOCUMENT_TYPES)[number]
+
+export const WHT_STATUSES = ['DRAFT', 'ISSUED', 'SUBMITTED', 'CANCELLED'] as const
+export type WhtStatus = (typeof WHT_STATUSES)[number]
+
+export const WHT_RATES = [1, 2, 3, 5, 10, 15] as const
+
+// AP
+export const AP_INVOICE_STATUSES = ['AP_DRAFT', 'AP_PENDING_APPROVAL', 'AP_APPROVED', 'AP_PARTIALLY_PAID', 'AP_PAID', 'AP_CANCELLED'] as const
+export type APInvoiceStatusType = (typeof AP_INVOICE_STATUSES)[number]
+
+export const PAYMENT_VOUCHER_STATUSES = ['PV_DRAFT', 'PV_PENDING_APPROVAL', 'PV_APPROVED', 'PV_PAID', 'PV_CANCELLED'] as const
+export type PaymentVoucherStatusType = (typeof PAYMENT_VOUCHER_STATUSES)[number]

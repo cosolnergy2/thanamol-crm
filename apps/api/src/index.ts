@@ -90,13 +90,19 @@ import { financeAccountingPeriodsRoutes } from './routes/finance/accounting-peri
 import { financeJournalEntriesRoutes } from './routes/finance/journal-entries'
 import { financeAccountingReportsRoutes } from './routes/finance/accounting-reports'
 import { financeAccountingDashboardRoutes } from './routes/finance/accounting-dashboard'
+import { financeBankAccountsRoutes } from './routes/finance/bank-accounts'
+import { financeChequesRoutes } from './routes/finance/cheques'
+import { financeWithholdingTaxRoutes } from './routes/finance/withholding-tax'
+import { financeAPInvoicesRoutes } from './routes/finance/ap-invoices'
 
 const API_PORT = Number(process.env.PORT ?? 3000)
 
-const app = new Elysia()
+const base = new Elysia()
   .use(cors())
   .use(staticPlugin({ assets: 'uploads', prefix: '/uploads' }))
   .get('/api/health', () => ({ status: 'ok', timestamp: new Date().toISOString() }))
+
+const app = (base as any)
   .use(authRoutes)
   .use(rolesRoutes)
   .use(userRoleRoutes)
@@ -188,6 +194,10 @@ const app = new Elysia()
   .use(financeJournalEntriesRoutes)
   .use(financeAccountingReportsRoutes)
   .use(financeAccountingDashboardRoutes)
+  .use(financeBankAccountsRoutes)
+  .use(financeChequesRoutes)
+  .use(financeWithholdingTaxRoutes)
+  .use(financeAPInvoicesRoutes)
   .listen(API_PORT)
 
 console.log(`API running at http://localhost:${API_PORT}`)

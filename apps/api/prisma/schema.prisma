@@ -445,6 +445,14 @@ model User {
   journal_entries_reviewed  JournalEntry[]       @relation("JEReviewer")
   journal_entries_approved  JournalEntry[]       @relation("JEApprover")
   accounting_periods_closed AccountingPeriod[]   @relation("PeriodCloser")
+  reconciliations_done     BankReconciliation[] @relation("ReconciliationReconciler")
+  wht_created              WithholdingTaxRecord[] @relation("WHTCreator")
+  ap_invoices_created      APInvoice[]          @relation("APInvoiceCreator")
+  ap_invoices_approved     APInvoice[]          @relation("APInvoiceApprover")
+  payment_vouchers_created PaymentVoucher[]     @relation("PVCreator")
+  payment_vouchers_approved PaymentVoucher[]    @relation("PVApprover")
+  asset_disposals_created  AssetDisposal[]      @relation("DisposalCreator")
+  asset_transfers_created  AssetTransfer[]      @relation("TransferCreator")
 
   @@index([email])
 }
@@ -697,6 +705,7 @@ model Project {
   utility_rates              UtilityRate[]
   landscape_tasks            LandscapeTask[]
   waste_records              WasteRecord[]
+  bank_accounts              BankAccount[]    @relation("BankAccountSite")
 
   @@index([status])
   @@index([code])
@@ -1554,6 +1563,9 @@ model Asset {
   work_orders      WorkOrder[]
   calibrations     CalibrationRecord[]
   pm_schedules     PreventiveMaintenance[]
+  depreciation_schedules DepreciationSchedule[]
+  disposals              AssetDisposal[]
+  transfers              AssetTransfer[]
   created_at       DateTime       @default(now())
   updated_at       DateTime       @updatedAt
 
@@ -2101,6 +2113,9 @@ model Vendor {
   contracts              VendorContract[]
   item_prices            VendorItemPrice[]
   invoices               VendorInvoice[]
+  wht_records            WithholdingTaxRecord[]
+  ap_invoices            APInvoice[]
+  payment_vouchers       PaymentVoucher[]
   created_at             DateTime         @default(now())
   updated_at             DateTime         @updatedAt
 
@@ -2634,4 +2649,314 @@ model JournalEntryLine {
 
   @@index([journal_entry_id])
   @@index([account_code])
+}
+
+// ─── Banking ─────────────────────────────────────────────────────────────────
+
+enum BankAccountType {
+  SAVINGS
+  CURRENT
+  FIXED_DEPOSIT
+}
+
+enum ReconciliationStatus {
+  IN_PROGRESS
+  BALANCED
+  UNBALANCED
+}
+
+enum ChequeType {
+  ISSUED
+  RECEIVED
+}
+
+enum ChequeStatus {
+  ISSUED
+  CLEARED
+  BOUNCED
+  CANCELLED
+  VOIDED
+}
+
+model BankAccount {
+  id              String          @id @default(cuid())
+  account_name    String
+  account_number  String          @unique
+  bank_name       String
+  branch_name     String?
+  account_type    BankAccountType @default(CURRENT)
+  gl_account_code String?
+  site_id         String?
+  site            Project?        @relation("BankAccountSite", fields: [site_id], references: [id])
+  currency        String          @default("THB")
+  opening_balance Decimal         @default(0) @db.Decimal(18, 2)
+  current_balance Decimal         @default(0) @db.Decimal(18, 2)
+  is_active       Boolean         @default(true)
+  created_at      DateTime        @default(now())
+  updated_at      DateTime        @updatedAt
+
+  reconciliations BankReconciliation[]
+  cheques         ChequeRegister[]
+
+  @@index([is_active])
+}
+
+model BankReconciliation {
+  id                     String               @id @default(cuid())
+  reconciliation_number  String               @unique
+  bank_account_id        String
+  bank_account           BankAccount          @relation(fields: [bank_account_id], references: [id])
+  reconciliation_month   String
+  bank_statement_balance Decimal              @db.Decimal(18, 2)
+  book_balance           Decimal              @db.Decimal(18, 2)
+  adjusted_bank_balance  Decimal?             @db.Decimal(18, 2)
+  adjusted_book_balance  Decimal?             @db.Decimal(18, 2)
+  difference             Decimal              @default(0) @db.Decimal(18, 2)
+  status                 ReconciliationStatus @default(IN_PROGRESS)
+  reconciled_by          String?
+  reconciler             User?                @relation("ReconciliationReconciler", fields: [reconciled_by], references: [id])
+  reconciled_at          DateTime?
+  notes                  String?
+  created_at             DateTime             @default(now())
+  updated_at             DateTime             @updatedAt
+
+  items BankReconciliationItem[]
+
+  @@index([bank_account_id])
+  @@index([status])
+}
+
+model BankReconciliationItem {
+  id                String             @id @default(cuid())
+  reconciliation_id String
+  reconciliation    BankReconciliation @relation(fields: [reconciliation_id], references: [id], onDelete: Cascade)
+  description       String
+  amount            Decimal            @db.Decimal(18, 2)
+  item_type         String
+  is_bank_side      Boolean            @default(true)
+
+  @@index([reconciliation_id])
+}
+
+model ChequeRegister {
+  id                 String       @id @default(cuid())
+  cheque_number      String
+  cheque_type        ChequeType
+  cheque_date        DateTime
+  bank_account_id    String
+  bank_account       BankAccount  @relation(fields: [bank_account_id], references: [id])
+  amount             Decimal      @db.Decimal(18, 2)
+  payee_name         String
+  status             ChequeStatus @default(ISSUED)
+  reference_document String?
+  cleared_date       DateTime?
+  bounced_date       DateTime?
+  journal_entry_id   String?
+  notes              String?
+  created_at         DateTime     @default(now())
+  updated_at         DateTime     @updatedAt
+
+  @@index([bank_account_id])
+  @@index([status])
+  @@index([cheque_type])
+}
+
+// ─── Tax & Compliance ────────────────────────────────────────────────────────
+
+enum WhtDocumentType {
+  PND1
+  PND3
+  PND53
+}
+
+enum WhtStatus {
+  DRAFT
+  ISSUED
+  SUBMITTED
+  CANCELLED
+}
+
+model WithholdingTaxRecord {
+  id                 String          @id @default(cuid())
+  wht_number         String          @unique
+  document_type      WhtDocumentType
+  fiscal_year        Int
+  fiscal_month       Int
+  vendor_id          String?
+  vendor             Vendor?         @relation(fields: [vendor_id], references: [id])
+  vendor_name        String
+  tax_id             String?
+  income_type        String?
+  gross_amount       Decimal         @db.Decimal(18, 2)
+  wht_rate           Decimal         @db.Decimal(5, 2)
+  wht_amount         Decimal         @db.Decimal(18, 2)
+  net_amount         Decimal         @db.Decimal(18, 2)
+  payment_date       DateTime?
+  certificate_issued Boolean         @default(false)
+  certificate_date   DateTime?
+  status             WhtStatus       @default(DRAFT)
+  journal_entry_id   String?
+  created_by         String?
+  creator            User?           @relation("WHTCreator", fields: [created_by], references: [id])
+  created_at         DateTime        @default(now())
+  updated_at         DateTime        @updatedAt
+
+  @@index([document_type])
+  @@index([fiscal_year, fiscal_month])
+  @@index([status])
+}
+
+model VatTransaction {
+  id                  String   @id @default(cuid())
+  transaction_type    String
+  document_number     String
+  document_date       DateTime
+  counterparty_name   String
+  counterparty_tax_id String?
+  net_amount          Decimal  @db.Decimal(18, 2)
+  vat_amount          Decimal  @db.Decimal(18, 2)
+  gross_amount        Decimal  @db.Decimal(18, 2)
+  vat_rate            Decimal  @default(7) @db.Decimal(5, 2)
+  source_module       String?
+  source_document_id  String?
+  period              String
+  is_filed            Boolean  @default(false)
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  @@index([transaction_type])
+  @@index([period])
+  @@index([is_filed])
+}
+
+// ─── AP Enhancements ─────────────────────────────────────────────────────────
+
+enum APInvoiceStatus {
+  AP_DRAFT
+  AP_PENDING_APPROVAL
+  AP_APPROVED
+  AP_PARTIALLY_PAID
+  AP_PAID
+  AP_CANCELLED
+}
+
+enum PaymentVoucherStatus {
+  PV_DRAFT
+  PV_PENDING_APPROVAL
+  PV_APPROVED
+  PV_PAID
+  PV_CANCELLED
+}
+
+model APInvoice {
+  id                    String          @id @default(cuid())
+  ap_invoice_number     String          @unique
+  vendor_id             String
+  vendor                Vendor          @relation(fields: [vendor_id], references: [id])
+  vendor_invoice_number String?
+  invoice_date          DateTime
+  due_date              DateTime
+  payment_terms         String?
+  subtotal              Decimal         @db.Decimal(18, 2)
+  vat_amount            Decimal         @default(0) @db.Decimal(18, 2)
+  wht_amount            Decimal         @default(0) @db.Decimal(18, 2)
+  total_amount          Decimal         @db.Decimal(18, 2)
+  status                APInvoiceStatus @default(AP_DRAFT)
+  matched_po_id         String?
+  matched_grn_id        String?
+  gl_account_code       String?
+  journal_entry_id      String?
+  items                 Json?
+  notes                 String?
+  created_by            String?
+  creator               User?           @relation("APInvoiceCreator", fields: [created_by], references: [id])
+  approved_by           String?
+  approver              User?           @relation("APInvoiceApprover", fields: [approved_by], references: [id])
+  created_at            DateTime        @default(now())
+  updated_at            DateTime        @updatedAt
+
+  @@index([vendor_id])
+  @@index([status])
+  @@index([due_date])
+}
+
+model PaymentVoucher {
+  id               String               @id @default(cuid())
+  voucher_number   String               @unique
+  vendor_id        String
+  vendor           Vendor               @relation(fields: [vendor_id], references: [id])
+  payment_date     DateTime
+  total_amount     Decimal              @db.Decimal(18, 2)
+  payment_method   String
+  bank_account_id  String?
+  cheque_number    String?
+  status           PaymentVoucherStatus @default(PV_DRAFT)
+  journal_entry_id String?
+  ap_invoice_ids   Json?
+  notes            String?
+  created_by       String?
+  creator          User?                @relation("PVCreator", fields: [created_by], references: [id])
+  approved_by      String?
+  approver         User?                @relation("PVApprover", fields: [approved_by], references: [id])
+  created_at       DateTime             @default(now())
+  updated_at       DateTime             @updatedAt
+
+  @@index([vendor_id])
+  @@index([status])
+}
+
+// ─── Fixed Asset Accounting ──────────────────────────────────────────────────
+
+model DepreciationSchedule {
+  id                     String   @id @default(cuid())
+  asset_id               String
+  asset                  Asset    @relation(fields: [asset_id], references: [id])
+  period                 String
+  depreciation_amount    Decimal  @db.Decimal(18, 2)
+  accumulated_total      Decimal  @db.Decimal(18, 2)
+  net_book_value         Decimal  @db.Decimal(18, 2)
+  journal_entry_id       String?
+  is_posted              Boolean  @default(false)
+  created_at             DateTime @default(now())
+
+  @@index([asset_id])
+  @@index([period])
+}
+
+model AssetDisposal {
+  id               String   @id @default(cuid())
+  disposal_number  String   @unique
+  asset_id         String
+  asset            Asset    @relation(fields: [asset_id], references: [id])
+  disposal_type    String
+  disposal_date    DateTime
+  disposal_amount  Decimal  @default(0) @db.Decimal(18, 2)
+  gain_loss        Decimal  @default(0) @db.Decimal(18, 2)
+  buyer_info       String?
+  journal_entry_id String?
+  notes            String?
+  created_by       String?
+  creator          User?    @relation("DisposalCreator", fields: [created_by], references: [id])
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  @@index([asset_id])
+}
+
+model AssetTransfer {
+  id               String   @id @default(cuid())
+  transfer_number  String   @unique
+  asset_id         String
+  asset            Asset    @relation(fields: [asset_id], references: [id])
+  from_site_id     String?
+  to_site_id       String?
+  transfer_date    DateTime
+  reason           String?
+  journal_entry_id String?
+  created_by       String?
+  creator          User?    @relation("TransferCreator", fields: [created_by], references: [id])
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  @@index([asset_id])
 }
