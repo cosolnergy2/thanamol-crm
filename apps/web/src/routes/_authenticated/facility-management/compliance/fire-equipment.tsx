@@ -41,8 +41,8 @@ import {
   useDeleteFireEquipment,
 } from '@/hooks/useFireEquipment'
 import { useProjects } from '@/hooks/useProjects'
-import { FIRE_EQUIPMENT_TYPES } from '@thanamol/shared'
-import type { FireEquipmentWithRelations } from '@thanamol/shared'
+import { FIRE_EQUIPMENT_TYPES, FIRE_EQUIPMENT_CONDITIONS } from '@thanamol/shared'
+import type { FireEquipmentWithRelations, FireEquipmentCondition } from '@thanamol/shared'
 
 export const Route = createFileRoute(
   '/_authenticated/facility-management/compliance/fire-equipment'
@@ -68,6 +68,13 @@ type FormState = {
   equipmentNumber: string
   type: string
   projectId: string
+  manufacturer: string
+  model: string
+  serialNumber: string
+  capacitySize: string
+  installationDate: string
+  condition: string
+  certificationNumber: string
   zoneId: string
   locationDetail: string
   lastInspectionDate: string
@@ -80,6 +87,13 @@ const DEFAULT_FORM: FormState = {
   equipmentNumber: '',
   type: 'Fire Extinguisher',
   projectId: '',
+  manufacturer: '',
+  model: '',
+  serialNumber: '',
+  capacitySize: '',
+  installationDate: '',
+  condition: '',
+  certificationNumber: '',
   zoneId: '',
   locationDetail: '',
   lastInspectionDate: '',
@@ -134,6 +148,13 @@ function FireEquipmentPage() {
       equipmentNumber: item.equipment_number,
       type: item.type,
       projectId: item.project_id,
+      manufacturer: item.manufacturer ?? '',
+      model: item.model ?? '',
+      serialNumber: item.serial_number ?? '',
+      capacitySize: item.capacity_size ?? '',
+      installationDate: item.installation_date ? item.installation_date.slice(0, 10) : '',
+      condition: item.condition ?? '',
+      certificationNumber: item.certification_number ?? '',
       zoneId: item.zone_id ?? '',
       locationDetail: item.location_detail ?? '',
       lastInspectionDate: item.last_inspection_date
@@ -154,30 +175,29 @@ function FireEquipmentPage() {
       return
     }
 
+    const sharedFields = {
+      equipmentNumber: form.equipmentNumber,
+      type: form.type,
+      manufacturer: form.manufacturer || undefined,
+      model: form.model || undefined,
+      serialNumber: form.serialNumber || undefined,
+      capacitySize: form.capacitySize || undefined,
+      installationDate: form.installationDate || undefined,
+      condition: (form.condition as FireEquipmentCondition) || undefined,
+      certificationNumber: form.certificationNumber || undefined,
+      zoneId: form.zoneId || undefined,
+      locationDetail: form.locationDetail || undefined,
+      lastInspectionDate: form.lastInspectionDate || undefined,
+      nextInspectionDate: form.nextInspectionDate || undefined,
+      status: form.status as 'ACTIVE',
+      notes: form.notes || undefined,
+    }
+
     if (editingItem) {
-      await updateMutation.mutateAsync({
-        equipmentNumber: form.equipmentNumber,
-        type: form.type,
-        zoneId: form.zoneId || undefined,
-        locationDetail: form.locationDetail || undefined,
-        lastInspectionDate: form.lastInspectionDate || undefined,
-        nextInspectionDate: form.nextInspectionDate || undefined,
-        status: form.status as 'ACTIVE',
-        notes: form.notes || undefined,
-      })
+      await updateMutation.mutateAsync(sharedFields)
       toast.success('Equipment updated')
     } else {
-      await createMutation.mutateAsync({
-        equipmentNumber: form.equipmentNumber,
-        type: form.type,
-        projectId: form.projectId,
-        zoneId: form.zoneId || undefined,
-        locationDetail: form.locationDetail || undefined,
-        lastInspectionDate: form.lastInspectionDate || undefined,
-        nextInspectionDate: form.nextInspectionDate || undefined,
-        status: form.status as 'ACTIVE',
-        notes: form.notes || undefined,
-      })
+      await createMutation.mutateAsync({ ...sharedFields, projectId: form.projectId })
       toast.success('Equipment added')
     }
     setDialogOpen(false)
@@ -438,6 +458,73 @@ function FireEquipmentPage() {
                 </Select>
               </div>
             )}
+            <div className="space-y-1">
+              <Label>Manufacturer</Label>
+              <Input
+                value={form.manufacturer}
+                onChange={(e) => setForm({ ...form, manufacturer: e.target.value })}
+                placeholder="e.g., Ansul"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>Model</Label>
+              <Input
+                value={form.model}
+                onChange={(e) => setForm({ ...form, model: e.target.value })}
+                placeholder="e.g., Sentry ABC"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>Serial Number</Label>
+              <Input
+                value={form.serialNumber}
+                onChange={(e) => setForm({ ...form, serialNumber: e.target.value })}
+                placeholder="e.g., SN-123456"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>Capacity / Size</Label>
+              <Input
+                value={form.capacitySize}
+                onChange={(e) => setForm({ ...form, capacitySize: e.target.value })}
+                placeholder="e.g., 5kg, 9L"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>Installation Date</Label>
+              <Input
+                type="date"
+                value={form.installationDate}
+                onChange={(e) => setForm({ ...form, installationDate: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>Condition</Label>
+              <Select
+                value={form.condition || '__none__'}
+                onValueChange={(v) => setForm({ ...form, condition: v === '__none__' ? '' : v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select condition" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">Not specified</SelectItem>
+                  {FIRE_EQUIPMENT_CONDITIONS.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label>Certification Number</Label>
+              <Input
+                value={form.certificationNumber}
+                onChange={(e) => setForm({ ...form, certificationNumber: e.target.value })}
+                placeholder="e.g., CERT-2024-001"
+              />
+            </div>
             <div className="space-y-1">
               <Label>Location Detail</Label>
               <Input

@@ -1999,6 +1999,7 @@ export type Asset = {
   criticality?: string | null
   condition_score?: number | null
   lifecycle_status?: string | null
+  is_stock_store?: boolean
   created_at: string
   updated_at: string
 }
@@ -2052,6 +2053,7 @@ export type CreateAssetRequest = {
   criticality?: string
   conditionScore?: number
   lifecycleStatus?: string
+  isStockStore?: boolean
 }
 
 export type UpdateAssetRequest = Partial<CreateAssetRequest>
@@ -2265,19 +2267,29 @@ export type CreatePMInspectionRequest = {
 
 export type PMInspectionListResponse = PaginatedResponse<PMInspection>
 
+export type PMCompliancePeriod = '30d' | '60d' | '90d' | '6m'
+
+export type PMComplianceScheduleDetail = {
+  id: string
+  pm_number: string
+  title: string
+  site: string
+  frequency: string
+  total: number
+  completed: number
+  overdue: number
+  scheduled: number
+  compliancePct: number
+}
+
 export type PMComplianceReport = {
   total: number
   onTimeCount: number
   overdueCount: number
   missedCount: number
+  completedCount: number
   compliancePercentage: number
-  overdueList: Array<{
-    id: string
-    pm_number: string
-    title: string
-    next_due_date: string
-    days_overdue: number
-  }>
+  scheduleDetails: PMComplianceScheduleDetail[]
 }
 
 // ─── FMS: Calibration ─────────────────────────────────────────────────────────
@@ -2370,13 +2382,30 @@ export type UpdateSecurityPatrolRequest = Partial<Omit<CreateSecurityPatrolReque
 
 export type SecurityPatrolListResponse = PaginatedResponse<SecurityPatrol>
 
+export type CleaningAreaTask = {
+  task_name: string
+  completed: boolean
+  quality_score: number
+}
+
+export type CleaningArea = {
+  area_name: string
+  tasks: CleaningAreaTask[]
+}
+
 export type CleaningChecklist = {
   id: string
+  checklist_number: string | null
   project_id: string
+  site_id: string | null
   zone_id: string | null
   checklist_date: string
+  shift: string | null
   items: unknown[]
+  cleaning_areas: CleaningArea[]
   completed_by: string | null
+  cleaner_id: string | null
+  supervisor_id: string | null
   status: string
   notes: string | null
   created_at: string
@@ -2384,10 +2413,15 @@ export type CleaningChecklist = {
 
 export type CreateCleaningChecklistRequest = {
   projectId: string
+  siteId?: string
   zoneId?: string
   checklistDate: string
+  shift?: string
   items?: unknown[]
+  cleaningAreas?: CleaningArea[]
   completedBy?: string
+  cleanerId?: string
+  supervisorId?: string
   status?: string
   notes?: string
 }
@@ -3179,11 +3213,26 @@ export const FIRE_EQUIPMENT_TYPES = [
 
 export type FireEquipmentType = (typeof FIRE_EQUIPMENT_TYPES)[number]
 export type FireEquipmentStatus = 'ACTIVE' | 'INACTIVE' | 'UNDER_MAINTENANCE' | 'DECOMMISSIONED'
+export type FireEquipmentCondition = 'Good' | 'Fair' | 'Poor' | 'Requires Replacement'
+
+export const FIRE_EQUIPMENT_CONDITIONS: FireEquipmentCondition[] = [
+  'Good',
+  'Fair',
+  'Poor',
+  'Requires Replacement',
+]
 
 export type FireEquipment = {
   id: string
   equipment_number: string
   type: string
+  manufacturer: string | null
+  model: string | null
+  serial_number: string | null
+  capacity_size: string | null
+  installation_date: string | null
+  condition: string | null
+  certification_number: string | null
   project_id: string
   zone_id: string | null
   location_detail: string | null
@@ -3250,6 +3299,13 @@ export type CreateFireEquipmentRequest = {
   equipmentNumber: string
   type: string
   projectId: string
+  manufacturer?: string
+  model?: string
+  serialNumber?: string
+  capacitySize?: string
+  installationDate?: string
+  condition?: FireEquipmentCondition
+  certificationNumber?: string
   zoneId?: string
   locationDetail?: string
   lastInspectionDate?: string
@@ -3286,6 +3342,11 @@ export const PERMIT_TYPES = [
 export type PermitType = (typeof PERMIT_TYPES)[number]
 export type PermitStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'ACTIVE' | 'CLOSED' | 'REJECTED'
 
+export type PermitWorker = {
+  name: string
+  id_number: string
+}
+
 export type PermitToWork = {
   id: string
   permit_number: string
@@ -3293,15 +3354,22 @@ export type PermitToWork = {
   description: string | null
   project_id: string
   zone_id: string | null
+  company_id: string | null
+  site_id: string | null
+  location: string | null
+  unit: string | null
   permit_type: string | null
+  contractor_name: string | null
+  contractor_contact: string | null
   risk_assessment: unknown[]
+  workers: PermitWorker[]
+  ppe_required: string[]
+  safety_measures: unknown[]
   start_date: string | null
   end_date: string | null
   status: PermitStatus
   requested_by: string | null
   approved_by: string | null
-  contractor_name: string | null
-  safety_measures: unknown[]
   created_at: string
   updated_at: string
 }
@@ -3318,13 +3386,20 @@ export type CreatePermitToWorkRequest = {
   description?: string
   projectId: string
   zoneId?: string
+  companyId?: string
+  siteId?: string
+  location?: string
+  unit?: string
   permitType?: string
+  contractorName?: string
+  contractorContact?: string
   riskAssessment?: unknown[]
+  workers?: PermitWorker[]
+  ppeRequired?: string[]
+  safetyMeasures?: unknown[]
   startDate?: string
   endDate?: string
   requestedBy?: string
-  contractorName?: string
-  safetyMeasures?: unknown[]
 }
 
 export type UpdatePermitToWorkRequest = Partial<Omit<CreatePermitToWorkRequest, 'projectId'>>
@@ -3361,6 +3436,10 @@ export type Incident = {
   corrective_actions: unknown[]
   work_order_id: string | null
   photos: unknown[]
+  incident_type: string | null
+  vendor_involved: string | null
+  site_id: string | null
+  location_detail: string | null
   created_at: string
   updated_at: string
 }
@@ -3384,6 +3463,10 @@ export type CreateIncidentRequest = {
   correctiveActions?: unknown[]
   workOrderId?: string
   photos?: unknown[]
+  incidentType?: string
+  vendorInvolved?: string
+  siteId?: string
+  locationDetail?: string
 }
 
 export type UpdateIncidentRequest = Partial<Omit<CreateIncidentRequest, 'projectId'>> & {

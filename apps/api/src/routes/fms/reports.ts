@@ -1,10 +1,12 @@
 import { Elysia, t } from 'elysia'
 import { prisma } from '../../lib/prisma'
 import { authPlugin } from '../../middleware/auth'
-import type { PredictiveMaintenanceItem } from '@thanamol/shared'
+import type { PredictiveMaintenanceItem, PMCompliancePeriod } from '@thanamol/shared'
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000
+const SIXTY_DAYS_MS = 60 * 24 * 60 * 60 * 1000
 const NINETY_DAYS_MS = 90 * 24 * 60 * 60 * 1000
+const SIX_MONTHS_MS = 180 * 24 * 60 * 60 * 1000
 const HIGH_WO_FREQUENCY_THRESHOLD = 3
 
 async function buildMaintenanceCostReport(projectId: string, startDate?: string, endDate?: string) {
@@ -630,6 +632,98 @@ async function buildInventoryAnalysisReport(projectId?: string) {
   }
 }
 
+function periodToStartDate(period: PMCompliancePeriod): Date {
+  const now = new Date()
+  const periodMs: Record<PMCompliancePeriod, number> = {
+    '30d': THIRTY_DAYS_MS,
+    '60d': SIXTY_DAYS_MS,
+    '90d': NINETY_DAYS_MS,
+    '6m': SIX_MONTHS_MS,
+  }
+  return new Date(now.getTime() - periodMs[period])
+}
+
+async function buildPMComplianceReport(projectId: string, period?: PMCompliancePeriod) {
+  const now = new Date()
+  const startDate = period ? periodToStartDate(period) : undefined
+
+  const pmWhere: Record<string, unknown> = { project_id: projectId, is_active: true }
+
+  const schedules = await prisma.preventiveMaintenance.findMany({
+    where: pmWhere,
+    include: {
+      project: { select: { name: true } },
+      logs: startDate
+        ? { where: { scheduled_date: { gte: startDate, lte: now } } }
+        : true,
+    },
+    orderBy: { pm_number: 'asc' },
+  })
+
+  let total = 0
+  let onTimeCount = 0
+  let overdueCount = 0
+  let missedCount = 0
+  let completedCount = 0
+
+  const scheduleDetails = schedules.map((pm) => {
+    const logs = pm.logs as Array<{ status: string; scheduled_date: Date }>
+
+    const logsCompleted = logs.filter((l) => l.status === 'COMPLETED').length
+    const logsOverdue = logs.filter(
+      (l) => l.status !== 'COMPLETED' && new Date(l.scheduled_date) < now
+    ).length
+    const logsScheduled = logs.filter(
+      (l) => l.status !== 'COMPLETED' && new Date(l.scheduled_date) >= now
+    ).length
+    const logsTotal = logs.length
+
+    const compliancePct =
+      logsTotal > 0 ? Math.round((logsCompleted / logsTotal) * 100) : 0
+
+    total++
+    completedCount += logsCompleted
+
+    const isCurrentlyOverdue =
+      pm.next_due_date && pm.next_due_date < now && pm.last_completed_date === null
+    const hasDueDate = pm.next_due_date !== null
+
+    if (!hasDueDate) {
+      missedCount++
+    } else if (isCurrentlyOverdue) {
+      overdueCount++
+    } else {
+      onTimeCount++
+    }
+
+    return {
+      id: pm.id,
+      pm_number: pm.pm_number,
+      title: pm.title,
+      site: pm.project?.name ?? '',
+      frequency: pm.frequency,
+      total: logsTotal,
+      completed: logsCompleted,
+      overdue: logsOverdue,
+      scheduled: logsScheduled,
+      compliancePct,
+    }
+  })
+
+  const compliancePercentage =
+    total > 0 ? Math.round(((total - overdueCount) / total) * 100) : 100
+
+  return {
+    total,
+    onTimeCount,
+    overdueCount,
+    missedCount,
+    completedCount,
+    compliancePercentage,
+    scheduleDetails,
+  }
+}
+
 export const fmsReportsRoutes = new Elysia({ prefix: '/api/fms/reports' })
   .use(authPlugin)
   .guard(
@@ -813,6 +907,27 @@ export const fmsReportsRoutes = new Elysia({ prefix: '/api/fms/reports' })
           {
             query: t.Object({
               projectId: t.Optional(t.String()),
+            }),
+          },
+        )
+        .get(
+          '/pm-compliance',
+          async ({ query, set }) => {
+            if (!query.projectId) {
+              set.status = 400
+              return { error: 'projectId is required' }
+            }
+            const validPeriods = ['30d', '60d', '90d', '6m'] as const
+            const period = validPeriods.includes(query.period as (typeof validPeriods)[number])
+              ? (query.period as PMCompliancePeriod)
+              : undefined
+            const report = await buildPMComplianceReport(query.projectId, period)
+            return { report }
+          },
+          {
+            query: t.Object({
+              projectId: t.Optional(t.String()),
+              period: t.Optional(t.String()),
             }),
           },
         )

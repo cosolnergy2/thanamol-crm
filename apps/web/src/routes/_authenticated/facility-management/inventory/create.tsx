@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { FileUpload } from '@/components/FileUpload'
 import { useCreateInventoryItem, useInventoryCategories } from '@/hooks/useInventory'
 import { useProjects } from '@/hooks/useProjects'
 import { useCompanies } from '@/hooks/useCompanies'
@@ -29,6 +30,8 @@ const ITEM_STATUS_OPTIONS = [
   { value: 'true', label: 'Active' },
   { value: 'false', label: 'Inactive' },
 ]
+
+const EXTRA_INVENTORY_CATEGORIES = ['Officer', 'Other'] as const
 
 function InventoryCreatePage() {
   const navigate = useNavigate()
@@ -196,6 +199,11 @@ function InventoryCreatePage() {
                   {categories.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id}>
                       {cat.name}
+                    </SelectItem>
+                  ))}
+                  {EXTRA_INVENTORY_CATEGORIES.map((name) => (
+                    <SelectItem key={name} value={name}>
+                      {name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -486,12 +494,11 @@ function InventoryCreatePage() {
               />
             </div>
             <div>
-              <Label htmlFor="photoUrl">Image URL</Label>
-              <Input
-                id="photoUrl"
-                value={form.photoUrl}
-                onChange={(e) => setForm({ ...form, photoUrl: e.target.value })}
-                placeholder="https://example.com/image.jpg"
+              <FileUpload
+                label="Photo"
+                accept="image/*"
+                value={form.photoUrl || undefined}
+                onChange={(url) => setForm({ ...form, photoUrl: url ?? '' })}
               />
             </div>
             <div>

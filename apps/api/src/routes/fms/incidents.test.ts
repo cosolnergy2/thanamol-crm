@@ -70,6 +70,10 @@ const mockIncident = {
   corrective_actions: [],
   work_order_id: null,
   photos: [],
+  incident_type: null,
+  vendor_involved: null,
+  site_id: null,
+  location_detail: null,
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
   project: { id: 'proj-1', name: 'Test Project' },
@@ -183,5 +187,75 @@ describe('DELETE /fms/incidents/:id', () => {
 
     const res = await req('DELETE', '/api/fms/incidents/inc-1', undefined, token)
     expect(res.status).toBe(200)
+  })
+})
+
+describe('POST /fms/incidents — new fields', () => {
+  it('accepts incidentType, vendorInvolved, siteId, locationDetail', async () => {
+    const token = await signToken()
+    ;(prisma.incident.count as ReturnType<typeof vi.fn>).mockResolvedValue(0)
+    const enrichedIncident = {
+      ...mockIncident,
+      incident_type: 'Safety',
+      vendor_involved: 'Acme Corp',
+      site_id: 'SITE-001',
+      location_detail: 'Level 3, near elevator B',
+    }
+    ;(prisma.incident.create as ReturnType<typeof vi.fn>).mockResolvedValue(enrichedIncident)
+
+    const res = await req(
+      'POST',
+      '/api/fms/incidents',
+      {
+        title: 'Slip and fall near elevator',
+        projectId: 'proj-1',
+        incidentDate: new Date().toISOString(),
+        severity: 'MINOR',
+        incidentType: 'Safety',
+        vendorInvolved: 'Acme Corp',
+        siteId: 'SITE-001',
+        locationDetail: 'Level 3, near elevator B',
+      },
+      token
+    )
+    expect(res.status).toBe(201)
+    const data = await res.json()
+    expect(data.incident.incident_type).toBe('Safety')
+    expect(data.incident.vendor_involved).toBe('Acme Corp')
+    expect(data.incident.site_id).toBe('SITE-001')
+    expect(data.incident.location_detail).toBe('Level 3, near elevator B')
+  })
+})
+
+describe('PUT /fms/incidents/:id — new fields', () => {
+  it('updates incidentType, vendorInvolved, siteId, locationDetail', async () => {
+    const token = await signToken()
+    ;(prisma.incident.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(mockIncident)
+    const updated = {
+      ...mockIncident,
+      incident_type: 'Fire',
+      vendor_involved: 'FireSafe Ltd',
+      site_id: 'SITE-002',
+      location_detail: 'Ground floor server room',
+    }
+    ;(prisma.incident.update as ReturnType<typeof vi.fn>).mockResolvedValue(updated)
+
+    const res = await req(
+      'PUT',
+      '/api/fms/incidents/inc-1',
+      {
+        incidentType: 'Fire',
+        vendorInvolved: 'FireSafe Ltd',
+        siteId: 'SITE-002',
+        locationDetail: 'Ground floor server room',
+      },
+      token
+    )
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.incident.incident_type).toBe('Fire')
+    expect(data.incident.vendor_involved).toBe('FireSafe Ltd')
+    expect(data.incident.site_id).toBe('SITE-002')
+    expect(data.incident.location_detail).toBe('Ground floor server room')
   })
 })

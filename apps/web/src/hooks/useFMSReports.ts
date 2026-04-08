@@ -8,6 +8,7 @@ import type {
   FMSBudgetVsActualReport,
   FMSCostReport,
   PMComplianceReport,
+  PMCompliancePeriod,
   PredictiveMaintenanceReport,
   InventoryAnalysisReport,
 } from '@thanamol/shared'
@@ -24,7 +25,8 @@ export const FMS_REPORTS_QUERY_KEYS = {
   budgetOverview: (fiscalYear?: number) => ['fms-reports', 'budget-overview', fiscalYear] as const,
   budgetVsActual: (fiscalYear?: number) => ['fms-reports', 'budget-vs-actual', fiscalYear] as const,
   costReport: (fiscalYear?: number) => ['fms-reports', 'cost-report', fiscalYear] as const,
-  pmCompliance: (projectId: string) => ['fms-reports', 'pm-compliance', projectId] as const,
+  pmCompliance: (projectId: string, period?: PMCompliancePeriod) =>
+    ['fms-reports', 'pm-compliance', projectId, period] as const,
   predictiveMaintenance: (projectId: string) =>
     ['fms-reports', 'predictive-maintenance', projectId] as const,
   inventoryAnalysis: (projectId?: string) =>
@@ -133,12 +135,12 @@ export function useFMSCostReport(fiscalYear?: number) {
   })
 }
 
-export function usePMComplianceReport(projectId: string) {
+export function usePMComplianceReport(projectId: string, period?: PMCompliancePeriod) {
   return useQuery({
-    queryKey: FMS_REPORTS_QUERY_KEYS.pmCompliance(projectId),
+    queryKey: FMS_REPORTS_QUERY_KEYS.pmCompliance(projectId, period),
     queryFn: () =>
       apiGet<{ report: PMComplianceReport }>(
-        `/fms/reports/pm-compliance${buildQueryString({ projectId })}`
+        `/fms/reports/pm-compliance${buildQueryString({ projectId, ...(period ? { period } : {}) })}`
       ),
     enabled: Boolean(projectId),
     staleTime: 60 * 1000,

@@ -21,7 +21,7 @@ import { useProjects } from '@/hooks/useProjects'
 import { useUnits } from '@/hooks/useUnits'
 import { useVendors } from '@/hooks/useVendors'
 import { useAuth } from '@/providers/AuthProvider'
-import { PO_TYPES, PR_ITEM_TYPES } from '@thanamol/shared'
+import { PO_TYPES, PR_ITEM_TYPES, generateUUID } from '@thanamol/shared'
 import type { POItem, POConditions } from '@thanamol/shared'
 
 const searchSchema = z.object({
@@ -60,7 +60,7 @@ const EMPTY_CONDITIONS: POConditions = {
 
 function buildEmptyItem(): FormItem {
   return {
-    _key: crypto.randomUUID(),
+    _key: generateUUID(),
     item_name: '',
     quantity: 1,
     unit_price: 0,
@@ -139,7 +139,7 @@ function POCreatePage() {
     if (prItems.length > 0) {
       setItems(
         prItems.map((item) => ({
-          _key: crypto.randomUUID(),
+          _key: generateUUID(),
           item_name: item.item_name,
           description: item.description,
           quantity: item.quantity,
@@ -175,7 +175,7 @@ function POCreatePage() {
       if (prConditions.payment_installments && prConditions.payment_installments.length > 0) {
         setInstallments(
           prConditions.payment_installments.map((inst) => ({
-            _key: crypto.randomUUID(),
+            _key: generateUUID(),
             label: inst.label,
             amount: inst.amount,
             due_date: inst.due_date ?? '',
@@ -207,7 +207,7 @@ function POCreatePage() {
   function addInstallment() {
     setInstallments((prev) => [
       ...prev,
-      { _key: crypto.randomUUID(), label: '', amount: 0, due_date: '' },
+      { _key: generateUUID(), label: '', amount: 0, due_date: '' },
     ])
   }
 

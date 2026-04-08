@@ -7,6 +7,7 @@ PropertyFlow CRM — a property management CRM system.
 - `apps/api/` — Elysia.js backend (Bun runtime, Prisma ORM, PostgreSQL)
 - `apps/web/` — React 19 frontend (TanStack Router, TanStack Query, Tailwind CSS)
 - `packages/shared/` — Shared TypeScript types, constants, utilities
+- `deploy/` — Docker configs, Caddyfile, deploy script, production env
 
 ## Commands
 
@@ -17,6 +18,32 @@ PropertyFlow CRM — a property management CRM system.
 - `pnpm --filter api dev` — Start API dev server
 - `pnpm --filter web dev` — Start frontend dev server
 - `pnpm --filter web exec playwright test` — Run E2E tests
+
+## Database Migrations
+
+- Use `prisma migrate` — NOT `prisma db push`
+- To create a migration after changing `schema.prisma`:
+  ```
+  pnpm --filter api exec prisma migrate dev --name describe_change
+  ```
+- Migrations auto-apply on deploy via `prisma migrate deploy`
+- Migration files live in `apps/api/prisma/migrations/`
+- Never manually edit the `_prisma_migrations` table
+
+## CI/CD
+
+- **CI** (`.github/workflows/ci.yml`): Runs on push to `dev` and PRs to `main`. Checks: install, prisma generate, build, test.
+- **CD** (`.github/workflows/deploy.yml`): Runs on push to `main`. SSHs into production server, pulls code, rebuilds Docker containers, runs migrations, health check.
+- Branch protection on `main` requires CI to pass before merge.
+
+## Deployment
+
+- **Server:** `ecm.thanamol.com` (VirtualBox, Docker Compose)
+- **Stack:** Caddy (reverse proxy) → nginx (SPA) + Bun/Elysia (API) + PostgreSQL
+- **Ports:** 80, 443, 8080
+- **Deploy flow:** Push to `main` → GitHub Actions → SSH → `git pull` → `docker compose build` → `docker compose up -d`
+- **File uploads:** Stored locally in `apps/api/uploads/`, served via Elysia static plugin at `/uploads/`
+- See `DEPLOY.md` for full operations guide
 
 ## Task Management
 
@@ -45,17 +72,16 @@ PropertyFlow CRM — a property management CRM system.
 ## Git Strategy
 
 ```
-main          (production-ready, protected)
- └── dev      (integration branch, all features merge here first)
+main          (production-ready, protected, auto-deploys)
+ └── dev      (integration branch, CI checks on push)
       ├── feat/T-001-property-listing
-      ├── feat/T-002-auth-flow
       ├── fix/T-003-price-validation
       └── test/T-004-e2e-dashboard
 ```
 
 ### Branch Rules
-- `main` — production-ready code only. Merges come from `dev` after all tasks pass.
-- `dev` — integration branch. All topic branches merge here via PR.
+- `main` — production-ready code only. Merges come from `dev` via PR. CI must pass. Auto-deploys on merge.
+- `dev` — integration branch. All topic branches merge here. CI runs on every push.
 - Topic branches — created per task from `dev`, named `type/T-XXX-short-description`.
 
 ### Branch Naming
@@ -70,7 +96,7 @@ main          (production-ready, protected)
 2. Dev commits work on topic branch with message: `type(T-XXX): description`
 3. Tester commits E2E tests on the same topic branch
 4. When task is Done, ba-pm merges topic branch into `dev` via: `git checkout dev && git merge feat/T-XXX-description`
-5. When a set of features is stable on `dev`, ba-pm merges `dev` into `main`
+5. When features are stable on `dev`, create PR from `dev` → `main`. CI must pass. Merge triggers deploy.
 
 ### Commit Messages
 - Format: `type(T-XXX): description`

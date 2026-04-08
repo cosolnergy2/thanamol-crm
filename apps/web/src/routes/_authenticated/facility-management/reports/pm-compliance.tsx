@@ -1,6 +1,6 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
-import { ClipboardList, CheckCircle, XCircle, AlertTriangle, HelpCircle } from 'lucide-react'
+import { ClipboardList, CheckCircle, XCircle, AlertTriangle, HelpCircle, Calendar } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
@@ -22,12 +22,20 @@ import {
 import { PageHeader } from '@/components/PageHeader'
 import { useProjects } from '@/hooks/useProjects'
 import { usePMComplianceReport } from '@/hooks/useFMSReports'
+import type { PMCompliancePeriod } from '@thanamol/shared'
 
 export const Route = createFileRoute(
   '/_authenticated/facility-management/reports/pm-compliance'
 )({
   component: PMComplianceReportPage,
 })
+
+const PERIOD_OPTIONS: Array<{ value: PMCompliancePeriod; label: string }> = [
+  { value: '30d', label: 'Last 30 Days' },
+  { value: '60d', label: 'Last 60 Days' },
+  { value: '90d', label: 'Last 90 Days' },
+  { value: '6m', label: 'Last 6 Months' },
+]
 
 function ComplianceGauge({ percentage }: { percentage: number }) {
   const color =
@@ -53,10 +61,11 @@ function PMComplianceReportPage() {
   const { data: projectsData } = useProjects({ limit: 50 })
   const projects = projectsData?.data ?? []
   const [projectId, setProjectId] = useState('')
+  const [period, setPeriod] = useState<PMCompliancePeriod>('30d')
 
   const activeProjectId = projectId || projects[0]?.id || ''
 
-  const { data, isLoading, isError } = usePMComplianceReport(activeProjectId)
+  const { data, isLoading, isError } = usePMComplianceReport(activeProjectId, period)
   const report = data?.report
 
   const summaryCards = [
@@ -69,8 +78,8 @@ function PMComplianceReportPage() {
     },
     {
       icon: CheckCircle,
-      label: 'On Schedule',
-      value: report?.onTimeCount ?? 0,
+      label: 'Completed',
+      value: report?.completedCount ?? 0,
       accent: 'bg-teal-500',
       alert: false,
     },
@@ -99,20 +108,41 @@ function PMComplianceReportPage() {
 
       <Card>
         <CardContent className="pt-4">
-          <div className="space-y-1">
-            <span className="text-xs text-slate-500">Project</span>
-            <Select value={activeProjectId} onValueChange={setProjectId}>
-              <SelectTrigger className="w-56 h-8 text-xs">
-                <SelectValue placeholder="Select project" />
-              </SelectTrigger>
-              <SelectContent>
-                {projects.map((p) => (
-                  <SelectItem key={p.id} value={p.id} className="text-xs">
-                    {p.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex flex-wrap items-end gap-4">
+            <div className="space-y-1">
+              <span className="text-xs text-slate-500">Project</span>
+              <Select value={activeProjectId} onValueChange={setProjectId}>
+                <SelectTrigger className="w-56 h-8 text-xs">
+                  <SelectValue placeholder="Select project" />
+                </SelectTrigger>
+                <SelectContent>
+                  {projects.map((p) => (
+                    <SelectItem key={p.id} value={p.id} className="text-xs">
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <span className="text-xs text-slate-500 flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                Time Period
+              </span>
+              <Select value={period} onValueChange={(v) => setPeriod(v as PMCompliancePeriod)}>
+                <SelectTrigger className="w-44 h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PERIOD_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value} className="text-xs">
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -166,7 +196,7 @@ function PMComplianceReportPage() {
         <CardHeader>
           <CardTitle className="text-sm font-light text-slate-600 flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-rose-500" />
-            Overdue PM Schedules
+            PM Schedule Details
           </CardTitle>
         </CardHeader>
         <CardContent className="overflow-x-auto">
@@ -174,16 +204,28 @@ function PMComplianceReportPage() {
             <TableHeader>
               <TableRow className="border-slate-100">
                 <TableHead className="text-[10px] font-extralight text-slate-400 tracking-widest uppercase">
-                  PM Number
+                  PM Schedule
                 </TableHead>
                 <TableHead className="text-[10px] font-extralight text-slate-400 tracking-widest uppercase">
-                  Title
+                  Site
+                </TableHead>
+                <TableHead className="text-[10px] font-extralight text-slate-400 tracking-widest uppercase">
+                  Frequency
                 </TableHead>
                 <TableHead className="text-[10px] font-extralight text-slate-400 tracking-widest uppercase text-right">
-                  Due Date
+                  Total
                 </TableHead>
                 <TableHead className="text-[10px] font-extralight text-slate-400 tracking-widest uppercase text-right">
-                  Days Overdue
+                  Completed
+                </TableHead>
+                <TableHead className="text-[10px] font-extralight text-slate-400 tracking-widest uppercase text-right">
+                  Overdue
+                </TableHead>
+                <TableHead className="text-[10px] font-extralight text-slate-400 tracking-widest uppercase text-right">
+                  Scheduled
+                </TableHead>
+                <TableHead className="text-[10px] font-extralight text-slate-400 tracking-widest uppercase text-right">
+                  Compliance
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -191,50 +233,59 @@ function PMComplianceReportPage() {
               {isLoading ? (
                 Array.from({ length: 3 }).map((_, i) => (
                   <TableRow key={i}>
-                    <TableCell colSpan={4}>
+                    <TableCell colSpan={8}>
                       <Skeleton className="h-5 w-full" />
                     </TableCell>
                   </TableRow>
                 ))
-              ) : (report?.overdueList.length ?? 0) === 0 ? (
+              ) : (report?.scheduleDetails.length ?? 0) === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8 text-xs text-slate-400">
+                  <TableCell colSpan={8} className="text-center py-8 text-xs text-slate-400">
                     <CheckCircle className="w-8 h-8 text-teal-400 mx-auto mb-2" />
-                    No overdue PM schedules
+                    No PM schedules found
                   </TableCell>
                 </TableRow>
               ) : (
-                report?.overdueList.map((pm) => (
+                report?.scheduleDetails.map((pm) => (
                   <TableRow key={pm.id} className="border-slate-100">
                     <TableCell className="text-[11px] font-light">
-                      <Link
-                        to="/facility-management/preventive-maintenance/$pmId"
-                        params={{ pmId: pm.id }}
-                        className="text-indigo-600 hover:underline font-mono"
-                      >
-                        {pm.pm_number}
-                      </Link>
+                      <span className="text-indigo-600 font-mono">{pm.pm_number}</span>
+                      <span className="block text-slate-500 truncate max-w-[180px]">{pm.title}</span>
                     </TableCell>
-                    <TableCell className="text-[11px] text-slate-700 font-light">
-                      {pm.title}
+                    <TableCell className="text-[11px] text-slate-600 font-light">{pm.site}</TableCell>
+                    <TableCell className="text-[11px] font-light">
+                      <Badge variant="outline" className="text-[9px] capitalize">
+                        {pm.frequency.toLowerCase()}
+                      </Badge>
                     </TableCell>
-                    <TableCell className="text-right text-[11px] text-slate-500 font-light">
-                      {new Date(pm.next_due_date).toLocaleDateString('en-GB', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric',
-                      })}
+                    <TableCell className="text-right text-[11px] text-slate-600 font-light">
+                      {pm.total}
+                    </TableCell>
+                    <TableCell className="text-right text-[11px] text-teal-700 font-light">
+                      {pm.completed}
+                    </TableCell>
+                    <TableCell className="text-right text-[11px] font-light">
+                      {pm.overdue > 0 ? (
+                        <span className="text-rose-600">{pm.overdue}</span>
+                      ) : (
+                        <span className="text-slate-400">0</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right text-[11px] text-slate-600 font-light">
+                      {pm.scheduled}
                     </TableCell>
                     <TableCell className="text-right">
                       <Badge
                         variant="outline"
                         className={`text-[9px] ${
-                          pm.days_overdue > 30
-                            ? 'bg-rose-50 text-rose-700 border-rose-200'
-                            : 'bg-amber-50 text-amber-700 border-amber-200'
+                          pm.compliancePct >= 90
+                            ? 'bg-teal-50 text-teal-700 border-teal-200'
+                            : pm.compliancePct >= 70
+                              ? 'bg-amber-50 text-amber-700 border-amber-200'
+                              : 'bg-rose-50 text-rose-700 border-rose-200'
                         }`}
                       >
-                        {pm.days_overdue}d
+                        {pm.compliancePct}%
                       </Badge>
                     </TableCell>
                   </TableRow>

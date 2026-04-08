@@ -23,7 +23,7 @@ import { useVendors } from '@/hooks/useVendors'
 import { useAssets } from '@/hooks/useAssets'
 import { usePreventiveMaintenances } from '@/hooks/usePreventiveMaintenance'
 import { useAuth } from '@/providers/AuthProvider'
-import { PR_PURPOSES, PR_ITEM_TYPES } from '@thanamol/shared'
+import { PR_PURPOSES, PR_ITEM_TYPES, generateUUID } from '@thanamol/shared'
 import type { PRItem } from '@thanamol/shared'
 
 export const Route = createFileRoute(
@@ -105,7 +105,7 @@ function PRCreatePage() {
 
   const [items, setItems] = useState<FormItem[]>([
     {
-      _key: crypto.randomUUID(),
+      _key: generateUUID(),
       item_name: '',
       quantity: 1,
       estimated_unit_price: 0,
@@ -130,7 +130,7 @@ function PRCreatePage() {
     setItems((prev) => [
       ...prev,
       {
-        _key: crypto.randomUUID(),
+        _key: generateUUID(),
         item_name: '',
         quantity: 1,
         estimated_unit_price: 0,
@@ -183,7 +183,7 @@ function PRCreatePage() {
       installments: [
         ...prev.installments,
         {
-          _key: crypto.randomUUID(),
+          _key: generateUUID(),
           installment_number: prev.installments.length + 1,
           percentage: 0,
           milestone: '',
