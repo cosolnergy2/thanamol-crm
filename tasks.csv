@@ -40,3 +40,9 @@ T-088,Fix crypto.randomUUID crash on HTTP contexts,dev,Done,tasks/T-088.md
 T-089,Add Officer/Other to inventory category dropdown,dev,Done,tasks/T-089.md
 T-090,Replace inventory photo URL input with file upload,dev,Done,tasks/T-090.md
 T-091,Add Stock/Store toggle to asset creation form,dev,Done,tasks/T-091.md
+T-092,Fix Inventory Analysis SelectItem empty value crash,dev,Done,tasks/T-092.md
+T-093,PM Compliance Report — add missing features,dev,Done,tasks/T-093.md
+T-094,Fire Equipment Register — add 7 missing fields,dev,Done,tasks/T-094.md
+T-095,Permit to Work — add missing fields + Workers + PPE,dev,Done,tasks/T-095.md
+T-096,Incident Report — add missing fields + fix locationDetail rendering,dev,Done,tasks/T-096.md
+T-097,Cleaning Checklist — add missing fields and Areas & Tasks,dev,Done,tasks/T-097.md
