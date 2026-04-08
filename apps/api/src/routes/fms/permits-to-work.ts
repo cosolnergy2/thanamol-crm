@@ -29,30 +29,49 @@ const permitInclude = {
   approver: { select: { id: true, first_name: true, last_name: true } },
 }
 
+const workerSchema = t.Object({
+  name: t.String(),
+  id_number: t.String(),
+})
+
 const createPermitSchema = t.Object({
   title: t.String({ minLength: 1 }),
   description: t.Optional(t.String()),
   projectId: t.String({ minLength: 1 }),
   zoneId: t.Optional(t.String()),
+  companyId: t.Optional(t.String()),
+  siteId: t.Optional(t.String()),
+  location: t.Optional(t.String()),
+  unit: t.Optional(t.String()),
   permitType: t.Optional(t.String()),
+  contractorName: t.Optional(t.String()),
+  contractorContact: t.Optional(t.String()),
   riskAssessment: t.Optional(t.Array(t.Unknown())),
+  workers: t.Optional(t.Array(workerSchema)),
+  ppeRequired: t.Optional(t.Array(t.String())),
+  safetyMeasures: t.Optional(t.Array(t.Unknown())),
   startDate: t.Optional(t.String()),
   endDate: t.Optional(t.String()),
   requestedBy: t.Optional(t.String()),
-  contractorName: t.Optional(t.String()),
-  safetyMeasures: t.Optional(t.Array(t.Unknown())),
 })
 
 const updatePermitSchema = t.Object({
   title: t.Optional(t.String({ minLength: 1 })),
   description: t.Optional(t.String()),
   zoneId: t.Optional(t.String()),
+  companyId: t.Optional(t.String()),
+  siteId: t.Optional(t.String()),
+  location: t.Optional(t.String()),
+  unit: t.Optional(t.String()),
   permitType: t.Optional(t.String()),
+  contractorName: t.Optional(t.String()),
+  contractorContact: t.Optional(t.String()),
   riskAssessment: t.Optional(t.Array(t.Unknown())),
+  workers: t.Optional(t.Array(workerSchema)),
+  ppeRequired: t.Optional(t.Array(t.String())),
+  safetyMeasures: t.Optional(t.Array(t.Unknown())),
   startDate: t.Optional(t.String()),
   endDate: t.Optional(t.String()),
-  contractorName: t.Optional(t.String()),
-  safetyMeasures: t.Optional(t.Array(t.Unknown())),
 })
 
 const VALID_TRANSITIONS: Record<PermitStatusValue, PermitStatusValue[]> = {
@@ -144,13 +163,20 @@ export const fmsPermitsToWorkRoutes = new Elysia({ prefix: '/api/fms/permits-to-
                 description: body.description ?? null,
                 project_id: body.projectId,
                 zone_id: body.zoneId ?? null,
+                company_id: body.companyId ?? null,
+                site_id: body.siteId ?? null,
+                location: body.location ?? null,
+                unit: body.unit ?? null,
                 permit_type: body.permitType ?? null,
+                contractor_name: body.contractorName ?? null,
+                contractor_contact: body.contractorContact ?? null,
                 risk_assessment: (body.riskAssessment ?? []) as Prisma.InputJsonValue,
+                workers: (body.workers ?? []) as Prisma.InputJsonValue,
+                ppe_required: (body.ppeRequired ?? []) as Prisma.InputJsonValue,
+                safety_measures: (body.safetyMeasures ?? []) as Prisma.InputJsonValue,
                 start_date: body.startDate ? new Date(body.startDate) : null,
                 end_date: body.endDate ? new Date(body.endDate) : null,
                 requested_by: body.requestedBy ?? null,
-                contractor_name: body.contractorName ?? null,
-                safety_measures: (body.safetyMeasures ?? []) as Prisma.InputJsonValue,
               } as Prisma.PermitToWorkUncheckedCreateInput,
               include: permitInclude,
             })
@@ -172,11 +198,18 @@ export const fmsPermitsToWorkRoutes = new Elysia({ prefix: '/api/fms/permits-to-
             if (body.title !== undefined) updateData.title = body.title
             if (body.description !== undefined) updateData.description = body.description ?? null
             if (body.zoneId !== undefined) updateData.zone_id = body.zoneId ?? null
+            if (body.companyId !== undefined) updateData.company_id = body.companyId ?? null
+            if (body.siteId !== undefined) updateData.site_id = body.siteId ?? null
+            if (body.location !== undefined) updateData.location = body.location ?? null
+            if (body.unit !== undefined) updateData.unit = body.unit ?? null
             if (body.permitType !== undefined) updateData.permit_type = body.permitType ?? null
+            if (body.contractorName !== undefined) updateData.contractor_name = body.contractorName ?? null
+            if (body.contractorContact !== undefined) updateData.contractor_contact = body.contractorContact ?? null
             if (body.riskAssessment !== undefined) updateData.risk_assessment = body.riskAssessment as Prisma.InputJsonValue
+            if (body.workers !== undefined) updateData.workers = body.workers as Prisma.InputJsonValue
+            if (body.ppeRequired !== undefined) updateData.ppe_required = body.ppeRequired as Prisma.InputJsonValue
             if (body.startDate !== undefined) updateData.start_date = body.startDate ? new Date(body.startDate) : null
             if (body.endDate !== undefined) updateData.end_date = body.endDate ? new Date(body.endDate) : null
-            if (body.contractorName !== undefined) updateData.contractor_name = body.contractorName ?? null
             if (body.safetyMeasures !== undefined) updateData.safety_measures = body.safetyMeasures as Prisma.InputJsonValue
 
             const permit = await prisma.permitToWork.update({

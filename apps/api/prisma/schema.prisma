@@ -2266,27 +2266,34 @@ model FireEquipment {
 }
 
 model PermitToWork {
-  id              String       @id @default(uuid())
-  permit_number   String       @unique
-  title           String
-  description     String?
-  project_id      String
-  project         Project      @relation(fields: [project_id], references: [id])
-  zone_id         String?
-  zone            Zone?        @relation(fields: [zone_id], references: [id])
-  permit_type     String?
-  risk_assessment Json         @default("[]")
-  start_date      DateTime?
-  end_date        DateTime?
-  status          PermitStatus @default(DRAFT)
-  requested_by    String?
-  requester       User?        @relation("PTWRequester", fields: [requested_by], references: [id])
-  approved_by     String?
-  approver        User?        @relation("PTWApprover", fields: [approved_by], references: [id])
-  contractor_name String?
-  safety_measures Json         @default("[]")
-  created_at      DateTime     @default(now())
-  updated_at      DateTime     @updatedAt
+  id                  String       @id @default(uuid())
+  permit_number       String       @unique
+  title               String
+  description         String?
+  project_id          String
+  project             Project      @relation(fields: [project_id], references: [id])
+  zone_id             String?
+  zone                Zone?        @relation(fields: [zone_id], references: [id])
+  company_id          String?
+  site_id             String?
+  location            String?
+  unit                String?
+  permit_type         String?
+  contractor_name     String?
+  contractor_contact  String?
+  risk_assessment     Json         @default("[]")
+  workers             Json         @default("[]")
+  ppe_required        Json         @default("[]")
+  safety_measures     Json         @default("[]")
+  start_date          DateTime?
+  end_date            DateTime?
+  status              PermitStatus @default(DRAFT)
+  requested_by        String?
+  requester           User?        @relation("PTWRequester", fields: [requested_by], references: [id])
+  approved_by         String?
+  approver            User?        @relation("PTWApprover", fields: [approved_by], references: [id])
+  created_at          DateTime     @default(now())
+  updated_at          DateTime     @updatedAt
 
   @@index([project_id])
 }
@@ -2310,6 +2317,10 @@ model Incident {
   corrective_actions  Json             @default("[]")
   work_order_id       String?
   photos              Json             @default("[]")
+  incident_type       String?
+  vendor_involved     String?
+  site_id             String?
+  location_detail     String?
   created_at          DateTime         @default(now())
   updated_at          DateTime         @updatedAt
 

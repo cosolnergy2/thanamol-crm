@@ -42,6 +42,10 @@ const createIncidentSchema = t.Object({
   correctiveActions: t.Optional(t.Array(t.Unknown())),
   workOrderId: t.Optional(t.String()),
   photos: t.Optional(t.Array(t.Unknown())),
+  incidentType: t.Optional(t.String()),
+  vendorInvolved: t.Optional(t.String()),
+  siteId: t.Optional(t.String()),
+  locationDetail: t.Optional(t.String()),
 })
 
 const updateIncidentSchema = t.Object({
@@ -56,6 +60,10 @@ const updateIncidentSchema = t.Object({
   correctiveActions: t.Optional(t.Array(t.Unknown())),
   workOrderId: t.Optional(t.String()),
   photos: t.Optional(t.Array(t.Unknown())),
+  incidentType: t.Optional(t.String()),
+  vendorInvolved: t.Optional(t.String()),
+  siteId: t.Optional(t.String()),
+  locationDetail: t.Optional(t.String()),
 })
 
 const VALID_STATUS_TRANSITIONS: Record<IncidentStatusValue, IncidentStatusValue[]> = {
@@ -155,6 +163,10 @@ export const fmsIncidentsRoutes = new Elysia({ prefix: '/api/fms/incidents' })
                 corrective_actions: (body.correctiveActions ?? []) as Prisma.InputJsonValue,
                 work_order_id: body.workOrderId ?? null,
                 photos: (body.photos ?? []) as Prisma.InputJsonValue,
+                incident_type: body.incidentType ?? null,
+                vendor_involved: body.vendorInvolved ?? null,
+                site_id: body.siteId ?? null,
+                location_detail: body.locationDetail ?? null,
               } as Prisma.IncidentUncheckedCreateInput,
               include: incidentInclude,
             })
@@ -184,6 +196,10 @@ export const fmsIncidentsRoutes = new Elysia({ prefix: '/api/fms/incidents' })
             if (body.correctiveActions !== undefined) updateData.corrective_actions = body.correctiveActions as Prisma.InputJsonValue
             if (body.workOrderId !== undefined) updateData.work_order_id = body.workOrderId ?? null
             if (body.photos !== undefined) updateData.photos = body.photos as Prisma.InputJsonValue
+            if (body.incidentType !== undefined) updateData.incident_type = body.incidentType ?? null
+            if (body.vendorInvolved !== undefined) updateData.vendor_involved = body.vendorInvolved ?? null
+            if (body.siteId !== undefined) updateData.site_id = body.siteId ?? null
+            if (body.locationDetail !== undefined) updateData.location_detail = body.locationDetail ?? null
 
             const incident = await prisma.incident.update({
               where: { id: params.id },

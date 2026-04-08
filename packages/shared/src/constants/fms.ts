@@ -1,3 +1,15 @@
+export const INCIDENT_TYPES = [
+  'Safety',
+  'Security',
+  'Fire',
+  'Environmental',
+  'Property Damage',
+  'Injury',
+  'Near Miss',
+  'Other',
+] as const
+export type IncidentType = (typeof INCIDENT_TYPES)[number]
+
 export const SITE_TYPES = ['OFFICE', 'INDUSTRIAL', 'RESIDENTIAL', 'MIXED'] as const
 export type SiteType = (typeof SITE_TYPES)[number]
 
@@ -98,3 +110,15 @@ export type WasteType = (typeof WASTE_TYPES)[number]
 
 export const WASTE_UNITS = ['kg', 'ton', 'm3'] as const
 export type WasteUnit = (typeof WASTE_UNITS)[number]
+
+export const PPE_OPTIONS = [
+  'Hard Hat',
+  'Safety Glasses',
+  'High Vis Vest',
+  'Gloves',
+  'Safety Shoes',
+  'Ear Protection',
+  'Respirator',
+  'Fall Protection',
+] as const
+export type PpeOption = (typeof PPE_OPTIONS)[number]

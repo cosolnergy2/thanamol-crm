@@ -17,6 +17,7 @@ import {
 import { useCreateIncident } from '@/hooks/useIncidents'
 import { useProjects } from '@/hooks/useProjects'
 import type { IncidentSeverity } from '@thanamol/shared'
+import { INCIDENT_TYPES } from '@thanamol/shared'
 
 export const Route = createFileRoute(
   '/_authenticated/facility-management/compliance/incidents/create'
@@ -42,6 +43,9 @@ type FormState = {
   locationDetail: string
   investigationNotes: string
   rootCause: string
+  incidentType: string
+  vendorInvolved: string
+  siteId: string
 }
 
 const DEFAULT_FORM: FormState = {
@@ -54,6 +58,9 @@ const DEFAULT_FORM: FormState = {
   locationDetail: '',
   investigationNotes: '',
   rootCause: '',
+  incidentType: '',
+  vendorInvolved: '',
+  siteId: '',
 }
 
 function CreateIncidentPage() {
@@ -82,6 +89,10 @@ function CreateIncidentPage() {
       severity: form.severity,
       investigationNotes: form.investigationNotes || undefined,
       rootCause: form.rootCause || undefined,
+      locationDetail: form.locationDetail || undefined,
+      incidentType: form.incidentType || undefined,
+      vendorInvolved: form.vendorInvolved || undefined,
+      siteId: form.siteId || undefined,
     })
 
     toast.success('Incident reported')
@@ -154,6 +165,25 @@ function CreateIncidentPage() {
               </div>
 
               <div className="space-y-1">
+                <Label>Incident Type</Label>
+                <Select
+                  value={form.incidentType}
+                  onValueChange={(v) => setForm({ ...form, incidentType: v })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select incident type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {INCIDENT_TYPES.map((t) => (
+                      <SelectItem key={t} value={t}>
+                        {t}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1">
                 <Label>Severity *</Label>
                 <Select
                   value={form.severity}
@@ -170,6 +200,33 @@ function CreateIncidentPage() {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="space-y-1">
+                <Label>Location Detail</Label>
+                <Input
+                  value={form.locationDetail}
+                  onChange={(e) => setForm({ ...form, locationDetail: e.target.value })}
+                  placeholder="Specific location where incident occurred"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label>Site ID</Label>
+                <Input
+                  value={form.siteId}
+                  onChange={(e) => setForm({ ...form, siteId: e.target.value })}
+                  placeholder="Site identifier"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label>Vendor Involved</Label>
+                <Input
+                  value={form.vendorInvolved}
+                  onChange={(e) => setForm({ ...form, vendorInvolved: e.target.value })}
+                  placeholder="Name of vendor involved, if any"
+                />
               </div>
 
               <div className="md:col-span-2 space-y-1">
