@@ -441,6 +441,10 @@ model User {
   approved_permits       PermitToWork[]          @relation("PTWApprover")
   reported_incidents     Incident[]              @relation("IncidentReporter")
   approval_requests      ApprovalRequest[]       @relation("ApprovalRequester")
+  journal_entries_prepared  JournalEntry[]       @relation("JEPreparer")
+  journal_entries_reviewed  JournalEntry[]       @relation("JEReviewer")
+  journal_entries_approved  JournalEntry[]       @relation("JEApprover")
+  accounting_periods_closed AccountingPeriod[]   @relation("PeriodCloser")
 
   @@index([email])
 }
@@ -2486,4 +2490,148 @@ model WasteRecord {
 
   @@index([project_id])
   @@index([waste_type])
+}
+
+// ─── Finance / Accounting Domain ─────────────────────────────────────────────
+
+enum AccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  COST_OF_SALES
+  OPERATING_EXPENSE
+  OTHER_INCOME
+  OTHER_EXPENSE
+}
+
+enum NormalBalance {
+  DEBIT
+  CREDIT
+}
+
+enum CashFlowCategory {
+  OPERATING
+  INVESTING
+  FINANCING
+  NONE
+}
+
+enum AccountingPeriodStatus {
+  OPEN
+  SOFT_CLOSED
+  HARD_CLOSED
+}
+
+enum JournalType {
+  GENERAL
+  CASH_RECEIPT
+  CASH_PAYMENT
+  PURCHASE
+  SALES
+  ADJUSTMENT
+  REVERSING
+  ACCRUAL
+  DEPRECIATION
+  CLOSING
+}
+
+enum JournalStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  POSTED
+  CANCELLED
+}
+
+model ChartOfAccount {
+  id                  String           @id @default(cuid())
+  account_code        String           @unique
+  account_name_th     String
+  account_name_en     String?
+  account_type        AccountType
+  level               Int              @default(3)
+  parent_account_code String?
+  parent              ChartOfAccount?  @relation("AccountHierarchy", fields: [parent_account_code], references: [account_code])
+  children            ChartOfAccount[] @relation("AccountHierarchy")
+  normal_balance      NormalBalance    @default(DEBIT)
+  cash_flow_category  CashFlowCategory @default(NONE)
+  vat_type            String           @default("NONE")
+  tax_applicable      Boolean          @default(false)
+  is_subledger        Boolean          @default(false)
+  is_active           Boolean          @default(true)
+  reporting_group     String?
+  description         String?
+  created_at          DateTime         @default(now())
+  updated_at          DateTime         @updatedAt
+
+  journal_lines JournalEntryLine[]
+
+  @@index([account_type])
+  @@index([parent_account_code])
+  @@index([is_active])
+}
+
+model AccountingPeriod {
+  id        String                 @id @default(cuid())
+  year      Int
+  month     Int
+  status    AccountingPeriodStatus @default(OPEN)
+  closed_by String?
+  closer    User?                  @relation("PeriodCloser", fields: [closed_by], references: [id])
+  closed_at DateTime?
+  created_at DateTime              @default(now())
+  updated_at DateTime              @updatedAt
+
+  @@unique([year, month])
+  @@index([year])
+  @@index([status])
+}
+
+model JournalEntry {
+  id                 String        @id @default(cuid())
+  journal_number     String        @unique
+  journal_type       JournalType   @default(GENERAL)
+  journal_date       DateTime
+  posting_period     String
+  reference_document String?
+  narration          String?
+  source_module      String?
+  status             JournalStatus @default(DRAFT)
+  total_debit        Decimal       @default(0) @db.Decimal(18, 2)
+  total_credit       Decimal       @default(0) @db.Decimal(18, 2)
+  prepared_by        String?
+  preparer           User?         @relation("JEPreparer", fields: [prepared_by], references: [id])
+  reviewed_by        String?
+  reviewer           User?         @relation("JEReviewer", fields: [reviewed_by], references: [id])
+  approved_by        String?
+  approver           User?         @relation("JEApprover", fields: [approved_by], references: [id])
+  posted_at          DateTime?
+  created_at         DateTime      @default(now())
+  updated_at         DateTime      @updatedAt
+
+  lines JournalEntryLine[]
+
+  @@index([journal_type])
+  @@index([status])
+  @@index([posting_period])
+  @@index([journal_date])
+}
+
+model JournalEntryLine {
+  id               String         @id @default(cuid())
+  journal_entry_id String
+  journal_entry    JournalEntry   @relation(fields: [journal_entry_id], references: [id], onDelete: Cascade)
+  line_number      Int
+  account_code     String
+  account          ChartOfAccount @relation(fields: [account_code], references: [account_code])
+  debit            Decimal        @default(0) @db.Decimal(18, 2)
+  credit           Decimal        @default(0) @db.Decimal(18, 2)
+  description      String?
+  dimension_site   String?
+  dimension_project String?
+  dimension_dept   String?
+
+  @@index([journal_entry_id])
+  @@index([account_code])
 }

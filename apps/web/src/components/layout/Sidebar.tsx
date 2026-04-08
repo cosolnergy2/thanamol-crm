@@ -128,6 +128,9 @@ function buildNavigation(t: ReturnType<typeof useLanguage>['t']): NavItem[] {
         { label: t.arAging, path: '/finance/ar-aging' },
         { label: t.monthlyBilling, path: '/finance/monthly-billing' },
         { label: t.financeCompanyDb, path: '/finance/companies' },
+        { label: t.chartOfAccounts, path: '/finance/accounting/chart-of-accounts' },
+        { label: t.journalEntries, path: '/finance/accounting/journal-entries' },
+        { label: t.periodControl, path: '/finance/accounting/periods' },
       ],
     },
     {

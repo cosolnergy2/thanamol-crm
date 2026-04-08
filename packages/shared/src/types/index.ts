@@ -4642,3 +4642,172 @@ export type InventoryAnalysisReport = {
     cItemCount: number
   }
 }
+
+// ─── Finance / Accounting ─────────────────────────────────────────────────────
+
+export type ChartOfAccount = {
+  id: string
+  account_code: string
+  account_name_th: string
+  account_name_en: string | null
+  account_type: 'ASSET' | 'LIABILITY' | 'EQUITY' | 'REVENUE' | 'COST_OF_SALES' | 'OPERATING_EXPENSE' | 'OTHER_INCOME' | 'OTHER_EXPENSE'
+  level: number
+  parent_account_code: string | null
+  normal_balance: 'DEBIT' | 'CREDIT'
+  cash_flow_category: 'OPERATING' | 'INVESTING' | 'FINANCING' | 'NONE'
+  vat_type: string
+  tax_applicable: boolean
+  is_subledger: boolean
+  is_active: boolean
+  reporting_group: string | null
+  description: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type ChartOfAccountWithChildren = ChartOfAccount & {
+  children: ChartOfAccount[]
+}
+
+export type CreateChartOfAccountRequest = {
+  accountCode: string
+  accountNameTh: string
+  accountNameEn?: string
+  accountType: ChartOfAccount['account_type']
+  level?: number
+  parentAccountCode?: string
+  normalBalance?: ChartOfAccount['normal_balance']
+  cashFlowCategory?: ChartOfAccount['cash_flow_category']
+  vatType?: string
+  taxApplicable?: boolean
+  isSubledger?: boolean
+  isActive?: boolean
+  reportingGroup?: string
+  description?: string
+}
+
+export type UpdateChartOfAccountRequest = Partial<CreateChartOfAccountRequest>
+
+export type ChartOfAccountListResponse = {
+  data: ChartOfAccount[]
+  pagination: { page: number; limit: number; total: number; totalPages: number }
+}
+
+export type ChartOfAccountQueryParams = {
+  page?: number
+  limit?: number
+  accountType?: ChartOfAccount['account_type'] | 'all'
+  isActive?: boolean
+  search?: string
+  level?: number
+}
+
+export type AccountingPeriod = {
+  id: string
+  year: number
+  month: number
+  status: 'OPEN' | 'SOFT_CLOSED' | 'HARD_CLOSED'
+  closed_by: string | null
+  closed_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type AccountingPeriodWithUser = AccountingPeriod & {
+  closer: { id: string; first_name: string; last_name: string } | null
+}
+
+export type UpdateAccountingPeriodStatusRequest = {
+  status: AccountingPeriod['status']
+}
+
+export type AccountingPeriodQueryParams = {
+  year?: number
+}
+
+export type JournalEntryLine = {
+  id: string
+  journal_entry_id: string
+  line_number: number
+  account_code: string
+  debit: number
+  credit: number
+  description: string | null
+  dimension_site: string | null
+  dimension_project: string | null
+  dimension_dept: string | null
+}
+
+export type JournalEntryLineWithAccount = JournalEntryLine & {
+  account: { account_code: string; account_name_th: string; account_name_en: string | null }
+}
+
+export type JournalEntry = {
+  id: string
+  journal_number: string
+  journal_type: 'GENERAL' | 'CASH_RECEIPT' | 'CASH_PAYMENT' | 'PURCHASE' | 'SALES' | 'ADJUSTMENT' | 'REVERSING' | 'ACCRUAL' | 'DEPRECIATION' | 'CLOSING'
+  journal_date: string
+  posting_period: string
+  reference_document: string | null
+  narration: string | null
+  source_module: string | null
+  status: 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'POSTED' | 'CANCELLED'
+  total_debit: number
+  total_credit: number
+  prepared_by: string | null
+  reviewed_by: string | null
+  approved_by: string | null
+  posted_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type JournalEntryWithLines = JournalEntry & {
+  lines: JournalEntryLineWithAccount[]
+  preparer: { id: string; first_name: string; last_name: string } | null
+  reviewer: { id: string; first_name: string; last_name: string } | null
+  approver: { id: string; first_name: string; last_name: string } | null
+}
+
+export type CreateJournalEntryLineRequest = {
+  accountCode: string
+  debit: number
+  credit: number
+  description?: string
+  dimensionSite?: string
+  dimensionProject?: string
+  dimensionDept?: string
+}
+
+export type CreateJournalEntryRequest = {
+  journalType: JournalEntry['journal_type']
+  journalDate: string
+  postingPeriod: string
+  referenceDocument?: string
+  narration?: string
+  sourceModule?: string
+  preparedBy?: string
+  lines: CreateJournalEntryLineRequest[]
+}
+
+export type UpdateJournalEntryRequest = {
+  journalType?: JournalEntry['journal_type']
+  journalDate?: string
+  postingPeriod?: string
+  referenceDocument?: string
+  narration?: string
+  lines?: CreateJournalEntryLineRequest[]
+}
+
+export type JournalEntryListResponse = PaginatedResponse<JournalEntry>
+
+export type JournalEntryQueryParams = {
+  page?: number
+  limit?: number
+  journalType?: JournalEntry['journal_type'] | 'all'
+  status?: JournalEntry['status'] | 'all'
+  postingPeriod?: string
+  dateFrom?: string
+  dateTo?: string
+  search?: string
+}

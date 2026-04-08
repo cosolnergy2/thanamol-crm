@@ -161,6 +161,9 @@ import { Route as AuthenticatedFormsSaleJob03F01IdIndexRouteImport } from './rou
 import { Route as AuthenticatedFormsSaleJob02F01IdIndexRouteImport } from './routes/_authenticated/forms/sale-job02-f01/$id/index'
 import { Route as AuthenticatedFormsSaleF01IdIndexRouteImport } from './routes/_authenticated/forms/sale-f01/$id/index'
 import { Route as AuthenticatedFinanceInvoicesInvoiceIdIndexRouteImport } from './routes/_authenticated/finance/invoices/$invoiceId/index'
+import { Route as AuthenticatedFinanceAccountingPeriodsIndexRouteImport } from './routes/_authenticated/finance/accounting/periods/index'
+import { Route as AuthenticatedFinanceAccountingJournalEntriesIndexRouteImport } from './routes/_authenticated/finance/accounting/journal-entries/index'
+import { Route as AuthenticatedFinanceAccountingChartOfAccountsIndexRouteImport } from './routes/_authenticated/finance/accounting/chart-of-accounts/index'
 import { Route as AuthenticatedFacilityManagementWorkOrdersWorkOrderIdIndexRouteImport } from './routes/_authenticated/facility-management/work-orders/$workOrderId/index'
 import { Route as AuthenticatedFacilityManagementVendorsInvoicesIndexRouteImport } from './routes/_authenticated/facility-management/vendors/invoices/index'
 import { Route as AuthenticatedFacilityManagementVendorsContractsIndexRouteImport } from './routes/_authenticated/facility-management/vendors/contracts/index'
@@ -191,6 +194,10 @@ import { Route as AuthenticatedFormsSaleJob02F01IdPrintRouteImport } from './rou
 import { Route as AuthenticatedFormsSaleJob02F01IdEditRouteImport } from './routes/_authenticated/forms/sale-job02-f01/$id/edit'
 import { Route as AuthenticatedFormsSaleF01IdEditRouteImport } from './routes/_authenticated/forms/sale-f01/$id/edit'
 import { Route as AuthenticatedFinanceInvoicesInvoiceIdEditRouteImport } from './routes/_authenticated/finance/invoices/$invoiceId/edit'
+import { Route as AuthenticatedFinanceAccountingJournalEntriesCreateRouteImport } from './routes/_authenticated/finance/accounting/journal-entries/create'
+import { Route as AuthenticatedFinanceAccountingJournalEntriesJournalIdRouteImport } from './routes/_authenticated/finance/accounting/journal-entries/$journalId'
+import { Route as AuthenticatedFinanceAccountingChartOfAccountsCreateRouteImport } from './routes/_authenticated/finance/accounting/chart-of-accounts/create'
+import { Route as AuthenticatedFinanceAccountingChartOfAccountsAccountIdRouteImport } from './routes/_authenticated/finance/accounting/chart-of-accounts/$accountId'
 import { Route as AuthenticatedFacilityManagementZonesZoneIdEditRouteImport } from './routes/_authenticated/facility-management/zones/$zoneId/edit'
 import { Route as AuthenticatedFacilityManagementVendorsInvoicesCreateRouteImport } from './routes/_authenticated/facility-management/vendors/invoices/create'
 import { Route as AuthenticatedFacilityManagementVendorsInvoicesInvoiceIdRouteImport } from './routes/_authenticated/facility-management/vendors/invoices/$invoiceId'
@@ -1130,6 +1137,24 @@ const AuthenticatedFinanceInvoicesInvoiceIdIndexRoute =
     path: '/finance/invoices/$invoiceId/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFinanceAccountingPeriodsIndexRoute =
+  AuthenticatedFinanceAccountingPeriodsIndexRouteImport.update({
+    id: '/finance/accounting/periods/',
+    path: '/finance/accounting/periods/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceAccountingJournalEntriesIndexRoute =
+  AuthenticatedFinanceAccountingJournalEntriesIndexRouteImport.update({
+    id: '/finance/accounting/journal-entries/',
+    path: '/finance/accounting/journal-entries/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceAccountingChartOfAccountsIndexRoute =
+  AuthenticatedFinanceAccountingChartOfAccountsIndexRouteImport.update({
+    id: '/finance/accounting/chart-of-accounts/',
+    path: '/finance/accounting/chart-of-accounts/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedFacilityManagementWorkOrdersWorkOrderIdIndexRoute =
   AuthenticatedFacilityManagementWorkOrdersWorkOrderIdIndexRouteImport.update({
     id: '/facility-management/work-orders/$workOrderId/',
@@ -1312,6 +1337,30 @@ const AuthenticatedFinanceInvoicesInvoiceIdEditRoute =
   AuthenticatedFinanceInvoicesInvoiceIdEditRouteImport.update({
     id: '/finance/invoices/$invoiceId/edit',
     path: '/finance/invoices/$invoiceId/edit',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceAccountingJournalEntriesCreateRoute =
+  AuthenticatedFinanceAccountingJournalEntriesCreateRouteImport.update({
+    id: '/finance/accounting/journal-entries/create',
+    path: '/finance/accounting/journal-entries/create',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceAccountingJournalEntriesJournalIdRoute =
+  AuthenticatedFinanceAccountingJournalEntriesJournalIdRouteImport.update({
+    id: '/finance/accounting/journal-entries/$journalId',
+    path: '/finance/accounting/journal-entries/$journalId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceAccountingChartOfAccountsCreateRoute =
+  AuthenticatedFinanceAccountingChartOfAccountsCreateRouteImport.update({
+    id: '/finance/accounting/chart-of-accounts/create',
+    path: '/finance/accounting/chart-of-accounts/create',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceAccountingChartOfAccountsAccountIdRoute =
+  AuthenticatedFinanceAccountingChartOfAccountsAccountIdRouteImport.update({
+    id: '/finance/accounting/chart-of-accounts/$accountId',
+    path: '/finance/accounting/chart-of-accounts/$accountId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedFacilityManagementZonesZoneIdEditRoute =
@@ -1710,6 +1759,10 @@ export interface FileRoutesByFullPath {
   '/facility-management/vendors/invoices/$invoiceId': typeof AuthenticatedFacilityManagementVendorsInvoicesInvoiceIdRoute
   '/facility-management/vendors/invoices/create': typeof AuthenticatedFacilityManagementVendorsInvoicesCreateRoute
   '/facility-management/zones/$zoneId/edit': typeof AuthenticatedFacilityManagementZonesZoneIdEditRoute
+  '/finance/accounting/chart-of-accounts/$accountId': typeof AuthenticatedFinanceAccountingChartOfAccountsAccountIdRoute
+  '/finance/accounting/chart-of-accounts/create': typeof AuthenticatedFinanceAccountingChartOfAccountsCreateRoute
+  '/finance/accounting/journal-entries/$journalId': typeof AuthenticatedFinanceAccountingJournalEntriesJournalIdRoute
+  '/finance/accounting/journal-entries/create': typeof AuthenticatedFinanceAccountingJournalEntriesCreateRoute
   '/finance/invoices/$invoiceId/edit': typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
   '/forms/sale-f01/$id/edit': typeof AuthenticatedFormsSaleF01IdEditRoute
   '/forms/sale-job02-f01/$id/edit': typeof AuthenticatedFormsSaleJob02F01IdEditRoute
@@ -1740,6 +1793,9 @@ export interface FileRoutesByFullPath {
   '/facility-management/vendors/contracts/': typeof AuthenticatedFacilityManagementVendorsContractsIndexRoute
   '/facility-management/vendors/invoices/': typeof AuthenticatedFacilityManagementVendorsInvoicesIndexRoute
   '/facility-management/work-orders/$workOrderId/': typeof AuthenticatedFacilityManagementWorkOrdersWorkOrderIdIndexRoute
+  '/finance/accounting/chart-of-accounts/': typeof AuthenticatedFinanceAccountingChartOfAccountsIndexRoute
+  '/finance/accounting/journal-entries/': typeof AuthenticatedFinanceAccountingJournalEntriesIndexRoute
+  '/finance/accounting/periods/': typeof AuthenticatedFinanceAccountingPeriodsIndexRoute
   '/finance/invoices/$invoiceId/': typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRoute
   '/forms/sale-f01/$id/': typeof AuthenticatedFormsSaleF01IdIndexRoute
   '/forms/sale-job02-f01/$id/': typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
@@ -1928,6 +1984,10 @@ export interface FileRoutesByTo {
   '/facility-management/vendors/invoices/$invoiceId': typeof AuthenticatedFacilityManagementVendorsInvoicesInvoiceIdRoute
   '/facility-management/vendors/invoices/create': typeof AuthenticatedFacilityManagementVendorsInvoicesCreateRoute
   '/facility-management/zones/$zoneId/edit': typeof AuthenticatedFacilityManagementZonesZoneIdEditRoute
+  '/finance/accounting/chart-of-accounts/$accountId': typeof AuthenticatedFinanceAccountingChartOfAccountsAccountIdRoute
+  '/finance/accounting/chart-of-accounts/create': typeof AuthenticatedFinanceAccountingChartOfAccountsCreateRoute
+  '/finance/accounting/journal-entries/$journalId': typeof AuthenticatedFinanceAccountingJournalEntriesJournalIdRoute
+  '/finance/accounting/journal-entries/create': typeof AuthenticatedFinanceAccountingJournalEntriesCreateRoute
   '/finance/invoices/$invoiceId/edit': typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
   '/forms/sale-f01/$id/edit': typeof AuthenticatedFormsSaleF01IdEditRoute
   '/forms/sale-job02-f01/$id/edit': typeof AuthenticatedFormsSaleJob02F01IdEditRoute
@@ -1958,6 +2018,9 @@ export interface FileRoutesByTo {
   '/facility-management/vendors/contracts': typeof AuthenticatedFacilityManagementVendorsContractsIndexRoute
   '/facility-management/vendors/invoices': typeof AuthenticatedFacilityManagementVendorsInvoicesIndexRoute
   '/facility-management/work-orders/$workOrderId': typeof AuthenticatedFacilityManagementWorkOrdersWorkOrderIdIndexRoute
+  '/finance/accounting/chart-of-accounts': typeof AuthenticatedFinanceAccountingChartOfAccountsIndexRoute
+  '/finance/accounting/journal-entries': typeof AuthenticatedFinanceAccountingJournalEntriesIndexRoute
+  '/finance/accounting/periods': typeof AuthenticatedFinanceAccountingPeriodsIndexRoute
   '/finance/invoices/$invoiceId': typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRoute
   '/forms/sale-f01/$id': typeof AuthenticatedFormsSaleF01IdIndexRoute
   '/forms/sale-job02-f01/$id': typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
@@ -2148,6 +2211,10 @@ export interface FileRoutesById {
   '/_authenticated/facility-management/vendors/invoices/$invoiceId': typeof AuthenticatedFacilityManagementVendorsInvoicesInvoiceIdRoute
   '/_authenticated/facility-management/vendors/invoices/create': typeof AuthenticatedFacilityManagementVendorsInvoicesCreateRoute
   '/_authenticated/facility-management/zones/$zoneId/edit': typeof AuthenticatedFacilityManagementZonesZoneIdEditRoute
+  '/_authenticated/finance/accounting/chart-of-accounts/$accountId': typeof AuthenticatedFinanceAccountingChartOfAccountsAccountIdRoute
+  '/_authenticated/finance/accounting/chart-of-accounts/create': typeof AuthenticatedFinanceAccountingChartOfAccountsCreateRoute
+  '/_authenticated/finance/accounting/journal-entries/$journalId': typeof AuthenticatedFinanceAccountingJournalEntriesJournalIdRoute
+  '/_authenticated/finance/accounting/journal-entries/create': typeof AuthenticatedFinanceAccountingJournalEntriesCreateRoute
   '/_authenticated/finance/invoices/$invoiceId/edit': typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
   '/_authenticated/forms/sale-f01/$id/edit': typeof AuthenticatedFormsSaleF01IdEditRoute
   '/_authenticated/forms/sale-job02-f01/$id/edit': typeof AuthenticatedFormsSaleJob02F01IdEditRoute
@@ -2178,6 +2245,9 @@ export interface FileRoutesById {
   '/_authenticated/facility-management/vendors/contracts/': typeof AuthenticatedFacilityManagementVendorsContractsIndexRoute
   '/_authenticated/facility-management/vendors/invoices/': typeof AuthenticatedFacilityManagementVendorsInvoicesIndexRoute
   '/_authenticated/facility-management/work-orders/$workOrderId/': typeof AuthenticatedFacilityManagementWorkOrdersWorkOrderIdIndexRoute
+  '/_authenticated/finance/accounting/chart-of-accounts/': typeof AuthenticatedFinanceAccountingChartOfAccountsIndexRoute
+  '/_authenticated/finance/accounting/journal-entries/': typeof AuthenticatedFinanceAccountingJournalEntriesIndexRoute
+  '/_authenticated/finance/accounting/periods/': typeof AuthenticatedFinanceAccountingPeriodsIndexRoute
   '/_authenticated/finance/invoices/$invoiceId/': typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRoute
   '/_authenticated/forms/sale-f01/$id/': typeof AuthenticatedFormsSaleF01IdIndexRoute
   '/_authenticated/forms/sale-job02-f01/$id/': typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
@@ -2368,6 +2438,10 @@ export interface FileRouteTypes {
     | '/facility-management/vendors/invoices/$invoiceId'
     | '/facility-management/vendors/invoices/create'
     | '/facility-management/zones/$zoneId/edit'
+    | '/finance/accounting/chart-of-accounts/$accountId'
+    | '/finance/accounting/chart-of-accounts/create'
+    | '/finance/accounting/journal-entries/$journalId'
+    | '/finance/accounting/journal-entries/create'
     | '/finance/invoices/$invoiceId/edit'
     | '/forms/sale-f01/$id/edit'
     | '/forms/sale-job02-f01/$id/edit'
@@ -2398,6 +2472,9 @@ export interface FileRouteTypes {
     | '/facility-management/vendors/contracts/'
     | '/facility-management/vendors/invoices/'
     | '/facility-management/work-orders/$workOrderId/'
+    | '/finance/accounting/chart-of-accounts/'
+    | '/finance/accounting/journal-entries/'
+    | '/finance/accounting/periods/'
     | '/finance/invoices/$invoiceId/'
     | '/forms/sale-f01/$id/'
     | '/forms/sale-job02-f01/$id/'
@@ -2586,6 +2663,10 @@ export interface FileRouteTypes {
     | '/facility-management/vendors/invoices/$invoiceId'
     | '/facility-management/vendors/invoices/create'
     | '/facility-management/zones/$zoneId/edit'
+    | '/finance/accounting/chart-of-accounts/$accountId'
+    | '/finance/accounting/chart-of-accounts/create'
+    | '/finance/accounting/journal-entries/$journalId'
+    | '/finance/accounting/journal-entries/create'
     | '/finance/invoices/$invoiceId/edit'
     | '/forms/sale-f01/$id/edit'
     | '/forms/sale-job02-f01/$id/edit'
@@ -2616,6 +2697,9 @@ export interface FileRouteTypes {
     | '/facility-management/vendors/contracts'
     | '/facility-management/vendors/invoices'
     | '/facility-management/work-orders/$workOrderId'
+    | '/finance/accounting/chart-of-accounts'
+    | '/finance/accounting/journal-entries'
+    | '/finance/accounting/periods'
     | '/finance/invoices/$invoiceId'
     | '/forms/sale-f01/$id'
     | '/forms/sale-job02-f01/$id'
@@ -2805,6 +2889,10 @@ export interface FileRouteTypes {
     | '/_authenticated/facility-management/vendors/invoices/$invoiceId'
     | '/_authenticated/facility-management/vendors/invoices/create'
     | '/_authenticated/facility-management/zones/$zoneId/edit'
+    | '/_authenticated/finance/accounting/chart-of-accounts/$accountId'
+    | '/_authenticated/finance/accounting/chart-of-accounts/create'
+    | '/_authenticated/finance/accounting/journal-entries/$journalId'
+    | '/_authenticated/finance/accounting/journal-entries/create'
     | '/_authenticated/finance/invoices/$invoiceId/edit'
     | '/_authenticated/forms/sale-f01/$id/edit'
     | '/_authenticated/forms/sale-job02-f01/$id/edit'
@@ -2835,6 +2923,9 @@ export interface FileRouteTypes {
     | '/_authenticated/facility-management/vendors/contracts/'
     | '/_authenticated/facility-management/vendors/invoices/'
     | '/_authenticated/facility-management/work-orders/$workOrderId/'
+    | '/_authenticated/finance/accounting/chart-of-accounts/'
+    | '/_authenticated/finance/accounting/journal-entries/'
+    | '/_authenticated/finance/accounting/periods/'
     | '/_authenticated/finance/invoices/$invoiceId/'
     | '/_authenticated/forms/sale-f01/$id/'
     | '/_authenticated/forms/sale-job02-f01/$id/'
@@ -3924,6 +4015,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/finance/accounting/periods/': {
+      id: '/_authenticated/finance/accounting/periods/'
+      path: '/finance/accounting/periods'
+      fullPath: '/finance/accounting/periods/'
+      preLoaderRoute: typeof AuthenticatedFinanceAccountingPeriodsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/accounting/journal-entries/': {
+      id: '/_authenticated/finance/accounting/journal-entries/'
+      path: '/finance/accounting/journal-entries'
+      fullPath: '/finance/accounting/journal-entries/'
+      preLoaderRoute: typeof AuthenticatedFinanceAccountingJournalEntriesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/accounting/chart-of-accounts/': {
+      id: '/_authenticated/finance/accounting/chart-of-accounts/'
+      path: '/finance/accounting/chart-of-accounts'
+      fullPath: '/finance/accounting/chart-of-accounts/'
+      preLoaderRoute: typeof AuthenticatedFinanceAccountingChartOfAccountsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/facility-management/work-orders/$workOrderId/': {
       id: '/_authenticated/facility-management/work-orders/$workOrderId/'
       path: '/facility-management/work-orders/$workOrderId'
@@ -4132,6 +4244,34 @@ declare module '@tanstack/react-router' {
       path: '/finance/invoices/$invoiceId/edit'
       fullPath: '/finance/invoices/$invoiceId/edit'
       preLoaderRoute: typeof AuthenticatedFinanceInvoicesInvoiceIdEditRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/accounting/journal-entries/create': {
+      id: '/_authenticated/finance/accounting/journal-entries/create'
+      path: '/finance/accounting/journal-entries/create'
+      fullPath: '/finance/accounting/journal-entries/create'
+      preLoaderRoute: typeof AuthenticatedFinanceAccountingJournalEntriesCreateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/accounting/journal-entries/$journalId': {
+      id: '/_authenticated/finance/accounting/journal-entries/$journalId'
+      path: '/finance/accounting/journal-entries/$journalId'
+      fullPath: '/finance/accounting/journal-entries/$journalId'
+      preLoaderRoute: typeof AuthenticatedFinanceAccountingJournalEntriesJournalIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/accounting/chart-of-accounts/create': {
+      id: '/_authenticated/finance/accounting/chart-of-accounts/create'
+      path: '/finance/accounting/chart-of-accounts/create'
+      fullPath: '/finance/accounting/chart-of-accounts/create'
+      preLoaderRoute: typeof AuthenticatedFinanceAccountingChartOfAccountsCreateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/accounting/chart-of-accounts/$accountId': {
+      id: '/_authenticated/finance/accounting/chart-of-accounts/$accountId'
+      path: '/finance/accounting/chart-of-accounts/$accountId'
+      fullPath: '/finance/accounting/chart-of-accounts/$accountId'
+      preLoaderRoute: typeof AuthenticatedFinanceAccountingChartOfAccountsAccountIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/facility-management/zones/$zoneId/edit': {
@@ -4552,6 +4692,10 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFacilityManagementVendorsInvoicesInvoiceIdRoute: typeof AuthenticatedFacilityManagementVendorsInvoicesInvoiceIdRoute
   AuthenticatedFacilityManagementVendorsInvoicesCreateRoute: typeof AuthenticatedFacilityManagementVendorsInvoicesCreateRoute
   AuthenticatedFacilityManagementZonesZoneIdEditRoute: typeof AuthenticatedFacilityManagementZonesZoneIdEditRoute
+  AuthenticatedFinanceAccountingChartOfAccountsAccountIdRoute: typeof AuthenticatedFinanceAccountingChartOfAccountsAccountIdRoute
+  AuthenticatedFinanceAccountingChartOfAccountsCreateRoute: typeof AuthenticatedFinanceAccountingChartOfAccountsCreateRoute
+  AuthenticatedFinanceAccountingJournalEntriesJournalIdRoute: typeof AuthenticatedFinanceAccountingJournalEntriesJournalIdRoute
+  AuthenticatedFinanceAccountingJournalEntriesCreateRoute: typeof AuthenticatedFinanceAccountingJournalEntriesCreateRoute
   AuthenticatedFinanceInvoicesInvoiceIdEditRoute: typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
   AuthenticatedFormsSaleF01IdEditRoute: typeof AuthenticatedFormsSaleF01IdEditRoute
   AuthenticatedFormsSaleJob02F01IdEditRoute: typeof AuthenticatedFormsSaleJob02F01IdEditRoute
@@ -4582,6 +4726,9 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFacilityManagementVendorsContractsIndexRoute: typeof AuthenticatedFacilityManagementVendorsContractsIndexRoute
   AuthenticatedFacilityManagementVendorsInvoicesIndexRoute: typeof AuthenticatedFacilityManagementVendorsInvoicesIndexRoute
   AuthenticatedFacilityManagementWorkOrdersWorkOrderIdIndexRoute: typeof AuthenticatedFacilityManagementWorkOrdersWorkOrderIdIndexRoute
+  AuthenticatedFinanceAccountingChartOfAccountsIndexRoute: typeof AuthenticatedFinanceAccountingChartOfAccountsIndexRoute
+  AuthenticatedFinanceAccountingJournalEntriesIndexRoute: typeof AuthenticatedFinanceAccountingJournalEntriesIndexRoute
+  AuthenticatedFinanceAccountingPeriodsIndexRoute: typeof AuthenticatedFinanceAccountingPeriodsIndexRoute
   AuthenticatedFinanceInvoicesInvoiceIdIndexRoute: typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRoute
   AuthenticatedFormsSaleF01IdIndexRoute: typeof AuthenticatedFormsSaleF01IdIndexRoute
   AuthenticatedFormsSaleJob02F01IdIndexRoute: typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
@@ -4876,6 +5023,14 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedFacilityManagementVendorsInvoicesCreateRoute,
   AuthenticatedFacilityManagementZonesZoneIdEditRoute:
     AuthenticatedFacilityManagementZonesZoneIdEditRoute,
+  AuthenticatedFinanceAccountingChartOfAccountsAccountIdRoute:
+    AuthenticatedFinanceAccountingChartOfAccountsAccountIdRoute,
+  AuthenticatedFinanceAccountingChartOfAccountsCreateRoute:
+    AuthenticatedFinanceAccountingChartOfAccountsCreateRoute,
+  AuthenticatedFinanceAccountingJournalEntriesJournalIdRoute:
+    AuthenticatedFinanceAccountingJournalEntriesJournalIdRoute,
+  AuthenticatedFinanceAccountingJournalEntriesCreateRoute:
+    AuthenticatedFinanceAccountingJournalEntriesCreateRoute,
   AuthenticatedFinanceInvoicesInvoiceIdEditRoute:
     AuthenticatedFinanceInvoicesInvoiceIdEditRoute,
   AuthenticatedFormsSaleF01IdEditRoute: AuthenticatedFormsSaleF01IdEditRoute,
@@ -4935,6 +5090,12 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedFacilityManagementVendorsInvoicesIndexRoute,
   AuthenticatedFacilityManagementWorkOrdersWorkOrderIdIndexRoute:
     AuthenticatedFacilityManagementWorkOrdersWorkOrderIdIndexRoute,
+  AuthenticatedFinanceAccountingChartOfAccountsIndexRoute:
+    AuthenticatedFinanceAccountingChartOfAccountsIndexRoute,
+  AuthenticatedFinanceAccountingJournalEntriesIndexRoute:
+    AuthenticatedFinanceAccountingJournalEntriesIndexRoute,
+  AuthenticatedFinanceAccountingPeriodsIndexRoute:
+    AuthenticatedFinanceAccountingPeriodsIndexRoute,
   AuthenticatedFinanceInvoicesInvoiceIdIndexRoute:
     AuthenticatedFinanceInvoicesInvoiceIdIndexRoute,
   AuthenticatedFormsSaleF01IdIndexRoute: AuthenticatedFormsSaleF01IdIndexRoute,
