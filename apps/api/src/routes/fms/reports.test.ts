@@ -714,3 +714,129 @@ describe('GET /api/fms/reports/inventory-analysis', () => {
     expect(body.report.summary.totalItems).toBe(0)
   })
 })
+
+const MOCK_PM_SCHEDULES = [
+  {
+    id: 'pm-1',
+    pm_number: 'PM-202501-0001',
+    title: 'HVAC Monthly Check',
+    frequency: 'MONTHLY',
+    next_due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    last_completed_date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+    project: { name: 'Tower A' },
+    logs: [
+      { status: 'COMPLETED', scheduled_date: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000) },
+      { status: 'PENDING', scheduled_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) },
+    ],
+  },
+  {
+    id: 'pm-2',
+    pm_number: 'PM-202501-0002',
+    title: 'Fire Extinguisher Check',
+    frequency: 'QUARTERLY',
+    next_due_date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+    last_completed_date: null,
+    project: { name: 'Tower A' },
+    logs: [
+      { status: 'PENDING', scheduled_date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) },
+    ],
+  },
+]
+
+describe('GET /api/fms/reports/pm-compliance', () => {
+  let token: string
+
+  beforeEach(async () => {
+    token = await signToken()
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(MOCK_USER as never)
+    vi.mocked(prisma.preventiveMaintenance.findMany).mockResolvedValue(MOCK_PM_SCHEDULES as never)
+  })
+
+  it('returns 401 when not authenticated', async () => {
+    const res = await req('GET', '/api/fms/reports/pm-compliance?projectId=proj-1')
+    expect(res.status).toBe(401)
+  })
+
+  it('returns 400 when projectId missing', async () => {
+    const res = await req('GET', '/api/fms/reports/pm-compliance', token)
+    expect(res.status).toBe(400)
+  })
+
+  it('returns report with required fields', async () => {
+    const res = await req('GET', '/api/fms/reports/pm-compliance?projectId=proj-1', token)
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body).toHaveProperty('report')
+    expect(body.report).toHaveProperty('total')
+    expect(body.report).toHaveProperty('onTimeCount')
+    expect(body.report).toHaveProperty('overdueCount')
+    expect(body.report).toHaveProperty('missedCount')
+    expect(body.report).toHaveProperty('completedCount')
+    expect(body.report).toHaveProperty('compliancePercentage')
+    expect(body.report).toHaveProperty('scheduleDetails')
+  })
+
+  it('returns correct counts for mock data', async () => {
+    const res = await req('GET', '/api/fms/reports/pm-compliance?projectId=proj-1', token)
+    const body = await res.json()
+    expect(body.report.total).toBe(2)
+    expect(body.report.completedCount).toBe(1)
+    expect(body.report.overdueCount).toBe(1)
+  })
+
+  it('returns schedule details with all required columns', async () => {
+    const res = await req('GET', '/api/fms/reports/pm-compliance?projectId=proj-1', token)
+    const body = await res.json()
+    const first = body.report.scheduleDetails[0]
+    expect(first).toHaveProperty('id')
+    expect(first).toHaveProperty('pm_number')
+    expect(first).toHaveProperty('title')
+    expect(first).toHaveProperty('site')
+    expect(first).toHaveProperty('frequency')
+    expect(first).toHaveProperty('total')
+    expect(first).toHaveProperty('completed')
+    expect(first).toHaveProperty('overdue')
+    expect(first).toHaveProperty('scheduled')
+    expect(first).toHaveProperty('compliancePct')
+  })
+
+  it('accepts period query param and filters by start date', async () => {
+    const res = await req(
+      'GET',
+      '/api/fms/reports/pm-compliance?projectId=proj-1&period=30d',
+      token
+    )
+    expect(res.status).toBe(200)
+    expect(prisma.preventiveMaintenance.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        include: expect.objectContaining({
+          logs: expect.objectContaining({ where: expect.any(Object) }),
+        }),
+      })
+    )
+  })
+
+  it('ignores invalid period value and returns all-time data', async () => {
+    const res = await req(
+      'GET',
+      '/api/fms/reports/pm-compliance?projectId=proj-1&period=invalid',
+      token
+    )
+    expect(res.status).toBe(200)
+    expect(prisma.preventiveMaintenance.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        include: expect.objectContaining({ logs: true }),
+      })
+    )
+  })
+
+  it('returns empty scheduleDetails when no PMs found', async () => {
+    vi.mocked(prisma.preventiveMaintenance.findMany).mockResolvedValue([] as never)
+    const res = await req('GET', '/api/fms/reports/pm-compliance?projectId=proj-1', token)
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.report.scheduleDetails).toHaveLength(0)
+    expect(body.report.total).toBe(0)
+    expect(body.report.compliancePercentage).toBe(100)
+  })
+})

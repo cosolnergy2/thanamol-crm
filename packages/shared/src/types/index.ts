@@ -2267,19 +2267,29 @@ export type CreatePMInspectionRequest = {
 
 export type PMInspectionListResponse = PaginatedResponse<PMInspection>
 
+export type PMCompliancePeriod = '30d' | '60d' | '90d' | '6m'
+
+export type PMComplianceScheduleDetail = {
+  id: string
+  pm_number: string
+  title: string
+  site: string
+  frequency: string
+  total: number
+  completed: number
+  overdue: number
+  scheduled: number
+  compliancePct: number
+}
+
 export type PMComplianceReport = {
   total: number
   onTimeCount: number
   overdueCount: number
   missedCount: number
+  completedCount: number
   compliancePercentage: number
-  overdueList: Array<{
-    id: string
-    pm_number: string
-    title: string
-    next_due_date: string
-    days_overdue: number
-  }>
+  scheduleDetails: PMComplianceScheduleDetail[]
 }
 
 // ─── FMS: Calibration ─────────────────────────────────────────────────────────
