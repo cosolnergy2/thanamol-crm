@@ -4811,3 +4811,106 @@ export type JournalEntryQueryParams = {
   dateTo?: string
   search?: string
 }
+
+// ─── Accounting Reports ───────────────────────────────────────────────────────
+
+export type TrialBalanceRow = {
+  account_code: string
+  account_name_th: string
+  account_name_en: string | null
+  account_type: ChartOfAccount['account_type']
+  opening_debit: number
+  opening_credit: number
+  period_debit: number
+  period_credit: number
+  closing_debit: number
+  closing_credit: number
+}
+
+export type TrialBalanceResponse = {
+  rows: TrialBalanceRow[]
+  totals: {
+    opening_debit: number
+    opening_credit: number
+    period_debit: number
+    period_credit: number
+    closing_debit: number
+    closing_credit: number
+  }
+  period_from: string
+  period_to: string
+}
+
+export type BalanceSheetSection = {
+  label: string
+  accounts: Array<{
+    account_code: string
+    account_name_th: string
+    balance: number
+  }>
+  total: number
+}
+
+export type BalanceSheetResponse = {
+  assets: BalanceSheetSection[]
+  liabilities: BalanceSheetSection[]
+  equity: BalanceSheetSection[]
+  total_assets: number
+  total_liabilities: number
+  total_equity: number
+  as_of_date: string
+}
+
+export type ProfitLossSection = {
+  label: string
+  accounts: Array<{
+    account_code: string
+    account_name_th: string
+    amount: number
+  }>
+  total: number
+}
+
+export type ProfitLossResponse = {
+  revenue: ProfitLossSection
+  cost_of_sales: ProfitLossSection
+  gross_profit: number
+  operating_expenses: ProfitLossSection
+  operating_income: number
+  other_income: ProfitLossSection
+  other_expenses: ProfitLossSection
+  net_income: number
+  date_from: string
+  date_to: string
+}
+
+export type GeneralLedgerEntry = {
+  journal_number: string
+  journal_date: string
+  narration: string | null
+  reference_document: string | null
+  debit: number
+  credit: number
+  running_balance: number
+}
+
+export type GeneralLedgerResponse = {
+  account_code: string
+  account_name_th: string
+  account_name_en: string | null
+  opening_balance: number
+  entries: GeneralLedgerEntry[]
+  closing_balance: number
+  total_debit: number
+  total_credit: number
+}
+
+export type AccountingDashboardData = {
+  total_assets: number
+  total_liabilities: number
+  total_equity: number
+  net_income: number
+  unposted_journals: number
+  open_periods: number
+  recent_journals: JournalEntry[]
+}

@@ -88,6 +88,8 @@ import { fmsWasteRoutes } from './routes/fms/waste'
 import { financeChartOfAccountsRoutes } from './routes/finance/chart-of-accounts'
 import { financeAccountingPeriodsRoutes } from './routes/finance/accounting-periods'
 import { financeJournalEntriesRoutes } from './routes/finance/journal-entries'
+import { financeAccountingReportsRoutes } from './routes/finance/accounting-reports'
+import { financeAccountingDashboardRoutes } from './routes/finance/accounting-dashboard'
 
 const API_PORT = Number(process.env.PORT ?? 3000)
 
@@ -184,6 +186,8 @@ const app = new Elysia()
   .use(financeChartOfAccountsRoutes)
   .use(financeAccountingPeriodsRoutes)
   .use(financeJournalEntriesRoutes)
+  .use(financeAccountingReportsRoutes)
+  .use(financeAccountingDashboardRoutes)
   .listen(API_PORT)
 
 console.log(`API running at http://localhost:${API_PORT}`)

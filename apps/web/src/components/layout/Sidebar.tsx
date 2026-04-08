@@ -131,6 +131,11 @@ function buildNavigation(t: ReturnType<typeof useLanguage>['t']): NavItem[] {
         { label: t.chartOfAccounts, path: '/finance/accounting/chart-of-accounts' },
         { label: t.journalEntries, path: '/finance/accounting/journal-entries' },
         { label: t.periodControl, path: '/finance/accounting/periods' },
+        { label: t.trialBalance, path: '/finance/accounting/trial-balance' },
+        { label: t.balanceSheet, path: '/finance/accounting/balance-sheet' },
+        { label: t.profitLoss, path: '/finance/accounting/profit-loss' },
+        { label: t.generalLedger, path: '/finance/accounting/general-ledger' },
+        { label: t.accountingDashboard, path: '/finance/accounting' },
       ],
     },
     {
