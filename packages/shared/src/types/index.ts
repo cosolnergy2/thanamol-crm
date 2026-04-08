@@ -3288,6 +3288,11 @@ export const PERMIT_TYPES = [
 export type PermitType = (typeof PERMIT_TYPES)[number]
 export type PermitStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'ACTIVE' | 'CLOSED' | 'REJECTED'
 
+export type PermitWorker = {
+  name: string
+  id_number: string
+}
+
 export type PermitToWork = {
   id: string
   permit_number: string
@@ -3295,15 +3300,22 @@ export type PermitToWork = {
   description: string | null
   project_id: string
   zone_id: string | null
+  company_id: string | null
+  site_id: string | null
+  location: string | null
+  unit: string | null
   permit_type: string | null
+  contractor_name: string | null
+  contractor_contact: string | null
   risk_assessment: unknown[]
+  workers: PermitWorker[]
+  ppe_required: string[]
+  safety_measures: unknown[]
   start_date: string | null
   end_date: string | null
   status: PermitStatus
   requested_by: string | null
   approved_by: string | null
-  contractor_name: string | null
-  safety_measures: unknown[]
   created_at: string
   updated_at: string
 }
@@ -3320,13 +3332,20 @@ export type CreatePermitToWorkRequest = {
   description?: string
   projectId: string
   zoneId?: string
+  companyId?: string
+  siteId?: string
+  location?: string
+  unit?: string
   permitType?: string
+  contractorName?: string
+  contractorContact?: string
   riskAssessment?: unknown[]
+  workers?: PermitWorker[]
+  ppeRequired?: string[]
+  safetyMeasures?: unknown[]
   startDate?: string
   endDate?: string
   requestedBy?: string
-  contractorName?: string
-  safetyMeasures?: unknown[]
 }
 
 export type UpdatePermitToWorkRequest = Partial<Omit<CreatePermitToWorkRequest, 'projectId'>>
@@ -3363,6 +3382,10 @@ export type Incident = {
   corrective_actions: unknown[]
   work_order_id: string | null
   photos: unknown[]
+  incident_type: string | null
+  vendor_involved: string | null
+  site_id: string | null
+  location_detail: string | null
   created_at: string
   updated_at: string
 }
@@ -3386,6 +3409,10 @@ export type CreateIncidentRequest = {
   correctiveActions?: unknown[]
   workOrderId?: string
   photos?: unknown[]
+  incidentType?: string
+  vendorInvolved?: string
+  siteId?: string
+  locationDetail?: string
 }
 
 export type UpdateIncidentRequest = Partial<Omit<CreateIncidentRequest, 'projectId'>> & {
