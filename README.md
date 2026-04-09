@@ -1,4 +1,4 @@
-# PropertyFlow CRM
+# Thanamol CRM
 
 A property management CRM system built with a modern TypeScript monorepo stack.
 

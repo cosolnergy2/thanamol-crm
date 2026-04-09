@@ -1,6 +1,6 @@
 # thanamol-crm
 
-PropertyFlow CRM — a property management CRM system.
+Thanamol CRM — a property management CRM system.
 
 ## Project Structure
 

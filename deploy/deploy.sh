@@ -3,7 +3,7 @@ set -e
 
 APP_DIR="/opt/thanamol-crm"
 
-echo "=== Deploying PropertyFlow CRM ==="
+echo "=== Deploying Thanamol CRM ==="
 
 # Create app directory
 sudo mkdir -p $APP_DIR

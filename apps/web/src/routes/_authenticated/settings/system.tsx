@@ -53,7 +53,7 @@ function SettingsSystemPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label className="text-xs text-slate-500">Application Name</Label>
-              <Input defaultValue="PropertyFlow CRM" />
+              <Input defaultValue="Thanamol CRM" />
             </div>
             <div className="space-y-1">
               <Label className="text-xs text-slate-500">Company Name</Label>
