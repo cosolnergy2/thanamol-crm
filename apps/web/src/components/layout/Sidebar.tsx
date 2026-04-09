@@ -418,10 +418,10 @@ export function Sidebar({ user, userPermissions, isOpen, isCollapsed, onClose, o
         <div className={`border-b border-slate-100 ${isCollapsed ? 'px-2 py-6' : 'px-6 py-6'}`}>
           <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-4 mb-4'}`}>
             <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-indigo-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-              <span className="text-white text-sm font-semibold tracking-wider">PF</span>
+              <span className="text-white text-sm font-semibold tracking-wider">TN</span>
             </div>
             {!isCollapsed && (
-              <span className="text-xl font-extralight tracking-widest text-slate-700">PropertyFlow</span>
+              <span className="text-xl font-extralight tracking-widest text-slate-700">Thanamol</span>
             )}
           </div>
           {!isCollapsed && user && (

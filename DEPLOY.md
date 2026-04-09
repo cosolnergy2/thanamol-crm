@@ -1,4 +1,4 @@
-# Deployment Guide — PropertyFlow CRM
+# Deployment Guide — Thanamol CRM
 
 ## Architecture
 

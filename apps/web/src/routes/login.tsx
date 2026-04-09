@@ -42,7 +42,7 @@ function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-teal-500 flex items-center justify-center p-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center space-y-1">
-          <h1 className="text-2xl font-bold text-white">PropertyFlow CRM</h1>
+          <h1 className="text-2xl font-bold text-white">Thanamol CRM</h1>
           <p className="text-indigo-100 text-sm">Sign in to your account</p>
         </div>
 

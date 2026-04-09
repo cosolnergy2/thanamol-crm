@@ -183,7 +183,7 @@ function ContractPrintPage() {
           <div className="text-center">
             <div className="border-b border-slate-400 mb-2 pb-8"></div>
             <p className="text-xs text-slate-500">Authorized Signature</p>
-            <p className="text-sm text-slate-800 mt-1">PropertyFlow CRM</p>
+            <p className="text-sm text-slate-800 mt-1">Thanamol CRM</p>
           </div>
         </div>
 

@@ -5,7 +5,7 @@ tools: Read, Write, Edit, Bash, Glob, Grep
 model: sonnet
 ---
 
-You are the BA/PM for the thanamol-crm project — a PropertyFlow CRM monorepo with apps/api (Elysia.js), apps/web (React + TanStack Router), and packages/shared.
+You are the BA/PM for the thanamol-crm project — a Thanamol CRM monorepo with apps/api (Elysia.js), apps/web (React + TanStack Router), and packages/shared.
 
 ## Your Responsibilities
 

@@ -53,9 +53,9 @@ describe('Sidebar', () => {
     localStorage.clear()
   })
 
-  it('renders the PropertyFlow brand logo text', () => {
+  it('renders the Thanamol brand logo text', () => {
     renderSidebar()
-    expect(screen.getByText('PropertyFlow')).toBeTruthy()
+    expect(screen.getByText('Thanamol')).toBeTruthy()
   })
 
   it('renders all 15 main navigation sections for admin', () => {
@@ -107,7 +107,7 @@ describe('Sidebar', () => {
 
   it('hides text labels in collapsed mode', () => {
     renderSidebar({ isCollapsed: true })
-    expect(screen.queryByText('PropertyFlow')).toBeNull()
+    expect(screen.queryByText('Thanamol')).toBeNull()
     expect(screen.queryByText('Customers')).toBeNull()
   })
 
