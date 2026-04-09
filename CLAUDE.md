@@ -52,6 +52,41 @@ Thanamol CRM — a property management CRM system.
 - Status flow: Draft -> Approved -> Ready to Dev -> In Progress -> Ready to Test -> Testing -> Test Pass / Test Failed -> Done
 - Only ba-pm agent edits `tasks.csv` to avoid merge conflicts
 
+## Base44 Source Sync
+
+This CRM is ported from 3 Base44 apps. When a source app updates, sync changes here.
+
+| Base44 App | Repo | Domain |
+|------------|------|--------|
+| PropertyFlow CRM | `cosolnergy2/propertyflow-crm` | CRM core (customers, leads, deals, contracts, invoices, units) |
+| FMS | `cosolnergy2/fms` | Facility management (assets, work orders, inventory, vendors, budgets) |
+| Finance | `cosolnergy2/finance` | Accounting (CoA, journals, banking, tax, AP, fixed assets) |
+
+### How to sync
+
+1. Clone source: `GIT_SSH_COMMAND="ssh" git clone git@github-solnergy:cosolnergy2/<repo>.git /tmp/<repo>`
+2. Compare `/tmp/<repo>/src/pages/` with existing CRM pages to find new/changed features
+3. Port changes using CRM patterns — NOT Base44 patterns:
+   - Base44 entities → Prisma models + migration
+   - Base44 SDK calls → Elysia.js API routes with `authPlugin` + `t.Object()` validation
+   - React Router pages → TanStack Router `createFileRoute()` pages
+   - Direct Base44 queries → TanStack Query hooks with `apiGet`/`apiPost`
+4. Add types in `packages/shared/src/types/index.ts`, constants in `packages/shared/src/constants/`
+5. Register routes in `apps/api/src/index.ts`, add nav in `Sidebar.tsx`, add translations in `translations.ts`
+6. Regenerate route tree: `cd apps/web && npx @tanstack/router-cli generate`
+7. Verify: `pnpm build && pnpm test`
+
+### Key differences from Base44
+
+| Base44 | thanamol-crm |
+|--------|-------------|
+| `base44.entities.X.list()` | `prisma.x.findMany()` via Elysia route |
+| `base44.entities.X.create()` | `prisma.x.create()` via POST route |
+| React Router `<Route path="/">` | TanStack Router `createFileRoute()` |
+| `useQuery({ queryFn: () => base44... })` | `useQuery({ queryFn: () => apiGet('/...') })` |
+| No backend validation | Elysia `t.Object()` schema validation |
+| No auth middleware | `authPlugin` on every route |
+
 ## Code Standards
 
 - Elysia uses Box type system (`t.Object()`) for validation — NOT Zod

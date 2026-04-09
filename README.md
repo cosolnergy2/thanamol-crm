@@ -123,6 +123,58 @@ Production server: `ecm.thanamol.com`
 
 See [DEPLOY.md](DEPLOY.md) for full deployment guide, server access, and operations.
 
+## Base44 Source Repositories
+
+This project is ported from 3 Base44 applications. When a Base44 app is updated, sync the changes into this CRM.
+
+| Base44 App | GitHub Repo | Maps to |
+|------------|-------------|---------|
+| PropertyFlow CRM | `cosolnergy2/propertyflow-crm` | Core CRM: customers, leads, deals, contracts, invoices, units, projects |
+| FMS | `cosolnergy2/fms` | Facility Management: assets, work orders, inventory, vendors, budgets, compliance |
+| Finance | `cosolnergy2/finance` | Accounting: chart of accounts, journal entries, banking, tax, AP, fixed assets |
+
+### Sync Workflow
+
+When a Base44 source app is updated:
+
+```
+Base44 App (updated)
+  │
+  ▼  clone/pull latest
+/tmp/<app>-repo
+  │
+  ▼  compare pages, components, entities
+thanamol-crm (dev branch)
+  │
+  ▼  implement changes following CRM patterns
+  │   - Prisma models (not Base44 entities)
+  │   - Elysia.js API routes (not Base44 SDK)
+  │   - TanStack Router pages (not React Router)
+  │   - TanStack Query hooks (not Base44 client)
+  │
+  ▼  PR dev → main → auto-deploy
+Production
+```
+
+**Steps to sync:**
+
+1. Clone the updated Base44 repo:
+   ```bash
+   GIT_SSH_COMMAND="ssh" git clone git@github-solnergy:cosolnergy2/<repo>.git /tmp/<repo>
+   ```
+
+2. Compare pages in `/tmp/<repo>/src/pages/` against existing CRM pages
+
+3. For new/changed features, implement in CRM following existing patterns:
+   - **Schema:** Add Prisma models in `apps/api/prisma/schema.prisma`, run `prisma migrate dev`
+   - **Types:** Add shared types in `packages/shared/src/types/index.ts`
+   - **API:** Create Elysia routes in `apps/api/src/routes/`, register in `index.ts`
+   - **Hooks:** Create TanStack Query hooks in `apps/web/src/hooks/`
+   - **Pages:** Create TanStack Router pages in `apps/web/src/routes/_authenticated/`
+   - **Nav:** Update sidebar in `apps/web/src/components/layout/Sidebar.tsx`
+
+4. Build, test, commit, push, PR to main
+
 ## Tech Stack
 
 - **Runtime:** [Bun](https://bun.sh/) (API), [Node.js](https://nodejs.org/) (build)

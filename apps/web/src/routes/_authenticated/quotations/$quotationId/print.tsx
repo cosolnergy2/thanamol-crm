@@ -63,9 +63,12 @@ function PrintQuotationPage() {
       <div className="printable-section max-w-4xl mx-auto p-8 print:p-6 print:max-w-none">
         {/* Header */}
         <div className="flex items-start justify-between mb-8 pb-6 border-b-2 border-indigo-600">
-          <div>
-            <h1 className="text-3xl font-bold text-indigo-700 tracking-wide">QUOTATION</h1>
-            <p className="text-slate-500 mt-1">ใบเสนอราคา</p>
+          <div className="flex items-start gap-4">
+            <img src="/logo.png" alt="Thanamol Group" className="h-16 w-auto" />
+            <div>
+              <h1 className="text-3xl font-bold text-indigo-700 tracking-wide">QUOTATION</h1>
+              <p className="text-slate-500 mt-1">ใบเสนอราคา</p>
+            </div>
           </div>
           <div className="text-right">
             <p className="text-xl font-semibold text-slate-900">{quotation.quotation_number}</p>
