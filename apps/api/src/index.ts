@@ -85,13 +85,28 @@ import { fmsDisasterPlansRoutes } from './routes/fms/disaster-plans'
 import { fmsDrillsRoutes } from './routes/fms/drills'
 import { fmsLandscapeRoutes } from './routes/fms/landscape'
 import { fmsWasteRoutes } from './routes/fms/waste'
+import { financeChartOfAccountsRoutes } from './routes/finance/chart-of-accounts'
+import { financeAccountingPeriodsRoutes } from './routes/finance/accounting-periods'
+import { financeJournalEntriesRoutes } from './routes/finance/journal-entries'
+import { financeAccountingReportsRoutes } from './routes/finance/accounting-reports'
+import { financeAccountingDashboardRoutes } from './routes/finance/accounting-dashboard'
+import { financeBankAccountsRoutes } from './routes/finance/bank-accounts'
+import { financeChequesRoutes } from './routes/finance/cheques'
+import { financeWithholdingTaxRoutes } from './routes/finance/withholding-tax'
+import { financeAPInvoicesRoutes } from './routes/finance/ap-invoices'
+import { financeBankReconciliationsRoutes } from './routes/finance/bank-reconciliations'
+import { financePaymentVouchersRoutes } from './routes/finance/payment-vouchers'
+import { financeFixedAssetsRoutes } from './routes/finance/fixed-assets'
+import { financeCFODashboardRoutes } from './routes/finance/cfo-dashboard'
 
 const API_PORT = Number(process.env.PORT ?? 3000)
 
-const app = new Elysia()
+const base = new Elysia()
   .use(cors())
   .use(staticPlugin({ assets: 'uploads', prefix: '/uploads' }))
   .get('/api/health', () => ({ status: 'ok', timestamp: new Date().toISOString() }))
+
+const app = (base as any)
   .use(authRoutes)
   .use(rolesRoutes)
   .use(userRoleRoutes)
@@ -178,6 +193,19 @@ const app = new Elysia()
   .use(fmsDrillsRoutes)
   .use(fmsLandscapeRoutes)
   .use(fmsWasteRoutes)
+  .use(financeChartOfAccountsRoutes)
+  .use(financeAccountingPeriodsRoutes)
+  .use(financeJournalEntriesRoutes)
+  .use(financeAccountingReportsRoutes)
+  .use(financeAccountingDashboardRoutes)
+  .use(financeBankAccountsRoutes)
+  .use(financeChequesRoutes)
+  .use(financeWithholdingTaxRoutes)
+  .use(financeAPInvoicesRoutes)
+  .use(financeBankReconciliationsRoutes)
+  .use(financePaymentVouchersRoutes)
+  .use(financeFixedAssetsRoutes)
+  .use(financeCFODashboardRoutes)
   .listen(API_PORT)
 
 console.log(`API running at http://localhost:${API_PORT}`)

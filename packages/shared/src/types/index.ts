@@ -4642,3 +4642,445 @@ export type InventoryAnalysisReport = {
     cItemCount: number
   }
 }
+
+// ─── Finance / Accounting ─────────────────────────────────────────────────────
+
+export type ChartOfAccount = {
+  id: string
+  account_code: string
+  account_name_th: string
+  account_name_en: string | null
+  account_type: 'ASSET' | 'LIABILITY' | 'EQUITY' | 'REVENUE' | 'COST_OF_SALES' | 'OPERATING_EXPENSE' | 'OTHER_INCOME' | 'OTHER_EXPENSE'
+  level: number
+  parent_account_code: string | null
+  normal_balance: 'DEBIT' | 'CREDIT'
+  cash_flow_category: 'OPERATING' | 'INVESTING' | 'FINANCING' | 'NONE'
+  vat_type: string
+  tax_applicable: boolean
+  is_subledger: boolean
+  is_active: boolean
+  reporting_group: string | null
+  description: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type ChartOfAccountWithChildren = ChartOfAccount & {
+  children: ChartOfAccount[]
+}
+
+export type CreateChartOfAccountRequest = {
+  accountCode: string
+  accountNameTh: string
+  accountNameEn?: string
+  accountType: ChartOfAccount['account_type']
+  level?: number
+  parentAccountCode?: string
+  normalBalance?: ChartOfAccount['normal_balance']
+  cashFlowCategory?: ChartOfAccount['cash_flow_category']
+  vatType?: string
+  taxApplicable?: boolean
+  isSubledger?: boolean
+  isActive?: boolean
+  reportingGroup?: string
+  description?: string
+}
+
+export type UpdateChartOfAccountRequest = Partial<CreateChartOfAccountRequest>
+
+export type ChartOfAccountListResponse = {
+  data: ChartOfAccount[]
+  pagination: { page: number; limit: number; total: number; totalPages: number }
+}
+
+export type ChartOfAccountQueryParams = {
+  page?: number
+  limit?: number
+  accountType?: ChartOfAccount['account_type'] | 'all'
+  isActive?: boolean
+  search?: string
+  level?: number
+}
+
+export type AccountingPeriod = {
+  id: string
+  year: number
+  month: number
+  status: 'OPEN' | 'SOFT_CLOSED' | 'HARD_CLOSED'
+  closed_by: string | null
+  closed_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type AccountingPeriodWithUser = AccountingPeriod & {
+  closer: { id: string; first_name: string; last_name: string } | null
+}
+
+export type UpdateAccountingPeriodStatusRequest = {
+  status: AccountingPeriod['status']
+}
+
+export type AccountingPeriodQueryParams = {
+  year?: number
+}
+
+export type JournalEntryLine = {
+  id: string
+  journal_entry_id: string
+  line_number: number
+  account_code: string
+  debit: number
+  credit: number
+  description: string | null
+  dimension_site: string | null
+  dimension_project: string | null
+  dimension_dept: string | null
+}
+
+export type JournalEntryLineWithAccount = JournalEntryLine & {
+  account: { account_code: string; account_name_th: string; account_name_en: string | null }
+}
+
+export type JournalEntry = {
+  id: string
+  journal_number: string
+  journal_type: 'GENERAL' | 'CASH_RECEIPT' | 'CASH_PAYMENT' | 'PURCHASE' | 'SALES' | 'ADJUSTMENT' | 'REVERSING' | 'ACCRUAL' | 'DEPRECIATION' | 'CLOSING'
+  journal_date: string
+  posting_period: string
+  reference_document: string | null
+  narration: string | null
+  source_module: string | null
+  status: 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'POSTED' | 'CANCELLED'
+  total_debit: number
+  total_credit: number
+  prepared_by: string | null
+  reviewed_by: string | null
+  approved_by: string | null
+  posted_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type JournalEntryWithLines = JournalEntry & {
+  lines: JournalEntryLineWithAccount[]
+  preparer: { id: string; first_name: string; last_name: string } | null
+  reviewer: { id: string; first_name: string; last_name: string } | null
+  approver: { id: string; first_name: string; last_name: string } | null
+}
+
+export type CreateJournalEntryLineRequest = {
+  accountCode: string
+  debit: number
+  credit: number
+  description?: string
+  dimensionSite?: string
+  dimensionProject?: string
+  dimensionDept?: string
+}
+
+export type CreateJournalEntryRequest = {
+  journalType: JournalEntry['journal_type']
+  journalDate: string
+  postingPeriod: string
+  referenceDocument?: string
+  narration?: string
+  sourceModule?: string
+  preparedBy?: string
+  lines: CreateJournalEntryLineRequest[]
+}
+
+export type UpdateJournalEntryRequest = {
+  journalType?: JournalEntry['journal_type']
+  journalDate?: string
+  postingPeriod?: string
+  referenceDocument?: string
+  narration?: string
+  lines?: CreateJournalEntryLineRequest[]
+}
+
+export type JournalEntryListResponse = PaginatedResponse<JournalEntry>
+
+export type JournalEntryQueryParams = {
+  page?: number
+  limit?: number
+  journalType?: JournalEntry['journal_type'] | 'all'
+  status?: JournalEntry['status'] | 'all'
+  postingPeriod?: string
+  dateFrom?: string
+  dateTo?: string
+  search?: string
+}
+
+// ─── Accounting Reports ───────────────────────────────────────────────────────
+
+export type TrialBalanceRow = {
+  account_code: string
+  account_name_th: string
+  account_name_en: string | null
+  account_type: ChartOfAccount['account_type']
+  opening_debit: number
+  opening_credit: number
+  period_debit: number
+  period_credit: number
+  closing_debit: number
+  closing_credit: number
+}
+
+export type TrialBalanceResponse = {
+  rows: TrialBalanceRow[]
+  totals: {
+    opening_debit: number
+    opening_credit: number
+    period_debit: number
+    period_credit: number
+    closing_debit: number
+    closing_credit: number
+  }
+  period_from: string
+  period_to: string
+}
+
+export type BalanceSheetSection = {
+  label: string
+  accounts: Array<{
+    account_code: string
+    account_name_th: string
+    balance: number
+  }>
+  total: number
+}
+
+export type BalanceSheetResponse = {
+  assets: BalanceSheetSection[]
+  liabilities: BalanceSheetSection[]
+  equity: BalanceSheetSection[]
+  total_assets: number
+  total_liabilities: number
+  total_equity: number
+  as_of_date: string
+}
+
+export type ProfitLossSection = {
+  label: string
+  accounts: Array<{
+    account_code: string
+    account_name_th: string
+    amount: number
+  }>
+  total: number
+}
+
+export type ProfitLossResponse = {
+  revenue: ProfitLossSection
+  cost_of_sales: ProfitLossSection
+  gross_profit: number
+  operating_expenses: ProfitLossSection
+  operating_income: number
+  other_income: ProfitLossSection
+  other_expenses: ProfitLossSection
+  net_income: number
+  date_from: string
+  date_to: string
+}
+
+export type GeneralLedgerEntry = {
+  journal_number: string
+  journal_date: string
+  narration: string | null
+  reference_document: string | null
+  debit: number
+  credit: number
+  running_balance: number
+}
+
+export type GeneralLedgerResponse = {
+  account_code: string
+  account_name_th: string
+  account_name_en: string | null
+  opening_balance: number
+  entries: GeneralLedgerEntry[]
+  closing_balance: number
+  total_debit: number
+  total_credit: number
+}
+
+export type AccountingDashboardData = {
+  total_assets: number
+  total_liabilities: number
+  total_equity: number
+  net_income: number
+  unposted_journals: number
+  open_periods: number
+  recent_journals: JournalEntry[]
+}
+
+// ─── Banking ──────────────────────────────────────────────────────────────────
+
+export type BankAccount = {
+  id: string
+  account_name: string
+  account_number: string
+  bank_name: string
+  branch_name: string | null
+  account_type: 'SAVINGS' | 'CURRENT' | 'FIXED_DEPOSIT'
+  gl_account_code: string | null
+  site_id: string | null
+  currency: string
+  opening_balance: number
+  current_balance: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export type CreateBankAccountRequest = {
+  accountName: string
+  accountNumber: string
+  bankName: string
+  branchName?: string
+  accountType?: BankAccount['account_type']
+  glAccountCode?: string
+  siteId?: string
+  currency?: string
+  openingBalance?: number
+}
+
+export type BankAccountListResponse = PaginatedResponse<BankAccount>
+
+export type ChequeRegister = {
+  id: string
+  cheque_number: string
+  cheque_type: 'ISSUED' | 'RECEIVED'
+  cheque_date: string
+  bank_account_id: string
+  amount: number
+  payee_name: string
+  status: 'ISSUED' | 'CLEARED' | 'BOUNCED' | 'CANCELLED' | 'VOIDED'
+  reference_document: string | null
+  cleared_date: string | null
+  bounced_date: string | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type CreateChequeRequest = {
+  chequeNumber: string
+  chequeType: ChequeRegister['cheque_type']
+  chequeDate: string
+  bankAccountId: string
+  amount: number
+  payeeName: string
+  referenceDocument?: string
+  notes?: string
+}
+
+export type ChequeListResponse = PaginatedResponse<ChequeRegister>
+
+// ─── Tax & Compliance ─────────────────────────────────────────────────────────
+
+export type WithholdingTaxRecord = {
+  id: string
+  wht_number: string
+  document_type: 'PND1' | 'PND3' | 'PND53'
+  fiscal_year: number
+  fiscal_month: number
+  vendor_name: string
+  tax_id: string | null
+  income_type: string | null
+  gross_amount: number
+  wht_rate: number
+  wht_amount: number
+  net_amount: number
+  payment_date: string | null
+  certificate_issued: boolean
+  certificate_date: string | null
+  status: 'DRAFT' | 'ISSUED' | 'SUBMITTED' | 'CANCELLED'
+  created_at: string
+  updated_at: string
+}
+
+export type CreateWithholdingTaxRequest = {
+  documentType: WithholdingTaxRecord['document_type']
+  fiscalYear: number
+  fiscalMonth: number
+  vendorId?: string
+  vendorName: string
+  taxId?: string
+  incomeType?: string
+  grossAmount: number
+  whtRate: number
+  whtAmount: number
+  netAmount: number
+  paymentDate?: string
+}
+
+export type WhtListResponse = PaginatedResponse<WithholdingTaxRecord>
+
+export type TaxDashboardData = {
+  input_vat: number
+  output_vat: number
+  net_vat: number
+  total_wht: number
+  period: string
+}
+
+// ─── AP Enhancements ──────────────────────────────────────────────────────────
+
+export type APInvoice = {
+  id: string
+  ap_invoice_number: string
+  vendor_id: string
+  vendor_invoice_number: string | null
+  invoice_date: string
+  due_date: string
+  payment_terms: string | null
+  subtotal: number
+  vat_amount: number
+  wht_amount: number
+  total_amount: number
+  status: 'AP_DRAFT' | 'AP_PENDING_APPROVAL' | 'AP_APPROVED' | 'AP_PARTIALLY_PAID' | 'AP_PAID' | 'AP_CANCELLED'
+  matched_po_id: string | null
+  matched_grn_id: string | null
+  gl_account_code: string | null
+  items: unknown
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type CreateAPInvoiceRequest = {
+  vendorId: string
+  vendorInvoiceNumber?: string
+  invoiceDate: string
+  dueDate: string
+  paymentTerms?: string
+  subtotal: number
+  vatAmount?: number
+  whtAmount?: number
+  totalAmount: number
+  matchedPoId?: string
+  matchedGrnId?: string
+  glAccountCode?: string
+  items?: unknown
+  notes?: string
+}
+
+export type APInvoiceListResponse = PaginatedResponse<APInvoice>
+
+export type APAgingBucket = {
+  vendor_id: string
+  vendor_name: string
+  current: number
+  days_1_30: number
+  days_31_60: number
+  days_61_90: number
+  over_90: number
+  total: number
+}
+
+export type APAgingResponse = {
+  buckets: APAgingBucket[]
+  totals: APAgingBucket
+}

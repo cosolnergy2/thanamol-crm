@@ -83,6 +83,7 @@ import { Route as AuthenticatedFormsSaleJob03F01IndexRouteImport } from './route
 import { Route as AuthenticatedFormsSaleJob02F01IndexRouteImport } from './routes/_authenticated/forms/sale-job02-f01/index'
 import { Route as AuthenticatedFormsSaleF01IndexRouteImport } from './routes/_authenticated/forms/sale-f01/index'
 import { Route as AuthenticatedFinanceInvoicesIndexRouteImport } from './routes/_authenticated/finance/invoices/index'
+import { Route as AuthenticatedFinanceAccountingIndexRouteImport } from './routes/_authenticated/finance/accounting/index'
 import { Route as AuthenticatedFacilityManagementZonesIndexRouteImport } from './routes/_authenticated/facility-management/zones/index'
 import { Route as AuthenticatedFacilityManagementWorkOrdersIndexRouteImport } from './routes/_authenticated/facility-management/work-orders/index'
 import { Route as AuthenticatedFacilityManagementWasteIndexRouteImport } from './routes/_authenticated/facility-management/waste/index'
@@ -160,7 +161,28 @@ import { Route as AuthenticatedFormsSaleJob04F01IdIndexRouteImport } from './rou
 import { Route as AuthenticatedFormsSaleJob03F01IdIndexRouteImport } from './routes/_authenticated/forms/sale-job03-f01/$id/index'
 import { Route as AuthenticatedFormsSaleJob02F01IdIndexRouteImport } from './routes/_authenticated/forms/sale-job02-f01/$id/index'
 import { Route as AuthenticatedFormsSaleF01IdIndexRouteImport } from './routes/_authenticated/forms/sale-f01/$id/index'
+import { Route as AuthenticatedFinanceTaxWithholdingTaxIndexRouteImport } from './routes/_authenticated/finance/tax/withholding-tax/index'
+import { Route as AuthenticatedFinanceTaxDashboardIndexRouteImport } from './routes/_authenticated/finance/tax/dashboard/index'
 import { Route as AuthenticatedFinanceInvoicesInvoiceIdIndexRouteImport } from './routes/_authenticated/finance/invoices/$invoiceId/index'
+import { Route as AuthenticatedFinanceFixedAssetsTransfersIndexRouteImport } from './routes/_authenticated/finance/fixed-assets/transfers/index'
+import { Route as AuthenticatedFinanceFixedAssetsRegisterIndexRouteImport } from './routes/_authenticated/finance/fixed-assets/register/index'
+import { Route as AuthenticatedFinanceFixedAssetsDisposalsIndexRouteImport } from './routes/_authenticated/finance/fixed-assets/disposals/index'
+import { Route as AuthenticatedFinanceFixedAssetsDepreciationIndexRouteImport } from './routes/_authenticated/finance/fixed-assets/depreciation/index'
+import { Route as AuthenticatedFinanceExecutiveCfoDashboardIndexRouteImport } from './routes/_authenticated/finance/executive/cfo-dashboard/index'
+import { Route as AuthenticatedFinanceExecutiveCashFlowIndexRouteImport } from './routes/_authenticated/finance/executive/cash-flow/index'
+import { Route as AuthenticatedFinanceBankingReconciliationsIndexRouteImport } from './routes/_authenticated/finance/banking/reconciliations/index'
+import { Route as AuthenticatedFinanceBankingChequesIndexRouteImport } from './routes/_authenticated/finance/banking/cheques/index'
+import { Route as AuthenticatedFinanceBankingBankAccountsIndexRouteImport } from './routes/_authenticated/finance/banking/bank-accounts/index'
+import { Route as AuthenticatedFinanceApPaymentVouchersIndexRouteImport } from './routes/_authenticated/finance/ap/payment-vouchers/index'
+import { Route as AuthenticatedFinanceApInvoicesIndexRouteImport } from './routes/_authenticated/finance/ap/invoices/index'
+import { Route as AuthenticatedFinanceApAgingIndexRouteImport } from './routes/_authenticated/finance/ap/aging/index'
+import { Route as AuthenticatedFinanceAccountingTrialBalanceIndexRouteImport } from './routes/_authenticated/finance/accounting/trial-balance/index'
+import { Route as AuthenticatedFinanceAccountingProfitLossIndexRouteImport } from './routes/_authenticated/finance/accounting/profit-loss/index'
+import { Route as AuthenticatedFinanceAccountingPeriodsIndexRouteImport } from './routes/_authenticated/finance/accounting/periods/index'
+import { Route as AuthenticatedFinanceAccountingJournalEntriesIndexRouteImport } from './routes/_authenticated/finance/accounting/journal-entries/index'
+import { Route as AuthenticatedFinanceAccountingGeneralLedgerIndexRouteImport } from './routes/_authenticated/finance/accounting/general-ledger/index'
+import { Route as AuthenticatedFinanceAccountingChartOfAccountsIndexRouteImport } from './routes/_authenticated/finance/accounting/chart-of-accounts/index'
+import { Route as AuthenticatedFinanceAccountingBalanceSheetIndexRouteImport } from './routes/_authenticated/finance/accounting/balance-sheet/index'
 import { Route as AuthenticatedFacilityManagementWorkOrdersWorkOrderIdIndexRouteImport } from './routes/_authenticated/facility-management/work-orders/$workOrderId/index'
 import { Route as AuthenticatedFacilityManagementVendorsInvoicesIndexRouteImport } from './routes/_authenticated/facility-management/vendors/invoices/index'
 import { Route as AuthenticatedFacilityManagementVendorsContractsIndexRouteImport } from './routes/_authenticated/facility-management/vendors/contracts/index'
@@ -191,6 +213,10 @@ import { Route as AuthenticatedFormsSaleJob02F01IdPrintRouteImport } from './rou
 import { Route as AuthenticatedFormsSaleJob02F01IdEditRouteImport } from './routes/_authenticated/forms/sale-job02-f01/$id/edit'
 import { Route as AuthenticatedFormsSaleF01IdEditRouteImport } from './routes/_authenticated/forms/sale-f01/$id/edit'
 import { Route as AuthenticatedFinanceInvoicesInvoiceIdEditRouteImport } from './routes/_authenticated/finance/invoices/$invoiceId/edit'
+import { Route as AuthenticatedFinanceAccountingJournalEntriesCreateRouteImport } from './routes/_authenticated/finance/accounting/journal-entries/create'
+import { Route as AuthenticatedFinanceAccountingJournalEntriesJournalIdRouteImport } from './routes/_authenticated/finance/accounting/journal-entries/$journalId'
+import { Route as AuthenticatedFinanceAccountingChartOfAccountsCreateRouteImport } from './routes/_authenticated/finance/accounting/chart-of-accounts/create'
+import { Route as AuthenticatedFinanceAccountingChartOfAccountsAccountIdRouteImport } from './routes/_authenticated/finance/accounting/chart-of-accounts/$accountId'
 import { Route as AuthenticatedFacilityManagementZonesZoneIdEditRouteImport } from './routes/_authenticated/facility-management/zones/$zoneId/edit'
 import { Route as AuthenticatedFacilityManagementVendorsInvoicesCreateRouteImport } from './routes/_authenticated/facility-management/vendors/invoices/create'
 import { Route as AuthenticatedFacilityManagementVendorsInvoicesInvoiceIdRouteImport } from './routes/_authenticated/facility-management/vendors/invoices/$invoiceId'
@@ -660,6 +686,12 @@ const AuthenticatedFinanceInvoicesIndexRoute =
     path: '/finance/invoices/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFinanceAccountingIndexRoute =
+  AuthenticatedFinanceAccountingIndexRouteImport.update({
+    id: '/finance/accounting/',
+    path: '/finance/accounting/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedFacilityManagementZonesIndexRoute =
   AuthenticatedFacilityManagementZonesIndexRouteImport.update({
     id: '/facility-management/zones/',
@@ -1124,10 +1156,136 @@ const AuthenticatedFormsSaleF01IdIndexRoute =
     path: '/forms/sale-f01/$id/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFinanceTaxWithholdingTaxIndexRoute =
+  AuthenticatedFinanceTaxWithholdingTaxIndexRouteImport.update({
+    id: '/finance/tax/withholding-tax/',
+    path: '/finance/tax/withholding-tax/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceTaxDashboardIndexRoute =
+  AuthenticatedFinanceTaxDashboardIndexRouteImport.update({
+    id: '/finance/tax/dashboard/',
+    path: '/finance/tax/dashboard/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedFinanceInvoicesInvoiceIdIndexRoute =
   AuthenticatedFinanceInvoicesInvoiceIdIndexRouteImport.update({
     id: '/finance/invoices/$invoiceId/',
     path: '/finance/invoices/$invoiceId/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceFixedAssetsTransfersIndexRoute =
+  AuthenticatedFinanceFixedAssetsTransfersIndexRouteImport.update({
+    id: '/finance/fixed-assets/transfers/',
+    path: '/finance/fixed-assets/transfers/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceFixedAssetsRegisterIndexRoute =
+  AuthenticatedFinanceFixedAssetsRegisterIndexRouteImport.update({
+    id: '/finance/fixed-assets/register/',
+    path: '/finance/fixed-assets/register/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceFixedAssetsDisposalsIndexRoute =
+  AuthenticatedFinanceFixedAssetsDisposalsIndexRouteImport.update({
+    id: '/finance/fixed-assets/disposals/',
+    path: '/finance/fixed-assets/disposals/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceFixedAssetsDepreciationIndexRoute =
+  AuthenticatedFinanceFixedAssetsDepreciationIndexRouteImport.update({
+    id: '/finance/fixed-assets/depreciation/',
+    path: '/finance/fixed-assets/depreciation/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceExecutiveCfoDashboardIndexRoute =
+  AuthenticatedFinanceExecutiveCfoDashboardIndexRouteImport.update({
+    id: '/finance/executive/cfo-dashboard/',
+    path: '/finance/executive/cfo-dashboard/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceExecutiveCashFlowIndexRoute =
+  AuthenticatedFinanceExecutiveCashFlowIndexRouteImport.update({
+    id: '/finance/executive/cash-flow/',
+    path: '/finance/executive/cash-flow/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceBankingReconciliationsIndexRoute =
+  AuthenticatedFinanceBankingReconciliationsIndexRouteImport.update({
+    id: '/finance/banking/reconciliations/',
+    path: '/finance/banking/reconciliations/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceBankingChequesIndexRoute =
+  AuthenticatedFinanceBankingChequesIndexRouteImport.update({
+    id: '/finance/banking/cheques/',
+    path: '/finance/banking/cheques/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceBankingBankAccountsIndexRoute =
+  AuthenticatedFinanceBankingBankAccountsIndexRouteImport.update({
+    id: '/finance/banking/bank-accounts/',
+    path: '/finance/banking/bank-accounts/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceApPaymentVouchersIndexRoute =
+  AuthenticatedFinanceApPaymentVouchersIndexRouteImport.update({
+    id: '/finance/ap/payment-vouchers/',
+    path: '/finance/ap/payment-vouchers/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceApInvoicesIndexRoute =
+  AuthenticatedFinanceApInvoicesIndexRouteImport.update({
+    id: '/finance/ap/invoices/',
+    path: '/finance/ap/invoices/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceApAgingIndexRoute =
+  AuthenticatedFinanceApAgingIndexRouteImport.update({
+    id: '/finance/ap/aging/',
+    path: '/finance/ap/aging/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceAccountingTrialBalanceIndexRoute =
+  AuthenticatedFinanceAccountingTrialBalanceIndexRouteImport.update({
+    id: '/finance/accounting/trial-balance/',
+    path: '/finance/accounting/trial-balance/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceAccountingProfitLossIndexRoute =
+  AuthenticatedFinanceAccountingProfitLossIndexRouteImport.update({
+    id: '/finance/accounting/profit-loss/',
+    path: '/finance/accounting/profit-loss/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceAccountingPeriodsIndexRoute =
+  AuthenticatedFinanceAccountingPeriodsIndexRouteImport.update({
+    id: '/finance/accounting/periods/',
+    path: '/finance/accounting/periods/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceAccountingJournalEntriesIndexRoute =
+  AuthenticatedFinanceAccountingJournalEntriesIndexRouteImport.update({
+    id: '/finance/accounting/journal-entries/',
+    path: '/finance/accounting/journal-entries/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceAccountingGeneralLedgerIndexRoute =
+  AuthenticatedFinanceAccountingGeneralLedgerIndexRouteImport.update({
+    id: '/finance/accounting/general-ledger/',
+    path: '/finance/accounting/general-ledger/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceAccountingChartOfAccountsIndexRoute =
+  AuthenticatedFinanceAccountingChartOfAccountsIndexRouteImport.update({
+    id: '/finance/accounting/chart-of-accounts/',
+    path: '/finance/accounting/chart-of-accounts/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceAccountingBalanceSheetIndexRoute =
+  AuthenticatedFinanceAccountingBalanceSheetIndexRouteImport.update({
+    id: '/finance/accounting/balance-sheet/',
+    path: '/finance/accounting/balance-sheet/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedFacilityManagementWorkOrdersWorkOrderIdIndexRoute =
@@ -1312,6 +1470,30 @@ const AuthenticatedFinanceInvoicesInvoiceIdEditRoute =
   AuthenticatedFinanceInvoicesInvoiceIdEditRouteImport.update({
     id: '/finance/invoices/$invoiceId/edit',
     path: '/finance/invoices/$invoiceId/edit',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceAccountingJournalEntriesCreateRoute =
+  AuthenticatedFinanceAccountingJournalEntriesCreateRouteImport.update({
+    id: '/finance/accounting/journal-entries/create',
+    path: '/finance/accounting/journal-entries/create',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceAccountingJournalEntriesJournalIdRoute =
+  AuthenticatedFinanceAccountingJournalEntriesJournalIdRouteImport.update({
+    id: '/finance/accounting/journal-entries/$journalId',
+    path: '/finance/accounting/journal-entries/$journalId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceAccountingChartOfAccountsCreateRoute =
+  AuthenticatedFinanceAccountingChartOfAccountsCreateRouteImport.update({
+    id: '/finance/accounting/chart-of-accounts/create',
+    path: '/finance/accounting/chart-of-accounts/create',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinanceAccountingChartOfAccountsAccountIdRoute =
+  AuthenticatedFinanceAccountingChartOfAccountsAccountIdRouteImport.update({
+    id: '/finance/accounting/chart-of-accounts/$accountId',
+    path: '/finance/accounting/chart-of-accounts/$accountId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedFacilityManagementZonesZoneIdEditRoute =
@@ -1677,6 +1859,7 @@ export interface FileRoutesByFullPath {
   '/facility-management/waste/': typeof AuthenticatedFacilityManagementWasteIndexRoute
   '/facility-management/work-orders/': typeof AuthenticatedFacilityManagementWorkOrdersIndexRoute
   '/facility-management/zones/': typeof AuthenticatedFacilityManagementZonesIndexRoute
+  '/finance/accounting/': typeof AuthenticatedFinanceAccountingIndexRoute
   '/finance/invoices/': typeof AuthenticatedFinanceInvoicesIndexRoute
   '/forms/sale-f01/': typeof AuthenticatedFormsSaleF01IndexRoute
   '/forms/sale-job02-f01/': typeof AuthenticatedFormsSaleJob02F01IndexRoute
@@ -1710,6 +1893,10 @@ export interface FileRoutesByFullPath {
   '/facility-management/vendors/invoices/$invoiceId': typeof AuthenticatedFacilityManagementVendorsInvoicesInvoiceIdRoute
   '/facility-management/vendors/invoices/create': typeof AuthenticatedFacilityManagementVendorsInvoicesCreateRoute
   '/facility-management/zones/$zoneId/edit': typeof AuthenticatedFacilityManagementZonesZoneIdEditRoute
+  '/finance/accounting/chart-of-accounts/$accountId': typeof AuthenticatedFinanceAccountingChartOfAccountsAccountIdRoute
+  '/finance/accounting/chart-of-accounts/create': typeof AuthenticatedFinanceAccountingChartOfAccountsCreateRoute
+  '/finance/accounting/journal-entries/$journalId': typeof AuthenticatedFinanceAccountingJournalEntriesJournalIdRoute
+  '/finance/accounting/journal-entries/create': typeof AuthenticatedFinanceAccountingJournalEntriesCreateRoute
   '/finance/invoices/$invoiceId/edit': typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
   '/forms/sale-f01/$id/edit': typeof AuthenticatedFormsSaleF01IdEditRoute
   '/forms/sale-job02-f01/$id/edit': typeof AuthenticatedFormsSaleJob02F01IdEditRoute
@@ -1740,7 +1927,28 @@ export interface FileRoutesByFullPath {
   '/facility-management/vendors/contracts/': typeof AuthenticatedFacilityManagementVendorsContractsIndexRoute
   '/facility-management/vendors/invoices/': typeof AuthenticatedFacilityManagementVendorsInvoicesIndexRoute
   '/facility-management/work-orders/$workOrderId/': typeof AuthenticatedFacilityManagementWorkOrdersWorkOrderIdIndexRoute
+  '/finance/accounting/balance-sheet/': typeof AuthenticatedFinanceAccountingBalanceSheetIndexRoute
+  '/finance/accounting/chart-of-accounts/': typeof AuthenticatedFinanceAccountingChartOfAccountsIndexRoute
+  '/finance/accounting/general-ledger/': typeof AuthenticatedFinanceAccountingGeneralLedgerIndexRoute
+  '/finance/accounting/journal-entries/': typeof AuthenticatedFinanceAccountingJournalEntriesIndexRoute
+  '/finance/accounting/periods/': typeof AuthenticatedFinanceAccountingPeriodsIndexRoute
+  '/finance/accounting/profit-loss/': typeof AuthenticatedFinanceAccountingProfitLossIndexRoute
+  '/finance/accounting/trial-balance/': typeof AuthenticatedFinanceAccountingTrialBalanceIndexRoute
+  '/finance/ap/aging/': typeof AuthenticatedFinanceApAgingIndexRoute
+  '/finance/ap/invoices/': typeof AuthenticatedFinanceApInvoicesIndexRoute
+  '/finance/ap/payment-vouchers/': typeof AuthenticatedFinanceApPaymentVouchersIndexRoute
+  '/finance/banking/bank-accounts/': typeof AuthenticatedFinanceBankingBankAccountsIndexRoute
+  '/finance/banking/cheques/': typeof AuthenticatedFinanceBankingChequesIndexRoute
+  '/finance/banking/reconciliations/': typeof AuthenticatedFinanceBankingReconciliationsIndexRoute
+  '/finance/executive/cash-flow/': typeof AuthenticatedFinanceExecutiveCashFlowIndexRoute
+  '/finance/executive/cfo-dashboard/': typeof AuthenticatedFinanceExecutiveCfoDashboardIndexRoute
+  '/finance/fixed-assets/depreciation/': typeof AuthenticatedFinanceFixedAssetsDepreciationIndexRoute
+  '/finance/fixed-assets/disposals/': typeof AuthenticatedFinanceFixedAssetsDisposalsIndexRoute
+  '/finance/fixed-assets/register/': typeof AuthenticatedFinanceFixedAssetsRegisterIndexRoute
+  '/finance/fixed-assets/transfers/': typeof AuthenticatedFinanceFixedAssetsTransfersIndexRoute
   '/finance/invoices/$invoiceId/': typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRoute
+  '/finance/tax/dashboard/': typeof AuthenticatedFinanceTaxDashboardIndexRoute
+  '/finance/tax/withholding-tax/': typeof AuthenticatedFinanceTaxWithholdingTaxIndexRoute
   '/forms/sale-f01/$id/': typeof AuthenticatedFormsSaleF01IdIndexRoute
   '/forms/sale-job02-f01/$id/': typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
   '/forms/sale-job03-f01/$id/': typeof AuthenticatedFormsSaleJob03F01IdIndexRoute
@@ -1895,6 +2103,7 @@ export interface FileRoutesByTo {
   '/facility-management/waste': typeof AuthenticatedFacilityManagementWasteIndexRoute
   '/facility-management/work-orders': typeof AuthenticatedFacilityManagementWorkOrdersIndexRoute
   '/facility-management/zones': typeof AuthenticatedFacilityManagementZonesIndexRoute
+  '/finance/accounting': typeof AuthenticatedFinanceAccountingIndexRoute
   '/finance/invoices': typeof AuthenticatedFinanceInvoicesIndexRoute
   '/forms/sale-f01': typeof AuthenticatedFormsSaleF01IndexRoute
   '/forms/sale-job02-f01': typeof AuthenticatedFormsSaleJob02F01IndexRoute
@@ -1928,6 +2137,10 @@ export interface FileRoutesByTo {
   '/facility-management/vendors/invoices/$invoiceId': typeof AuthenticatedFacilityManagementVendorsInvoicesInvoiceIdRoute
   '/facility-management/vendors/invoices/create': typeof AuthenticatedFacilityManagementVendorsInvoicesCreateRoute
   '/facility-management/zones/$zoneId/edit': typeof AuthenticatedFacilityManagementZonesZoneIdEditRoute
+  '/finance/accounting/chart-of-accounts/$accountId': typeof AuthenticatedFinanceAccountingChartOfAccountsAccountIdRoute
+  '/finance/accounting/chart-of-accounts/create': typeof AuthenticatedFinanceAccountingChartOfAccountsCreateRoute
+  '/finance/accounting/journal-entries/$journalId': typeof AuthenticatedFinanceAccountingJournalEntriesJournalIdRoute
+  '/finance/accounting/journal-entries/create': typeof AuthenticatedFinanceAccountingJournalEntriesCreateRoute
   '/finance/invoices/$invoiceId/edit': typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
   '/forms/sale-f01/$id/edit': typeof AuthenticatedFormsSaleF01IdEditRoute
   '/forms/sale-job02-f01/$id/edit': typeof AuthenticatedFormsSaleJob02F01IdEditRoute
@@ -1958,7 +2171,28 @@ export interface FileRoutesByTo {
   '/facility-management/vendors/contracts': typeof AuthenticatedFacilityManagementVendorsContractsIndexRoute
   '/facility-management/vendors/invoices': typeof AuthenticatedFacilityManagementVendorsInvoicesIndexRoute
   '/facility-management/work-orders/$workOrderId': typeof AuthenticatedFacilityManagementWorkOrdersWorkOrderIdIndexRoute
+  '/finance/accounting/balance-sheet': typeof AuthenticatedFinanceAccountingBalanceSheetIndexRoute
+  '/finance/accounting/chart-of-accounts': typeof AuthenticatedFinanceAccountingChartOfAccountsIndexRoute
+  '/finance/accounting/general-ledger': typeof AuthenticatedFinanceAccountingGeneralLedgerIndexRoute
+  '/finance/accounting/journal-entries': typeof AuthenticatedFinanceAccountingJournalEntriesIndexRoute
+  '/finance/accounting/periods': typeof AuthenticatedFinanceAccountingPeriodsIndexRoute
+  '/finance/accounting/profit-loss': typeof AuthenticatedFinanceAccountingProfitLossIndexRoute
+  '/finance/accounting/trial-balance': typeof AuthenticatedFinanceAccountingTrialBalanceIndexRoute
+  '/finance/ap/aging': typeof AuthenticatedFinanceApAgingIndexRoute
+  '/finance/ap/invoices': typeof AuthenticatedFinanceApInvoicesIndexRoute
+  '/finance/ap/payment-vouchers': typeof AuthenticatedFinanceApPaymentVouchersIndexRoute
+  '/finance/banking/bank-accounts': typeof AuthenticatedFinanceBankingBankAccountsIndexRoute
+  '/finance/banking/cheques': typeof AuthenticatedFinanceBankingChequesIndexRoute
+  '/finance/banking/reconciliations': typeof AuthenticatedFinanceBankingReconciliationsIndexRoute
+  '/finance/executive/cash-flow': typeof AuthenticatedFinanceExecutiveCashFlowIndexRoute
+  '/finance/executive/cfo-dashboard': typeof AuthenticatedFinanceExecutiveCfoDashboardIndexRoute
+  '/finance/fixed-assets/depreciation': typeof AuthenticatedFinanceFixedAssetsDepreciationIndexRoute
+  '/finance/fixed-assets/disposals': typeof AuthenticatedFinanceFixedAssetsDisposalsIndexRoute
+  '/finance/fixed-assets/register': typeof AuthenticatedFinanceFixedAssetsRegisterIndexRoute
+  '/finance/fixed-assets/transfers': typeof AuthenticatedFinanceFixedAssetsTransfersIndexRoute
   '/finance/invoices/$invoiceId': typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRoute
+  '/finance/tax/dashboard': typeof AuthenticatedFinanceTaxDashboardIndexRoute
+  '/finance/tax/withholding-tax': typeof AuthenticatedFinanceTaxWithholdingTaxIndexRoute
   '/forms/sale-f01/$id': typeof AuthenticatedFormsSaleF01IdIndexRoute
   '/forms/sale-job02-f01/$id': typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
   '/forms/sale-job03-f01/$id': typeof AuthenticatedFormsSaleJob03F01IdIndexRoute
@@ -2115,6 +2349,7 @@ export interface FileRoutesById {
   '/_authenticated/facility-management/waste/': typeof AuthenticatedFacilityManagementWasteIndexRoute
   '/_authenticated/facility-management/work-orders/': typeof AuthenticatedFacilityManagementWorkOrdersIndexRoute
   '/_authenticated/facility-management/zones/': typeof AuthenticatedFacilityManagementZonesIndexRoute
+  '/_authenticated/finance/accounting/': typeof AuthenticatedFinanceAccountingIndexRoute
   '/_authenticated/finance/invoices/': typeof AuthenticatedFinanceInvoicesIndexRoute
   '/_authenticated/forms/sale-f01/': typeof AuthenticatedFormsSaleF01IndexRoute
   '/_authenticated/forms/sale-job02-f01/': typeof AuthenticatedFormsSaleJob02F01IndexRoute
@@ -2148,6 +2383,10 @@ export interface FileRoutesById {
   '/_authenticated/facility-management/vendors/invoices/$invoiceId': typeof AuthenticatedFacilityManagementVendorsInvoicesInvoiceIdRoute
   '/_authenticated/facility-management/vendors/invoices/create': typeof AuthenticatedFacilityManagementVendorsInvoicesCreateRoute
   '/_authenticated/facility-management/zones/$zoneId/edit': typeof AuthenticatedFacilityManagementZonesZoneIdEditRoute
+  '/_authenticated/finance/accounting/chart-of-accounts/$accountId': typeof AuthenticatedFinanceAccountingChartOfAccountsAccountIdRoute
+  '/_authenticated/finance/accounting/chart-of-accounts/create': typeof AuthenticatedFinanceAccountingChartOfAccountsCreateRoute
+  '/_authenticated/finance/accounting/journal-entries/$journalId': typeof AuthenticatedFinanceAccountingJournalEntriesJournalIdRoute
+  '/_authenticated/finance/accounting/journal-entries/create': typeof AuthenticatedFinanceAccountingJournalEntriesCreateRoute
   '/_authenticated/finance/invoices/$invoiceId/edit': typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
   '/_authenticated/forms/sale-f01/$id/edit': typeof AuthenticatedFormsSaleF01IdEditRoute
   '/_authenticated/forms/sale-job02-f01/$id/edit': typeof AuthenticatedFormsSaleJob02F01IdEditRoute
@@ -2178,7 +2417,28 @@ export interface FileRoutesById {
   '/_authenticated/facility-management/vendors/contracts/': typeof AuthenticatedFacilityManagementVendorsContractsIndexRoute
   '/_authenticated/facility-management/vendors/invoices/': typeof AuthenticatedFacilityManagementVendorsInvoicesIndexRoute
   '/_authenticated/facility-management/work-orders/$workOrderId/': typeof AuthenticatedFacilityManagementWorkOrdersWorkOrderIdIndexRoute
+  '/_authenticated/finance/accounting/balance-sheet/': typeof AuthenticatedFinanceAccountingBalanceSheetIndexRoute
+  '/_authenticated/finance/accounting/chart-of-accounts/': typeof AuthenticatedFinanceAccountingChartOfAccountsIndexRoute
+  '/_authenticated/finance/accounting/general-ledger/': typeof AuthenticatedFinanceAccountingGeneralLedgerIndexRoute
+  '/_authenticated/finance/accounting/journal-entries/': typeof AuthenticatedFinanceAccountingJournalEntriesIndexRoute
+  '/_authenticated/finance/accounting/periods/': typeof AuthenticatedFinanceAccountingPeriodsIndexRoute
+  '/_authenticated/finance/accounting/profit-loss/': typeof AuthenticatedFinanceAccountingProfitLossIndexRoute
+  '/_authenticated/finance/accounting/trial-balance/': typeof AuthenticatedFinanceAccountingTrialBalanceIndexRoute
+  '/_authenticated/finance/ap/aging/': typeof AuthenticatedFinanceApAgingIndexRoute
+  '/_authenticated/finance/ap/invoices/': typeof AuthenticatedFinanceApInvoicesIndexRoute
+  '/_authenticated/finance/ap/payment-vouchers/': typeof AuthenticatedFinanceApPaymentVouchersIndexRoute
+  '/_authenticated/finance/banking/bank-accounts/': typeof AuthenticatedFinanceBankingBankAccountsIndexRoute
+  '/_authenticated/finance/banking/cheques/': typeof AuthenticatedFinanceBankingChequesIndexRoute
+  '/_authenticated/finance/banking/reconciliations/': typeof AuthenticatedFinanceBankingReconciliationsIndexRoute
+  '/_authenticated/finance/executive/cash-flow/': typeof AuthenticatedFinanceExecutiveCashFlowIndexRoute
+  '/_authenticated/finance/executive/cfo-dashboard/': typeof AuthenticatedFinanceExecutiveCfoDashboardIndexRoute
+  '/_authenticated/finance/fixed-assets/depreciation/': typeof AuthenticatedFinanceFixedAssetsDepreciationIndexRoute
+  '/_authenticated/finance/fixed-assets/disposals/': typeof AuthenticatedFinanceFixedAssetsDisposalsIndexRoute
+  '/_authenticated/finance/fixed-assets/register/': typeof AuthenticatedFinanceFixedAssetsRegisterIndexRoute
+  '/_authenticated/finance/fixed-assets/transfers/': typeof AuthenticatedFinanceFixedAssetsTransfersIndexRoute
   '/_authenticated/finance/invoices/$invoiceId/': typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRoute
+  '/_authenticated/finance/tax/dashboard/': typeof AuthenticatedFinanceTaxDashboardIndexRoute
+  '/_authenticated/finance/tax/withholding-tax/': typeof AuthenticatedFinanceTaxWithholdingTaxIndexRoute
   '/_authenticated/forms/sale-f01/$id/': typeof AuthenticatedFormsSaleF01IdIndexRoute
   '/_authenticated/forms/sale-job02-f01/$id/': typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
   '/_authenticated/forms/sale-job03-f01/$id/': typeof AuthenticatedFormsSaleJob03F01IdIndexRoute
@@ -2335,6 +2595,7 @@ export interface FileRouteTypes {
     | '/facility-management/waste/'
     | '/facility-management/work-orders/'
     | '/facility-management/zones/'
+    | '/finance/accounting/'
     | '/finance/invoices/'
     | '/forms/sale-f01/'
     | '/forms/sale-job02-f01/'
@@ -2368,6 +2629,10 @@ export interface FileRouteTypes {
     | '/facility-management/vendors/invoices/$invoiceId'
     | '/facility-management/vendors/invoices/create'
     | '/facility-management/zones/$zoneId/edit'
+    | '/finance/accounting/chart-of-accounts/$accountId'
+    | '/finance/accounting/chart-of-accounts/create'
+    | '/finance/accounting/journal-entries/$journalId'
+    | '/finance/accounting/journal-entries/create'
     | '/finance/invoices/$invoiceId/edit'
     | '/forms/sale-f01/$id/edit'
     | '/forms/sale-job02-f01/$id/edit'
@@ -2398,7 +2663,28 @@ export interface FileRouteTypes {
     | '/facility-management/vendors/contracts/'
     | '/facility-management/vendors/invoices/'
     | '/facility-management/work-orders/$workOrderId/'
+    | '/finance/accounting/balance-sheet/'
+    | '/finance/accounting/chart-of-accounts/'
+    | '/finance/accounting/general-ledger/'
+    | '/finance/accounting/journal-entries/'
+    | '/finance/accounting/periods/'
+    | '/finance/accounting/profit-loss/'
+    | '/finance/accounting/trial-balance/'
+    | '/finance/ap/aging/'
+    | '/finance/ap/invoices/'
+    | '/finance/ap/payment-vouchers/'
+    | '/finance/banking/bank-accounts/'
+    | '/finance/banking/cheques/'
+    | '/finance/banking/reconciliations/'
+    | '/finance/executive/cash-flow/'
+    | '/finance/executive/cfo-dashboard/'
+    | '/finance/fixed-assets/depreciation/'
+    | '/finance/fixed-assets/disposals/'
+    | '/finance/fixed-assets/register/'
+    | '/finance/fixed-assets/transfers/'
     | '/finance/invoices/$invoiceId/'
+    | '/finance/tax/dashboard/'
+    | '/finance/tax/withholding-tax/'
     | '/forms/sale-f01/$id/'
     | '/forms/sale-job02-f01/$id/'
     | '/forms/sale-job03-f01/$id/'
@@ -2553,6 +2839,7 @@ export interface FileRouteTypes {
     | '/facility-management/waste'
     | '/facility-management/work-orders'
     | '/facility-management/zones'
+    | '/finance/accounting'
     | '/finance/invoices'
     | '/forms/sale-f01'
     | '/forms/sale-job02-f01'
@@ -2586,6 +2873,10 @@ export interface FileRouteTypes {
     | '/facility-management/vendors/invoices/$invoiceId'
     | '/facility-management/vendors/invoices/create'
     | '/facility-management/zones/$zoneId/edit'
+    | '/finance/accounting/chart-of-accounts/$accountId'
+    | '/finance/accounting/chart-of-accounts/create'
+    | '/finance/accounting/journal-entries/$journalId'
+    | '/finance/accounting/journal-entries/create'
     | '/finance/invoices/$invoiceId/edit'
     | '/forms/sale-f01/$id/edit'
     | '/forms/sale-job02-f01/$id/edit'
@@ -2616,7 +2907,28 @@ export interface FileRouteTypes {
     | '/facility-management/vendors/contracts'
     | '/facility-management/vendors/invoices'
     | '/facility-management/work-orders/$workOrderId'
+    | '/finance/accounting/balance-sheet'
+    | '/finance/accounting/chart-of-accounts'
+    | '/finance/accounting/general-ledger'
+    | '/finance/accounting/journal-entries'
+    | '/finance/accounting/periods'
+    | '/finance/accounting/profit-loss'
+    | '/finance/accounting/trial-balance'
+    | '/finance/ap/aging'
+    | '/finance/ap/invoices'
+    | '/finance/ap/payment-vouchers'
+    | '/finance/banking/bank-accounts'
+    | '/finance/banking/cheques'
+    | '/finance/banking/reconciliations'
+    | '/finance/executive/cash-flow'
+    | '/finance/executive/cfo-dashboard'
+    | '/finance/fixed-assets/depreciation'
+    | '/finance/fixed-assets/disposals'
+    | '/finance/fixed-assets/register'
+    | '/finance/fixed-assets/transfers'
     | '/finance/invoices/$invoiceId'
+    | '/finance/tax/dashboard'
+    | '/finance/tax/withholding-tax'
     | '/forms/sale-f01/$id'
     | '/forms/sale-job02-f01/$id'
     | '/forms/sale-job03-f01/$id'
@@ -2772,6 +3084,7 @@ export interface FileRouteTypes {
     | '/_authenticated/facility-management/waste/'
     | '/_authenticated/facility-management/work-orders/'
     | '/_authenticated/facility-management/zones/'
+    | '/_authenticated/finance/accounting/'
     | '/_authenticated/finance/invoices/'
     | '/_authenticated/forms/sale-f01/'
     | '/_authenticated/forms/sale-job02-f01/'
@@ -2805,6 +3118,10 @@ export interface FileRouteTypes {
     | '/_authenticated/facility-management/vendors/invoices/$invoiceId'
     | '/_authenticated/facility-management/vendors/invoices/create'
     | '/_authenticated/facility-management/zones/$zoneId/edit'
+    | '/_authenticated/finance/accounting/chart-of-accounts/$accountId'
+    | '/_authenticated/finance/accounting/chart-of-accounts/create'
+    | '/_authenticated/finance/accounting/journal-entries/$journalId'
+    | '/_authenticated/finance/accounting/journal-entries/create'
     | '/_authenticated/finance/invoices/$invoiceId/edit'
     | '/_authenticated/forms/sale-f01/$id/edit'
     | '/_authenticated/forms/sale-job02-f01/$id/edit'
@@ -2835,7 +3152,28 @@ export interface FileRouteTypes {
     | '/_authenticated/facility-management/vendors/contracts/'
     | '/_authenticated/facility-management/vendors/invoices/'
     | '/_authenticated/facility-management/work-orders/$workOrderId/'
+    | '/_authenticated/finance/accounting/balance-sheet/'
+    | '/_authenticated/finance/accounting/chart-of-accounts/'
+    | '/_authenticated/finance/accounting/general-ledger/'
+    | '/_authenticated/finance/accounting/journal-entries/'
+    | '/_authenticated/finance/accounting/periods/'
+    | '/_authenticated/finance/accounting/profit-loss/'
+    | '/_authenticated/finance/accounting/trial-balance/'
+    | '/_authenticated/finance/ap/aging/'
+    | '/_authenticated/finance/ap/invoices/'
+    | '/_authenticated/finance/ap/payment-vouchers/'
+    | '/_authenticated/finance/banking/bank-accounts/'
+    | '/_authenticated/finance/banking/cheques/'
+    | '/_authenticated/finance/banking/reconciliations/'
+    | '/_authenticated/finance/executive/cash-flow/'
+    | '/_authenticated/finance/executive/cfo-dashboard/'
+    | '/_authenticated/finance/fixed-assets/depreciation/'
+    | '/_authenticated/finance/fixed-assets/disposals/'
+    | '/_authenticated/finance/fixed-assets/register/'
+    | '/_authenticated/finance/fixed-assets/transfers/'
     | '/_authenticated/finance/invoices/$invoiceId/'
+    | '/_authenticated/finance/tax/dashboard/'
+    | '/_authenticated/finance/tax/withholding-tax/'
     | '/_authenticated/forms/sale-f01/$id/'
     | '/_authenticated/forms/sale-job02-f01/$id/'
     | '/_authenticated/forms/sale-job03-f01/$id/'
@@ -3378,6 +3716,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFinanceInvoicesIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/finance/accounting/': {
+      id: '/_authenticated/finance/accounting/'
+      path: '/finance/accounting'
+      fullPath: '/finance/accounting/'
+      preLoaderRoute: typeof AuthenticatedFinanceAccountingIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/facility-management/zones/': {
       id: '/_authenticated/facility-management/zones/'
       path: '/facility-management/zones'
@@ -3917,11 +4262,158 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFormsSaleF01IdIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/finance/tax/withholding-tax/': {
+      id: '/_authenticated/finance/tax/withholding-tax/'
+      path: '/finance/tax/withholding-tax'
+      fullPath: '/finance/tax/withholding-tax/'
+      preLoaderRoute: typeof AuthenticatedFinanceTaxWithholdingTaxIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/tax/dashboard/': {
+      id: '/_authenticated/finance/tax/dashboard/'
+      path: '/finance/tax/dashboard'
+      fullPath: '/finance/tax/dashboard/'
+      preLoaderRoute: typeof AuthenticatedFinanceTaxDashboardIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/finance/invoices/$invoiceId/': {
       id: '/_authenticated/finance/invoices/$invoiceId/'
       path: '/finance/invoices/$invoiceId'
       fullPath: '/finance/invoices/$invoiceId/'
       preLoaderRoute: typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/fixed-assets/transfers/': {
+      id: '/_authenticated/finance/fixed-assets/transfers/'
+      path: '/finance/fixed-assets/transfers'
+      fullPath: '/finance/fixed-assets/transfers/'
+      preLoaderRoute: typeof AuthenticatedFinanceFixedAssetsTransfersIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/fixed-assets/register/': {
+      id: '/_authenticated/finance/fixed-assets/register/'
+      path: '/finance/fixed-assets/register'
+      fullPath: '/finance/fixed-assets/register/'
+      preLoaderRoute: typeof AuthenticatedFinanceFixedAssetsRegisterIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/fixed-assets/disposals/': {
+      id: '/_authenticated/finance/fixed-assets/disposals/'
+      path: '/finance/fixed-assets/disposals'
+      fullPath: '/finance/fixed-assets/disposals/'
+      preLoaderRoute: typeof AuthenticatedFinanceFixedAssetsDisposalsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/fixed-assets/depreciation/': {
+      id: '/_authenticated/finance/fixed-assets/depreciation/'
+      path: '/finance/fixed-assets/depreciation'
+      fullPath: '/finance/fixed-assets/depreciation/'
+      preLoaderRoute: typeof AuthenticatedFinanceFixedAssetsDepreciationIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/executive/cfo-dashboard/': {
+      id: '/_authenticated/finance/executive/cfo-dashboard/'
+      path: '/finance/executive/cfo-dashboard'
+      fullPath: '/finance/executive/cfo-dashboard/'
+      preLoaderRoute: typeof AuthenticatedFinanceExecutiveCfoDashboardIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/executive/cash-flow/': {
+      id: '/_authenticated/finance/executive/cash-flow/'
+      path: '/finance/executive/cash-flow'
+      fullPath: '/finance/executive/cash-flow/'
+      preLoaderRoute: typeof AuthenticatedFinanceExecutiveCashFlowIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/banking/reconciliations/': {
+      id: '/_authenticated/finance/banking/reconciliations/'
+      path: '/finance/banking/reconciliations'
+      fullPath: '/finance/banking/reconciliations/'
+      preLoaderRoute: typeof AuthenticatedFinanceBankingReconciliationsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/banking/cheques/': {
+      id: '/_authenticated/finance/banking/cheques/'
+      path: '/finance/banking/cheques'
+      fullPath: '/finance/banking/cheques/'
+      preLoaderRoute: typeof AuthenticatedFinanceBankingChequesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/banking/bank-accounts/': {
+      id: '/_authenticated/finance/banking/bank-accounts/'
+      path: '/finance/banking/bank-accounts'
+      fullPath: '/finance/banking/bank-accounts/'
+      preLoaderRoute: typeof AuthenticatedFinanceBankingBankAccountsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/ap/payment-vouchers/': {
+      id: '/_authenticated/finance/ap/payment-vouchers/'
+      path: '/finance/ap/payment-vouchers'
+      fullPath: '/finance/ap/payment-vouchers/'
+      preLoaderRoute: typeof AuthenticatedFinanceApPaymentVouchersIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/ap/invoices/': {
+      id: '/_authenticated/finance/ap/invoices/'
+      path: '/finance/ap/invoices'
+      fullPath: '/finance/ap/invoices/'
+      preLoaderRoute: typeof AuthenticatedFinanceApInvoicesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/ap/aging/': {
+      id: '/_authenticated/finance/ap/aging/'
+      path: '/finance/ap/aging'
+      fullPath: '/finance/ap/aging/'
+      preLoaderRoute: typeof AuthenticatedFinanceApAgingIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/accounting/trial-balance/': {
+      id: '/_authenticated/finance/accounting/trial-balance/'
+      path: '/finance/accounting/trial-balance'
+      fullPath: '/finance/accounting/trial-balance/'
+      preLoaderRoute: typeof AuthenticatedFinanceAccountingTrialBalanceIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/accounting/profit-loss/': {
+      id: '/_authenticated/finance/accounting/profit-loss/'
+      path: '/finance/accounting/profit-loss'
+      fullPath: '/finance/accounting/profit-loss/'
+      preLoaderRoute: typeof AuthenticatedFinanceAccountingProfitLossIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/accounting/periods/': {
+      id: '/_authenticated/finance/accounting/periods/'
+      path: '/finance/accounting/periods'
+      fullPath: '/finance/accounting/periods/'
+      preLoaderRoute: typeof AuthenticatedFinanceAccountingPeriodsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/accounting/journal-entries/': {
+      id: '/_authenticated/finance/accounting/journal-entries/'
+      path: '/finance/accounting/journal-entries'
+      fullPath: '/finance/accounting/journal-entries/'
+      preLoaderRoute: typeof AuthenticatedFinanceAccountingJournalEntriesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/accounting/general-ledger/': {
+      id: '/_authenticated/finance/accounting/general-ledger/'
+      path: '/finance/accounting/general-ledger'
+      fullPath: '/finance/accounting/general-ledger/'
+      preLoaderRoute: typeof AuthenticatedFinanceAccountingGeneralLedgerIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/accounting/chart-of-accounts/': {
+      id: '/_authenticated/finance/accounting/chart-of-accounts/'
+      path: '/finance/accounting/chart-of-accounts'
+      fullPath: '/finance/accounting/chart-of-accounts/'
+      preLoaderRoute: typeof AuthenticatedFinanceAccountingChartOfAccountsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/accounting/balance-sheet/': {
+      id: '/_authenticated/finance/accounting/balance-sheet/'
+      path: '/finance/accounting/balance-sheet'
+      fullPath: '/finance/accounting/balance-sheet/'
+      preLoaderRoute: typeof AuthenticatedFinanceAccountingBalanceSheetIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/facility-management/work-orders/$workOrderId/': {
@@ -4132,6 +4624,34 @@ declare module '@tanstack/react-router' {
       path: '/finance/invoices/$invoiceId/edit'
       fullPath: '/finance/invoices/$invoiceId/edit'
       preLoaderRoute: typeof AuthenticatedFinanceInvoicesInvoiceIdEditRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/accounting/journal-entries/create': {
+      id: '/_authenticated/finance/accounting/journal-entries/create'
+      path: '/finance/accounting/journal-entries/create'
+      fullPath: '/finance/accounting/journal-entries/create'
+      preLoaderRoute: typeof AuthenticatedFinanceAccountingJournalEntriesCreateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/accounting/journal-entries/$journalId': {
+      id: '/_authenticated/finance/accounting/journal-entries/$journalId'
+      path: '/finance/accounting/journal-entries/$journalId'
+      fullPath: '/finance/accounting/journal-entries/$journalId'
+      preLoaderRoute: typeof AuthenticatedFinanceAccountingJournalEntriesJournalIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/accounting/chart-of-accounts/create': {
+      id: '/_authenticated/finance/accounting/chart-of-accounts/create'
+      path: '/finance/accounting/chart-of-accounts/create'
+      fullPath: '/finance/accounting/chart-of-accounts/create'
+      preLoaderRoute: typeof AuthenticatedFinanceAccountingChartOfAccountsCreateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/finance/accounting/chart-of-accounts/$accountId': {
+      id: '/_authenticated/finance/accounting/chart-of-accounts/$accountId'
+      path: '/finance/accounting/chart-of-accounts/$accountId'
+      fullPath: '/finance/accounting/chart-of-accounts/$accountId'
+      preLoaderRoute: typeof AuthenticatedFinanceAccountingChartOfAccountsAccountIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/facility-management/zones/$zoneId/edit': {
@@ -4519,6 +5039,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFacilityManagementWasteIndexRoute: typeof AuthenticatedFacilityManagementWasteIndexRoute
   AuthenticatedFacilityManagementWorkOrdersIndexRoute: typeof AuthenticatedFacilityManagementWorkOrdersIndexRoute
   AuthenticatedFacilityManagementZonesIndexRoute: typeof AuthenticatedFacilityManagementZonesIndexRoute
+  AuthenticatedFinanceAccountingIndexRoute: typeof AuthenticatedFinanceAccountingIndexRoute
   AuthenticatedFinanceInvoicesIndexRoute: typeof AuthenticatedFinanceInvoicesIndexRoute
   AuthenticatedFormsSaleF01IndexRoute: typeof AuthenticatedFormsSaleF01IndexRoute
   AuthenticatedFormsSaleJob02F01IndexRoute: typeof AuthenticatedFormsSaleJob02F01IndexRoute
@@ -4552,6 +5073,10 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFacilityManagementVendorsInvoicesInvoiceIdRoute: typeof AuthenticatedFacilityManagementVendorsInvoicesInvoiceIdRoute
   AuthenticatedFacilityManagementVendorsInvoicesCreateRoute: typeof AuthenticatedFacilityManagementVendorsInvoicesCreateRoute
   AuthenticatedFacilityManagementZonesZoneIdEditRoute: typeof AuthenticatedFacilityManagementZonesZoneIdEditRoute
+  AuthenticatedFinanceAccountingChartOfAccountsAccountIdRoute: typeof AuthenticatedFinanceAccountingChartOfAccountsAccountIdRoute
+  AuthenticatedFinanceAccountingChartOfAccountsCreateRoute: typeof AuthenticatedFinanceAccountingChartOfAccountsCreateRoute
+  AuthenticatedFinanceAccountingJournalEntriesJournalIdRoute: typeof AuthenticatedFinanceAccountingJournalEntriesJournalIdRoute
+  AuthenticatedFinanceAccountingJournalEntriesCreateRoute: typeof AuthenticatedFinanceAccountingJournalEntriesCreateRoute
   AuthenticatedFinanceInvoicesInvoiceIdEditRoute: typeof AuthenticatedFinanceInvoicesInvoiceIdEditRoute
   AuthenticatedFormsSaleF01IdEditRoute: typeof AuthenticatedFormsSaleF01IdEditRoute
   AuthenticatedFormsSaleJob02F01IdEditRoute: typeof AuthenticatedFormsSaleJob02F01IdEditRoute
@@ -4582,7 +5107,28 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFacilityManagementVendorsContractsIndexRoute: typeof AuthenticatedFacilityManagementVendorsContractsIndexRoute
   AuthenticatedFacilityManagementVendorsInvoicesIndexRoute: typeof AuthenticatedFacilityManagementVendorsInvoicesIndexRoute
   AuthenticatedFacilityManagementWorkOrdersWorkOrderIdIndexRoute: typeof AuthenticatedFacilityManagementWorkOrdersWorkOrderIdIndexRoute
+  AuthenticatedFinanceAccountingBalanceSheetIndexRoute: typeof AuthenticatedFinanceAccountingBalanceSheetIndexRoute
+  AuthenticatedFinanceAccountingChartOfAccountsIndexRoute: typeof AuthenticatedFinanceAccountingChartOfAccountsIndexRoute
+  AuthenticatedFinanceAccountingGeneralLedgerIndexRoute: typeof AuthenticatedFinanceAccountingGeneralLedgerIndexRoute
+  AuthenticatedFinanceAccountingJournalEntriesIndexRoute: typeof AuthenticatedFinanceAccountingJournalEntriesIndexRoute
+  AuthenticatedFinanceAccountingPeriodsIndexRoute: typeof AuthenticatedFinanceAccountingPeriodsIndexRoute
+  AuthenticatedFinanceAccountingProfitLossIndexRoute: typeof AuthenticatedFinanceAccountingProfitLossIndexRoute
+  AuthenticatedFinanceAccountingTrialBalanceIndexRoute: typeof AuthenticatedFinanceAccountingTrialBalanceIndexRoute
+  AuthenticatedFinanceApAgingIndexRoute: typeof AuthenticatedFinanceApAgingIndexRoute
+  AuthenticatedFinanceApInvoicesIndexRoute: typeof AuthenticatedFinanceApInvoicesIndexRoute
+  AuthenticatedFinanceApPaymentVouchersIndexRoute: typeof AuthenticatedFinanceApPaymentVouchersIndexRoute
+  AuthenticatedFinanceBankingBankAccountsIndexRoute: typeof AuthenticatedFinanceBankingBankAccountsIndexRoute
+  AuthenticatedFinanceBankingChequesIndexRoute: typeof AuthenticatedFinanceBankingChequesIndexRoute
+  AuthenticatedFinanceBankingReconciliationsIndexRoute: typeof AuthenticatedFinanceBankingReconciliationsIndexRoute
+  AuthenticatedFinanceExecutiveCashFlowIndexRoute: typeof AuthenticatedFinanceExecutiveCashFlowIndexRoute
+  AuthenticatedFinanceExecutiveCfoDashboardIndexRoute: typeof AuthenticatedFinanceExecutiveCfoDashboardIndexRoute
+  AuthenticatedFinanceFixedAssetsDepreciationIndexRoute: typeof AuthenticatedFinanceFixedAssetsDepreciationIndexRoute
+  AuthenticatedFinanceFixedAssetsDisposalsIndexRoute: typeof AuthenticatedFinanceFixedAssetsDisposalsIndexRoute
+  AuthenticatedFinanceFixedAssetsRegisterIndexRoute: typeof AuthenticatedFinanceFixedAssetsRegisterIndexRoute
+  AuthenticatedFinanceFixedAssetsTransfersIndexRoute: typeof AuthenticatedFinanceFixedAssetsTransfersIndexRoute
   AuthenticatedFinanceInvoicesInvoiceIdIndexRoute: typeof AuthenticatedFinanceInvoicesInvoiceIdIndexRoute
+  AuthenticatedFinanceTaxDashboardIndexRoute: typeof AuthenticatedFinanceTaxDashboardIndexRoute
+  AuthenticatedFinanceTaxWithholdingTaxIndexRoute: typeof AuthenticatedFinanceTaxWithholdingTaxIndexRoute
   AuthenticatedFormsSaleF01IdIndexRoute: typeof AuthenticatedFormsSaleF01IdIndexRoute
   AuthenticatedFormsSaleJob02F01IdIndexRoute: typeof AuthenticatedFormsSaleJob02F01IdIndexRoute
   AuthenticatedFormsSaleJob03F01IdIndexRoute: typeof AuthenticatedFormsSaleJob03F01IdIndexRoute
@@ -4812,6 +5358,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedFacilityManagementWorkOrdersIndexRoute,
   AuthenticatedFacilityManagementZonesIndexRoute:
     AuthenticatedFacilityManagementZonesIndexRoute,
+  AuthenticatedFinanceAccountingIndexRoute:
+    AuthenticatedFinanceAccountingIndexRoute,
   AuthenticatedFinanceInvoicesIndexRoute:
     AuthenticatedFinanceInvoicesIndexRoute,
   AuthenticatedFormsSaleF01IndexRoute: AuthenticatedFormsSaleF01IndexRoute,
@@ -4876,6 +5424,14 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedFacilityManagementVendorsInvoicesCreateRoute,
   AuthenticatedFacilityManagementZonesZoneIdEditRoute:
     AuthenticatedFacilityManagementZonesZoneIdEditRoute,
+  AuthenticatedFinanceAccountingChartOfAccountsAccountIdRoute:
+    AuthenticatedFinanceAccountingChartOfAccountsAccountIdRoute,
+  AuthenticatedFinanceAccountingChartOfAccountsCreateRoute:
+    AuthenticatedFinanceAccountingChartOfAccountsCreateRoute,
+  AuthenticatedFinanceAccountingJournalEntriesJournalIdRoute:
+    AuthenticatedFinanceAccountingJournalEntriesJournalIdRoute,
+  AuthenticatedFinanceAccountingJournalEntriesCreateRoute:
+    AuthenticatedFinanceAccountingJournalEntriesCreateRoute,
   AuthenticatedFinanceInvoicesInvoiceIdEditRoute:
     AuthenticatedFinanceInvoicesInvoiceIdEditRoute,
   AuthenticatedFormsSaleF01IdEditRoute: AuthenticatedFormsSaleF01IdEditRoute,
@@ -4935,8 +5491,49 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedFacilityManagementVendorsInvoicesIndexRoute,
   AuthenticatedFacilityManagementWorkOrdersWorkOrderIdIndexRoute:
     AuthenticatedFacilityManagementWorkOrdersWorkOrderIdIndexRoute,
+  AuthenticatedFinanceAccountingBalanceSheetIndexRoute:
+    AuthenticatedFinanceAccountingBalanceSheetIndexRoute,
+  AuthenticatedFinanceAccountingChartOfAccountsIndexRoute:
+    AuthenticatedFinanceAccountingChartOfAccountsIndexRoute,
+  AuthenticatedFinanceAccountingGeneralLedgerIndexRoute:
+    AuthenticatedFinanceAccountingGeneralLedgerIndexRoute,
+  AuthenticatedFinanceAccountingJournalEntriesIndexRoute:
+    AuthenticatedFinanceAccountingJournalEntriesIndexRoute,
+  AuthenticatedFinanceAccountingPeriodsIndexRoute:
+    AuthenticatedFinanceAccountingPeriodsIndexRoute,
+  AuthenticatedFinanceAccountingProfitLossIndexRoute:
+    AuthenticatedFinanceAccountingProfitLossIndexRoute,
+  AuthenticatedFinanceAccountingTrialBalanceIndexRoute:
+    AuthenticatedFinanceAccountingTrialBalanceIndexRoute,
+  AuthenticatedFinanceApAgingIndexRoute: AuthenticatedFinanceApAgingIndexRoute,
+  AuthenticatedFinanceApInvoicesIndexRoute:
+    AuthenticatedFinanceApInvoicesIndexRoute,
+  AuthenticatedFinanceApPaymentVouchersIndexRoute:
+    AuthenticatedFinanceApPaymentVouchersIndexRoute,
+  AuthenticatedFinanceBankingBankAccountsIndexRoute:
+    AuthenticatedFinanceBankingBankAccountsIndexRoute,
+  AuthenticatedFinanceBankingChequesIndexRoute:
+    AuthenticatedFinanceBankingChequesIndexRoute,
+  AuthenticatedFinanceBankingReconciliationsIndexRoute:
+    AuthenticatedFinanceBankingReconciliationsIndexRoute,
+  AuthenticatedFinanceExecutiveCashFlowIndexRoute:
+    AuthenticatedFinanceExecutiveCashFlowIndexRoute,
+  AuthenticatedFinanceExecutiveCfoDashboardIndexRoute:
+    AuthenticatedFinanceExecutiveCfoDashboardIndexRoute,
+  AuthenticatedFinanceFixedAssetsDepreciationIndexRoute:
+    AuthenticatedFinanceFixedAssetsDepreciationIndexRoute,
+  AuthenticatedFinanceFixedAssetsDisposalsIndexRoute:
+    AuthenticatedFinanceFixedAssetsDisposalsIndexRoute,
+  AuthenticatedFinanceFixedAssetsRegisterIndexRoute:
+    AuthenticatedFinanceFixedAssetsRegisterIndexRoute,
+  AuthenticatedFinanceFixedAssetsTransfersIndexRoute:
+    AuthenticatedFinanceFixedAssetsTransfersIndexRoute,
   AuthenticatedFinanceInvoicesInvoiceIdIndexRoute:
     AuthenticatedFinanceInvoicesInvoiceIdIndexRoute,
+  AuthenticatedFinanceTaxDashboardIndexRoute:
+    AuthenticatedFinanceTaxDashboardIndexRoute,
+  AuthenticatedFinanceTaxWithholdingTaxIndexRoute:
+    AuthenticatedFinanceTaxWithholdingTaxIndexRoute,
   AuthenticatedFormsSaleF01IdIndexRoute: AuthenticatedFormsSaleF01IdIndexRoute,
   AuthenticatedFormsSaleJob02F01IdIndexRoute:
     AuthenticatedFormsSaleJob02F01IdIndexRoute,
