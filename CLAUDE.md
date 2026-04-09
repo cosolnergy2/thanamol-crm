@@ -91,20 +91,43 @@ main          (production-ready, protected, auto-deploys)
 - `refactor/T-XXX-description` — code restructuring
 - `chore/T-XXX-description` — tooling, config, dependencies
 
-### Workflow
-1. Dev creates topic branch from `dev`: `git checkout dev && git checkout -b feat/T-XXX-description`
-2. Dev commits work on topic branch with message: `type(T-XXX): description`
-3. Tester commits E2E tests on the same topic branch
-4. When task is Done, ba-pm merges topic branch into `dev` via: `git checkout dev && git merge feat/T-XXX-description`
-5. When features are stable on `dev`, create PR from `dev` → `main`. CI must pass. Merge triggers deploy.
+### Workflow (MANDATORY for all work)
+
+**Step 1 — Start: always branch from `dev`**
+```bash
+git checkout dev && git pull origin dev && git checkout -b type/T-XXX-description
+```
+- EVERY task, feature, fix, or change MUST start from a topic branch off `dev`.
+- NEVER work directly on `main` or `dev`.
+
+**Step 2 — Work: commit on the topic branch**
+- Commit with message format: `type(T-XXX): description`
+- Push the topic branch: `git push -u origin type/T-XXX-description`
+
+**Step 3 — User approval: merge to `dev`**
+- When work is complete, ask the user: "Ready to merge to dev and create PR to main?"
+- Only proceed when user confirms.
+
+**Step 4 — Merge to `dev` (auto after approval)**
+```bash
+git checkout dev && git pull origin dev && git merge type/T-XXX-description && git push origin dev
+```
+
+**Step 5 — PR to `main` (auto after merge to `dev`)**
+- Immediately create a PR from `dev` → `main` using `gh pr create`.
+- PR title: the task description or a summary of changes.
+- CI must pass before merge.
+
+**Steps 4 and 5 happen automatically in sequence once the user says OK.** Do not ask for separate confirmation for each step.
 
 ### Commit Messages
 - Format: `type(T-XXX): description`
 - Types: feat, fix, test, refactor, docs, chore
 - Each task gets commits referencing its task ID
 
-### Rules for Agents
+### Rules for All Agents and Users
 - NEVER commit directly to `main` or `dev`
-- Always work on a topic branch
-- Before starting work: `git checkout dev && git pull && git checkout -b type/T-XXX-description`
+- Always work on a topic branch created from `dev`
+- Before starting work: `git checkout dev && git pull origin dev && git checkout -b type/T-XXX-description`
 - Before reporting done: verify commits are on the topic branch, not detached HEAD
+- When user approves: merge to `dev` → push `dev` → create PR `dev` → `main` (all automatic)
