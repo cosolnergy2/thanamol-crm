@@ -20,7 +20,7 @@ WORKDIR /app/apps/api
 RUN npx prisma generate
 
 # Create startup script
-RUN printf '#!/bin/sh\nset -e\necho "Running database migrations..."\nbunx prisma migrate deploy 2>&1\necho "Migrations complete. Seeding..."\nbun run prisma/seed.ts 2>/dev/null || echo "Seed skipped or already done"\necho "Starting API..."\nexec bun run src/index.ts\n' > /app/start.sh && chmod +x /app/start.sh
+RUN printf '#!/bin/sh\nset -e\necho "Running database migrations..."\n# Resolve any failed migrations before applying\nbunx prisma migrate resolve --rolled-back 20260408000000_add_core_accounting 2>/dev/null || true\nbunx prisma migrate deploy 2>&1\necho "Migrations complete. Seeding..."\nbun run prisma/seed.ts 2>/dev/null || echo "Seed skipped or already done"\necho "Starting API..."\nexec bun run src/index.ts\n' > /app/start.sh && chmod +x /app/start.sh
 
 # Runtime with bun for speed
 FROM oven/bun:1.3
