@@ -184,6 +184,10 @@ export type Company = {
   industry: string | null
   status: string
   notes: string | null
+  sales_contact_name: string | null
+  sales_contact_phone: string | null
+  sales_contact_email: string | null
+  logo_url: string | null
   created_at: string
   updated_at: string
 }
@@ -198,6 +202,10 @@ export type CreateCompanyRequest = {
   industry?: string
   status?: string
   notes?: string
+  salesContactName?: string
+  salesContactPhone?: string
+  salesContactEmail?: string
+  logoUrl?: string
 }
 
 export type UpdateCompanyRequest = Partial<CreateCompanyRequest>
