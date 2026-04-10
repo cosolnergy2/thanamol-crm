@@ -576,18 +576,22 @@ model Contact {
 }
 
 model Company {
-  id         String   @id @default(uuid())
-  name       String
-  tax_id     String?
-  address    String?
-  phone      String?
-  email      String?
-  website    String?
-  industry   String?
-  status     String   @default("ACTIVE")
-  notes      String?
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id                  String   @id @default(uuid())
+  name                String
+  tax_id              String?
+  address             String?
+  phone               String?
+  email               String?
+  website             String?
+  industry            String?
+  status              String   @default("ACTIVE")
+  notes               String?
+  sales_contact_name  String?
+  sales_contact_phone String?
+  sales_contact_email String?
+  logo_url            String?
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
 
   @@index([email])
   @@index([status])

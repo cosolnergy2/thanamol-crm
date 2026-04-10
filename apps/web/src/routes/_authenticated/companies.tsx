@@ -34,6 +34,7 @@ import {
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PageHeader } from '@/components/PageHeader'
+import { FileUpload } from '@/components/FileUpload'
 import { useCompanies, useCreateCompany, useUpdateCompany, useDeleteCompany } from '@/hooks/useCompanies'
 import type { Company, CreateCompanyRequest } from '@thanamol/shared'
 
@@ -51,6 +52,10 @@ type CompanyFormValues = {
   industry: string
   status: string
   notes: string
+  salesContactName: string
+  salesContactPhone: string
+  salesContactEmail: string
+  logoUrl: string
 }
 
 const EMPTY_FORM: CompanyFormValues = {
@@ -63,6 +68,10 @@ const EMPTY_FORM: CompanyFormValues = {
   industry: '',
   status: 'ACTIVE',
   notes: '',
+  salesContactName: '',
+  salesContactPhone: '',
+  salesContactEmail: '',
+  logoUrl: '',
 }
 
 function CompanyListPage() {
@@ -132,6 +141,10 @@ function CompanyListPage() {
       industry: company.industry ?? '',
       status: company.status,
       notes: company.notes ?? '',
+      salesContactName: company.sales_contact_name ?? '',
+      salesContactPhone: company.sales_contact_phone ?? '',
+      salesContactEmail: company.sales_contact_email ?? '',
+      logoUrl: company.logo_url ?? '',
     })
     setFormError(null)
     setDialogOpen(true)
@@ -156,6 +169,10 @@ function CompanyListPage() {
       industry: form.industry || undefined,
       status: form.status || undefined,
       notes: form.notes || undefined,
+      salesContactName: form.salesContactName || undefined,
+      salesContactPhone: form.salesContactPhone || undefined,
+      salesContactEmail: form.salesContactEmail || undefined,
+      logoUrl: form.logoUrl || undefined,
     }
 
     try {
@@ -538,6 +555,58 @@ function CompanyListPage() {
                   onChange={(e) => setForm({ ...form, notes: e.target.value })}
                   placeholder="Additional information"
                   rows={3}
+                />
+              </div>
+
+              <div className="space-y-3 rounded-md border border-slate-200 bg-slate-50/50 p-4">
+                <h4 className="text-sm font-medium text-slate-700">
+                  ข้อมูลพนักงานขาย / ผู้ติดต่อ
+                </h4>
+                <div className="space-y-2">
+                  <Label htmlFor="salesContactName">ชื่อ - สกุล</Label>
+                  <Input
+                    id="salesContactName"
+                    value={form.salesContactName}
+                    onChange={(e) =>
+                      setForm({ ...form, salesContactName: e.target.value })
+                    }
+                    placeholder="ชื่อ นามสกุล"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="salesContactPhone">เบอร์มือถือ</Label>
+                    <Input
+                      id="salesContactPhone"
+                      value={form.salesContactPhone}
+                      onChange={(e) =>
+                        setForm({ ...form, salesContactPhone: e.target.value })
+                      }
+                      placeholder="08x-xxx-xxxx"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="salesContactEmail">อีเมล</Label>
+                    <Input
+                      id="salesContactEmail"
+                      type="email"
+                      value={form.salesContactEmail}
+                      onChange={(e) =>
+                        setForm({ ...form, salesContactEmail: e.target.value })
+                      }
+                      placeholder="name@example.com"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3 rounded-md border border-slate-200 bg-slate-50/50 p-4">
+                <h4 className="text-sm font-medium text-slate-700">อื่นๆ</h4>
+                <FileUpload
+                  label="Logo"
+                  accept="image/*"
+                  value={form.logoUrl || undefined}
+                  onChange={(url) => setForm({ ...form, logoUrl: url ?? '' })}
                 />
               </div>
 

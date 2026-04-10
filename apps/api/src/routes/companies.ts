@@ -13,6 +13,10 @@ const createCompanySchema = t.Object({
   industry: t.Optional(t.String()),
   status: t.Optional(t.String()),
   notes: t.Optional(t.String()),
+  salesContactName: t.Optional(t.String()),
+  salesContactPhone: t.Optional(t.String()),
+  salesContactEmail: t.Optional(t.String()),
+  logoUrl: t.Optional(t.String()),
 })
 
 const updateCompanySchema = t.Object({
@@ -25,6 +29,10 @@ const updateCompanySchema = t.Object({
   industry: t.Optional(t.String()),
   status: t.Optional(t.String()),
   notes: t.Optional(t.String()),
+  salesContactName: t.Optional(t.String()),
+  salesContactPhone: t.Optional(t.String()),
+  salesContactEmail: t.Optional(t.String()),
+  logoUrl: t.Optional(t.String()),
 })
 
 function buildPagination(page: number, limit: number, total: number) {
@@ -122,6 +130,10 @@ export const companiesRoutes = new Elysia({ prefix: '/api/companies' })
                 industry: body.industry,
                 status: body.status ?? 'ACTIVE',
                 notes: body.notes,
+                sales_contact_name: body.salesContactName,
+                sales_contact_phone: body.salesContactPhone,
+                sales_contact_email: body.salesContactEmail,
+                logo_url: body.logoUrl,
               },
             })
             logActivity({
@@ -156,6 +168,10 @@ export const companiesRoutes = new Elysia({ prefix: '/api/companies' })
                 industry: body.industry,
                 status: body.status,
                 notes: body.notes,
+                sales_contact_name: body.salesContactName,
+                sales_contact_phone: body.salesContactPhone,
+                sales_contact_email: body.salesContactEmail,
+                logo_url: body.logoUrl,
               },
             })
             logActivity({
